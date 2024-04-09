@@ -1,0 +1,350 @@
+﻿@using Web.Backend.Components;
+@using Web.Backend.Services;
+@using Web.Models;
+@using Web.Models.Enums;
+@using Web.Models.SeedWork;
+@using Blazored.TextEditor;
+
+@inject IToastService ToastService;
+@inject IContentApiClient ContentApiClient;
+@inject IConfiguration Configuration;
+@inject NavigationManager NavigationManager;
+
+@if (ShowBox && Model != null)
+{
+    <LanguageOption CurrentLanguage="@Model.LanguageCode" SelectLanguage="LoadData"></LanguageOption>
+    <SEOItem @ref="SEOItemControl" LanguageCode="@Model.LanguageCode" ItemId="@Model.Id"></SEOItem>
+    <EditForm Model="Model" OnValidSubmit="HandleSubmit">
+        <DataAnnotationsValidator></DataAnnotationsValidator>
+        <div class="card card-outline card-info">
+            <div class="card-header">
+                <h3 class="card-title">@Model.Title</h3>
+                <div style="float:right">
+                    <button type="submit" class="btn btn-success btn-xs">Lưu</button>
+                    <button type="button" class="btn btn-primary btn-xs" @onclick="()=> OpenCreatePopup()">Thêm danh mục con</button>
+                    <button type="button" class="btn btn-danger btn-xs" @onclick="() => DeleteConfirmation.Show()">Xóa</button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-7">
+                        <div class="info-box bg-light">
+                            <div class="info-box-content">
+                                <span class="info-box-text text-center text-muted" style="text-align:left !important"><lable>Loại danh mục: </lable> @DataSource.CategoryTypes.First(e => e.Key == Model.Type).Value</span>
+                                <span class="info-box-text text-center text-muted" style="text-align:left !important"><lable>Lượt xem: </lable> @Model.View</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group input-group-sm mb-3" style="font-weight:bold">
+                                <span class="input-group-text">Tên danh mục</span>
+                                <InputText class="form-control form-control-sm" @bind-Value="Model.Title"></InputText>
+                            </div>
+                            <ValidationMessage For="()=> Model.Title"></ValidationMessage>
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group input-group-sm mb-3">
+                                <span class="input-group-text">Danh mục cha</span>
+                                <InputSelect class="form-control form-control-sm" ValueExpression="@(()=>Model.ParentId)"
+                                             Value="@Model.ParentId"
+                                             ValueChanged="@((Guid? value) => OnCategoryChanged(value))">
+                                    <option value="@Guid.Empty">Chọn danh mục cha</option>
+                                    @if(Categories != null)
+                                    {
+                                        @foreach (var category in Categories)
+                                        {
+                                            <option value="@category.Id">@category.Type @category.Titles.FirstOrDefault(e => e.Key == LanguageCode).Value</option>
+                                        }
+                                    }
+                                </InputSelect>
+                            </div>
+                            <ValidationMessage For="()=>Model.ParentId"></ValidationMessage>
+                        </div>
+                        <div class="form-group">
+                            <div class="form-group">
+                                <div class="input-group input-group-sm mb-3">
+                                    <span class="input-group-text" id="inputGroup-sizing-sm">Thứ tự</span>
+                                    <InputNumber class="form-control" @bind-Value="Model.Order"></InputNumber>
+                                </div>
+                            </div>
+                            <div class="row form-switch" style="padding:0">
+                                <div class="col"><label class="form-check-label">Hoạt động:</label></div>
+                                <div class="col" style="text-align:right;padding:0"><input type="checkbox" checked="@Model.IsPuslished" class="form-check-input" role="switch" @onchange="@((e) => {Model.IsPuslished = bool.Parse(e.Value.ToString()); ApplyChanged();})"></input></div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    <div class="col-md-5">
+                        <div class="form-group">
+                            <label for="InputFileLogo">Hình:</label>
+                            <InputFile id="InputFileLogo" type="file" OnChange="LogoChange" accept="image/png, image/jpeg, image/gif"></InputFile>
+                            @if (Model.Image != null && !string.IsNullOrEmpty(Model.Image.FileName))
+                            {
+                                <img src="@(BackendApiUrl + "/" + Model.Image.FullPath + "?DummyId=" + DateTime.Now.Ticks)" asp-append-version="true" width="100%" />
+                            }
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label>Mô tả ngắn:</label>
+                            <InputTextArea @bind-Value="Model.Brief" class="form-control form-control-sm"></InputTextArea>
+                            <ValidationMessage For="()=> Model.Brief"></ValidationMessage>
+                        </div>
+                        <div class="form-group">
+                            <label>Mô tả chi tiết:</label>
+                            <BlazoredTextEditor @ref="@QuillHtml">
+                                <ToolbarContent>
+                                    <select class="ql-header">
+                                        <option selected=""></option>
+                                        <option value="2"></option>
+                                        <option value="3"></option>
+                                        <option value="4"></option>
+                                        <option value="5"></option>
+                                    </select>
+                                    <span class="ql-formats">
+                                        <button class="ql-bold"></button>
+                                        <button class="ql-italic"></button>
+                                        <button class="ql-underline"></button>
+                                        <button class="ql-strike"></button>
+                                    </span>
+                                    <span class="ql-formats">
+                                        <select class="ql-color"></select>
+                                        <select class="ql-background"></select>
+                                    </span>
+                                    <span class="ql-formats">
+                                        <button class="ql-list" value="ordered"></button>
+                                        <button class="ql-list" value="bullet"></button>
+                                    </span>
+                                    <span class="ql-formats">
+                                        <button class="ql-link"></button>
+                                        <button type="button" class="btn btn-link" id="custom-button" @onclick="InsertImageClick">
+                                            <img src="imageIcon.png" style="border:hidden" />
+                                        </button>
+                                        <button type="button" class="btn btn-link" @onclick="ShowHTMLClick">H</button>
+                                    </span>
+                                </ToolbarContent>
+                                <EditorContent>
+                                   @* @((MarkupString)Model.Content)*@
+                                </EditorContent>
+                            </BlazoredTextEditor>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </EditForm>
+    <Confirmation ConfirmationMessage="Bạn có chắc chắn xóa?"
+              ConfirmationTitle="Xóa danh mục"
+              @ref="DeleteConfirmation"
+              ConfirmationChanged="OnConfirmDelete">
+    </Confirmation>
+    <ImageSelector @ref="ImageManagerControl" ImageSelected="InsertImage"></ImageSelector>
+    <HTMLEdit @ref="EditHTML" TextChanged="ApplyHTML"></HTMLEdit>
+    <CategoryCreate @ref="CreateCategory" LanguageCode="@LanguageCode" CloseEventCallbak="EventCallbak" Type="@Model.Type" ParentId="Model.Id"></CategoryCreate>
+}
+
+@code {
+    private string BackendApiUrl { get; set; }
+    private Guid CategoryId { get; set; }
+
+    protected bool ShowBox { get; set; }
+    private CategoryDetailDto Model { get; set; }
+    private List<CategoryDto> Categories { set; get; }
+
+    protected Confirmation DeleteConfirmation { set; get; }
+    protected CategoryCreate CreateCategory { set; get; }
+
+    private HTMLEdit EditHTML { get; set; }
+    private ImageSelector ImageManagerControl { get; set; }
+    protected SEOItem SEOItemControl { get; set; }
+    private BlazoredTextEditor QuillHtml;
+
+    [Parameter]
+    public EventCallback EventCallbak { get; set; }
+
+    [Parameter]
+    public string LanguageCode { set; get; }
+
+    protected async override Task OnInitializedAsync()
+    {
+    }
+
+    public async Task LoadData(string language)
+    {
+        BackendApiUrl = Configuration["BackendApiUrl"];
+        Model = await ContentApiClient.GetCategory(CategoryId, language);
+        var categories = await ContentApiClient.GetCategories(Model.Type);
+        Categories = SortTable(categories, null, "", "---");
+        StateHasChanged();
+
+        await ApplyHTML(Model.Content);
+
+        await SEOItemControl.Load();
+    }
+
+    public async Task Show(Guid id)
+    {
+        ShowBox = true;
+        CategoryId = id;
+        await LoadData(LanguageCode);
+    }
+
+    private void Hide()
+    {
+        ShowBox = false;
+        StateHasChanged();
+    }
+
+    public async Task OnCategoryChanged(Guid? categoryId)
+    {
+        Model.ParentId = categoryId;
+        var result = await ContentApiClient.UpdateParentCategory(Model.Id, Model.ParentId.Value);
+        if (result)
+        {
+            ToastService.ShowInfo("Thay đổi danh mục thành công");
+            await LoadData(Model.LanguageCode);
+            await EventCallbak.InvokeAsync();
+        }
+        else ToastService.ShowError("Thay đổi danh mục không thành công");
+    }
+
+    protected async Task ShowHTMLClick()
+    {
+        Model.Content = await this.QuillHtml.GetHTML();
+        EditHTML.Show(Model.Content);
+    }
+    protected async Task ApplyHTML(string content)
+    {
+        await this.QuillHtml.LoadHTMLContent(content);
+        StateHasChanged();
+    }
+
+    protected async Task InsertImageClick()
+    {
+        ImageManagerControl.Show(true);
+    }
+
+    protected async Task InsertImage(string paramImageURL)
+    {
+        await this.QuillHtml.InsertImage(paramImageURL);
+
+        ImageManagerControl.Show(true);
+    }
+
+    public async Task OnConfirmDelete(bool deleteConfirmed)
+    {
+        if (deleteConfirmed)
+        {
+            var check = true;
+            switch(Model.Type)
+            {
+                case "PRO": 
+                    var countProduct = await ContentApiClient.CountProducts(Model.Id);
+                    if (countProduct > 0)
+                    {
+                        ToastService.ShowWarning("Bạn phải xóa sản phẩm trong danh mục này trước");
+                        check = false;
+                    }
+                    
+                    break;
+                case "ART":
+                    var countArticle = await ContentApiClient.CountArticles(Model.Id);
+                    if (countArticle > 0)
+                    {
+                        ToastService.ShowWarning("Bạn phải xóa sản phẩm trong danh mục này trước");
+                        check = false;
+                    }
+                    break;
+                case "MID":
+                    var countMedia = await ContentApiClient.CountMedias(Model.Id);
+                    if (countMedia > 0)
+                    {
+                        ToastService.ShowWarning("Bạn phải xóa sản phẩm trong danh mục này trước");
+                        check = false;
+                    }
+                    break;
+            }
+
+            if (check)
+            {
+                var result = await ContentApiClient.DeleteCategory(Model.Id);
+                if (result)
+                {
+                    ToastService.ShowInfo("Xóa danh mục thành công");
+                    await EventCallbak.InvokeAsync();
+                    ShowBox = false;
+                }
+                else ToastService.ShowError("Xóa danh mục không thành công");
+            }
+        }
+    }
+
+    private async void LogoChange(InputFileChangeEventArgs e)
+    {
+        var files = e.GetMultipleFiles(); // get the files selected by the users
+        foreach (var file in files)
+        {
+            //var resizedFile = await file.RequestImageFileAsync(file.ContentType, 640, 480); // resize the image file
+            var buf = new byte[file.Size]; // allocate a buffer to fill with the file's data
+            using (var stream = file.OpenReadStream(file.Size))
+            {
+                await stream.ReadAsync(buf); // copy the stream to the buffer
+            }
+            Model.Image.Base64data = Convert.ToBase64String(buf);
+            Model.Image.ContentType = file.ContentType;
+            Model.Image.FileName = file.Name;
+        }
+    }
+
+    public async void ApplyChanged()
+    {
+        var result = await ContentApiClient.UpdatePublish(Model.Id);
+        if (result)
+        {
+            ToastService.ShowInfo("Cập nhật thành công");
+            await EventCallbak.InvokeAsync();
+        }
+        else ToastService.ShowError("Cập nhật không thành công");
+    }
+
+    public void OpenCreatePopup()
+    {
+        CreateCategory.Show();
+    }
+
+    protected async Task HandleSubmit()
+    {
+        if (Model.ParentId == Guid.Empty) Model.ParentId = null;
+        Model.Content = await this.QuillHtml.GetHTML();
+        var result = await ContentApiClient.UpdateCategory(Model);
+        if (result)
+        {
+            ToastService.ShowInfo("Cập nhật thông tin thành công");
+            await LoadData(Model.LanguageCode);
+            await EventCallbak.InvokeAsync();
+        }
+        else
+        {
+            ToastService.ShowError("Cập nhật thông tin không thành công");
+        }
+    }
+
+    private List<CategoryDto> SortTable(List<CategoryDto> table, Guid? parentId, string space = "", string distance = "....")
+    {
+        var rows = table.Where(dto => dto.ParentId == parentId).ToList();
+        if (!rows.Any()) return new List<CategoryDto>();
+        var sortData = new List<CategoryDto>();
+        foreach (var row in rows)
+        {
+            if (row.Id == Model.Id) continue;
+            var spaceNext = space + distance;
+            var dt = SortTable(table, row.Id, spaceNext, distance);
+            row.Type = space;
+            //row.Title = space + row.Title;
+            sortData.Add(row);
+
+            if (dt.Count > 0) sortData.AddRange(dt);
+        }
+        return sortData;
+    }
+}

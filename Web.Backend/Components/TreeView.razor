@@ -1,0 +1,47 @@
+﻿@using Web.Backend.Features;
+
+@if (Nodes != null)
+{
+    <div class="card-body p-0">
+        <table class="table table-hover">
+        <tbody>
+            @foreach (var node in Nodes)
+            {
+                @if (node.Children == null || node.Children.Count == 0)
+                {
+                    <tr>
+                        <td class="border-0" style="cursor:pointer;@node.Style" @onclick="() => OnClick(node.Id)">@node.Text</td>
+                    </tr>
+                }
+                else
+                {
+                    <tr data-widget="expandable-table" aria-expanded="true">
+                            <td @onclick="() => OnClick(node.Id)" style="@node.Style">
+                            <i class="expandable-table-caret fas fa-caret-right fa-fw"></i>
+                            @node.Text
+                        </td>
+                    </tr>
+                    <tr class="expandable-body">
+                        <td>
+                            <div class="p-0" style="">
+                                <TreeView Nodes="node.Children" SelectNode="OnClick"></TreeView>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+    </div>
+}
+
+@code {
+    [Parameter] public EventCallback<object> SelectNode { get; set; }
+
+    [Parameter] public List<TreeNode> Nodes { get; set; }
+
+    private async Task OnClick(object id)
+    {
+        await SelectNode.InvokeAsync(id);
+    }
+}

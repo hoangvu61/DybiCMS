@@ -1,0 +1,176 @@
+﻿@attribute [Authorize]
+
+@using Microsoft.AspNetCore.Authorization;
+@using Web.Backend.Components;
+@using Web.Backend.Pages.Content.Components;
+@using Web.Backend.Services;
+@using Web.Models;
+@using Web.Models.SeedWork;
+@using Microsoft.Extensions.Configuration
+
+@inject IConfiguration Configuration
+@inject IToastService ToastService;
+@inject IContentApiClient ContentApiClient;
+@if (ShowBox)
+{
+    <div class="modal fade show d-block" id="assignModel" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+    @if (Links == null)
+        {
+            <LoadingIndicator></LoadingIndicator>
+        }
+        else
+        {
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Chọn liên kết</h5>
+                        <button type="button" class="close" data-dismiss="modal" @onclick="()=>Hide()" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                    <div class="row">
+                            <MediaSearch @ref="MediaLinkSearchControl" Type="LIN" OnSearch="SearchLink"></MediaSearch>
+                    </div>
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Danh mục</th>
+                                    <th>Tên</th>
+                                    <th>Hình</th>
+                                    <th>Url</th>
+                                    <th style="text-align:right">
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Links)
+                                {
+                                    <tr>
+                                        <td>
+                                            <table>
+                                                @foreach (var title in item.CategoryNames)
+                                                {
+                                                    <tr>
+                                                        <td style="border:0;padding:0">@title.Key: </td>
+                                                        <td style="border:0;padding:0">@title.Value</td>
+                                                    </tr>
+                                                }
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table>
+                                                @foreach (var title in item.Titles)
+                                                {
+                                                    <tr>
+                                                        <td style="border:0;padding:0">@title.Key: </td>
+                                                        <td style="border:0;padding:0">@title.Value</td>
+                                                    </tr>
+                                                }
+                                            </table>
+                                        </td>
+                                        <td>
+                                            @if (item.Image != null && !string.IsNullOrEmpty(item.Image.FileName))
+                                            {
+                                                <img src="@(BackendApiUrl + "/" + item.Image.FullPath + "?DummyId=" + DateTime.Now.Ticks)" asp-append-version="true" width="50px" />
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (item.Url != "/")
+                                            {
+                                                <a href="@item.Url" target="_blank">@(new Uri(item.Url).Host)...</a>
+                                            }
+                                            else
+                                            {
+                                                @item.Url
+                                            }
+                                        </td>
+                                        <td style="text-align:right;width:100px">
+                                            <button class="btn btn-primary btn-sm" @onclick="() => Add(item)">Chọn</button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="7">
+                                        <Pagination MetaData="MetaData" Spread="2" SelectedPage="SelectedPage"></Pagination>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                </div>
+            </div>
+        }
+        </div>
+    </div>
+}
+@code {
+    protected bool ShowBox { get; set; }
+    private string BackendApiUrl { get; set; }
+    private List<MediaDto> Links;
+
+    [Parameter]
+    public EventCallback<MediaDto> EventCallbak { get; set; }
+
+    private MediaSearch MediaLinkSearchControl { set; get; }
+    private MediaListSearch MediaLinkListSearch = new MediaListSearch() { Type = "LIN" };
+    public MetaData MetaData { get; set; } = new MetaData();
+
+    [CascadingParameter]
+    private Error Error { set; get; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        BackendApiUrl = Configuration["BackendApiUrl"];
+        MediaLinkListSearch.PageSize = 10;
+    }
+
+    public async Task RefreshList(bool result)
+    {
+        if (result)
+        {
+            try
+            {
+                var pagingResponse = await ContentApiClient.GetMedias(MediaLinkListSearch);
+                Links = pagingResponse.Items;
+                MetaData = pagingResponse.MetaData;
+            }
+            catch (Exception ex)
+            {
+                Error.ProcessError(ex);
+            }
+        }
+    }
+
+    public async Task SearchLink(MediaListSearch mediaLinkListSearch)
+    {
+        MediaLinkListSearch = mediaLinkListSearch;
+        await RefreshList(true);
+    }
+
+    private async Task SelectedPage(int page)
+    {
+        MediaLinkListSearch.PageNumber = page;
+        await RefreshList(true);
+    }
+
+    public async Task Add(MediaDto link)
+    {
+        Hide();
+        await EventCallbak.InvokeAsync(link);
+    }
+
+    public async Task Show()
+    {
+        ShowBox = true;
+        if (Links == null) await RefreshList(true);
+        StateHasChanged();
+    }
+
+    private void Hide()
+    {
+        ShowBox = false;
+        StateHasChanged();
+    }
+}

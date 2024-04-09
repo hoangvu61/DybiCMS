@@ -1,0 +1,70 @@
+﻿@using Web.Backend.Pages.Config.Components
+@using Web.Backend.Services;
+@using Web.Models;
+@using Microsoft.Extensions.Configuration
+@using Web.Models.Enums;
+@using Web.Models.SeedWork;
+
+@inject IToastService ToastService;
+@inject IFileService FileService;
+@inject IConfiguration Configuration;
+@inject IJSRuntime ISInterop;
+@inject ICompanyApiClient CompanyApiClient;
+
+@if (Map != null)
+{
+    <div class="form-group">
+        <div class="input-group input-group-sm mb-3">
+            @if (!string.IsNullOrEmpty(Map.FileName))
+            {
+                <span class="input-group-text">
+                    <a href="@(BackendApiUrl + "/" + Map.FullPath)" target="_blank">@Map.FileName</a>
+                </span>
+                <button type="button" class="btn btn-primary btn-xs" @onclick="()=>CreateSiteMap()">Tạo lại</button>
+                <button type="button" class="btn btn-success btn-xs" @onclick="()=>CopySiteMap()">Sao chép link</button>
+            }
+            else
+            {
+                <span class="input-group-text">Site map</span>
+                <button type="button" class="btn btn-primary btn-xs" @onclick="()=>CreateSiteMap()">Tạo sitemap</button>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    private string BackendApiUrl { get; set; }
+    private FileData Map { get; set; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        BackendApiUrl = Configuration["BackendApiUrl"];
+        Map = await FileService.GetSiteMap();
+    }
+
+    protected async Task CreateSiteMap()
+    {
+        var result = await FileService.CreateSiteMap();
+        if (result)
+        {
+            Map = await FileService.GetSiteMap();
+            ToastService.ShowInfo("Tạo sitemap thành công");
+        }
+        else
+        {
+            ToastService.ShowError("Tạo sitemap không thành công");
+        }
+    }
+
+    protected async Task CopySiteMap()
+    {
+        // copy to clipboard
+        var domains = await CompanyApiClient.GetDomainList(Guid.Parse(Map.Folder));
+        var domain = domains.Select(e => e.Domain).FirstOrDefault(e => !e.StartsWith("www") && !e.StartsWith("localhost"));
+        domain = "https://" + domain;
+
+        var data = domain + "/" + Map.Folder + "-" + Map.FileName;
+        ISInterop.InvokeVoidAsync("navigator.clipboard.writeText", data);
+        ToastService.ShowInfo($"Đã lưu [{data}] vào bộ nhớ");
+    }
+}

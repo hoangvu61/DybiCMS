@@ -1,0 +1,148 @@
+﻿@page "/thirdpartylist"
+@attribute [Authorize]
+
+@using Microsoft.AspNetCore.Authorization;
+@using Web.Backend.Components;
+@using Web.Backend.Pages.Config.Components;
+@using Web.Backend.Services;
+@using Web.Models;
+@using Web.Models.SeedWork;
+
+@inject IToastService ToastService;
+
+<section class="content-header">
+    <div class="container-fluid">
+        <h1 class="m-0">Quản lý mã nhún</h1>
+    </div>
+</section>
+
+<section class="content">
+    <div class="container-fluid">
+        @if (ThirdParties == null)
+        {
+            <LoadingIndicator></LoadingIndicator>
+        }
+        else
+        {
+            <div class="card card-outline card-info">
+                <div class="card-header">
+                    <h3 class="card-title">Danh sách mã nhún</h3>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Tên</th>
+                                <th>Trang</th>
+                                <th>Vị trí</th>
+                                <th>Nội dung</th>
+                                <th style="text-align:center">Sử dụng</th>
+                                <th style="text-align:right">
+                                    <button class="btn btn-primary btn-xs" @onclick="()=> OpenCreatePopup()">Thêm</button>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in ThirdParties)
+                            {
+                                <tr>
+                                    <td>@item.ThirdPartyName</td>
+                                    <td>@item.ComponentName</td>
+                                    <td>@item.PositionName</td>
+                                    <td>@item.ContentHTML</td>
+                                    <td class="form-switch" style="text-align: center; padding-left: 30px;">
+                                        <input type="checkbox" checked="@item.Apply" class="form-check-input" role="switch" @onchange="@((e) => {item.Apply= bool.Parse(e.Value.ToString()); CheckboxChanged(item);})"></input></td>
+                                    <td style="text-align:right">
+                                        <button class="btn btn-success btn-xs" @onclick="()=> OpenUpdatePopup(item.Id)">Sửa</button>
+                                        <button class="btn btn-danger btn-xs" @onclick="()=> OnDelete(item.Id)">Xóa</button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <Confirmation ConfirmationMessage="Bạn có chắc chắn xóa?"
+                      ConfirmationTitle="Xóa mã nhún"
+                      @ref="DeleteConfirmation"
+                      ConfirmationChanged="OnConfirmDelete">
+            </Confirmation>
+
+            <ThirdPartyCreate @ref="CreateThirdPartyDialog" CloseEventCallbak="RefreshList"></ThirdPartyCreate>
+            <ThirdPartyUpdate @ref="UpdateThirdPartyDialog" CloseEventCallbak="RefreshList"></ThirdPartyUpdate>
+        }
+    </div>
+</section>
+
+@code {
+    [Inject] private IThirdPartyApiClient ThirdPartyApiClient { get; set; }
+
+    protected Confirmation DeleteConfirmation { set; get; }
+    protected ThirdPartyCreate CreateThirdPartyDialog { set; get; }
+    protected ThirdPartyUpdate UpdateThirdPartyDialog { set; get; }
+
+    private List<ThirdPartyDto> ThirdParties;
+    private Guid DeleteId { set; get; }
+
+    [CascadingParameter]
+    private Error Error { set; get; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetThirdParties();
+    }
+
+    private async Task GetThirdParties()
+    {
+        try
+        {
+            ThirdParties = await ThirdPartyApiClient.GetList();
+        }
+        catch (Exception ex)
+        {
+            Error.ProcessError(ex);
+        }
+
+    }
+
+    public void OnDelete(Guid deleteId)
+    {
+        DeleteId = deleteId;
+        DeleteConfirmation.Show();
+    }
+
+    public async Task OnConfirmDelete(bool deleteConfirmed)
+    {
+        if (deleteConfirmed)
+        {
+            await ThirdPartyApiClient.Delete(DeleteId);
+            await GetThirdParties();
+        }
+    }
+
+    public void OpenCreatePopup()
+    {
+        CreateThirdPartyDialog.Show();
+    }
+
+    public void OpenUpdatePopup(Guid id)
+    {
+        UpdateThirdPartyDialog.Show(id);
+    }
+
+    private async Task CheckboxChanged(ThirdPartyDto dto)
+    {
+        var result = await ThirdPartyApiClient.Update(dto);
+        if (result) ToastService.ShowInfo("Cập nhật thành công");
+        else ToastService.ShowError("Cập nhật không thành công");
+    }
+
+    public async Task RefreshList(bool result)
+    {
+        if (result)
+        {
+            await GetThirdParties();
+        }
+    }
+}

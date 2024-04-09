@@ -1,0 +1,129 @@
+﻿@using Web.Backend.Services;
+@using Web.Models;
+@using Web.Backend.Components;
+@using Web.Models.SeedWork;
+
+@inject IToastService ToastService;
+@inject ICompanyApiClient CompanyApiClient;
+
+@if (ShowDialog)
+{
+    <div class="modal fade show d-block" id="assignModel" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Danh sách tên miền</h5>
+                    <button type="button" class="close" data-dismiss="modal" @onclick="()=>Hide()" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Tên miền</th>
+                                <th>Ngôn ngữ</th>
+                                <th style="text-align:right">
+                                    <button class="btn btn-primary btn-xs" @onclick="()=> OpenCreatePopup()">Thêm</button>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <CompanyDomainCreate @ref="CreateCompanyDomain" CloseEventCallbak="RefreshList"></CompanyDomainCreate>
+                            @if (Domains != null)
+                            {
+                                @foreach (var item in Domains)
+                                {
+                                    <tr>
+                                        <td>@item.Domain</td>
+                                        <td>@item.LanguageCode</td>
+                                        <td style="text-align:right">
+                                            <button class="btn btn-success btn-xs" @onclick="()=> OpenUpdatePopup(item.CompanyId, item.Domain)">Sửa</button>
+                                            <button class="btn btn-danger btn-xs" @onclick="()=> OnDelete(item.Domain)">Xóa</button>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <Confirmation ConfirmationMessage="Bạn có chắc chắn xóa?"
+              ConfirmationTitle="Xóa tên miền"
+              @ref="DeleteConfirmation"
+              ConfirmationChanged="OnConfirmDelete">
+    </Confirmation>
+
+    <CompanyDomainUpdate @ref="UpdateCompanyDomain" CloseEventCallbak="RefreshList"></CompanyDomainUpdate>
+}
+
+@code {
+    protected bool ShowDialog { get; set; }
+
+    private Guid CompanyId { set; get; }
+    private List<CompanyDomainDto> Domains;
+    private string DeleteDomain { set; get; }
+
+    protected Confirmation DeleteConfirmation { set; get; }
+    protected CompanyDomainCreate CreateCompanyDomain { set; get; }
+    protected CompanyDomainUpdate UpdateCompanyDomain { set; get; }
+
+    [CascadingParameter]
+    private Error Error { set; get; }
+
+    [Parameter]
+    public EventCallback CloseEventCallbak { get; set; }
+
+    public async Task RefreshList(bool loadListCompanise)
+    {
+        try
+        {
+            Domains = await CompanyApiClient.GetDomainList(CompanyId);
+            if (loadListCompanise) await CloseEventCallbak.InvokeAsync();
+        }
+        catch (Exception ex)
+        {
+            Error.ProcessError(ex);
+        }
+    }
+
+    public async void Show(Guid companyId)
+    {
+        ShowDialog = true;
+        CompanyId = companyId;
+        await RefreshList(false);
+        StateHasChanged();
+    }
+
+    private void Hide()
+    {
+        ShowDialog = false;
+        StateHasChanged();
+    }
+
+    public void OpenCreatePopup()
+    {
+        CreateCompanyDomain.Show(CompanyId);
+    }
+    public void OpenUpdatePopup(Guid conpanyId, string domain)
+    {
+        UpdateCompanyDomain.Show(CompanyId, domain);
+    }
+
+    public void OnDelete(string name)
+    {
+        DeleteDomain = name;
+        DeleteConfirmation.Show();
+    }
+
+    public async Task OnConfirmDelete(bool deleteConfirmed)
+    {
+        if (deleteConfirmed)
+        {
+            await CompanyApiClient.DeleteDomain(CompanyId, DeleteDomain);
+            await RefreshList(true);
+        }
+    }
+}

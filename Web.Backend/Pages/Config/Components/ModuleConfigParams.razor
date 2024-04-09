@@ -1,0 +1,283 @@
+﻿@using Web.Backend.Components;
+@using Web.Models.Enums;
+@using Web.Models.SeedWork;
+@using Web.Backend.Services;
+@using Web.Models;
+
+@inject IToastService ToastService;
+@inject IModuleConfigApiClient ModuleConfigApiClient;
+@inject ITemplateApiClient TemplateApiClient;
+@inject IContentApiClient ContentApiClient;
+@inject IAttributeApiClient AttributeApiClient;
+@inject ICompanyApiClient CompanyApiClient;
+
+<div class="card card-outline card-danger">
+    <div class="card-header">
+        <h3 class="card-title">
+            <i class="fas fa-edit"></i>
+            Thông số
+        </h3>
+    </div>
+    <div class="card-body">
+    @if (Params != null)
+        {
+            @foreach (var param in Params)
+            {
+                <div class="form-group">
+                    @if (param.Type == "Number")
+                    {
+                        <div class="input-group input-group-sm mb-3">
+                            <span class="input-group-text" id="inputGroup-sizing-sm">@param.Describe</span>
+                            <input type="number" class="form-control" value="@param.DefaultValue" @onchange="@(e => param.DefaultValue = e.Value.ToString())"></input>
+                            <button class="btn btn-secondary" type="button" @onclick="() => Onchange(param)">Lưu</button>
+                        </div>
+                    }
+                    else if (param.Type == "Date")
+                    {
+                        <div class="input-group input-group-sm mb-3">
+                            <span class="input-group-text" id="inputGroup-sizing-sm">@param.Describe</span>
+                            <input type="date" class="form-control" value="@param.DefaultValue" @onchange="@(e => param.DefaultValue = e.Value.ToString())"></input>
+                            <button class="btn btn-secondary" type="button" @onclick="() => Onchange(param)">Lưu</button>
+                        </div>
+                    }
+                    else if (param.Type == "Color")
+                    {
+                        <div class="input-group input-group-sm mb-3">
+                            <span class="input-group-text" id="inputGroup-sizing-sm">@param.Describe</span>
+                            <input type="color" class="form-control" value="@param.DefaultValue" @onchange="@(e => param.DefaultValue = e.Value.ToString())"></input>
+                            <button class="btn btn-secondary" type="button" @onclick="() => Onchange(param)">Lưu</button>
+                        </div>
+                    }
+                    else if (param.Type == "Boolean")
+                    {
+                        <div class="row form-switch" style="padding:0">
+                            <div class="col"><label class="form-check-label">@param.Describe</label></div>
+                            <div class="col" style="text-align:right;padding:0"><input type="checkbox" checked="@(Convert.ToBoolean(param.DefaultValue))" class="form-check-input" role="switch" @onchange="@((e) => {param.DefaultValue = e.Value.ToString(); Onchange(param);})"></input></div>
+                        </div>
+                    }
+                    else if (param.Type.StartsWith("Category") || param.Type == "SourceAttributes")
+                    {
+                        if (string.IsNullOrEmpty(param.DefaultValue)) param.DefaultValue = Guid.Empty.ToString();
+                            <div class="input-group input-group-sm mb-3">
+                                <span class="input-group-text">@param.Describe</span>
+                            <InputSelect class="form-control form-control-sm" ValueExpression="@(()=>param.DefaultValue)"
+                             Value="@param.DefaultValue"
+                             ValueChanged="@((string value) => {param.DefaultValue = value.ToString(); Onchange(param);})">
+                                <option value="@Guid.Empty">--- Chọn danh mục ---</option>
+                                @foreach (var category in Source[param.Type])
+                                {
+                                    <option value="@category.Key">@category.Value</option>
+                                }
+                            </InputSelect>
+                        </div>
+                    }
+                    else if(param.Type == "Article")
+                    {
+                        <div class="input-group input-group-sm mb-3">
+                            <span class="input-group-text" id="inputGroup-sizing-sm">@param.Describe</span>
+                            <input class="form-control" value="@param.DefaultValue" @onchange="@(e => param.DefaultValue = e.Value.ToString())"></input>
+                            <button class="btn btn-secondary" type="button" @onclick="() => ListArticleControl.Show()">Chọn</button>
+                        </div>
+                        <ArticleListPopup @ref="ListArticleControl" EventCallbak="SelectArticle"></ArticleListPopup>
+                    }
+                    else if (param.Type == "Media")
+                    {
+                        <div class="input-group input-group-sm mb-3">
+                            <span class="input-group-text" id="inputGroup-sizing-sm">@param.Describe</span>
+                            <input class="form-control" value="@param.DefaultValue" @onchange="@(e => param.DefaultValue = e.Value.ToString())"></input>
+                            <button class="btn btn-secondary" type="button" @onclick="() => ListMediaControl.Show()">Chọn</button>
+                        </div>
+                        <MediaListPopup @ref="ListMediaControl" EventCallbak="SelectMedia"></MediaListPopup>
+                    }
+                    else if (param.Type == "Product")
+                    {
+                        <div class="input-group input-group-sm mb-3">
+                            <span class="input-group-text" id="inputGroup-sizing-sm">@param.Describe</span>
+                            <input class="form-control" value="@param.DefaultValue" @onchange="@(e => param.DefaultValue = e.Value.ToString())"></input>
+                            <button class="btn btn-secondary" type="button" @onclick="() => ListProductControl.Show()">Chọn</button>
+                        </div>
+                        <ProductListPopup @ref="ListProductControl" EventCallbak="SelectProduct"></ProductListPopup>
+                    }
+                    else if (param.Type == "CheckAttributes")
+                    {
+                        Attributes[param.ParamName] = param.DefaultValue.Split(',',StringSplitOptions.RemoveEmptyEntries).ToList();
+                        <label>@param.Describe</label>
+                        @foreach (var att in SourceAttributes)
+                        {
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="@att.Key" checked="@Attributes[param.ParamName].Contains(att.Key)" @onchange="(e) => Oncheck(e, att.Key, param)">
+                                <label class="form-check-label">@att.Value</label>
+                            </div>
+                        }
+                    }
+                    else if (param.Type == "ProductOrder")
+                    {
+                        <div class="input-group input-group-sm mb-3">
+                            <span class="input-group-text">@param.Describe</span>
+                            <InputSelect class="form-control form-control-sm" ValueExpression="@(()=>param.DefaultValue)"
+                                         Value="@param.DefaultValue"
+                                         ValueChanged="@((string value) => {param.DefaultValue = value.ToString(); Onchange(param);})">
+                                <option value="">Thứ tự tự nhiên</option>
+                                @foreach (var type in DataSource.ProductOrderTypes)
+                                {
+                                    <option value="@type.Key">@type.Value</option>
+                                }
+                            </InputSelect>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="input-group input-group-sm mb-3">
+                            <span class="input-group-text" id="inputGroup-sizing-sm">@param.Describe</span>
+                            <input class="form-control" value="@param.DefaultValue" @onchange="@(e => param.DefaultValue = e.Value.ToString())"></input>
+                            <button class="btn btn-secondary" type="button" @onclick="() => Onchange(param)">Lưu</button>
+                        </div>
+                    }
+                </div>
+            }
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public Guid ModuleConfigId { set; get; }
+
+    private List<ModuleParamDto> Params { get; set; }
+    private Dictionary<string, Dictionary<Guid, string>> Source { get; set; } = new Dictionary<string, Dictionary<Guid, string>>();
+    Dictionary<string, string> SourceAttributes = new Dictionary<string, string>();
+    private Dictionary<string, List<string>> Attributes = new Dictionary<string, List<string>>();
+
+    private ArticleListPopup ListArticleControl { get; set; }
+    private MediaListPopup ListMediaControl { get; set; }
+    private ProductListPopup ListProductControl { get; set; }
+
+    private string LanguageCode { get; set; }
+
+     protected async override Task OnInitializedAsync()
+    {
+        var languages = await CompanyApiClient.GetLanguageList(Guid.Empty);
+        if (languages.Count == 0 || languages.Contains("vi")) LanguageCode = "vi";
+        else LanguageCode = languages.First();
+    }
+
+    protected async override Task OnParametersSetAsync()
+    {
+        Params = await ModuleConfigApiClient.GetParamsByModule(ModuleConfigId);
+        if (Params.Any(e => e.Type == "Category"))
+        {
+            Source["Category"] = new Dictionary<Guid, string>();
+            var Category = await ContentApiClient.GetCategories();
+            Category = SortTable(Category, null, "", "---");
+            foreach (var cat in Category)
+            {
+                Source["Category"][cat.Id] = cat.Type + cat.Titles.Where(e => e.Key == LanguageCode).Select(e => e.Value).FirstOrDefault();
+            }
+        }
+        if (Params.Any(e => e.Type == "CategoryArticle"))
+        {
+            Source["CategoryArticle"] = new Dictionary<Guid, string>();
+            var CategoryArticle = await ContentApiClient.GetCategories("ART");
+            CategoryArticle = SortTable(CategoryArticle, null, "", "---");
+            foreach (var cat in CategoryArticle)
+            {
+                Source["CategoryArticle"][cat.Id] = cat.Type + cat.Titles.Where(e => e.Key == LanguageCode).Select(e => e.Value).FirstOrDefault();
+            }
+        }
+        if (Params.Any(e => e.Type == "CategoryProduct"))
+        {
+            Source["CategoryProduct"] = new Dictionary<Guid, string>();
+            var CategoryProduct = await ContentApiClient.GetCategories("PRO");
+            CategoryProduct = SortTable(CategoryProduct, null, "", "---");
+            foreach (var cat in CategoryProduct)
+            {
+                Source["CategoryProduct"][cat.Id] = cat.Type + cat.Titles.Where(e => e.Key == LanguageCode).Select(e => e.Value).FirstOrDefault();
+            }
+        }
+        if (Params.Any(e => e.Type == "CategoryMedia"))
+        {
+            Source["CategoryMedia"] = new Dictionary<Guid, string>();
+            var CategoryMedia = await ContentApiClient.GetCategories("MID");
+            CategoryMedia = SortTable(CategoryMedia, null, "", "---");
+            foreach (var cat in CategoryMedia)
+            {
+                Source["CategoryMedia"][cat.Id] = cat.Type + cat.Titles.Where(e => e.Key == LanguageCode).Select(e => e.Value).FirstOrDefault();
+            }
+        }
+        if (Params.Any(e => e.Type == "CheckAttributes"))
+        {
+            var attributes = await AttributeApiClient.GetAttributeNameList(LanguageCode);
+            foreach (var att in attributes)
+            {
+                SourceAttributes[att.Id] = att.Title;
+            }
+        }
+        if (Params.Any(e => e.Type == "SourceAttributes"))
+        {
+            Source["SourceAttributes"] = new Dictionary<Guid, string>();
+            var sources = await AttributeApiClient.GetSourceList();
+            foreach (var source in sources)
+            {
+                Source["SourceAttributes"][source.Id] = source.Titles.Where(e => e.LanguageCode == LanguageCode).Select(e => e.Title).FirstOrDefault();
+            }
+        }
+    }
+
+    protected async Task SelectArticle(ArticleDto article)
+    {
+        var dto = Params.FirstOrDefault(e => e.Type == "Article");
+        if (dto != null) dto.DefaultValue = article.Id.ToString();
+        var result = await ModuleConfigApiClient.UpdateParam(ModuleConfigId, new ModuleConfigParamDto { Name = dto.ParamName, Value = dto.DefaultValue });
+        if (result) ToastService.ShowInfo($"Cập nhật [{dto.Describe}] thành công");
+        else ToastService.ShowError($"Cập nhật [{dto.Describe}] không thành công");
+    }
+
+    protected async Task SelectMedia(MediaDto media)
+    {
+        var dto = Params.FirstOrDefault(e => e.Type == "Media");
+        if (dto != null) dto.DefaultValue = media.Id.ToString();
+        var result = await ModuleConfigApiClient.UpdateParam(ModuleConfigId, new ModuleConfigParamDto { Name = dto.ParamName, Value = dto.DefaultValue });
+        if (result) ToastService.ShowInfo($"Cập nhật [{dto.Describe}] thành công");
+        else ToastService.ShowError($"Cập nhật [{dto.Describe}] không thành công");
+    }
+
+    protected async Task SelectProduct(ProductDto product)
+    {
+        var dto = Params.FirstOrDefault(e => e.Type == "Product");
+        if (dto != null) dto.DefaultValue = product.Id.ToString();
+        var result = await ModuleConfigApiClient.UpdateParam(ModuleConfigId, new ModuleConfigParamDto { Name = dto.ParamName, Value = dto.DefaultValue });
+        if (result) ToastService.ShowInfo($"Cập nhật [{dto.Describe}] thành công");
+        else ToastService.ShowError($"Cập nhật [{dto.Describe}] không thành công");
+    }
+
+    private async Task Onchange(ModuleParamDto dto)
+    {
+        var result = await ModuleConfigApiClient.UpdateParam(ModuleConfigId, new ModuleConfigParamDto { Name = dto.ParamName, Value = dto.DefaultValue });
+        if (result) ToastService.ShowInfo($"Cập nhật [{dto.Describe}] thành công");
+        else ToastService.ShowError($"Cập nhật [{dto.Describe}] không thành công");
+    }
+    private async Task Oncheck(ChangeEventArgs e, string attributeId, ModuleParamDto dto)
+    {
+        if (bool.Parse(e.Value.ToString())) Attributes[dto.ParamName].Add(attributeId);
+        else Attributes[dto.ParamName].Remove(attributeId);
+        dto.DefaultValue = string.Join(',', Attributes[dto.ParamName]);
+        Onchange(dto);
+    }
+
+    private List<CategoryDto> SortTable(List<CategoryDto> table, Guid? parentId, string space = "", string distance = "....")
+    {
+        var rows = table.Where(dto => dto.ParentId == parentId).ToList();
+        if (!rows.Any()) return new List<CategoryDto>();
+        var sortData = new List<CategoryDto>();
+        foreach (var row in rows)
+        {
+            var spaceNext = space + distance;
+            var dt = SortTable(table, row.Id, spaceNext, distance);
+            row.Type = space;
+            sortData.Add(row);
+
+            if (dt.Count > 0) sortData.AddRange(dt);
+        }
+        return sortData;
+    }
+}

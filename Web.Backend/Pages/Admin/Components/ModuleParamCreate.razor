@@ -1,0 +1,124 @@
+﻿@using Web.Backend.Services;
+@using Web.Models;
+@using Web.Models.Enums;
+
+@inject IToastService ToastService;
+@inject IModuleApiClient ModuleApiClient;
+
+@if (ShowDialog)
+{
+    <div class="modal fade show d-block" id="assignModel" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-sm" role="document">
+            <EditForm Model="Model" OnValidSubmit="HandleSubmit">
+                <DataAnnotationsValidator></DataAnnotationsValidator>
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Thêm Param</h5>
+                        <button type="button" class="close" data-dismiss="modal" @onclick="()=>Hide()" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label class="col-form-label">Tên:</label>
+                            <InputText class="form-control form-control-sm" @bind-Value="Model.ParamName"></InputText>
+                            <ValidationMessage For="()=> Model.ParamName"></ValidationMessage>
+                        </div>
+                        <div class="form-group">
+                            <label for="Name">Kiểu dữ liệu:</label>
+                            <InputSelect class="form-control form-control-sm" @bind-Value="Model.Type">
+                                @foreach (string item in Enum.GetNames(typeof(ParamType)))
+                                {
+                                    <option value="@item">@item</option>
+                                }
+                            </InputSelect>
+                            <ValidationMessage For="()=>Model.Type"></ValidationMessage>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-form-label">Mô tả:</label>
+                            <InputText class="form-control form-control-sm" @bind-Value="Model.Describe"></InputText>
+                            <ValidationMessage For="()=> Model.Describe"></ValidationMessage>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-form-label">Giá trị mặc định:</label>
+                            @if (Model.Type == "Number")
+                            {
+                                <input type="number" value="@Model.DefaultValue" @onchange="@(e => Model.DefaultValue = e.Value.ToString())" class="form-control form-control-sm" />
+                            }
+                            else if (Model.Type == "Date")
+                            {
+                                <input type="date" value="@Model.DefaultValue" @onchange="@(e => Model.DefaultValue = e.Value.ToString())" class="form-control form-control-sm" />
+                            }
+                            else if (Model.Type == "Color")
+                            {
+                                <input type="color" value="@Model.DefaultValue" @onchange="@(e => Model.DefaultValue = e.Value.ToString())" class="form-control form-control-sm" />
+                            }
+                            else if (Model.Type == "Boolean")
+                            {
+                                <div class="form-check">
+                                    <input type="radio" @onchange="@(() => {Model.DefaultValue = "true";})" class="form-check-input" name="Model_DefaultValue" value="true" checked="@(Model.DefaultValue=="true"?"checked":"")">
+                                    <label class="form-check-label">Bật</label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="radio" @onchange="@(() => {Model.DefaultValue = "false";})" class="form-check-input" name="Model_DefaultValue" value="false" checked="@(Model.DefaultValue=="true"?"":"checked")">
+                                    <label class="form-check-label">Tắt</label>
+                                </div>
+                            }
+                            else if (Model.Type == "Textarea")
+                            {
+                                <textarea value="@Model.DefaultValue" @onchange="@(e => Model.DefaultValue = e.Value.ToString())" class="form-control form-control-sm" rows="3"></textarea>
+                            }
+                            else
+                            {
+                                <input value="@Model.DefaultValue" @onchange="@(e => Model.DefaultValue = e.Value.ToString())" class="form-control form-control-sm" />
+                            }
+                            <ValidationMessage For="()=> Model.DefaultValue"></ValidationMessage>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-xs" @onclick="()=>Hide()" data-dismiss="modal">Đóng</button>
+                        <button type="submit" class="btn btn-primary btn-xs">Thêm</button>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@code {
+    protected bool ShowDialog { get; set; }
+
+    private ModuleParamDto Model { set; get; } = new ModuleParamDto();
+
+    [Parameter]
+    public EventCallback<bool> CloseEventCallbak { get; set; }
+
+    public void Show(string moduleName)
+    {
+        Model.ModuleName = moduleName;
+        Model.Type = ParamType.Text.ToString();
+        ShowDialog = true;
+        StateHasChanged();
+    }
+
+    private void Hide()
+    {
+        ShowDialog = false;
+        StateHasChanged();
+    }
+
+    protected async Task HandleSubmit()
+    {
+        var result = await ModuleApiClient.CreateModuleParam(Model);
+        if (result)
+        {
+            ShowDialog = false;
+            await CloseEventCallbak.InvokeAsync(true);
+            ToastService.ShowInfo("Thêm param thành công");
+        }
+        else
+        {
+            ToastService.ShowError("Thêm param không thành công");
+        }
+    }
+}

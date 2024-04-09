@@ -1,0 +1,169 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization;
+@using Web.Backend.Services;
+@using Web.Models;
+@using Web.Models.Enums;
+@using Web.Models.SeedWork;
+
+@inject IToastService ToastService;
+@inject IContentApiClient ContentApiClient;
+@inject AuthenticationStateProvider GetAuthenticationStateAsync
+
+@if (ShowBox)
+{
+    <div class="modal fade show d-block" id="assignModel" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+        <EditForm Model="Model" OnValidSubmit="HandleSubmit">
+            <DataAnnotationsValidator></DataAnnotationsValidator>
+            <div class="modal-content">
+                <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Thêm danh mục</h5>
+                    <button type="button" class="close" data-dismiss="modal" @onclick="()=>Hide()" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    @if (string.IsNullOrEmpty(Type))
+                    {
+                        <div class="form-group">
+                            <label for="Name">Loại danh mục:</label>
+                                <InputSelect class="form-control form-control-sm" ValueExpression="@(()=>Model.Type)"
+                                     Value="@Model.Type"
+                                     ValueChanged="@((string value) => TypeChange(value))">
+                                <option value="">Chọn loại danh mục</option>
+                                @foreach (var type in DataSource.CategoryTypes)
+                                {
+                                        @if (!ManageProduct && type.Key == "PRO") continue;
+                                        <option value="@type.Key">@type.Value</option>
+                                }
+                            </InputSelect>
+                            <ValidationMessage For="()=>Model.Type"></ValidationMessage>
+                        </div>
+                    }
+                    @if (ParentId == null && Categories != null)
+                    {
+                        <div class="form-group">
+                            <label for="Name">Danh mục cha:</label>
+                            <InputSelect class="form-control form-control-sm" @bind-Value="Model.ParentId">
+                                <option value="">Chọn danh mục cha</option>
+                                @foreach (var category in Categories)
+                                {
+                                        <option value="@category.Id">@category.Type @category.Titles.FirstOrDefault(e => e.Key == LanguageCode).Value</option>
+                                }
+                            </InputSelect>
+                                <ValidationMessage For="()=>Model.ParentId"></ValidationMessage>
+                        </div>
+                    }
+                    
+                    <div class="form-group">
+                            <div class="input-group input-group-sm mb-3">
+                          <span class="input-group-text">Tên danh mục</span>
+                                <InputText class="form-control form-control-sm" @bind-Value="Model.Title"></InputText>
+                        </div>
+                        <ValidationMessage For="()=> Model.Title"></ValidationMessage>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-xs" @onclick="()=>Hide()" data-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary btn-xs">Thêm</button>
+                </div>
+            </div>
+        </EditForm>
+    </div>
+    </div>
+}
+
+@code {
+    protected bool ShowBox { get; set; }
+
+    private CaterogyCreateRequest Model { set; get; } = new CaterogyCreateRequest();
+    private List<CategoryDto> Categories { set; get; }
+    private bool ManageProduct { set; get; }
+
+    [Parameter]
+    public EventCallback<Guid> CloseEventCallbak { get; set; }
+
+    [Parameter]
+    public string LanguageCode { set; get; }
+
+    [Parameter]
+    public string Type { set; get; }
+
+    [Parameter]
+    public Guid? ParentId { set; get; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        var authstate = await GetAuthenticationStateAsync.GetAuthenticationStateAsync();
+        ManageProduct = authstate.User.IsInRole("Product");
+    }
+
+    protected async override Task OnParametersSetAsync()
+    {
+        if (!string.IsNullOrEmpty(Type))
+        {
+            Model.Type = Type;
+            var categories = await ContentApiClient.GetCategories(Model.Type);
+            Categories = SortTable(categories, null, "", "---");
+        }
+
+        if (ParentId != null)
+        {
+            Model.ParentId = ParentId;
+        }
+    }
+
+    public void Show()
+    {
+        Model.Id = Guid.NewGuid();
+        Model.LanguageCode = LanguageCode;
+        ShowBox = true;
+        StateHasChanged();
+    }
+
+    private void Hide()
+    {
+        ShowBox = false;
+        StateHasChanged();
+    }
+
+    protected async Task TypeChange(string type)
+    {
+        Model.Type = type;
+        var categories = await ContentApiClient.GetCategories(Model.Type);
+        Categories = SortTable(categories, null, "", "---");
+    }
+
+    protected async Task HandleSubmit()
+    {
+        var result = await ContentApiClient.CreateCategory(Model);
+        if (result)
+        {
+            ShowBox = false;
+            var categories = await ContentApiClient.GetCategories(Model.Type);
+            Categories = SortTable(categories, null, "", "---");
+            await CloseEventCallbak.InvokeAsync(Model.Id);
+            ToastService.ShowInfo("Thêm danh mục thành công");
+        }
+        else
+        {
+            ToastService.ShowError("Thêm danh mục không thành công");
+        }
+    }
+
+    private List<CategoryDto> SortTable(List<CategoryDto> table, Guid? parentId, string space = "", string distance = "....")
+    {
+        var rows = table.Where(dto => dto.ParentId == parentId).ToList();
+        if (!rows.Any()) return new List<CategoryDto>();
+        var sortData = new List<CategoryDto>();
+        foreach (var row in rows)
+        {
+            var spaceNext = space + distance;
+            var dt = SortTable(table, row.Id, spaceNext, distance);
+            row.Type = space;
+            sortData.Add(row);
+
+            if (dt.Count > 0) sortData.AddRange(dt);
+        }
+        return sortData;
+    }
+}

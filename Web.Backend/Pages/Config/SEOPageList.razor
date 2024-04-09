@@ -1,0 +1,170 @@
+﻿@page "/seopagelist"
+@attribute [Authorize]
+
+@using Microsoft.AspNetCore.Authorization;
+@using Web.Backend.Components;
+@using Web.Backend.Pages.Config.Components;
+@using Web.Backend.Services;
+@using Web.Models;
+@using Web.Models.SeedWork;
+
+@inject IToastService ToastService;
+@inject ICompanyApiClient CompanyApiClient;
+
+<section class="content-header">
+    <div class="container-fluid">
+        <h1 class="m-0">Quản lý SEO các trang</h1>
+    </div>
+</section>
+
+<section class="content">
+    <div class="container-fluid">
+        @if (SEOPages == null)
+        {
+            <LoadingIndicator></LoadingIndicator>
+        }
+        else
+        {
+            <div class="card card-outline card-info">
+                <div class="card-header">
+                    <h3 class="card-title">Danh sách trang</h3>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>URL</th>
+                                <th>Tiêu đề / Từ khóa</th>
+                                <th>Mô tả</th>
+                                <th style="text-align:right">
+                                    <button class="btn btn-primary btn-xs" @onclick="()=> CreateSEOPageDialog.Show()">Thêm</button>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{var i = 0;}
+                            @foreach (var noItemId in SEOPages.Select(e => e.NoItemId).Distinct().ToArray())
+                            {
+                                var seoPageByNoItemIds = SEOPages.Where(e => e.NoItemId == noItemId).ToArray();
+                                i++;
+                                for (int j = 0; j < seoPageByNoItemIds.Length; j++)
+                                {
+                                    var id = seoPageByNoItemIds[j].Id;
+                                    <tr>
+                                        @if (j == 0)
+                                        {
+                                            <td rowspan="@Languages.Count" style="text-align:center; border: 1px solid #333">@i</td>
+                                        }
+                                        <td>
+                                            <lable>Gốc:</lable> @seoPageByNoItemIds[j].Url <br>
+                                            <lable>Mới:</lable> @seoPageByNoItemIds[j].SeoUrl
+                                        </td>
+                                        <td>
+                                            <lable>Tiêu đề:</lable> @seoPageByNoItemIds[j].Title <br />
+                                            <lable>Từ khóa:</lable> @seoPageByNoItemIds[j].MetaKeyWord
+                                        </td>
+                                        <td>@seoPageByNoItemIds[j].MetaDescription</td>
+                                        <td style="text-align:right">
+                                            <button class="btn btn-success btn-xs" @onclick="()=> OnUpdate(id)">Sửa</button>
+                                            <button class="btn btn-danger btn-xs" @onclick="()=> OnDelete(id)">Xóa</button>
+                                        </td>
+                                    </tr>
+                                }
+                                foreach (var language in Languages.Where(l => !seoPageByNoItemIds.Select(s => s.LanguageCode).Contains(l)))
+                                {
+                                    <tr>
+                                        <td style="text-align:center" colspan="4">
+                                            <button class="btn btn-success btn-xs" @onclick="()=> CreateSEOPageDialog.Show(noItemId ?? Guid.Empty, language)">Thêm SEO cho ngôn ngữ @language</button>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <Confirmation ConfirmationMessage="Bạn có chắc chắn xóa?"
+                      ConfirmationTitle="Xóa"
+                      @ref="DeleteConfirmation"
+                      ConfirmationChanged="OnConfirmDelete">
+            </Confirmation>
+
+            <SEOPageCreate @ref="CreateSEOPageDialog" CloseEventCallbak="RefreshList"></SEOPageCreate>
+            <SEOPageUpdate @ref="UpdateSEOPageDialog" CloseEventCallbak="RefreshList"></SEOPageUpdate>
+        }
+    </div>
+</section>
+
+@code {
+    [Inject] private ISEOApiClient SEOApiClient { get; set; }
+
+    protected Confirmation DeleteConfirmation { set; get; }
+    protected SEOPageCreate CreateSEOPageDialog { set; get; }
+    protected SEOPageUpdate UpdateSEOPageDialog { set; get; }
+
+    private List<SEOPageDto> SEOPages;
+    private List<string> Languages { get; set; }
+    private Guid DeleteId { set; get; }
+
+    [CascadingParameter]
+    private Error Error { set; get; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Languages = await CompanyApiClient.GetLanguageList(Guid.Empty);
+        await GetSEOPages();
+    }
+
+    private async Task GetSEOPages()
+    {
+        try
+        {
+            SEOPages = await SEOApiClient.GetList();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Error.ProcessError(ex);
+        }
+
+    }
+
+    public void OnUpdate(Guid deleteId)
+    {
+        UpdateSEOPageDialog.Show(deleteId);
+    }
+
+    public void OnDelete(Guid deleteId)
+    {
+        DeleteId = deleteId;
+        DeleteConfirmation.Show();
+    }
+
+    public async Task OnConfirmDelete(bool deleteConfirmed)
+    {
+        if (deleteConfirmed)
+        {
+            var result = await SEOApiClient.Delete(DeleteId);
+            if (result) ToastService.ShowInfo("Xóa thành công");
+            else ToastService.ShowError("Xóa không thành công");
+            await GetSEOPages();
+        }
+    }
+
+    private async Task CheckboxChanged(SEOPageDto dto)
+    {
+        var result = await SEOApiClient.Update(dto);
+        if (result) ToastService.ShowInfo("Cập nhật thành công");
+        else ToastService.ShowError("Cập nhật không thành công");
+    }
+
+    public async Task RefreshList(bool result)
+    {
+        if (result)
+        {
+            await GetSEOPages();
+        }
+    }
+}

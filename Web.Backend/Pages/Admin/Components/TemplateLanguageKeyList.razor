@@ -1,0 +1,147 @@
+﻿@using Web.Backend.Services;
+@using Web.Models;
+@using Web.Backend.Components;
+@using Web.Models.SeedWork;
+
+@inject IToastService ToastService;
+@inject ITemplateApiClient TemplateApiClient;
+
+@if (!string.IsNullOrEmpty(TemplateName))
+{
+    <div class="card card-outline card-info">
+        <div class="card-header">
+            <h3 class="card-title">Danh sách mã ngôn ngữ của Template <strong>@TemplateName</strong></h3>
+        </div>
+        <div class="card-body">
+            <EditForm Model="Model" OnValidSubmit="HandleSubmit">
+                <DataAnnotationsValidator></DataAnnotationsValidator>
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Key: @ShowCreate</th>
+                            <th style="text-align:right">
+                                <button type="button" class="btn btn-primary btn-xs" @onclick="()=> {ShowCreate = true;}">Thêm</button>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (ShowCreate)
+                        {
+                            <tr>
+                                <td>
+                                    <InputText class="form-control form-control-sm" @bind-Value="Model.LanguageKey" placeholder="Key"></InputText>
+                                    <ValidationMessage For="()=> Model.LanguageKey"></ValidationMessage>
+                                </td>
+                                <td style="text-align:right">
+                                    <button type="button" class="btn btn-secondary btn-xs" @onclick="()=>{ShowCreate = false;}" data-dismiss="modal">Hủy</button>
+                                    <button type="submit" class="btn btn-primary btn-xs">Lưu</button>
+                                </td>
+                            </tr>
+                        }
+                        @if (Keys != null)
+                        {
+                            @foreach (var key in Keys)
+                            {
+                                <tr>
+                                    <td>@key</td>
+                                <td style="text-align:right">
+                                    <button class="btn btn-danger btn-xs" @onclick="()=> OnDelete(key)">Xóa</button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="2">
+                            <Pagination MetaData="MetaData" Spread="2" SelectedPage="SelectedPage"></Pagination>
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+                </EditForm>
+        </div>
+    </div>
+    <Confirmation ConfirmationMessage="Bạn có chắc chắn xóa?"
+              ConfirmationTitle="Xóa Key"
+              @ref="DeleteConfirmation"
+              ConfirmationChanged="OnConfirmDelete">
+    </Confirmation>
+}
+
+@code {
+    private string TemplateName { set; get; }
+    private List<string> Keys;
+    private string DeleteKey { set; get; }
+    private bool ShowCreate { set; get; }
+
+    protected TemplateLanguageDto Model { set; get; }
+
+    protected Confirmation DeleteConfirmation { set; get; }
+
+    public MetaData MetaData { get; set; } = new MetaData();
+    private PagingParameters Paging = new PagingParameters(5);
+
+    [CascadingParameter]
+    private Error Error { set; get; }
+
+    public async Task RefreshList()
+    {
+        try
+        {
+            var pagingResponse = await TemplateApiClient.GetTemplateLanguageKeys(TemplateName, Paging);
+            Keys = pagingResponse.Items;
+            MetaData = pagingResponse.MetaData;
+        }
+        catch (Exception ex)
+        {
+            Error.ProcessError(ex);
+        }
+    }
+
+    private async Task SelectedPage(int page)
+    {
+        Paging.PageNumber = page;
+        await RefreshList();
+    }
+
+    public async void Show(string name)
+    {
+        TemplateName = name;
+        Model = new TemplateLanguageDto { TemplateName = TemplateName };
+
+        await RefreshList();
+
+        StateHasChanged();
+    }
+
+    public void OnDelete(string name)
+    {
+        DeleteKey = name;
+        DeleteConfirmation.Show();
+    }
+
+    public async Task OnConfirmDelete(bool deleteConfirmed)
+    {
+        if (deleteConfirmed)
+        {
+            await TemplateApiClient.DeleteTemplateLanguageKey(TemplateName, DeleteKey);
+            await RefreshList();
+        }
+    }
+
+    protected async Task HandleSubmit()
+    {
+        var result = await TemplateApiClient.CreateTemplateLanguageKey(Model);
+        if (result)
+        {
+            ShowCreate = false;
+            ToastService.ShowInfo("Thêm LanguageKey thành công");
+            await RefreshList();
+        }
+        else
+        {
+            ToastService.ShowError("Thêm LanguageKey không thành công");
+        }
+    }
+}

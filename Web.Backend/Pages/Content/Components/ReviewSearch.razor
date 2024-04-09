@@ -1,0 +1,50 @@
+﻿@using Web.Backend.Services;
+@using Web.Models;
+@using System.IO;
+@using Web.Models.Enums;
+@using Web.Models.SeedWork;
+
+@inject IContentApiClient ContentApiClient;
+
+<div class="row">
+    <div class="col">
+        <div class="form-check form-check-inline">
+            <input name="Approved" type="radio" class="form-check-input" @onchange="@(() => {Model.Approved = null;})" checked="@(Model.Approved == null)" /> Tất cả &nbsp;
+            <input name="Approved" type="radio" class="form-check-input" @onchange="@(() => {Model.Approved = false;})" checked="@(Model.Approved == false)" /> Chưa duyệt &nbsp;
+            <input name="Approved" type="radio" class="form-check-input" @onchange="@(() => {Model.Approved = true;})" checked="@(Model.Approved == true)" /> Đã duyệt &nbsp;
+        </div>
+     </div>
+     <div class="col">
+        <InputText class="form-control form-control-sm" @bind-Value="Model.Name" placeholder="Tìm tên"></InputText>
+     </div>
+
+     <div class="col">
+        <InputText class="form-control form-control-sm" @bind-Value="Model.Phone" placeholder="Tìm tên"></InputText>
+     </div>
+
+    <div class="col button-top">
+        <button type="button" class="btn btn-primary btn-sm" @onclick="SearchForm">Tìm</button>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public EventCallback<ReviewListSearch> OnSearch { set; get; }
+
+    [Parameter]
+    public bool? Approved { set; get; }
+
+    private ReviewListSearch Model = new ReviewListSearch();
+
+    protected async override Task OnParametersSetAsync()
+    {
+        if (Approved != null)
+        {
+            Model.Approved = Approved;
+        }
+    }
+    private async Task SearchForm()
+    {
+        await OnSearch.InvokeAsync(Model);
+    }
+}

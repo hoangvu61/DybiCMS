@@ -1,0 +1,88 @@
+﻿@using Web.Backend.Services;
+@using Web.Models;
+@using Web.Models.Enums;
+@using Web.Models.SeedWork;
+
+@inject IToastService ToastService;
+@inject ICompanyApiClient CompanyApiClient;
+
+@if (ShowBox)
+{
+    <div class="callout callout-success">
+        <EditForm Model="Model" OnValidSubmit="HandleSubmit">
+            <DataAnnotationsValidator></DataAnnotationsValidator>
+            <div class="form-group">
+                <InputText class="form-control form-control-sm" @bind-Value="Model.Name" placeholder="Tên"></InputText>
+                <ValidationMessage For="()=> Model.Name"></ValidationMessage>
+            </div>
+            <div class="form-group">
+                <InputText class="form-control form-control-sm" @bind-Value="Model.Address" placeholder="Địa chỉ"></InputText>
+                <ValidationMessage For="()=> Model.Address"></ValidationMessage>
+            </div>
+            <div class="form-group">
+                <InputText class="form-control form-control-sm" @bind-Value="Model.Phone" placeholder="Điện thoại"></InputText>
+                <ValidationMessage For="()=> Model.Phone"></ValidationMessage>
+            </div>
+            <div class="form-group">
+                <InputText class="form-control form-control-sm" @bind-Value="Model.Email" placeholder="Email"></InputText>
+                <ValidationMessage For="()=> Model.Email"></ValidationMessage>
+            </div>
+            <div class="form-group">
+                <InputNumber class="form-control form-control-sm" @bind-Value="Model.Order" placeholder="Thứ tự"></InputNumber>
+                <ValidationMessage For="()=> Model.Order"></ValidationMessage>
+            </div>
+            <div class="form-group" style="text-align:right">
+                <button type="button" class="btn btn-secondary btn-xs" @onclick="()=>Hide()" data-dismiss="modal">Hủy</button>
+                <button type="submit" class="btn btn-primary btn-xs">Thêm</button>
+            </div>
+        </EditForm>
+    </div>
+}
+
+@code {
+    protected bool ShowBox { get; set; }
+
+    private CompanyBranchDto Model { set; get; } = new CompanyBranchDto();
+
+    [Parameter]
+    public EventCallback CloseEventCallbak { get; set; }
+
+    [Parameter]
+    public string LanguageCode { set; get; }
+
+
+    protected async override Task OnParametersSetAsync()
+    {
+        if (!string.IsNullOrEmpty(LanguageCode))
+        {
+            Model.LanguageCode = LanguageCode;
+        }
+    }
+
+    public void Show()
+    {
+        ShowBox = true;
+        StateHasChanged();
+    }
+
+    private void Hide()
+    {
+        ShowBox = false;
+        StateHasChanged();
+    }
+
+    protected async Task HandleSubmit()
+    {
+        var result = await CompanyApiClient.CreateBranch(Model);
+        if (result)
+        {
+            ShowBox = false;
+            await CloseEventCallbak.InvokeAsync();
+            ToastService.ShowInfo("Thêm chi nhánh thành công");
+        }
+        else
+        {
+            ToastService.ShowError("Thêm chi nhánh không thành công");
+        }
+    }
+}

@@ -1,0 +1,157 @@
+﻿@page "/signup"
+
+@using Web.Models;
+@using Web.Models.SeedWork;
+@using Web.Backend.Services;
+
+@inject IAuthService AuthService;
+@inject NavigationManager NavigationManager;
+@inject IToastService ToastService
+@inject ITemplateApiClient TemplateApiClient;
+@inject ICompanyApiClient CompanyApiClient
+
+<section class="content-header">
+    <div class="container-fluid">
+        <h1 class="m-0">Đăng ký Website</h1>
+    </div>
+</section>
+<section class="content">
+    <div class="container-fluid">
+        <EditForm Model="Request" OnValidSubmit="SubmitRequest">
+            <DataAnnotationsValidator></DataAnnotationsValidator>
+    
+            <h4>Thông tin cá nhân</h4>
+            <div class="mb-3">
+                <label for="FirstName" class="form-label">Họ</label>
+                <InputText id="FirstName" class="form-control" placeholder="Phạm" @bind-Value="Request.FirstName"></InputText>
+                <ValidationMessage For="()=> Request.FirstName"></ValidationMessage>
+            </div>
+            <div class="mb-3">
+                <label for="LastName" class="form-label">Tên</label>
+                <InputText id="LastName" class="form-control" placeholder="Hoàng" @bind-Value="Request.LastName"></InputText>
+                <ValidationMessage For="()=> Request.LastName"></ValidationMessage>
+            </div>
+            <div class="mb-3">
+                <label for="username" class="form-label">Tên đăng nhập</label>
+                <InputText id="username" class="form-control" placeholder="tendangnhap" @bind-Value="Request.UserName"></InputText>
+                <ValidationMessage For="()=> Request.UserName"></ValidationMessage>
+            </div>
+            <div class="mb-3">
+                <label for="Password" class="form-label">Mật khẩu</label>
+                <InputText id="Password" type="password" class="form-control" placeholder="********" @bind-Value="Request.Password"></InputText>
+                <ValidationMessage For="()=> Request.Password"></ValidationMessage>
+            </div>
+
+            <h4>Thông tin Website</h4>
+            <div class="mb-3">
+                <label for="Domain" class="form-label">Tên miền</label>
+                <div class="input-group">
+                    <span class="input-group-text" id="basic-addon1">https://</span>
+                    <InputText id="Domain" class="form-control" placeholder="ten-mien-cua-ban.com" @bind-Value="Request.Domain"></InputText>
+                </div>
+                <ValidationMessage For="()=> Request.Domain"></ValidationMessage>
+            </div>
+            <div class="mb-3">
+                <label for="FullName" class="form-label">Tên website</label>
+                <InputText id="FullName" class="form-control" placeholder="Cửa hàng tiện lợi online" @bind-Value="Request.WebsiteName"></InputText>
+                <ValidationMessage For="()=> Request.WebsiteName"></ValidationMessage>
+            </div>
+            <div class="mb-3">
+                <label for="Phone" class="form-label">Số điện thoại</label>
+                <InputText id="Phone" class="form-control" placeholder="0987xxxxxx" @bind-Value="Request.Phone"></InputText>
+                <ValidationMessage For="()=> Request.Phone"></ValidationMessage>
+            </div>
+            <div class="mb-3">
+                <label for="Email" class="form-label">Email</label>
+                <InputText id="Email" type="email" class="form-control" placeholder="Email" @bind-Value="Request.Email"></InputText>
+                <ValidationMessage For="()=> Request.Email"></ValidationMessage>
+            </div>
+
+            <h4>Giao diện</h4>
+            <div class="mb-3">
+                <label for="TemplateName" class="form-label">Mã giao diện</label>
+                <InputSelect class="form-control form-control-sm" ValueExpression="@(()=>Request.TemplateName)"
+                             Value="@Request.TemplateName"
+                             ValueChanged="@((string value) => OnTemplateChanged(value))">
+                    <option value="">Chọn giao diện</option>
+                    @if (Templates != null)
+                    {
+                        @foreach (var item in Templates)
+                        {
+                            <option value="@item.TemplateName">@item.TemplateName</option>
+                        }
+                    }
+                </InputSelect>
+                <ValidationMessage For="()=> Request.TemplateName"></ValidationMessage>
+            </div>
+            <div class="mb-3">
+                <label for="TemplateName" class="form-label">Sao chép từ</label>
+                <InputSelect class="form-control form-control-sm" @bind-Value="Request.CoppyFrom">
+                    <option value="">Chọn trang mẫu</option>
+                    @if (Domains != null)
+                    {
+                        @foreach (var domain in Domains)
+                        {
+                            <option value="@domain">@domain</option>
+                        }
+                    }
+                </InputSelect>
+                <ValidationMessage For="()=>Request.CoppyFrom"></ValidationMessage>
+            </div>
+
+            <input type="submit" class="btn btn-primary btn-sm" value="Đăng ký" @onclick="SubmitRequest" />
+        </EditForm>
+    </div>
+</section>
+
+@code {
+    private SignupRequest Request = new SignupRequest();
+    private List<TemplateDto> Templates;
+    private List<string> Domains;
+
+    public MetaData MetaData { get; set; } = new MetaData();
+
+    [CascadingParameter]
+    private Error Error { set; get; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetTemplates();
+    }
+
+    private async Task GetTemplates()
+    {
+        try
+        {
+            var pagingResponse = await TemplateApiClient.GetTemplateList(new PagingParameters(0));
+            Templates = pagingResponse.Items;
+            MetaData = pagingResponse.MetaData;
+        }
+        catch (Exception ex)
+        {
+            Error.ProcessError(ex);
+        }
+
+    }
+
+    protected async Task OnTemplateChanged(string templateName)
+    {
+        Request.TemplateName = templateName;
+        Domains = await CompanyApiClient.GetDomainsByTemplate(Request.TemplateName);
+        Domains = Domains.Where(e => e.EndsWith(".dybiweb.com")).ToList();
+    }
+
+    private async Task SubmitRequest()
+    {
+        var result = await AuthService.Signup(Request);
+        if (result)
+        {
+            ToastService.ShowSuccess("${Request.FullName} đã được tạo thành công.");
+            NavigationManager.NavigateTo("/login");
+        }
+        else
+        {
+            ToastService.ShowError($"Có lỗi xảy ra trong quá trình xử lý. Vui lòng liên hệ quản trị viên.");
+        }
+    }
+}

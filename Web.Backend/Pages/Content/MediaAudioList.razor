@@ -1,0 +1,259 @@
+﻿@page "/mediaaudiolist"
+@attribute [Authorize]
+
+@using Microsoft.AspNetCore.Authorization;
+@using Web.Backend.Components;
+@using Web.Backend.Pages.Admin.Components;
+@using Web.Backend.Pages.Content.Components;
+@using Web.Backend.Services;
+@using Web.Models;
+@using Web.Models.Enums;
+@using Web.Models.SeedWork;
+@using Microsoft.Extensions.Configuration
+
+@inject IConfiguration Configuration
+@inject IToastService ToastService;
+@inject IContentApiClient ContentApiClient
+@inject ICompanyApiClient CompanyApiClient;
+
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-5">
+                <h1 class="m-0">Quản lý Audios</h1>
+            </div>
+            <div class="col-sm-7" style=" text-align:right">
+                @if (Audios == null || Audios.Count == 0)
+                {
+                    <button style="margin-left:10px" class="btn btn-primary btn-sm" @onclick="()=> MediaAudioCreateDialog.Show()">Thêm audio</button>
+                }
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="content">
+    <div class="container-fluid">
+        @if (Audios != null && Audios.Count > 0)
+        {
+            <div class="card card-outline card-info">
+                <div class="card-header">
+                    <h3 class="card-title">Danh sách Audio</h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <button type="button" class="btn btn-tool" data-card-widget="remove" title="Remove">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <MediaSearch @ref="MediaAudioSearchControl" Type="AUD" OnSearch="SearchAudio"></MediaSearch>
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Danh mục</th>
+                                <th>Tên</th>
+                                <th>Url</th>
+                                <th>Thứ tự</th>
+                                <th>Hiển thị</th>
+                                <th style="text-align:right">
+                                    <button class="btn btn-primary btn-xs" @onclick="()=> MediaAudioCreateDialog.Show()">Thêm</button>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Audios)
+                            {
+                                <tr>
+                                    <td>
+                                        <table>
+                                            @foreach (var title in item.CategoryNames)
+                                            {
+                                                <tr>
+                                                    <td style="border:0;padding:0">@title.Key: </td>
+                                                    <td style="border:0;padding:0">@title.Value</td>
+                                                </tr>
+                                            }
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table>
+                                            @foreach (var title in item.Titles)
+                                            {
+                                                <tr>
+                                                    <td style="border:0;padding:0">@title.Key: </td>
+                                                    <td style="border:0;padding:0">@title.Value</td>
+                                                </tr>
+                                            }
+                                        </table>
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(item.Url))
+                                        {
+                                            <a href="@item.Url" target="_blank">@(new Uri(item.Url).Host)...</a>
+                                        }
+                                        else
+                                        {
+                                            @item.Url
+                                        }
+                                    </td>
+                                    <td style="text-align: center;width:100px">
+                                        <div class="input-group input-group-sm mb-3">
+                                            <button class="btn btn-outline-secondary" @onclick="@((e) => {item.Order--; OrderChanged(item.Id, item.Order);})">&lt;</button>
+                                            <span class="form-control">@item.Order</span>
+                                            <button class="btn btn-outline-secondary" @onclick="@((e) => {item.Order++; OrderChanged(item.Id, item.Order);})">&gt;</button>
+                                        </div>
+                                    </td>
+                                    <td class="form-switch" style="text-align: center; padding-left: 30px;">
+                                        <input type="checkbox" checked="@item.IsPuslished" class="form-check-input" role="switch" @onchange="@((e) => {item.IsPuslished= bool.Parse(e.Value.ToString()); ApplyChanged(item.Id);})"></input>
+                                    </td>
+                                    <td style="text-align:right;width:100px">
+                                        <a href="/medialaudiodetail/@item.Id" class="btn btn-success btn-sm">Xem</a>
+                                        <button class="btn btn-danger btn-sm" @onclick="()=> OnDelete(item.Id)">Xóa</button>
+                                    </td>
+                                </tr>
+                                <tr class="expandable-body">
+                                    <td colspan="6" style="border-bottom: 2px solid; background:#c9c9c9">
+                                        <div class="row">
+                                            <div class="col">
+                                                @if (item.Image != null && !string.IsNullOrEmpty(item.Image.FileName))
+                                                {
+                                                    <img src="@(BackendApiUrl + "/" + item.Image.FullPath + "?DummyId=" + DateTime.Now.Ticks)" asp-append-version="true" style="max-height:150px; max-width:100%" />
+                                                }
+                                            </div>
+                                            <div class="col">
+                                                @item.Embed
+                                            </div>
+                                            <div class="col">
+                                                @if (!string.IsNullOrEmpty(item.Embed))
+                                                {
+                                                    @((MarkupString)item.Embed)
+                                                }
+                                                else if (!string.IsNullOrEmpty(item.Url))
+                                                {
+                                                    <audio width="100%" height="100%" controls>
+                                                        <source src="@item.Url" type="audio/mpeg">
+                                                        <source src="@item.Url" type="audio/ogg">
+                                                        Your browser does not support the video tag.
+                                                    </audio>
+                                                }
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="6">
+                                    <Pagination MetaData="AudioMetaData" Spread="2" SelectedPage="SelectedPageAudio"></Pagination>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        }
+
+        <Confirmation ConfirmationMessage="Bạn có chắc chắn xóa Audio?"
+                      ConfirmationTitle="Xóa dữ liệu đa phương tiện"
+                      @ref="DeleteConfirmation"
+                      ConfirmationChanged="OnConfirmDelete">
+        </Confirmation>
+        <MediaAudioCreate @ref="MediaAudioCreateDialog" LanguageCode="@LanguageCode" CloseEventCallbak="GetAudios"></MediaAudioCreate>
+    </div>
+</section>
+
+@code {
+    protected Confirmation DeleteConfirmation { set; get; }
+    protected MediaAudioCreate MediaAudioCreateDialog { set; get; }
+
+    private MediaSearch MediaAudioSearchControl { set; get; }
+    private MediaListSearch MediaAudioListSearch = new MediaListSearch() { Type = "AUD" };
+    public MetaData AudioMetaData { get; set; } = new MetaData();
+
+    private List<MediaDto> Audios;
+
+    private Guid DeleteId { set; get; }
+    private string BackendApiUrl { get; set; }
+
+    [CascadingParameter]
+    private Error Error { set; get; }
+
+    private string LanguageCode { set; get; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        BackendApiUrl = Configuration["BackendApiUrl"];
+
+        var languages = await CompanyApiClient.GetLanguageList(Guid.Empty);
+        if (languages.Count == 0 || languages.Contains("vi")) LanguageCode = "vi";
+        else LanguageCode = languages.First();
+
+        await GetAudios();
+    }
+
+    private async Task GetAudios()
+    {
+        try
+        {
+            var pagingResponse = await ContentApiClient.GetMedias(MediaAudioListSearch);
+            Audios = pagingResponse.Items;
+            AudioMetaData = pagingResponse.MetaData;
+        }
+        catch (Exception ex)
+        {
+            Error.ProcessError(ex);
+        }
+    }
+
+    public void OnDelete(Guid deleteId)
+    {
+        DeleteId = deleteId;
+        DeleteConfirmation.Show();
+    }
+
+    public async Task OnConfirmDelete(bool deleteConfirmed)
+    {
+        if (deleteConfirmed)
+        {
+            var result = await ContentApiClient.DeleteMedia(DeleteId);
+            if (result)
+            {
+                ToastService.ShowWarning("Xóa thành công");
+                await GetAudios();
+            }
+            else ToastService.ShowError("Xóa không thành công");
+        }
+    }
+
+    private async Task SelectedPageAudio(int page)
+    {
+        MediaAudioListSearch.PageNumber = page;
+        await GetAudios();
+    }
+
+    public async Task SearchAudio(MediaListSearch audioListSearch)
+    {
+        MediaAudioListSearch = audioListSearch;
+        await GetAudios();
+    }
+
+    public async void ApplyChanged(Guid id)
+    {
+        var result = await ContentApiClient.UpdatePublish(id);
+        if (result) ToastService.ShowInfo("Cập nhật thành công");
+        else ToastService.ShowError("Cập nhật không thành công");
+    }
+    public async void OrderChanged(Guid id, int order)
+    {
+        var result = await ContentApiClient.UpdateOrder(id, order);
+        if (result)
+        {
+            ToastService.ShowInfo($"Đã cập nhật thứ tự thành [{order}] thành công");
+        }
+        else ToastService.ShowError("Cập nhật không thành công");
+    }
+}

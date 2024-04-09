@@ -1,0 +1,296 @@
+﻿@page "/menuconfig"
+@attribute [Authorize]
+
+@using Microsoft.AspNetCore.Authorization;
+@using Web.Backend.Components;
+@using Web.Backend.Pages.Config.Components;
+@using Web.Backend.Services;
+@using Web.Models;
+@using Web.Models.SeedWork;
+
+@inject IToastService ToastService;
+@inject ICompanyApiClient CompanyApiClient;
+
+<section class="content-header">
+    <div class="container-fluid">
+        <h1 class="m-0">Quản lý Menu</h1>
+    </div>
+</section>
+
+<section class="content">
+    <div class="container-fluid">
+        @if (Menus == null)
+        {
+            <LoadingIndicator></LoadingIndicator>
+        }
+        else
+        {
+            <div class="card card-outline card-private">
+                <div class="card-body">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Loại</th>
+                                <th>Tên</th>
+                                <th>Trang</th>
+                                <th>Vị trí</th>
+                                <th style="text-align:right">
+                                    <button class="btn btn-primary btn-xs" @onclick="()=> OpenCreatePopup()">Thêm</button>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Menus)
+                            {
+                                <tr>
+                                    <td>@item.Type</td>
+                                    <td>
+                                        <table>
+                                            @foreach (var title in item.Titles)
+                                            {
+                                                <tr>
+                                                    <td style="border:0;padding:0">@title.Key: </td>
+                                                    <td style="border:0;padding:0">@title.Value</td>
+                                                </tr>
+                                            }
+                                        </table>
+                                    </td>
+                                    <td>@item.Component</td>
+                                    <td style="text-align: center;width:100px">
+                                        <div class="input-group input-group-sm mb-3">
+                                            <button class="btn btn-outline-secondary" @onclick="@((e) => {item.Order--; OrderChanged(item.Id, item.Order);})">&lt;</button>
+                                            <span class="form-control">@item.Order</span>
+                                            <button class="btn btn-outline-secondary" @onclick="@((e) => {item.Order++; OrderChanged(item.Id, item.Order);})">&gt;</button>
+                                        </div>
+                                    </td>
+                                    <td style="text-align:right">
+                                        <button class="btn btn-danger btn-xs" @onclick="()=> OnDelete(item.Id)">Xóa</button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card card-outline card-info">
+                <div class="card-header">
+                    Xem trước
+                </div>
+                <div class="card-body">
+                    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+                        <div class="container-fluid">
+                            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                                <span class="navbar-toggler-icon"></span>
+                            </button>
+                            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                                    <li class="nav-item">
+                                        <a class="nav-link active" aria-current="page" href="#">Trang chủ</a>
+                                    </li>
+                                    @foreach (var menu in MenuViews)
+                                    {
+                                        @if (menu.Type == "Link" || menu.Type == "Article" || menu.Type == "Category")
+                                        {
+                                            <li class="nav-item">
+                                                <a class="nav-link" href="@menu.Url">@menu.Title</a>
+                                            </li>
+                                        }
+                                        else if (menu.Type == "Links" || menu.Type == "Articles" || menu.Type == "Categories")
+                                        {
+                                            <li class="nav-item dropdown">
+                                                <a class="nav-link" role="button" data-toggle="dropdown" aria-expanded="false" style="cursor:pointer">
+                                                    @menu.Title
+                                                    <i class="right fas fa-angle-down"></i>
+                                                </a>
+                                                <ul class="dropdown-menu">
+                                                    @foreach (var child in menu.Children)
+                                                    {
+                                                        <li><a class="dropdown-item" href="@child.Url">@child.Title</a></li>
+                                                    }
+                                                </ul>
+                                            </li>
+                                        }
+                                    }
+                                </ul>
+                            </div>
+                        </div>
+                    </nav>
+                </div>
+            </div>
+
+            <Confirmation ConfirmationMessage="Bạn có chắc chắn xóa?"
+                      ConfirmationTitle="Xóa mã nhún"
+                      @ref="DeleteConfirmation"
+                      ConfirmationChanged="OnConfirmDelete">
+            </Confirmation>
+
+            <MenuConfigCreate @ref="CreateMenuConfigDialog" LanguageCode="@LanguageCode" CloseEventCallbak="GetMenus"></MenuConfigCreate>
+        }
+    </div>
+</section>
+
+@code {
+    [Inject] private IMenuApiClient MenuApiClient { get; set; }
+    [Inject] private IContentApiClient ContentApiClient { get; set; }
+
+    protected Confirmation DeleteConfirmation { set; get; }
+    protected MenuConfigCreate CreateMenuConfigDialog { set; get; }
+
+    private List<MenuDto> Menus;
+    private List<MenuViewDto> MenuViews;
+    private Guid DeleteId { set; get; }
+
+    [CascadingParameter]
+    private Error Error { set; get; }
+
+    private string LanguageCode { set; get; }
+        
+    protected override async Task OnInitializedAsync()
+    {
+        var languages = await CompanyApiClient.GetLanguageList(Guid.Empty);
+        if (languages.Count == 0 || languages.Contains("vi")) LanguageCode = "vi";
+        else LanguageCode = languages.First();
+
+        await GetMenus();
+    }
+
+    private async Task GetMenus()
+    {
+        try
+        {
+            Menus = await MenuApiClient.GetList();
+
+            MenuViews = new List<MenuViewDto>();
+            foreach (var menu in Menus)
+            {
+                if (menu.Type == "Link" || menu.Type == "Article" || menu.Type == "Category")
+                {
+                    var menuView = new MenuViewDto
+                        {
+                            Type = menu.Type,
+                            Component = menu.Component,
+                            Id = menu.Id,
+                            Title = menu.Titles.Where(e => e.Key == LanguageCode).Select(e => e.Value).FirstOrDefault(),
+                        };
+                    MenuViews.Add(menuView);
+                }
+                else if (menu.Type == "Articles")
+                {
+                    var menuView = new MenuViewDto
+                        {
+                            Type = menu.Type,
+                            Component = menu.Component,
+                            Id = menu.Id,
+                            Title = menu.Titles.Where(e => e.Key == LanguageCode).Select(e => e.Value).FirstOrDefault(),
+                        };
+
+                    menuView.Children = new List<MenuViewDto>();
+                    var articleData = await ContentApiClient.GetArticles(new ArticleListSearch { CategoryId = menuView.Id, PageSize = 0 });
+                    var articles = articleData.Items;
+                    foreach (var article in articles)
+                    {
+                        var child = new MenuViewDto
+                            {
+                                Type = menu.Type,
+                                Component = "Article",
+                                Id = article.Id,
+                                Title = article.Titles.Where(e => e.Key == LanguageCode).Select(e => e.Value).FirstOrDefault(),
+                                Url = $"/Article/sArt/{article.Id}"
+                            };
+                        menuView.Children.Add(child);
+                    }
+                    MenuViews.Add(menuView);
+                }
+                else if (menu.Type == "Links")
+                {
+                    var menuView = new MenuViewDto
+                        {
+                            Type = menu.Type,
+                            Component = menu.Component,
+                            Id = menu.Id,
+                            Title = menu.Titles.Where(e => e.Key == LanguageCode).Select(e => e.Value).FirstOrDefault(),
+                        };
+
+                    menuView.Children = new List<MenuViewDto>();
+                    var linkData = await ContentApiClient.GetMedias(new MediaListSearch { CategoryId = menuView.Id, PageSize = 0, Type = "LIN" });
+                    var links = linkData.Items;
+                    foreach (var link in links)
+                    {
+                        var child = new MenuViewDto
+                            {
+                                Type = menu.Type,
+                                Component = "Media",
+                                Id = link.Id,
+                                Title = link.Titles.Where(e => e.Key == LanguageCode).Select(e => e.Value).FirstOrDefault(),
+                                Url = link.Url
+                            };
+                        menuView.Children.Add(child);
+                    }
+                    MenuViews.Add(menuView);
+                }
+                else if (menu.Type == "Categories")
+                {
+                    var menuView = new MenuViewDto
+                        {
+                            Type = menu.Type,
+                            Component = menu.Component,
+                            Id = menu.Id,
+                            Title = menu.Titles.Where(e => e.Key == LanguageCode).Select(e => e.Value).FirstOrDefault(),
+                        };
+
+                    menuView.Children = new List<MenuViewDto>();
+                    var categories = await ContentApiClient.GetCategories();
+                    categories = categories.Where(e => e.ParentId == menu.Id).ToList();
+                    foreach (var category in categories)
+                    {
+                        var child = new MenuViewDto
+                            {
+                                Type = menu.Type,
+                                Id = category.Id,
+                                Title = category.Titles.Where(e => e.Key == LanguageCode).Select(e => e.Value).FirstOrDefault(),
+                            };
+                        menuView.Children.Add(child);
+                    }
+                    MenuViews.Add(menuView);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Error.ProcessError(ex);
+        }
+
+    }
+
+    public void OnDelete(Guid deleteId)
+    {
+        DeleteId = deleteId;
+        DeleteConfirmation.Show();
+    }
+
+    public async Task OnConfirmDelete(bool deleteConfirmed)
+    {
+        if (deleteConfirmed)
+        {
+            await MenuApiClient.Delete(DeleteId);
+            await GetMenus();
+        }
+    }
+
+    public void OpenCreatePopup()
+    {
+        CreateMenuConfigDialog.Show();
+    }
+
+    public async void OrderChanged(Guid id, int order)
+    {
+        var result = await MenuApiClient.UpdateOrder(id, order);
+        if (result)
+        {
+            ToastService.ShowInfo($"Đã cập nhật thứ tự thành [{order}] thành công");
+            await GetMenus();
+        }
+        else ToastService.ShowError("Cập nhật không thành công");
+    }
+}

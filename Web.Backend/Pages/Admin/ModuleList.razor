@@ -1,0 +1,165 @@
+﻿@page "/modulelist"
+@attribute [Authorize]
+
+@using Microsoft.AspNetCore.Authorization;
+@using Web.Backend.Components;
+@using Web.Backend.Pages.Admin.Components;
+@using Web.Backend.Services;
+@using Web.Models;
+@using Web.Models.SeedWork;
+@inject IConfiguration Configuration
+
+<section class="content-header">
+    <div class="container-fluid">
+        <h1 class="m-0">Quản lý Module</h1>
+    </div>
+</section>
+
+<section class="content">
+    <div class="container-fluid">
+        @if (Modules == null)
+        {
+            <LoadingIndicator></LoadingIndicator>
+        }
+        else
+        {
+            <div class="row">
+                <div class="col-md-5">
+                    <div class="card card-outline card-info">
+                        <div class="card-header">
+                            <h3 class="card-title">Danh sách Module</h3>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Tên</th>
+                                        <th>Mô tả</th>
+                                        <th style="text-align:right">
+                                            <button class="btn btn-primary btn-xs" @onclick="()=> OpenCreatePopup()">Thêm</button>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Modules)
+                                    {
+                                        <tr style="cursor:pointer" @onclick="() => ShowDetailModule(item.ModuleName)">
+                                            <td>@item.ModuleName</td>
+                                            <td>@item.Describe</td>
+                                            <td style="text-align:right">
+                                                <button class="btn btn-success btn-xs" @onclick="()=> OpenUpdatePopup(item.ModuleName, item.Describe)">Sửa</button>
+                                                <button class="btn btn-danger btn-xs" @onclick="()=> OnDeleteModule(item.ModuleName)">Xóa</button>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="3">
+                                            <Pagination MetaData="MetaData" Spread="2" SelectedPage="SelectedPage"></Pagination>
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-7">
+                    <div class="card card-outline card-info">
+                        <ModuleParamList @ref="ListModuleParam"></ModuleParamList>
+                    </div>
+                </div>
+            </div>
+
+            <Confirmation ConfirmationMessage="Bạn có chắc chắn xóa?"
+                      ConfirmationTitle="Xóa Module"
+                      @ref="DeleteConfirmation"
+                      ConfirmationChanged="OnConfirmDeleteModule">
+            </Confirmation>
+
+            <ModuleCreate @ref="CreateModuleDialog" CloseEventCallbak="RefreshList"></ModuleCreate>
+            <ModuleUpdate @ref="UpdateModuleDialog" CloseEventCallbak="RefreshList"></ModuleUpdate>
+        }
+    </div>
+</section>
+
+@code {
+    [Inject] private IModuleApiClient ModuleApiClient { get; set; }
+
+    protected Confirmation DeleteConfirmation { set; get; }
+    protected ModuleCreate CreateModuleDialog { set; get; }
+    protected ModuleUpdate UpdateModuleDialog { set; get; }
+    protected ModuleParamList ListModuleParam { set; get; }
+
+    private List<ModuleDto> Modules;
+    private string DeleteId { set; get; }
+    public MetaData MetaData { get; set; } = new MetaData();
+    private PagingParameters Paging = new PagingParameters(10);
+
+    [CascadingParameter]
+    private Error Error { set; get; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetModules();
+    }
+
+    private async Task GetModules()
+    {
+        try
+        {
+            var pagingResponse = await ModuleApiClient.GetModuleList(Paging);
+            Modules = pagingResponse.Items;
+            MetaData = pagingResponse.MetaData;
+        }
+        catch (Exception ex)
+        {
+            Error.ProcessError(ex);
+        }
+
+    }
+
+    public void OnDeleteModule(string deleteId)
+    {
+        DeleteId = deleteId;
+        DeleteConfirmation.Show();
+    }
+
+    public async Task OnConfirmDeleteModule(bool deleteConfirmed)
+    {
+        if (deleteConfirmed)
+        {
+            await ModuleApiClient.DeleteModule(DeleteId);
+            await GetModules();
+        }
+    }
+
+    private async Task SelectedPage(int page)
+    {
+        Paging.PageNumber = page;
+        await GetModules();
+    }
+
+    public void OpenCreatePopup()
+    {
+        CreateModuleDialog.Show();
+    }
+
+    public void OpenUpdatePopup(string name, string describe)
+    {
+        UpdateModuleDialog.Show(name, describe);
+    }
+
+    public async Task RefreshList(bool result)
+    {
+        if (result)
+        {
+            await GetModules();
+        }
+    }
+
+    public void ShowDetailModule(string name)
+    {
+        ListModuleParam.Show(name);
+    }
+}

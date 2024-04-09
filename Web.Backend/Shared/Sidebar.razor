@@ -1,0 +1,198 @@
+﻿@using Microsoft.AspNetCore.Authorization;
+@using Microsoft.AspNetCore.Components.Authorization
+@using Web.Backend.Services;
+@using Web.Models;
+@using Web.Models.Enums;
+@using Web.Models.SeedWork;
+@inject ICompanyApiClient CompanyApiClient
+@inject NavigationManager NavigationManager
+@inject IAuthService AuthService
+@inject IConfiguration Configuration;
+@attribute [Authorize]
+<!-- Main Sidebar Container -->
+<aside class="main-sidebar sidebar-dark-primary elevation-4">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <!-- Sidebar Menu -->
+        <nav class="mt-2">
+            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                <!-- Add icons to the links using the .nav-icon class
+                     with font-awesome or any other icon font library -->
+                
+                <li class="nav-item @(Menu["NoiDung"] ? "menu-open" : "")">
+                    <a class="nav-link" @onclick="@(() => Click("NoiDung"))">
+                        <i class="nav-icon fas fa-th"></i>
+                        <p>
+                            Quản lý nội dung
+                            <i class="fas fa-angle-left right"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="/companyinfo" class="nav-link">
+                                <i class="nav-icon fas fa-info"></i>
+                                <p>Thông tin web</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/categorylist" class="nav-link">
+                                <i class="nav-icon fas fa-sitemap"></i>
+                                <p>Danh mục</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/articlelist" class="nav-link">
+                                <i class="nav-icon fas fa-edit"></i>
+                                <p>Bài viết</p>
+                            </a>
+                            <AuthorizeView Roles="Product">
+                            <a href="/productlist" class="nav-link">
+                                <i class="nav-icon fas fa-book"></i>
+                                <p>Sản phẩm</p>
+                            </a>
+                            <a href="/orderlist" class="nav-link">
+                                <i class="nav-icon fas fa-cart-plus"></i>
+                                <p>Quản lý đơn hàng</p>
+                            </a>
+                            </AuthorizeView>
+                            <a href="/reviewlist" class="nav-link">
+                                <i class="nav-icon fas fa-comments"></i>
+                                <p>Đánh giá - Bình luận</p>
+                            </a>
+                            <a href="/medialinklist" class="nav-link">
+                                <i class="nav-icon fas fa-link"></i>
+                                <p>Liên kết - Logo - Banner</p>
+                            </a>
+                            <AuthorizeView Roles="Document">
+                                <a href="/mediadocumentlist" class="nav-link">
+                                    <i class="nav-icon fas fa-file-word"></i>
+                                    <p>Sách - Tài liệu</p>
+                                </a>
+                            </AuthorizeView>
+                            <AuthorizeView Roles="Audio">
+                                <a href="/mediaaudiolist" class="nav-link">
+                                    <i class="nav-icon fas fa-audio-description"></i>
+                                    <p>Âm thanh</p>
+                                </a>
+                            </AuthorizeView>
+                            <AuthorizeView Roles="Video">
+                                <a href="/mediavideolist" class="nav-link">
+                                    <i class="nav-icon fas fa-video"></i>
+                                    <p>Thước phim</p>
+                                </a>
+                            </AuthorizeView>
+                            <AuthorizeView Roles="Picture">
+                                <a href="/mediapicturelist" class="nav-link">
+                                    <i class="nav-icon fas fa-image"></i>
+                                    <p>Hình ảnh</p>
+                                </a>
+                            </AuthorizeView>
+                            <AuthorizeView Roles="Event">
+                                <a href="/eventlist" class="nav-link">
+                                    <i class="nav-icon far fa-calendar-alt"></i>
+                                    <p>Sự kiện</p>
+                                </a>
+                            </AuthorizeView>
+                        </li>
+                    </ul>
+                </li>
+                <li class="nav-item @(Menu["CauHinh"] ? "menu-open" : "")">
+                    <a class="nav-link" @onclick="@(() => Click("CauHinh"))">
+                        <i class="nav-icon fas fa-cog"></i>
+                        <p>
+                            Cấu hình
+                            <i class="fas fa-angle-left right"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="/moduleconfiglist" class="nav-link">
+                                <i class="nav-icon far fa-plus-square"></i>
+                                <p>Cài đặt nâng cao</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/menuconfig" class="nav-link">
+                                <i class="nav-icon fas fa-bars"></i>
+                                <p>Cài đặt menu</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/attributelist" class="nav-link">
+                                <i class="nav-icon fas fa-list"></i>
+                                <p>Cài đặt thuộc tính</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/seopagelist" class="nav-link">
+                                <i class="nav-icon fas fa-link"></i>
+                                <p>SEO trang</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/thirdpartylist" class="nav-link">
+                                <i class="nav-icon fas fa-code"></i>
+                                <p>Mã nhún</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <AuthorizeView Roles="Admin">
+                    <li class="nav-item @(Menu["HeThong"] ? "menu-open" : "")">
+                        <a class="nav-link" @onclick="@(() => Click("HeThong"))">
+                        <i class="bi bi-sliders2"></i>
+                        <p>
+                            Hệ thống
+                            <i class="fas fa-angle-left right"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="/companylist" class="nav-link">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Website</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/modulelist" class="nav-link">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Module</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/templatelist" class="nav-link">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Template</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                </AuthorizeView>
+            </ul>
+        </nav>
+        <!-- /.sidebar-menu -->
+    </div>
+    <!-- /.sidebar -->
+</aside>
+
+@code {
+    private Dictionary<string, bool> Menu;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Menu = new Dictionary<string, bool>();
+        Menu["NoiDung"] = true;
+        Menu["CauHinh"] = false;
+        Menu["HeThong"] = false;
+    }
+
+    protected async Task Click(string key)
+    {
+        var flag = Menu[key];
+        //Menu["NoiDung"] = false;
+        //Menu["CauHinh"] = false;
+        //Menu["HeThong"] = false;
+
+        Menu[key] = !flag;
+    }
+}

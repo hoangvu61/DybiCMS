@@ -1,0 +1,311 @@
+﻿@page "/companyinfo"
+@attribute [Authorize]
+
+@using Microsoft.AspNetCore.Authorization;
+@using Web.Backend.Components;
+@using Web.Backend.Pages.Config.Components
+@using Web.Backend.Services;
+@using Web.Models;
+@using Web.Models.Enums;
+@using Microsoft.Extensions.Configuration
+@using Blazored.TextEditor
+
+@inject IToastService ToastService;
+@inject ICompanyApiClient CompanyApiClient;
+
+<section class="content-header">
+    <div class="container-fluid">
+        <h1 class="m-0">Thông tin website</h1>
+    </div>
+</section>
+
+<section class="content">
+    <div class="container-fluid">
+        @if (Model == null)
+        {
+            <LoadingIndicator></LoadingIndicator>
+        }
+        else
+        {
+            <LanguageOption CurrentLanguage="@Model.LanguageCode" SelectLanguage="LoadData"></LanguageOption>
+            <WebInfo @ref="WebSEOInfo" LanguageCode="@Model.LanguageCode"></WebInfo>
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card card-outline card-info">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-edit"></i>
+                                Thông tin chính
+                            </h3>
+                        </div>
+                        <EditForm Model="ModelRequest" OnValidSubmit="HandleSubmit">
+                            <DataAnnotationsValidator></DataAnnotationsValidator>
+                        <div class="card-body">
+                            <div class="form-group input-group input-group-sm">
+                                <div class="input-group-prepend"> 
+                                    <span class="input-group-text">Loại hình:</span>
+                                </div>
+                                    <InputSelect class="form-control form-control-sm" @bind-Value="@ModelRequest.Type">
+                                    @foreach (var type in DataSource.CompanyTypes)
+                                    {
+                                        <option value="@type.Id">@type.Name (@type.ParentId.@type.Id)</option>
+                                    }
+                                </InputSelect>
+                                <ValidationMessage For="()=>ModelRequest.Type"></ValidationMessage>
+                            </div>
+                                <div class="form-group input-group input-group-sm">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">Mã số doanh nghiệp</span>
+                                    </div>
+                                    <InputText @bind-Value="ModelRequest.TaxCode" class="form-control form-control-sm"></InputText>
+                                    <ValidationMessage For="()=> ModelRequest.TaxCode"></ValidationMessage>
+                                </div>
+                                <div class="form-group input-group input-group-sm">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">Ngày thành lập</span>
+                                        </div>
+                                    <InputDate @bind-Value="ModelRequest.PublishDate" class="form-control form-control-sm"></InputDate>
+                                        <ValidationMessage For="()=> ModelRequest.PublishDate"></ValidationMessage>
+                                    </div>
+                                <div class="form-group input-group input-group-sm">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">Tên đầy đủ</span>
+                                    </div>
+                                    <InputText @bind-Value="ModelRequest.FullName" class="form-control form-control-sm"></InputText>
+                                    <ValidationMessage For="()=> ModelRequest.FullName"></ValidationMessage>
+                                </div>
+                                <div class="form-group input-group input-group-sm">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">Biệt danh</span>
+                                        </div>
+                                    <InputText @bind-Value="ModelRequest.NickName" class="form-control form-control-sm"></InputText>
+                                        <ValidationMessage For="()=> ModelRequest.NickName"></ValidationMessage>
+                                    </div>
+                                <div class="form-group input-group input-group-sm">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">Tên hiển thị</span>
+                                    </div>
+                                    <InputText @bind-Value="ModelRequest.DisplayName" class="form-control form-control-sm"></InputText>
+                                    <ValidationMessage For="()=> ModelRequest.DisplayName"></ValidationMessage>
+                                </div>
+                                <div class="form-group input-group input-group-sm">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">Ngành nghề</span>
+                                        </div>
+                                    <InputText @bind-Value="ModelRequest.JobTitle" class="form-control form-control-sm"></InputText>
+                                        <ValidationMessage For="()=> ModelRequest.JobTitle"></ValidationMessage>
+                                    </div>
+                                <div class="form-group input-group input-group-sm">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">Slogan</span>
+                                    </div>
+                                    <InputText @bind-Value="ModelRequest.Slogan" class="form-control form-control-sm"></InputText>
+                                    <ValidationMessage For="()=> ModelRequest.Slogan"></ValidationMessage>
+                                </div>
+                                <div class="form-group">
+                                    <label>Tầm nhìn:</label>
+                                    <InputTextArea @bind-Value="ModelRequest.Vision" class="form-control form-control-sm"></InputTextArea>
+                                        <ValidationMessage For="()=> ModelRequest.Vision"></ValidationMessage>
+                                </div>
+                                <div class="form-group">
+                                    <label>Sứ mệnh:</label>
+                                    <InputTextArea @bind-Value="ModelRequest.Mission" class="form-control form-control-sm"></InputTextArea>
+                                        <ValidationMessage For="()=> ModelRequest.Mission"></ValidationMessage>
+                                </div>
+                                <div class="form-group">
+                                    <label>Giá trị cốt lõi:</label>
+                                    <InputTextArea @bind-Value="ModelRequest.CoreValues" class="form-control form-control-sm"></InputTextArea>
+                                        <ValidationMessage For="()=> ModelRequest.CoreValues"></ValidationMessage>
+                                </div>
+                                <div class="form-group">
+                                    <label>Phương châm:</label>
+                                    <InputTextArea @bind-Value="ModelRequest.Motto" class="form-control form-control-sm"></InputTextArea>
+                                    <ValidationMessage For="()=> ModelRequest.Motto"></ValidationMessage>
+                                </div>
+                                <div class="form-group">
+                                    <label>Mô tả ngắn:</label>
+                                    <InputTextArea @bind-Value="ModelRequest.Brief" class="form-control form-control-sm"></InputTextArea>
+                                    <ValidationMessage For="()=> ModelRequest.Brief"></ValidationMessage>
+                                </div>
+                                <div class="form-group">
+                                    <label>Mô tả chi tiết:</label> 
+                                    <BlazoredTextEditor @ref="@QuillHtml">
+                                        <ToolbarContent>                                        
+                                            <select class="ql-header">
+                                                <option selected=""></option>
+                                                <option value="2"></option>
+                                                <option value="3"></option>
+                                                <option value="4"></option>
+                                                <option value="5"></option>
+                                            </select>
+                                            <span class="ql-formats">
+                                                <button class="ql-bold"></button>
+                                                <button class="ql-italic"></button>
+                                                <button class="ql-underline"></button>
+                                                <button class="ql-strike"></button>
+                                            </span>
+                                            <span class="ql-formats">
+                                                <select class="ql-color"></select>
+                                                <select class="ql-background"></select>
+                                            </span>
+                                            <span class="ql-formats">
+                                                <button class="ql-list" value="ordered"></button>
+                                                <button class="ql-list" value="bullet"></button>
+                                            </span>
+                                            <span class="ql-formats">
+                                                <button class="ql-link"></button>
+                                                <button type="button" class="btn btn-link" id="custom-button" @onclick="InsertImageClick">
+                                                    <img src="imageIcon.png" style="border:hidden" />
+                                                </button>
+                                                <button type="button" class="btn btn-link" @onclick="ShowHTMLClick">H</button>
+                                            </span>
+                                        </ToolbarContent>
+                                        <EditorContent>
+                                            @((MarkupString)Model.AboutUs)
+                                        </EditorContent>
+                                    </BlazoredTextEditor>
+                                </div>
+                        
+                        </div>
+                        <div class="card-footer" style="text-align:right">
+                            <button type="submit" class="btn btn-info btn-xs">Lưu</button>
+                        </div>
+                        </EditForm>
+                    </div>
+                    <CompanyLanguageConfig @ref="LanguageConfig" LanguageCode="@Model.LanguageCode"></CompanyLanguageConfig>
+                </div>
+                <div class="col-md-4">
+                    @if (!string.IsNullOrEmpty(Model.LanguageCode))
+                    {
+                        <BranchesList @ref="ListBranches" LanguageCode="@Model.LanguageCode"></BranchesList>
+                    }
+                    @if (Model.Id != Guid.Empty)
+                    {
+                        <WebConfigImage CompanyId="@Model.Id" WebIconName="@Model.WebIcon" LogoName="@Model.Logo" ImageName="@Model.Image"></WebConfigImage>
+                            <WebBackground CompanyId="@Model.Id" Header="@Model.Header" FontColor="@Model.FontColor" FontSize="@Model.FontSize" Background="@Model.Background"></WebBackground>
+                        <Webconfig CanRightClick="@Model.CanRightClick" CanSelectCopy="@Model.CanSelectCopy" Hierarchy="@Model.Hierarchy"></Webconfig>
+                    }
+                
+                </div>
+            </div>
+            <ImageSelector @ref="ImageManagerControl" ImageSelected="InsertImage"></ImageSelector>
+            <HTMLEdit @ref="EditHTML" TextChanged="ApplyHTML"></HTMLEdit>
+        }
+    </div>
+</section>
+
+
+@code {
+    private WebInfo WebSEOInfo { get; set; }
+    private BranchesList ListBranches { get; set; }
+    private CompanyLanguageConfig LanguageConfig { get; set; }
+    private WebInfoDto Model { get; set; }
+    private WebInfoRequest ModelRequest { get; set; }
+
+    private HTMLEdit EditHTML { get; set; }
+    private ImageSelector ImageManagerControl { get; set; }
+    private BlazoredTextEditor QuillHtml;
+
+    private string LanguageCode { get; set; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        var languages = await CompanyApiClient.GetLanguageList(Guid.Empty);
+        if (languages.Count == 0 || languages.Contains("vi")) LanguageCode = "vi";
+        else LanguageCode = languages.First();
+
+        Model = await CompanyApiClient.GetCompanyInfo(LanguageCode);
+        Model.LanguageCode = LanguageCode;
+        ModelRequest = new WebInfoRequest
+            {
+                AboutUs = Model.AboutUs,
+                Brief = Model.Brief,
+                DisplayName = Model.DisplayName,
+                FullName = Model.FullName,
+                LanguageCode = Model.LanguageCode,
+                Slogan = Model.Slogan,
+                TaxCode = Model.TaxCode,
+                PublishDate = Model.PublishDate,
+                NickName = Model.NickName,
+                Vision = Model.Vision,
+                Mission = Model.Mission,
+                CoreValues = Model.CoreValues,
+                Motto = Model.Motto,
+                JobTitle = Model.JobTitle,
+                Type = Model.Type
+            };
+    }
+
+    protected async void LoadData(string languageCode)
+    {
+        LanguageConfig.LanguageCode = ListBranches.LanguageCode = Model.LanguageCode = languageCode;
+
+        Model = await CompanyApiClient.GetCompanyInfo(Model.LanguageCode);
+        ModelRequest = new WebInfoRequest
+            {
+                AboutUs = Model.AboutUs,
+                Brief = Model.Brief,
+                DisplayName = Model.DisplayName,
+                FullName = Model.FullName,
+                LanguageCode = Model.LanguageCode,
+                Slogan = Model.Slogan,
+                TaxCode = Model.TaxCode,
+                PublishDate = Model.PublishDate,
+                NickName = Model.NickName,
+                Vision = Model.Vision,
+                Mission = Model.Mission,
+                CoreValues = Model.CoreValues,
+                Motto = Model.Motto,
+                JobTitle = Model.JobTitle,
+                Type = Model.Type
+            };
+
+        await this.QuillHtml.LoadHTMLContent(ModelRequest.AboutUs);
+
+        await ListBranches.Load();
+        await LanguageConfig.Load();
+        await WebSEOInfo.Load();
+
+        StateHasChanged();
+    }
+
+    protected async Task ShowHTMLClick()
+    {
+        ModelRequest.AboutUs = await this.QuillHtml.GetHTML();
+        EditHTML.Show(ModelRequest.AboutUs);
+    }
+    protected async Task ApplyHTML(string content)
+    {
+        await this.QuillHtml.LoadHTMLContent(content);
+        StateHasChanged();
+    }
+
+    protected async Task InsertImageClick()
+    {
+        ImageManagerControl.Show(true);
+    }
+
+
+    protected async Task HandleSubmit()
+    {
+        ModelRequest.AboutUs = await this.QuillHtml.GetHTML();
+        
+        var result = await CompanyApiClient.UpdateCompanyInfo(ModelRequest);
+        if (result)
+        {
+            ToastService.ShowInfo("Cập nhật thông tin thành công");
+            StateHasChanged();
+        }
+        else
+        {
+            ToastService.ShowError("Cập nhật thông tin không thành công");
+        }
+    }
+
+    protected async Task InsertImage(string paramImageURL)
+    {
+        await this.QuillHtml.InsertImage(paramImageURL);
+
+        ImageManagerControl.Show(true);
+    }
+}

@@ -1,0 +1,46 @@
+﻿using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
+
+namespace Web.Models
+{
+    public class SignupRequest
+    {
+        public Guid Id { get; set; } = Guid.NewGuid();
+
+        [MaxLength(250, ErrorMessage = "Họ không thể dài hơn 250 ký tự")]
+        [Required(ErrorMessage = "Vui lòng nhập họ")]
+        public string FirstName { get; set; }
+
+        [MaxLength(250, ErrorMessage = "Tên không thể dài hơn 250 ký tự")]
+        [Required(ErrorMessage = "Vui lòng nhập tên")]
+        public string LastName { get; set; }
+
+        [MaxLength(250, ErrorMessage = "Tên đăng nhập không thể dài hơn 250 ký tự")]
+        [Required(ErrorMessage = "Vui lòng nhập tài khoản")]
+        public string UserName { get; set; }
+
+        [Required(ErrorMessage = "Vui lòng nhập mật khẩu")]
+        public string Password { get; set; }
+
+        [MaxLength(50, ErrorMessage = "Tên miền không thể dài hơn 50 ký tự")]
+        [Required(ErrorMessage = "Vui lòng nhập tên miền")]
+        public string Domain { get; set; }
+
+        [MaxLength(100, ErrorMessage = "Email không thể dài hơn 100 ký tự")]
+        public string Email { get; set; }
+
+        [MaxLength(15, ErrorMessage = "Số điện thoại không thể dài hơn 15 ký tự")]
+        [Required(ErrorMessage = "Vui lòng nhập số điện tho")]
+        public string Phone { get; set; }
+
+        [MaxLength(150, ErrorMessage = "Tên hiển thị công ty không thể dài hơn 150 ký tự")]
+        [Required(ErrorMessage = "Vui lòng nhập tên hiển thị của công ty")]
+        public string WebsiteName { get; set; }
+
+        [Required(ErrorMessage = "Vui lòng chọn Template")]
+        public string TemplateName { get; set; }
+
+        [AllowNull]
+        public string? CoppyFrom { get; set; }
+    }
+}

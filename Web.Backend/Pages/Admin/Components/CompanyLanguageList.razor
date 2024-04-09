@@ -1,0 +1,116 @@
+﻿@using Web.Backend.Services;
+@using Web.Models;
+@using Web.Backend.Components;
+@using Web.Models.SeedWork;
+
+@inject IToastService ToastService;
+@inject ICompanyApiClient CompanyApiClient;
+
+@if (ShowDialog)
+{
+    <div class="modal fade show d-block" id="assignModel" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Danh sách ngôn ngữ</h5>
+                    <button type="button" class="close" data-dismiss="modal" @onclick="()=>Hide()" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Mã ngôn ngữ</th>
+                                <th style="text-align:right">
+                                    <button class="btn btn-primary btn-xs" @onclick="()=> OpenCreatePopup()">Thêm</button>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <CompanyLanguageCreate @ref="CreateCompanyLanguage" CloseEventCallbak="RefreshList"></CompanyLanguageCreate>
+                            @foreach (var item in Languages)
+                            {
+                                <tr>
+                                    <td>@item</td>
+                                    <td style="text-align:right">
+                                        <button class="btn btn-danger btn-xs" @onclick="()=> OnDelete(item)">Xóa</button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <Confirmation ConfirmationMessage="Bạn có chắc chắn xóa?"
+              ConfirmationTitle="Xóa ngôn ngữ"
+              @ref="DeleteConfirmation"
+              ConfirmationChanged="OnConfirmDelete">
+    </Confirmation>
+}
+
+@code {
+    protected bool ShowDialog { get; set; }
+
+    private Guid CompanyId { set; get; }
+    private List<string> Languages = new List<string>();
+    private string DeleteLanguageCode { set; get; }
+
+    protected Confirmation DeleteConfirmation { set; get; }
+    protected CompanyLanguageCreate CreateCompanyLanguage { set; get; }
+
+    [CascadingParameter]
+    private Error Error { set; get; }
+
+    [Parameter]
+    public EventCallback CloseEventCallbak { get; set; }
+
+    public async Task RefreshList(bool loadListCompanise)
+    {
+        try
+        {
+            Languages = await CompanyApiClient.GetLanguageList(CompanyId);
+            if (loadListCompanise) await CloseEventCallbak.InvokeAsync();
+        }
+        catch (Exception ex)
+        {
+            Error.ProcessError(ex);
+        }
+    }
+
+    public async void Show(Guid companyId)
+    {
+        ShowDialog = true;
+        CompanyId = companyId;
+        await RefreshList(false);
+        StateHasChanged();
+    }
+
+    private void Hide()
+    {
+        ShowDialog = false;
+        StateHasChanged();
+    }
+
+    public void OpenCreatePopup()
+    {
+        CreateCompanyLanguage.Show(CompanyId);
+    }
+
+    public void OnDelete(string name)
+    {
+        DeleteLanguageCode = name;
+        DeleteConfirmation.Show();
+    }
+
+    public async Task OnConfirmDelete(bool deleteConfirmed)
+    {
+        if (deleteConfirmed)
+        {
+            await CompanyApiClient.DeleteLanguage(CompanyId, DeleteLanguageCode);
+            await RefreshList(true);
+        }
+    }
+}

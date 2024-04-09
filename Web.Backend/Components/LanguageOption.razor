@@ -1,0 +1,43 @@
+﻿@if (Languages != null && Languages.Count > 1)
+{
+    <div class="callout callout-danger" style="text-align:center">
+        <div class="form-check form-check-inline" style="text-align:center">
+            <label class="form-check-label">Ngôn ngữ: &nbsp;</label>
+            @foreach (var item in Languages)
+            {
+                <div class="form-check form-check-inline">
+                    <input name="languagecode" type="radio" Value="@item" class="form-check-input" @onchange="OnChange" checked="@(CurrentLanguage == item)" /> @item
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@using Microsoft.AspNetCore.Authorization;
+@using Web.Backend.Services;
+@using Web.Models;
+
+@inject ICompanyApiClient CompanyApiClient;
+
+@code {
+    [Parameter]
+    public EventCallback<string> SelectLanguage { set; get; }
+
+    [Parameter]
+    public string CurrentLanguage { set; get; }
+
+    private List<string> Languages { get; set; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        Languages = await CompanyApiClient.GetLanguageList(Guid.Empty);
+    }
+
+    public void OnChange(ChangeEventArgs e)
+    {
+        CurrentLanguage = e.Value as string;
+        SelectLanguage.InvokeAsync(CurrentLanguage);
+    }
+}
+
+

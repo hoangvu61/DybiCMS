@@ -1,0 +1,95 @@
+﻿@using Web.Backend.Services;
+@using Web.Models;
+@using System.IO;
+@using Web.Models.Enums;
+@using Web.Models.SeedWork;
+
+@inject ITemplateApiClient TemplateApiClient;
+
+    <EditForm Model="@Model" OnSubmit=@SearchForm>
+        <div class="row">
+            <div class="col">
+            <InputText class="form-control form-control-sm" @bind-Value="Model.Name" placeholder="Tìm tiêu đề"></InputText>
+            </div>
+
+            <div class="col">
+            <InputSelect class="form-control form-control-sm" ValueExpression="@(()=>Model.ComponentName)"
+                         Value="@Model.ComponentName"
+                         ValueChanged="@((string value) => OnComponentChanged(value))">
+                <option value="*">Chọn trang</option>
+                <option value="">Template</option>
+                @if (Components != null)
+                {
+                    @foreach (var item in Components)
+                    {
+                        <option value="@item.ComponentName">@item.Describe</option>
+                    }
+                }
+            </InputSelect>
+            </div>
+
+            <div class="col">
+            <InputSelect class="form-control form-control-sm" @bind-Value="Model.Position">
+                <option value="">Chọn vị trí</option>
+                @if (Positions != null)
+                {
+                    @foreach (var item in Positions)
+                    {
+                        <option value="@item.PositionName">@item.Describe</option>
+                    }
+                }
+            </InputSelect>
+            </div>
+
+            <div class="col button-top">
+            <button type="submit" class="btn btn-primary btn-sm">Search</button>
+            </div>
+        </div>
+    </EditForm>
+
+@code {
+    [Parameter]
+    public EventCallback<ModuleConfigListSearch> OnSearch { set; get; }
+
+    [Parameter]
+    public int PageSize { set; get; }
+
+    private ModuleConfigListSearch Model = new ModuleConfigListSearch();
+
+    private List<TemplateComponentDto> Components { set; get; }
+    private List<TemplatePositionDto> AllPositions { set; get; }
+    private List<TemplatePositionDto> Positions { set; get; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        Components = await TemplateApiClient.GetComponents();
+        AllPositions = await TemplateApiClient.GetPositions();
+
+        var componentPositions = AllPositions.Select(p => p.ComponentName).ToList();
+        Components = Components.Where(e => componentPositions.Contains(e.ComponentName)).ToList();
+
+        Model.ComponentName = "*";
+        Positions = AllPositions.Where(e => e.ComponentName == Model.ComponentName).ToList();
+        Model.Position = "";
+    }
+
+    protected async override Task OnParametersSetAsync()
+    {
+        if (PageSize > 0)
+        {
+            Model.PageSize = PageSize;
+        }
+    }
+
+    protected async Task OnComponentChanged(string componentName)
+    {
+        Model.ComponentName = componentName;
+        Positions = AllPositions.Where(e => e.ComponentName == Model.ComponentName).ToList();
+        Model.Position = Positions.First().PositionName;
+    }
+
+    private async Task SearchForm(EditContext context)
+    {
+        await OnSearch.InvokeAsync(Model);
+    }
+}

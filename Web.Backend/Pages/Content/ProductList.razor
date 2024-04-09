@@ -1,0 +1,245 @@
+﻿@page "/ProductList"
+@attribute [Authorize]
+
+@using Microsoft.AspNetCore.Authorization;
+@using Web.Backend.Components;
+@using Web.Backend.Pages.Content.Components;
+@using Web.Backend.Services;
+@using Web.Models;
+@using Web.Models.SeedWork;
+@using Microsoft.Extensions.Configuration
+
+@inject IConfiguration Configuration
+@inject IToastService ToastService;
+@inject IContentApiClient ContentApiClient;
+@inject ICompanyApiClient CompanyApiClient;
+
+<section class="content-header">
+    <div class="container-fluid">
+        <h1 class="m-0">Quản lý sản phẩm</h1>
+    </div>
+</section>
+
+<section class="content">
+    <div class="container-fluid">
+        @if (Products == null)
+        {
+            <LoadingIndicator></LoadingIndicator>
+        }
+        else
+        {
+            <div class="card card-outline card-info">
+                <div class="card-header">
+                    <h3 class="card-title">Danh sách sản phẩm</h3>
+                </div>
+                <div class="card-body">
+                    <ProductSearch @ref="ProductSearchControl" OnSearch="SearchProduct"></ProductSearch>
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Mã</th>
+                                <th>Tên</th>
+                                <th>Danh mục</th>
+                                <th style="text-align:center">Hình</th>
+                                <th style="text-align:right">Giá</th>
+                                <th style="text-align:center">lượt xem</th>
+                                <th style="text-align:center">Thứ tự</th>
+                                <th style="text-align:center">Sử dụng</th>
+                                <th style="text-align:right">
+                                    <a href="/ProductCreate" class="btn btn-primary btn-sm">Thêm</a>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Products)
+                            {
+                                <tr>
+                                    <td>@item.Code</td>
+                                    <td>
+                                        <table>
+                                            @foreach (var title in item.Titles)
+                                            {
+                                                <tr>
+                                                    @if (Languages != null && Languages.Count > 1)
+                                                    {
+                                                        <td style="border:0;padding:0">@title.Key: </td>
+                                                    }
+                                                    <td style="border:0;padding:0">@title.Value</td>
+                                                </tr>
+                                            }
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table>
+                                            @foreach (var title in item.CategoryNames)
+                                            {
+                                                <tr>
+                                                    @if (Languages != null && Languages.Count > 1)
+                                                    {
+                                                        <td style="border:0;padding:0">@title.Key: </td>
+                                                    }
+                                                    <td style="border:0;padding:0">@title.Value</td>
+                                                </tr>
+                                            }
+                                        </table>
+                                    </td>
+                                    <td style="text-align:center"><img src="@(BackendApiUrl + "/" + item.Image.FullPath + "?DummyId=" + DateTime.Now.Ticks)" asp-append-version="true" width="50px" /></td>
+                                    <td style="text-align:right">
+                                        @if (item.DiscountType > 0)
+                                        {
+                                            <span style="font-weight: 500;text-decoration: line-through;">@item.Price.ToString("N0")</span>
+                                            <br/>
+                                            if (item.DiscountType == 1)
+                                            {
+                                                var price = item.Price - (item.Discount * item.Price) / 100;
+                                                <span>@price.ToString("N0") <br />(-@item.Discount%)</span>
+                                            }
+                                            else if (item.DiscountType == 2)
+                                            {
+                                                var price = item.Price - item.Discount;
+                                                <span>@price.ToString("N0")</span>
+                                            }
+                                            else if (item.DiscountType == 3)
+                                            {
+                                                <span>@item.Discount.ToString("N0")</span>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            @item.Price.ToString("N0")
+                                        }
+                                    </td>
+                                    <td style="text-align:center">
+                                        @item.View
+                                    </td>
+                                    <td style="text-align: center;width:100px">
+                                        <div class="input-group input-group-sm mb-3">
+                                            <button class="btn btn-outline-secondary" @onclick="@((e) => {item.Order--; OrderChanged(item.Id, item.Order);})">&lt;</button>
+                                            <span class="form-control">@item.Order</span>
+                                            <button class="btn btn-outline-secondary" @onclick="@((e) => {item.Order++; OrderChanged(item.Id, item.Order);})">&gt;</button>
+                                        </div>
+                                    </td>
+                                    <td class="form-switch" style="text-align: center; padding-left: 30px;">
+                                        <input type="checkbox" checked="@item.IsPublished" class="form-check-input" role="switch" @onchange="@((e) => {item.IsPublished= bool.Parse(e.Value.ToString()); ApplyChanged(item.Id);})"></input>
+                                    </td>
+                                    <td style="text-align:right;width:100px">
+                                        <a href="/ProductDetail/@item.Id" class="btn btn-primary btn-sm">Xem</a>
+                                        <button class="btn btn-danger btn-sm" @onclick="()=> OnDelete(item.Id)">Xóa</button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="9">
+                                    <Pagination MetaData="MetaData" Spread="2" SelectedPage="SelectedPage"></Pagination>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+            <Confirmation ConfirmationMessage="Bạn có chắc chắn xóa?"
+                      ConfirmationTitle="Xóa sản phẩm"
+                      @ref="DeleteConfirmation"
+                      ConfirmationChanged="OnConfirmDelete">
+            </Confirmation>
+        }
+    </div>
+</section>
+
+@code {
+    protected Confirmation DeleteConfirmation { set; get; }
+
+    private const int PageSize = 20;
+    private List<ProductDto> Products;
+    private Guid DeleteId { set; get; }
+    private List<string> Languages { get; set; }
+
+    private ProductSearch ProductSearchControl { set; get; }
+    private ProductListSearch ProductListSearch = new ProductListSearch();
+    public MetaData MetaData { get; set; } = new MetaData();
+
+    private string BackendApiUrl { get; set; }
+
+    [CascadingParameter]
+    private Error Error { set; get; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        BackendApiUrl = Configuration["BackendApiUrl"];
+        Languages = await CompanyApiClient.GetLanguageList(Guid.Empty);
+        ProductListSearch.PageSize = PageSize;
+        await RefreshList(true);
+    }
+
+    public async Task RefreshList(bool result)
+    {
+        if (result)
+        {
+            try
+            {
+                var pagingResponse = await ContentApiClient.GetProducts(ProductListSearch);
+                Products = pagingResponse.Items;
+                MetaData = pagingResponse.MetaData;
+
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                Error.ProcessError(ex);
+            }
+        }
+    }
+
+    public async Task SearchProduct(ProductListSearch productListSearch)
+    {
+        ProductListSearch = productListSearch;
+        ProductListSearch.PageSize = PageSize;
+        await RefreshList(true);
+    }
+
+    private async Task SelectedPage(int page)
+    {
+        ProductListSearch.PageNumber = page;
+        await RefreshList(true);
+    }
+
+    public async Task OnConfirmDelete(bool deleteConfirmed)
+    {
+        if (deleteConfirmed)
+        {
+            var result = await ContentApiClient.DeleteProduct(DeleteId);
+            if (result)
+            {
+                ToastService.ShowWarning($"Đã xóa {DeleteId}");
+                await RefreshList(true);
+            }
+            else ToastService.ShowError("Xóa không thành công");
+            
+        }
+    }
+    public void OnDelete(Guid deleteId)
+    {
+        DeleteId = deleteId;
+        DeleteConfirmation.Show();
+    }
+
+    public async void ApplyChanged(Guid id)
+    {
+        var result = await ContentApiClient.UpdatePublish(id);
+        if (result) ToastService.ShowInfo("Cập nhật thành công");
+        else ToastService.ShowError("Cập nhật không thành công");
+    }
+    public async void OrderChanged(Guid id, int order)
+    {
+        var result = await ContentApiClient.UpdateOrder(id, order);
+        if (result)
+        {
+            ToastService.ShowInfo($"Đã cập nhật thứ tự thành [{order}] thành công");
+            await RefreshList(true);
+        }
+        else ToastService.ShowError("Cập nhật không thành công");
+    }
+}

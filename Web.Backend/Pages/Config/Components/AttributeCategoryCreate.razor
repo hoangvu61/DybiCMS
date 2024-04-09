@@ -1,0 +1,160 @@
+﻿@using Web.Backend.Services;
+@using Web.Models;
+@using System.IO;
+@using Web.Models.Enums;
+@using Web.Models.SeedWork;
+
+@inject IToastService ToastService;
+@inject IAttributeApiClient AttributeApiClient;
+@inject IContentApiClient ContentApiClient;
+
+@if (ShowDialog)
+{
+    <div class="modal fade show d-block" id="assignModel" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <EditForm Model="Model" OnValidSubmit="HandleSubmit">
+                <DataAnnotationsValidator></DataAnnotationsValidator>
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Thêm thuộc tính vào danh mục</h5>
+                        <button type="button" class="close" data-dismiss="modal" @onclick="()=>Hide()" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <div class="input-group input-group-sm mb-3">
+                                <span class="input-group-text">Danh mục:</span>
+                                <InputSelect class="form-control form-control-sm" ValueExpression="@(()=>Model.CategoryId)"
+                                     Value="@Model.CategoryId"
+                                     ValueChanged="@((Guid value) => OnCategoryChanged(value))">
+                                    <option value="@Guid.Empty">Chọn danh mục</option>
+                                    @foreach (var category in Categories)
+                                    {
+                                        <option value="@category.Id">@category.Type @category.Titles.FirstOrDefault(e => e.Key == "vi").Value</option>
+                                    }
+                                </InputSelect>
+                                <ValidationMessage For="()=>Model.CategoryId"></ValidationMessage>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="input-group input-group-sm mb-3">
+                                <span class="input-group-text">Thuộc tính:</span>
+                                <InputSelect class="form-control form-control-sm" @bind-Value="Model.AttributeId">
+                                    <option value="">Chọn thuộc tính</option>
+                                    @foreach (var att in Attributes)
+                                    {
+                                        <option value="@att.Id">@att.Id - @att.Titles.FirstOrDefault(e => e.Key == "vi").Value</option>
+                                    }
+                                </InputSelect>
+                                <ValidationMessage For="()=>Model.AttributeId"></ValidationMessage>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="input-group input-group-sm mb-3">
+                                <span class="input-group-text">Thứ tự:</span>
+                                <InputNumber class="form-control" @bind-Value="Model.Order"></InputNumber>
+                                <ValidationMessage For="()=> Model.Order"></ValidationMessage>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-xs" @onclick="()=>Hide()" data-dismiss="modal">Đóng</button>
+                        <button type="submit" class="btn btn-primary btn-xs">Thêm</button>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@code {
+    protected bool ShowDialog { get; set; }
+
+    private AttributeCategoryCreateRequest Model { set; get; } = new AttributeCategoryCreateRequest();
+    private List<CategoryDto> Categories { set; get; }
+    private List<AttributeDto> Attributes { set; get; }
+    private List<AttributeCategoryDto> AttributeCategories { set; get; }
+
+    [Parameter]
+    public EventCallback<bool> CloseEventCallbak { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        
+    }
+
+    public async Task LoadData()
+    {
+        var categories = await ContentApiClient.GetCategories();
+        Categories = SortTable(categories, null, "", "---");
+
+        Attributes = await AttributeApiClient.GetAttributeList();
+
+        AttributeCategories = await AttributeApiClient.GetAttributeCategoryList();
+    }
+
+    public async Task Show(Guid categoryId)
+    {
+        await LoadData();
+
+        ShowDialog = true;
+        Model.AttributeId = string.Empty;
+        Model.CategoryId = categoryId;
+        Model.Order = 50;
+        StateHasChanged();
+    }
+
+    private void Hide()
+    {
+        ShowDialog = false;
+        StateHasChanged();
+    }
+
+    protected async Task OnCategoryChanged(Guid categoryId)
+    {
+        Model.CategoryId = categoryId;
+
+        var attributeCategories = AttributeCategories.Where(e => e.CategoryId == Model.CategoryId).Select(e => e.AttributeId).ToList();
+        Attributes = Attributes.Where(e => !attributeCategories.Contains(e.Id)).ToList();
+    }
+
+    protected async Task HandleSubmit()
+    {
+        if (Model.CategoryId == Guid.Empty) ToastService.ShowWarning("Vui lòng chọn danh mục cho thuộc tính");
+        else if (Model.AttributeId == string.Empty) ToastService.ShowWarning("Vui lòng chọn thuộc tính");
+        else
+        {
+            var result = await AttributeApiClient.CreateAttributeCategory(Model);
+            if (result)
+            {
+                ShowDialog = false;
+                await CloseEventCallbak.InvokeAsync(true);
+                ToastService.ShowInfo("Cài đặt thuộc tính thành công");
+            }
+            else
+            {
+                ToastService.ShowError("Cài đặt thuộc tính không thành công");
+            }
+        }
+    }
+
+    private List<CategoryDto> SortTable(List<CategoryDto> table, Guid? parentId, string space = "", string distance = "....")
+    {
+        var rows = table.Where(dto => dto.ParentId == parentId).ToList();
+        if (!rows.Any()) return new List<CategoryDto>();
+        var sortData = new List<CategoryDto>();
+        foreach (var row in rows)
+        {
+            var spaceNext = space + distance;
+            var dt = SortTable(table, row.Id, spaceNext, distance);
+            row.Type = space;
+            sortData.Add(row);
+
+            if (dt.Count > 0) sortData.AddRange(dt);
+        }
+        return sortData;
+    }
+}

@@ -1,0 +1,106 @@
+﻿@using Web.Backend.Services;
+@using Web.Models;
+@using System.IO;
+@using Web.Models.Enums;
+@using Web.Models.SeedWork;
+
+@inject IToastService ToastService;
+@inject IAttributeApiClient AttributeApiClient
+@inject ICompanyApiClient CompanyApiClient;
+
+@if (ShowDialog)
+{
+    <div class="modal fade show d-block" id="assignModel" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <EditForm Model="Model" OnValidSubmit="HandleSubmit">
+                <DataAnnotationsValidator></DataAnnotationsValidator>
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Thêm giá trị thuộc tính cho [@SourceName]</h5>
+                        <button type="button" class="close" data-dismiss="modal" @onclick="()=>Hide()" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <div class="input-group input-group-sm mb-3">
+                                <span class="input-group-text">Mã giá trị</span>
+                                <InputText class="form-control" @bind-Value="@Model.Id"></InputText>
+                                <ValidationMessage For="()=>Model.Id"></ValidationMessage>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @foreach (var title in Model.Titles)
+                            {
+                                <div class="input-group input-group-sm mb-3">
+                                    <span class="input-group-text" id="inputGroup-sizing-sm">Tên (@title.LanguageCode)</span>
+                                    <InputText class="form-control" @bind-Value="@title.Title"></InputText>
+                                    <ValidationMessage For="()=>title.Title"></ValidationMessage>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-xs" @onclick="()=>Hide()" data-dismiss="modal">Đóng</button>
+                        <button type="submit" class="btn btn-primary btn-xs">Thêm</button>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@code {
+    protected bool ShowDialog { get; set; }
+    protected bool ShowSource { get; set; }
+    protected string SourceName { get; set; }
+
+    private AttributeValueDto Model { set; get; } = new AttributeValueDto();
+
+    [Parameter]
+    public EventCallback<bool> CloseEventCallbak { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var languages = await CompanyApiClient.GetLanguageList(Guid.Empty);
+        foreach(var lang in languages)
+        {
+            Model.Titles.Add(new TitleLanguageDto { LanguageCode = lang, Title = "" });
+        }
+    }
+
+    public async Task Show(Guid sourceId, string sourceName)
+    {
+        Model.Id = string.Empty;
+        Model.SourceId = sourceId;
+        SourceName = sourceName;
+        ShowDialog = true;
+        StateHasChanged();
+    }
+
+    private void Hide()
+    {
+        ShowDialog = false;
+        StateHasChanged();
+    }
+
+    protected async Task HandleSubmit()
+    {
+        if (string.IsNullOrEmpty(Model.Id)) Model.Id = Guid.NewGuid().ToString();
+        if (Model.Titles.Any(e => string.IsNullOrEmpty(e.Title))) ToastService.ShowError("Tên giá trị thuộc tính không được để trống");
+        else
+        {
+            var result = await AttributeApiClient.CreateValue(Model);
+            if (result)
+            {
+                ShowDialog = false;
+                await CloseEventCallbak.InvokeAsync(true);
+                ToastService.ShowInfo($"Thêm giá trị cho thuộc tính {SourceName} thành công");
+            }
+            else
+            {
+                ToastService.ShowError($"Thêm giá trị cho thuộc tính {SourceName} không thành công");
+            }
+        }
+    }
+}

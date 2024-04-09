@@ -1,0 +1,77 @@
+﻿@using Web.Backend.Services;
+@using Web.Models;
+@using Web.Models.Enums;
+@using Web.Models.SeedWork;
+
+@inject IToastService ToastService;
+@inject ICompanyApiClient CompanyApiClient;
+
+@if (ShowDialog)
+{
+    <tr>
+         <td colspan="3">
+            <EditForm Model="Model" OnValidSubmit="HandleSubmit">
+                <DataAnnotationsValidator></DataAnnotationsValidator>
+                <div class="row">
+                    <div class="col">
+                        <InputText class="form-control form-control-sm" @bind-Value="Model.Domain" placeholder="Tên miền"></InputText>
+                        <ValidationMessage For="()=> Model.Domain"></ValidationMessage>
+                    </div>
+                    <div class="col">
+                        <InputSelect class="form-control form-control-sm" @bind-Value="Model.LanguageCode">
+                            <option>Chọn ngôn ngữ</option>
+                            @foreach (var item in Languages)
+                            {
+                                <option value="@item">@item</option>
+                            }
+                        </InputSelect>
+                        <ValidationMessage For="()=> Model.LanguageCode"></ValidationMessage>
+                    </div>
+                    <div class="col" style="text-align:right">
+                        <button type="button" class="btn btn-secondary btn-xs" @onclick="()=>Hide()" data-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-primary btn-xs">Lưu</button>
+                    </div>
+                </div>
+            </EditForm>
+         </td>
+    </tr>
+}
+
+@code {
+    protected bool ShowDialog { get; set; }
+
+    private CompanyDomainDto Model { set; get; } = new CompanyDomainDto();
+    private List<string> Languages = new List<string>();
+
+    [Parameter]
+    public EventCallback<bool> CloseEventCallbak { get; set; }
+
+    public async void Show(Guid companyId)
+    {
+        Model.CompanyId = companyId;
+        Languages = await CompanyApiClient.GetLanguageList(Model.CompanyId);
+        ShowDialog = true;
+        StateHasChanged();
+    }
+
+    private void Hide()
+    {
+        ShowDialog = false;
+        StateHasChanged();
+    }
+
+    protected async Task HandleSubmit()
+    {
+        var result = await CompanyApiClient.CreateDomain(Model);
+        if (result)
+        {
+            ShowDialog = false;
+            await CloseEventCallbak.InvokeAsync(true);
+            ToastService.ShowInfo("Thêm tên miền thành công");
+        }
+        else
+        {
+            ToastService.ShowError("Thêm tên miền không thành công");
+        }
+    }
+}

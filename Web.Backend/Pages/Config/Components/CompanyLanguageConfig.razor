@@ -1,0 +1,72 @@
+﻿@using Microsoft.AspNetCore.Authorization;
+@using Web.Backend.Services;
+@using Web.Models;
+
+@inject IToastService ToastService;
+@inject ICompanyApiClient CompanyApiClient;
+
+@attribute [Authorize]
+
+@if (Configs != null && Configs.Count > 0)
+{
+    <div class="card card-outline card-warning">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-edit"></i>
+                Cài đặt ngôn ngữ <strong>@LanguageCode</strong>
+            </h3>
+        </div>
+        <div class="card-body">
+            <table class="table table-striped">
+                <thead>
+                    <tr><th scope="col">Key</th><th scope="col">Hiển thị</th><th scope="col"></th></tr>
+                </thead>
+                <tbody>
+                @foreach (var config in Configs)
+                {
+                    <tr>
+                        <th scope="row">@config.LanguageKey</th>
+                            <td><input type="text" class="form-control form-control-sm" value="@config.Describe" @onchange="@(e => config.Describe = e.Value.ToString())"></input></td>
+                            <td><button class="btn btn-secondary btn-sm" type="button" @onclick="() => Onchange(config)">Lưu</button></td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string LanguageCode { set; get; }
+
+    private List<CompanyLanguageConfigDto> Configs { get; set; }
+
+    public enum Field
+    {
+        CanRightClick,
+        CanSelectCopy,
+        Hierarchy
+    }
+
+    protected async override Task OnParametersSetAsync()
+    {
+        if (!string.IsNullOrEmpty(LanguageCode))
+        {
+            Configs = await CompanyApiClient.GetLanguageConfigList(LanguageCode);
+        }
+    }
+
+    public async Task Load()
+    {
+        Configs = await CompanyApiClient.GetLanguageConfigList(LanguageCode);
+        StateHasChanged();
+    }
+
+    private async Task Onchange(CompanyLanguageConfigDto dto)
+    {
+        var result = await CompanyApiClient.SaveLanguageConfig(dto);
+        if (result) ToastService.ShowInfo($"Cập nhật [{dto.LanguageKey}] = '{dto.Describe}' thành công");
+        else ToastService.ShowError($"Cập nhật [{dto.LanguageKey}] không thành công");
+    }
+}
