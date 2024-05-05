@@ -197,8 +197,11 @@
                                             </span>
                                             <span class="ql-formats">
                                                 <button class="ql-link"></button>
-                                                <button type="button" class="btn btn-link" id="custom-button" @onclick="InsertImageClick">
-                                                    <img src="imageIcon.png" style="border:hidden" />
+                                                <button type="button" class="btn btn-link" @onclick="InsertImageClick">
+                                                    <img src="imageicon.png" style="border:hidden;width:20px;height:18px" />
+                                                </button>
+                                                <button type="button" class="btn btn-link" @onclick="InsertVideoClick">
+                                                    <img src="videoicon.png" style="border:hidden;width:20px;height:18px" />
                                                 </button>
                                                 <button type="button" class="btn btn-link" @onclick="ShowHTMLClick">H</button>
                                             </span>
@@ -218,6 +221,7 @@
             
             <ImageSelector @ref="ImageManagerControl" ImageSelected="InsertImage"></ImageSelector>
             <HTMLEdit @ref="EditHTML" TextChanged="ApplyHTML"></HTMLEdit>
+            <EmbedVideoInsert @ref="VideoInsertControl" InsertVideo="InsertVideo"></EmbedVideoInsert>
             <CategoryCreate @ref="CreateCategory" LanguageCode="@LanguageCode" CloseEventCallbak="LoadCategories" Type="PRO"></CategoryCreate>
     </div>
 </section>
@@ -236,6 +240,7 @@
 
     private HTMLEdit EditHTML { get; set; }
     private ImageSelector ImageManagerControl { get; set; }
+    private EmbedVideoInsert VideoInsertControl { get; set; }
     private BlazoredTextEditor QuillHtml;
     protected CategoryCreate CreateCategory { set; get; }
     protected AttributeList ProductAttributeListControl { get; set; }
@@ -309,12 +314,23 @@
     {
         ImageManagerControl.Show(true);
     }
-
     protected async Task InsertImage(string paramImageURL)
     {
         await this.QuillHtml.InsertImage(paramImageURL);
 
         ImageManagerControl.Show(true);
+    }
+
+    protected async Task InsertVideoClick()
+    {
+        VideoInsertControl.Show(true);
+    }
+    protected async Task InsertVideo(string embedVideo)
+    {
+        Model.Content = await this.QuillHtml.GetHTML();
+        Model.Content = embedVideo + Model.Content;
+        await this.QuillHtml.LoadHTMLContent(Model.Content);
+        StateHasChanged();
     }
 
     private async void LogoChange(InputFileChangeEventArgs e)

@@ -193,6 +193,8 @@
         }
 
         isUploading = false;
+
+        filesQueue.Clear();
     } //UploadFileQueue
 
     private async Task UploadChunks(FileUploadProgress file)
@@ -261,7 +263,6 @@
         if (itemToRemove != null)
             filesQueue.Remove(itemToRemove);
     } //RemoveFromQueue
-
 
     private void ClearFileQueue()
     {
