@@ -7,14 +7,14 @@
                     <b class="modal-title">Embed Video</b>
                     <!-- Close Button -->
                     <button type="button" class="close">
-                        <span aria-hidden="true">X</span>
+                        <span aria-hidden="true" @onclick="() => Show(false)">X</span>
                     </button>
                 </div>
                 <div class="modal-body">
                     <InputTextArea @bind-Value="Embed" class="form-control form-control-sm" style="height:200px"></InputTextArea>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary btn-xs" data-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-secondary btn-xs" @onclick="() => Show(false)" data-dismiss="modal">Đóng</button>
                     <button type="button" class="btn btn-primary btn-xs" @onclick="Agree">Đồng ý</button>
                 </div>
             </div>
