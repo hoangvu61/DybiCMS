@@ -116,8 +116,11 @@
                                     </span>
                                     <span class="ql-formats">
                                         <button class="ql-link"></button>
-                                        <button type="button" class="btn btn-link" id="custom-button" @onclick="InsertImageClick">
-                                            <img src="imageIcon.png" style="border:hidden" />
+                                        <button type="button" class="btn btn-link" @onclick="InsertImageClick">
+                                            <img src="imageicon.png" style="border:hidden;width:20px;height:18px" />
+                                        </button>
+                                        <button type="button" class="btn btn-link" @onclick="InsertVideoClick">
+                                            <img src="videoicon.png" style="border:hidden;width:20px;height:18px" />
                                         </button>
                                         <button type="button" class="btn btn-link" @onclick="ShowHTMLClick">H</button>
                                     </span>
@@ -140,6 +143,7 @@
     </Confirmation>
     <ImageSelector @ref="ImageManagerControl" ImageSelected="InsertImage"></ImageSelector>
     <HTMLEdit @ref="EditHTML" TextChanged="ApplyHTML"></HTMLEdit>
+    <EmbedVideoInsert @ref="VideoInsertControl" InsertVideo="InsertVideo"></EmbedVideoInsert>
     <CategoryCreate @ref="CreateCategory" LanguageCode="@LanguageCode" CloseEventCallbak="EventCallbak" Type="@Model.Type" ParentId="Model.Id"></CategoryCreate>
 }
 
@@ -156,6 +160,8 @@
 
     private HTMLEdit EditHTML { get; set; }
     private ImageSelector ImageManagerControl { get; set; }
+    private EmbedVideoInsert VideoInsertControl { get; set; }
+
     protected SEOItem SEOItemControl { get; set; }
     private BlazoredTextEditor QuillHtml;
 
@@ -228,7 +234,35 @@
     {
         await this.QuillHtml.InsertImage(paramImageURL);
 
-        ImageManagerControl.Show(true);
+        if (!string.IsNullOrEmpty(Model.Title))
+        {
+            var currentImageURL = $"<img src=\"{paramImageURL}\" alt=\"{paramImageURL}\">";
+            var newImageURL = $"<img src=\"{paramImageURL}\" alt=\"{Model.Title}\">";
+            Model.Content = await this.QuillHtml.GetHTML();
+            Model.Content = Model.Content.Replace(currentImageURL, newImageURL);
+            await this.QuillHtml.LoadHTMLContent(Model.Content);
+            StateHasChanged();
+        }
+
+        ImageManagerControl.Show(false);
+    }
+
+    protected async Task InsertVideoClick()
+    {
+        VideoInsertControl.Show(true);
+    }
+    protected async Task InsertVideo(string embedVideo)
+    {
+        // Model.Content = await this.QuillHtml.GetHTML();
+        // Model.Content += embedVideo;
+
+        await this.QuillHtml.InsertImage("DybiEmbedVideoInsert");
+
+        Model.Content = await this.QuillHtml.GetHTML();
+        Model.Content = Model.Content.Replace("<img src=\"DybiEmbedVideoInsert\" alt=\"DybiEmbedVideoInsert\">", embedVideo);
+
+        await this.QuillHtml.LoadHTMLContent(Model.Content);
+        StateHasChanged();
     }
 
     public async Task OnConfirmDelete(bool deleteConfirmed)
