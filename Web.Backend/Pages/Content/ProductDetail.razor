@@ -317,8 +317,18 @@
     protected async Task InsertImage(string paramImageURL)
     {
         await this.QuillHtml.InsertImage(paramImageURL);
+        
+        if (!string.IsNullOrEmpty(Model.Title))
+        {
+            var currentImageURL = $"<img src=\"{paramImageURL}\" alt=\"{paramImageURL}\">";
+            var newImageURL = $"<img src=\"{paramImageURL}\" alt=\"{Model.Title}\">";
+            Model.Content = await this.QuillHtml.GetHTML();
+            Model.Content = Model.Content.Replace(currentImageURL, newImageURL);
+            await this.QuillHtml.LoadHTMLContent(Model.Content);
+            StateHasChanged();
+        }
 
-        ImageManagerControl.Show(true);
+        ImageManagerControl.Show(false);
     }
 
     protected async Task InsertVideoClick()
@@ -327,8 +337,14 @@
     }
     protected async Task InsertVideo(string embedVideo)
     {
+        // Model.Content = await this.QuillHtml.GetHTML();
+        // Model.Content += embedVideo;
+
+        await this.QuillHtml.InsertImage("DybiEmbedVideoInsert");
+        
         Model.Content = await this.QuillHtml.GetHTML();
-        Model.Content = embedVideo + Model.Content;
+        Model.Content = Model.Content.Replace("<img src=\"DybiEmbedVideoInsert\" alt=\"DybiEmbedVideoInsert\">", embedVideo);
+
         await this.QuillHtml.LoadHTMLContent(Model.Content);
         StateHasChanged();
     }
