@@ -1359,27 +1359,27 @@ namespace Web.Api.Controllers
             // SEO
             var tags = await _itemRepository.GetItemTags(user.CompanyId, request.Id);
             var seo = new SEO
-                {
-                    Id = Guid.NewGuid(),
-                    ItemId = request.Id,
-                    CompanyId = user.CompanyId,
-                    LanguageCode = request.LanguageCode,
-                    Title = request.Title,
-                    MetaDescription = request.Brief,
-                    MetaKeyWord = string.Join(",", tags) + ", " + request.Title,
-                    Url = $"/product/{ConvertToUnSign(request.Title.Trim().ToLower())}/spro/{request.Id.ToString().ToLower()}",
-                    SeoUrl = $"/{ConvertToUnSign(request.Title.Trim())}"
-                };
+            {
+                Id = Guid.NewGuid(),
+                ItemId = request.Id,
+                CompanyId = user.CompanyId,
+                LanguageCode = request.LanguageCode,
+                Title = request.Title,
+                MetaDescription = request.Brief,
+                MetaKeyWord = request.Title + (tags != null && tags.Count > 0 ? ", " + string.Join(",", tags) : ""),
+                Url = $"/product/{ConvertToUnSign(request.Title.Trim().ToLower())}/spro/{request.Id.ToString().ToLower()}",
+                SeoUrl = $"/{ConvertToUnSign(request.Title.Trim())}"
+            };
 
-                bool check = false;
-                do
-                {
-                    if (check) seo.SeoUrl += "-";
-                    check = await _seoRepository.CheckExist(user.CompanyId, seo.SeoUrl);
-                }
-                while (check);
+            bool check = false;
+            do
+            {
+                if (check) seo.SeoUrl += "-";
+                check = await _seoRepository.CheckExist(user.CompanyId, seo.SeoUrl);
+            }
+            while (check);
 
-                await _seoRepository.CreateSEO(seo);
+            await _seoRepository.CreateSEO(seo);
 
             return Ok();
         }
@@ -1418,7 +1418,7 @@ namespace Web.Api.Controllers
                     LanguageCode = request.LanguageCode,
                     Title = request.Title,
                     MetaDescription = request.Brief,
-                    MetaKeyWord = string.Join(",", tags) + ", " + request.Title,
+                    MetaKeyWord = request.Title + (tags != null && tags.Count > 0 ? ", " + string.Join(",", tags) : ""),
                     Url = $"/product/{ConvertToUnSign(request.Title.Trim().ToLower())}/spro/{request.Id.ToString().ToLower()}",
                     SeoUrl = $"/{ConvertToUnSign(request.Title.Trim())}"
                 };
