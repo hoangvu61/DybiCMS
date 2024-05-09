@@ -480,7 +480,7 @@ namespace Web.Api.Controllers
             await _itemRepository.CreateItem(item);
 
             // SEO
-            CrerateSEO(user.CompanyId, item.Category.ComponentList, "scat", languageItem);
+            await CrerateSEO(user.CompanyId, item.Category.ComponentList, "scat", languageItem);
 
             return Ok();
         }
@@ -511,7 +511,7 @@ namespace Web.Api.Controllers
                 LanguageCode = request.LanguageCode, 
                 Title = request.Title, 
                 Brief = request.Brief};
-            UpdateSEO(user.CompanyId, item.Category.ComponentList, "scat", languageItem);
+            await UpdateSEO(user.CompanyId, item.Category.ComponentList, "scat", languageItem);
 
             return Ok(request);
         }
@@ -1844,7 +1844,7 @@ namespace Web.Api.Controllers
             return CreatedAtAction(nameof(GetEvent), new { id = request.ItemId, language = request.LanguageCode }, request);
         }
 
-        private async void CrerateSEO(Guid companyId, string componentName, string sendKey, ItemLanguage itemLanguage)
+        private async Task CrerateSEO(Guid companyId, string componentName, string sendKey, ItemLanguage itemLanguage)
         {
             var seo = new SEO
             {
@@ -1870,12 +1870,12 @@ namespace Web.Api.Controllers
             await _seoRepository.CreateSEO(seo);
         }
 
-        private async void UpdateSEO(Guid companyId, string componentName, string sendKey, ItemLanguage itemLanguage)
+        private async Task UpdateSEO(Guid companyId, string componentName, string sendKey, ItemLanguage itemLanguage)
         {
             var seo = await _seoRepository.GetSEO(companyId, itemLanguage.ItemId, itemLanguage.LanguageCode);
             if (seo == null)
             {
-                CrerateSEO(companyId, componentName, sendKey, itemLanguage);
+                await CrerateSEO(companyId, componentName, sendKey, itemLanguage);
             }
             else
             {
