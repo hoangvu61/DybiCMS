@@ -644,6 +644,7 @@ namespace Web.Api.Controllers
             var category = await _itemRepository.GetCategory(user.CompanyId, request.CategoryId);
             if (category == null) return NotFound($"Danh mục [{request.CategoryId}] không tồn tại");
 
+            var languageItem = new ItemLanguage { Title = request.Title.Trim(), LanguageCode = request.LanguageCode, Brief = request.Brief, Content = request.Content };
             var item = new Item()
             {
                 Id = request.Id,
@@ -659,15 +660,7 @@ namespace Web.Api.Controllers
                     HTML = request.HTML,
                     Type = "Article"
                 },
-                ItemLanguages = new List<ItemLanguage>()
-                { new ItemLanguage()
-                    {
-                        Title = request.Title,
-                        LanguageCode = request.LanguageCode,
-                        Brief = request.Brief,
-                        Content = request.Content
-                    } 
-                },
+                ItemLanguages = new List<ItemLanguage>() { languageItem },
             };
 
             if (request.Tags != null && request.Tags.Count > 0)
@@ -690,29 +683,7 @@ namespace Web.Api.Controllers
             await _itemRepository.CreateArticle(item, request.Relateds);
 
             // SEO
-            var tags = await _itemRepository.GetItemTags(user.CompanyId, request.Id);
-            var seo = new SEO
-                {
-                    Id = Guid.NewGuid(),
-                    ItemId = request.Id,
-                    CompanyId = user.CompanyId,
-                    LanguageCode = request.LanguageCode,
-                    Title = request.Title,
-                    MetaDescription = request.Brief,
-                    MetaKeyWord = string.Join(",", tags) + ", " + request.Title,
-                    Url = $"/{category.ComponentDetail}/{ConvertToUnSign(request.Title.Trim().ToLower())}/sart/{request.Id.ToString().ToLower()}",
-                    SeoUrl = $"/{ConvertToUnSign(request.Title.Trim())}"
-                };
-
-                bool check = false;
-                do
-                {
-                    if (check) seo.SeoUrl += "-";
-                    check = await _seoRepository.CheckExist(user.CompanyId, seo.SeoUrl);
-                }
-                while (check);
-
-                await _seoRepository.CreateSEO(seo);
+            await CrerateSEO(user.CompanyId, category.ComponentDetail, "sart", languageItem);
 
             return Ok();
         }
@@ -742,42 +713,14 @@ namespace Web.Api.Controllers
             await _itemRepository.UpdateArticle(request);
 
             // SEO
-            var tags = await _itemRepository.GetItemTags(user.CompanyId, id);
-            var seo = await _seoRepository.GetSEO(user.CompanyId, id, request.LanguageCode);
-            if (seo == null)
+            var languageItem = new ItemLanguage
             {
-                seo = new SEO
-                {
-                    Id = Guid.NewGuid(),
-                    ItemId = request.Id,
-                    CompanyId = user.CompanyId,
-                    LanguageCode = request.LanguageCode,
-                    Title = request.Title,
-                    MetaDescription = request.Brief,
-                    MetaKeyWord = string.Join(",", tags) + ", " + request.Title,
-                    Url = $"/{category.ComponentDetail}/{ConvertToUnSign(request.Title.Trim().ToLower())}/sart/{request.Id.ToString().ToLower()}",
-                    SeoUrl = $"/{ConvertToUnSign(request.Title.Trim())}"
-                };
-
-                bool check = false;
-                do
-                {
-                    if (check) seo.SeoUrl += "-";
-                    check = await _seoRepository.CheckExist(user.CompanyId, seo.SeoUrl);
-                }
-                while (check);
-
-                await _seoRepository.CreateSEO(seo);
-            }
-            else
-            {
-                var url = $"/{category.ComponentDetail}/{ConvertToUnSign(request.Title.Trim().ToLower())}/sart/{request.Id.ToString().ToLower()}";
-                if (seo.Url != url)
-                {
-                    seo.Url = url;
-                    await _seoRepository.UpdateSEO(seo);
-                }
-            }
+                ItemId = id,
+                LanguageCode = request.LanguageCode,
+                Title = request.Title,
+                Brief = request.Brief
+            };
+            await UpdateSEO(user.CompanyId, category.ComponentDetail, "sart", languageItem);
 
             //return Ok(request);
             return CreatedAtAction(nameof(GetArticle), new { id = request.Id, language = request.LanguageCode }, request);
@@ -953,6 +896,10 @@ namespace Web.Api.Controllers
             var userId = User.GetUserId();
             var user = await _userManager.FindByIdAsync(userId);
 
+            var category = await _itemRepository.GetCategory(user.CompanyId, request.CategoryId);
+            if (category == null) return NotFound($"Danh mục [{request.CategoryId}] không tồn tại");
+
+            var languageItem = new ItemLanguage { Title = request.Title.Trim(), LanguageCode = request.LanguageCode, Brief = request.Brief, Content = request.Content };
             var item = new Item()
             {
                 Id = request.Id,
@@ -969,15 +916,7 @@ namespace Web.Api.Controllers
                     Type = request.Type,
                     Embed = request.Embed
                 },
-                ItemLanguages = new List<ItemLanguage>()
-                { new ItemLanguage()
-                    {
-                        Title = request.Title,
-                        LanguageCode = request.LanguageCode,
-                        Brief = request.Brief ?? string.Empty,
-                        Content = request.Content ?? string.Empty
-                    }
-                },
+                ItemLanguages = new List<ItemLanguage>() { languageItem },
             };
 
             if (request.Image != null && !string.IsNullOrEmpty(request.Image.Base64data) && !string.IsNullOrEmpty(request.Image.FileName))
@@ -991,39 +930,7 @@ namespace Web.Api.Controllers
             await _itemRepository.CreateItem(item);
 
             // SEO
-            if (request.Type == "DOC" || request.Type == "AUD" || request.Type == "VID")
-            {
-                var component = "media";
-                switch (request.Type)
-                {
-                    case "DOC": component = "document"; break;
-                    case "AUD": component = "audio"; break;
-                    case "VID": component = "video"; break;
-                }
-
-                var seo = new SEO
-                {
-                    Id = Guid.NewGuid(),
-                    ItemId = request.Id,
-                    CompanyId = user.CompanyId,
-                    LanguageCode = request.LanguageCode,
-                    Title = request.Title,
-                    MetaDescription = request.Brief,
-                    MetaKeyWord = request.Title,
-                    Url = $"/{component}/{ConvertToUnSign(request.Title.Trim().ToLower())}/smid/{request.Id.ToString().ToLower()}",
-                    SeoUrl = $"/{ConvertToUnSign(request.Title.Trim())}"
-                };
-
-                bool check = false;
-                do
-                {
-                    if (check) seo.SeoUrl += "-";
-                    check = await _seoRepository.CheckExist(user.CompanyId, seo.SeoUrl);
-                }
-                while (check);
-
-                await _seoRepository.CreateSEO(seo);
-            }
+            await CrerateSEO(user.CompanyId, category.ComponentDetail, "smid", languageItem);
 
             return Ok();
         }
@@ -1116,6 +1023,9 @@ namespace Web.Api.Controllers
             var item = await _itemRepository.GetItem(user.CompanyId, id);
             if (item == null) return NotFound($"{id} không tồn tại");
 
+            var category = await _itemRepository.GetCategory(user.CompanyId, request.CategoryId);
+            if (category == null) return NotFound($"Danh mục [{request.CategoryId}] không tồn tại");
+
             if (request.Image != null && !string.IsNullOrEmpty(request.Image.Base64data) && !string.IsNullOrEmpty(request.Image.FileName))
             {
                 request.Image.FileName = ConvertToUnSign(request.Title) + "_" + DateTime.Now.Ticks + request.Image.FileExtension;
@@ -1126,51 +1036,14 @@ namespace Web.Api.Controllers
             await _itemRepository.UpdateMedia(request);
 
             // SEO
-            if (request.Type == "DOC" || request.Type == "AUD" || request.Type == "VID")
+            var languageItem = new ItemLanguage
             {
-                var component = "media";
-                switch (request.Type)
-                {
-                    case "DOC": component = "document"; break;
-                    case "AUD": component = "audio"; break;
-                    case "VID": component = "video"; break;
-                }
-                var seo = await _seoRepository.GetSEO(user.CompanyId, id, request.LanguageCode);
-                if (seo == null)
-                {
-                    seo = new SEO
-                    {
-                        Id = Guid.NewGuid(),
-                        ItemId = request.Id,
-                        CompanyId = user.CompanyId,
-                        LanguageCode = request.LanguageCode,
-                        Title = request.Title,
-                        MetaDescription = request.Brief,
-                        MetaKeyWord = request.Title,
-                        Url = $"/{component}/{ConvertToUnSign(request.Title.Trim().ToLower())}/smid/{request.Id.ToString().ToLower()}",
-                        SeoUrl = $"/{ConvertToUnSign(request.Title.Trim())}"
-                    };
-
-                    bool check = false;
-                    do
-                    {
-                        if (check) seo.SeoUrl += "-";
-                        check = await _seoRepository.CheckExist(user.CompanyId, seo.SeoUrl);
-                    }
-                    while (check);
-
-                    await _seoRepository.CreateSEO(seo);
-                }
-                else
-                {
-                    var url = $"/{component}/{ConvertToUnSign(request.Title.Trim().ToLower())}/smid/{request.Id.ToString().ToLower()}";
-                    if (seo.Url != url)
-                    {
-                        seo.Url = url;
-                        await _seoRepository.UpdateSEO(seo);
-                    }
-                }
-            }
+                ItemId = id,
+                LanguageCode = request.LanguageCode,
+                Title = request.Title,
+                Brief = request.Brief
+            };
+            await UpdateSEO(user.CompanyId, category.ComponentDetail, "smid", languageItem);
 
             return Ok(request);
         }
@@ -1301,6 +1174,10 @@ namespace Web.Api.Controllers
             var userId = User.GetUserId();
             var user = await _userManager.FindByIdAsync(userId);
 
+            var category = await _itemRepository.GetCategory(user.CompanyId, request.CategoryId);
+            if (category == null) return NotFound($"Danh mục [{request.CategoryId}] không tồn tại");
+
+            var languageItem = new ItemLanguage { Title = request.Title.Trim(), LanguageCode = request.LanguageCode, Brief = request.Brief, Content = request.Content };
             var item = new Item()
             {
                 Id = request.Id,
@@ -1318,15 +1195,7 @@ namespace Web.Api.Controllers
                     DiscountType = request.DiscountType,
                     SaleMin = 1
                 },
-                ItemLanguages = new List<ItemLanguage>()
-                { new ItemLanguage()
-                    {
-                        Title = request.Title,
-                        LanguageCode = request.LanguageCode,
-                        Brief = request.Brief,
-                        Content = request.Content
-                    }
-                },
+                ItemLanguages = new List<ItemLanguage>() { languageItem },
             };
 
             if (request.Image != null && !string.IsNullOrEmpty(request.Image.Base64data) && !string.IsNullOrEmpty(request.Image.FileName))
@@ -1357,29 +1226,7 @@ namespace Web.Api.Controllers
             await _itemRepository.CreateProduct(item, request.Attributes, request.Relateds, request.AddOns);
 
             // SEO
-            var tags = await _itemRepository.GetItemTags(user.CompanyId, request.Id);
-            var seo = new SEO
-            {
-                Id = Guid.NewGuid(),
-                ItemId = request.Id,
-                CompanyId = user.CompanyId,
-                LanguageCode = request.LanguageCode,
-                Title = request.Title,
-                MetaDescription = request.Brief,
-                MetaKeyWord = request.Title + (tags != null && tags.Count > 0 ? ", " + string.Join(",", tags) : ""),
-                Url = $"/product/{ConvertToUnSign(request.Title.Trim().ToLower())}/spro/{request.Id.ToString().ToLower()}",
-                SeoUrl = $"/{ConvertToUnSign(request.Title.Trim())}"
-            };
-
-            bool check = false;
-            do
-            {
-                if (check) seo.SeoUrl += "-";
-                check = await _seoRepository.CheckExist(user.CompanyId, seo.SeoUrl);
-            }
-            while (check);
-
-            await _seoRepository.CreateSEO(seo);
+            await CrerateSEO(user.CompanyId, category.ComponentDetail, "spro", languageItem);
 
             return Ok();
         }
@@ -1396,6 +1243,9 @@ namespace Web.Api.Controllers
             var item = await _itemRepository.GetItem(user.CompanyId, id);
             if (item == null) return NotFound($"{id} không tồn tại");
 
+            var category = await _itemRepository.GetCategory(user.CompanyId, request.CategoryId);
+            if (category == null) return NotFound($"Danh mục [{request.CategoryId}] không tồn tại");
+
             if (request.Image != null && !string.IsNullOrEmpty(request.Image.Base64data) && !string.IsNullOrEmpty(request.Image.FileName))
             {
                 request.Image.FileName = item.Id + "-" + DateTime.Now.Ticks + request.Image.FileExtension;
@@ -1406,43 +1256,14 @@ namespace Web.Api.Controllers
             await _itemRepository.UpdateProduct(request);
 
             // SEO
-            var tags = await _itemRepository.GetItemTags(user.CompanyId, id);
-            var seo = await _seoRepository.GetSEO(user.CompanyId, id, request.LanguageCode);
-            if (seo == null)
+            var languageItem = new ItemLanguage
             {
-                seo = new SEO
-                {
-                    Id = Guid.NewGuid(),
-                    ItemId = request.Id,
-                    CompanyId = user.CompanyId,
-                    LanguageCode = request.LanguageCode,
-                    Title = request.Title,
-                    MetaDescription = request.Brief,
-                    MetaKeyWord = request.Title + (tags != null && tags.Count > 0 ? ", " + string.Join(",", tags) : ""),
-                    Url = $"/product/{ConvertToUnSign(request.Title.Trim().ToLower())}/spro/{request.Id.ToString().ToLower()}",
-                    SeoUrl = $"/{ConvertToUnSign(request.Title.Trim())}"
-                };
-
-                bool check = false;
-                do
-                {
-                    if (check) seo.SeoUrl += "-";
-                    check = await _seoRepository.CheckExist(user.CompanyId, seo.SeoUrl);
-                }
-                while (check);
-
-                await _seoRepository.CreateSEO(seo);
-            }
-            else
-            {
-               
-                var url = $"/product/{ConvertToUnSign(request.Title.Trim().ToLower())}/spro/{request.Id.ToString().ToLower()}";
-                if (seo.Url != url)
-                {
-                    seo.Url = url;
-                    await _seoRepository.UpdateSEO(seo);
-                }    
-            }
+                ItemId = id,
+                LanguageCode = request.LanguageCode,
+                Title = request.Title,
+                Brief = request.Brief
+            };
+            await UpdateSEO(user.CompanyId, category.ComponentDetail, "spro", languageItem);
 
             return Ok(request);
         }
@@ -1852,9 +1673,9 @@ namespace Web.Api.Controllers
                 ItemId = itemLanguage.ItemId,
                 CompanyId = companyId,
                 LanguageCode = itemLanguage.LanguageCode,
-                Title = itemLanguage.Title,
-                MetaDescription = itemLanguage.Brief,
-                MetaKeyWord = itemLanguage.Title,
+                Title = itemLanguage.Title.Length > 300 ? itemLanguage.Title.Substring(0, 300) : itemLanguage.Title,
+                MetaDescription = itemLanguage.Brief.Length > 500 ? itemLanguage.Brief.Substring(0, 500) : itemLanguage.Brief,
+                MetaKeyWord = itemLanguage.Title.Length > 500 ? itemLanguage.Title.Substring(0, 500) : itemLanguage.Title,
                 Url = $"/{componentName}/{ConvertToUnSign(itemLanguage.Title.Trim().ToLower())}/{sendKey}/{itemLanguage.ItemId.ToString().ToLower()}",
                 SeoUrl = $"/{ConvertToUnSign(itemLanguage.Title.Trim())}"
             };
