@@ -635,7 +635,7 @@ namespace Web.Api.Repositories
 
             var count = await query.CountAsync();
 
-            var data = await query.OrderBy(e => e.Item.Order)
+            var data = await query.OrderBy(e => e.Item.Order).ThenByDescending(e => e.Item.CreateDate)
                 .Skip((productSearch.PageNumber - 1) * productSearch.PageSize)
                 .Take(productSearch.PageSize)
                 .ToListAsync();

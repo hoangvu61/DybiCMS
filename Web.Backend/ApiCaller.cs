@@ -1,7 +1,5 @@
-﻿using Microsoft.Extensions.Options;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Json;
-using System.Text.Json;
 
 namespace Web.Backend
 {
