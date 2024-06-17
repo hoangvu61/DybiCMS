@@ -23,175 +23,232 @@
 
 <section class="content">
     <div class="container-fluid">
-        <div class="row">
-            <div class="col">
-                <div class="card card-primary card-outline card-outline-tabs">
-                    <div class="card-header p-0 border-bottom-0">
-                        <ul class="nav nav-tabs" id="custom-tabs-four-tab" role="tablist">
-                            <li class="nav-item">
-                                <a class="nav-link active" id="custom-tabs-four-home-tab" data-toggle="pill" href="#NewOrders" role="tab" aria-controls="NewOrders" aria-selected="true">Mới (@NewMetaData.TotalCount)</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" id="custom-tabs-four-profile-tab" data-toggle="pill" href="#ConfirmOrders" role="tab" aria-controls="ConfirmOrders" aria-selected="false">Đã xác nhận (@ConfirmMetaData.TotalCount)</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" id="custom-tabs-four-messages-tab" data-toggle="pill" href="#SendOrders" role="tab" aria-controls="SendOrders" aria-selected="false">Đã gửi (@SendMetaData.TotalCount)</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" id="custom-tabs-four-settings-tab" data-toggle="pill" href="#ReceiveOrders" role="tab" aria-controls="ReceiveOrders" aria-selected="false">Đã nhận (@ReceiveMetaData.TotalCount)</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" id="custom-tabs-four-settings-tab" data-toggle="pill" href="#CancelOrders" role="tab" aria-controls="CancelOrders" aria-selected="false">Đã hủy (@CancelMetaData.TotalCount)</a>
-                            </li>
-                        </ul>
+        <div class="card card-primary card-outline card-outline-tabs">
+            <div class="card-header p-0 border-bottom-0">
+                <ul class="nav nav-tabs" id="custom-tabs-four-tab" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="custom-tabs-four-home-tab" data-toggle="pill" href="#NewOrders" role="tab" aria-controls="NewOrders" aria-selected="true">Mới (@NewMetaData.TotalCount)</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="custom-tabs-four-profile-tab" data-toggle="pill" href="#ConfirmOrders" role="tab" aria-controls="ConfirmOrders" aria-selected="false">Đã xác nhận (@ConfirmMetaData.TotalCount)</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="custom-tabs-four-messages-tab" data-toggle="pill" href="#SendOrders" role="tab" aria-controls="SendOrders" aria-selected="false">Đã gửi (@SendMetaData.TotalCount)</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="custom-tabs-four-settings-tab" data-toggle="pill" href="#ReceiveOrders" role="tab" aria-controls="ReceiveOrders" aria-selected="false">Đã nhận (@ReceiveMetaData.TotalCount)</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="custom-tabs-four-settings-tab" data-toggle="pill" href="#CancelOrders" role="tab" aria-controls="CancelOrders" aria-selected="false">Đã hủy (@CancelMetaData.TotalCount)</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                <div class="tab-content" id="custom-tabs-four-tabContent">
+                    <div class="tab-pane fade show active" id="NewOrders" role="tabpanel" aria-labelledby="custom-tabs-four-home-tab">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Mã đơn</th>
+                                    <th>Khách hàng</th>
+                                    <th style="text-align:right">Tổng tiền</th>
+                                    <th style="text-align:center">Ngày tạo</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var order in NewOrders)
+                                {
+                                    <tr>
+                                        <td>@order.Id</td>
+                                        <td>
+                                            <div>@order.CustomerName - @order.CustomerPhone</div>
+                                            <div>@order.CustomerAddress</div>
+                                        </td>
+                                        <td style="text-align:right">@order.TotalPrice.ToString("N0")</td>
+                                        <td style="text-align:center">@order.Date.ToString("dd/MM/yyyy")</td>
+                                        <td style="text-align:right;width:100px">
+                                            <button class="btn btn-info btn-xs" @onclick="() => OrderDetailDialog.Show(order.Id)">Xem</button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="7">
+                                        <Pagination MetaData="NewMetaData" Spread="2" SelectedPage="SelectedPageNew"></Pagination>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
                     </div>
-                    <div class="card-body">
-                        <div class="tab-content" id="custom-tabs-four-tabContent">
-                            <div class="tab-pane fade show active" id="NewOrders" role="tabpanel" aria-labelledby="custom-tabs-four-home-tab">
-                                <table class="table table-sm">
-                                    <thead>
-                                        <tr>
-                                            <th style="text-align:right">Tổng tiền</th>
-                                            <th>Địa chỉ</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach (var order in NewOrders)
-                                        {
-                                            <tr @onclick="() => DetailOrder.Show(order.Id)" style="cursor:pointer">
-                                                <td style="text-align:right">@order.TotalPrice.ToString("N0")</td>
-                                                <td>@order.CustomerAddress</td>
-                                            </tr>
-                                        }
-                                    </tbody>
-                                    <tfoot>
-                                        <tr>
-                                            <td colspan="7">
-                                                <Pagination MetaData="NewMetaData" Spread="2" SelectedPage="SelectedPageNew"></Pagination>
-                                            </td>
-                                        </tr>
-                                    </tfoot>
-                                </table>
-                            </div>
-                            <div class="tab-pane fade" id="ConfirmOrders" role="tabpanel" aria-labelledby="custom-tabs-four-profile-tab">
-                                <table class="table table-sm">
-                                    <thead>
-                                        <tr>
-                                            <th style="text-align:right">Tổng tiền</th>
-                                            <th>Địa chỉ</th>
-                                            <th></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach (var order in ConfirmOrders)
-                                        {
-                                            <tr @onclick="() => DetailOrder.Show(order.Id)" style="cursor:pointer">
-                                                <td style="text-align:right">@order.TotalPrice.ToString("N0")</td>
-                                                <td>@order.CustomerAddress</td>
-                                            </tr>
-                                        }
-                                    </tbody>
-                                    <tfoot>
-                                        <tr>
-                                            <td colspan="7">
-                                                <Pagination MetaData="ConfirmMetaData" Spread="2" SelectedPage="SelectedPageConfirm"></Pagination>
-                                            </td>
-                                        </tr>
-                                    </tfoot>
-                                </table>
-                            </div>
-                            <div class="tab-pane fade" id="SendOrders" role="tabpanel" aria-labelledby="custom-tabs-four-messages-tab">
-                                <table class="table table-sm">
-                                    <thead>
-                                        <tr>
-                                            <th style="text-align:right">Tổng tiền</th>
-                                            <th>Địa chỉ</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach (var order in SendOrders)
-                                        {
-                                            <tr @onclick="() => DetailOrder.Show(order.Id)" style="cursor:pointer">
-                                                <td style="text-align:right">@order.TotalPrice.ToString("N0")</td>
-                                                <td>@order.CustomerAddress</td>
-                                            </tr>
-                                        }
-                                    </tbody>
-                                    <tfoot>
-                                        <tr>
-                                            <td colspan="7">
-                                                <Pagination MetaData="SendMetaData" Spread="2" SelectedPage="SelectedPageSend"></Pagination>
-                                            </td>
-                                        </tr>
-                                    </tfoot>
-                                </table>
-                            </div>
-                            <div class="tab-pane fade" id="ReceiveOrders" role="tabpanel" aria-labelledby="custom-tabs-four-settings-tab">
-                                <table class="table table-sm">
-                                    <thead>
-                                        <tr>
-                                            <th style="text-align:right">Tổng tiền</th>
-                                            <th>Địa chỉ</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach (var order in ReceiveOrders)
-                                        {
-                                            <tr @onclick="() => DetailOrder.Show(order.Id)" style="cursor:pointer">
-                                                <td style="text-align:right">@order.TotalPrice.ToString("N0")</td>
-                                                <td>@order.CustomerAddress</td>
-                                            </tr>
-                                        }
-                                    </tbody>
-                                    <tfoot>
-                                        <tr>
-                                            <td colspan="7">
-                                                <Pagination MetaData="ReceiveMetaData" Spread="2" SelectedPage="SelectedPageReceive"></Pagination>
-                                            </td>
-                                        </tr>
-                                    </tfoot>
-                                </table>
-                            </div>
-                            <div class="tab-pane fade" id="CancelOrders" role="tabpanel" aria-labelledby="custom-tabs-four-settings-tab">
-                                <table class="table table-sm">
-                                    <thead>
-                                        <tr>
-                                            <th style="text-align:right">Tổng tiền</th>
-                                            <th>Địa chỉ</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach (var order in CancelOrders)
-                                        {
-                                            <tr @onclick="() => DetailOrder.Show(order.Id)" style="cursor:pointer">
-                                                <td style="text-align:right">@order.TotalPrice.ToString("N0")</td>
-                                                <td>@order.CustomerAddress</td>
-                                            </tr>
-                                        }
-                                    </tbody>
-                                    <tfoot>
-                                        <tr>
-                                            <td colspan="7">
-                                                <Pagination MetaData="CancelMetaData" Spread="2" SelectedPage="SelectedPageCancel"></Pagination>
-                                            </td>
-                                        </tr>
-                                    </tfoot>
-                                </table>
-                            </div>
-                        </div>
+                    <div class="tab-pane fade" id="ConfirmOrders" role="tabpanel" aria-labelledby="custom-tabs-four-profile-tab">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Mã đơn</th>
+                                    <th>Khách hàng</th>
+                                    <th style="text-align:right">Tổng tiền</th>
+                                    <th style="text-align:center">Ngày tạo</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var order in ConfirmOrders)
+                                {
+                                    <tr>
+                                        <td>@order.Id</td>
+                                        <td>
+                                            <div>@order.CustomerName - @order.CustomerPhone</div>
+                                            <div>@order.CustomerAddress</div>
+                                        </td>
+                                        <td style="text-align:right">@order.TotalPrice.ToString("N0")</td>
+                                        <td style="text-align:center">@order.Date.ToString("dd/MM/yyyy")</td>
+                                        <td style="text-align:right;width:100px">
+                                            <button class="btn btn-info btn-xs" @onclick="() => OrderDetailDialog.Show(order.Id)">Xem</button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="7">
+                                        <Pagination MetaData="ConfirmMetaData" Spread="2" SelectedPage="SelectedPageConfirm"></Pagination>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
                     </div>
-                    <!-- /.card -->
+                    <div class="tab-pane fade" id="SendOrders" role="tabpanel" aria-labelledby="custom-tabs-four-messages-tab">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Mã đơn</th>
+                                    <th>Khách hàng</th>
+                                    <th style="text-align:right">Tổng tiền</th>
+                                    <th style="text-align:center">Ngày tạo</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var order in SendOrders)
+                                {
+                                    <tr>
+                                        <td>@order.Id</td>
+                                        <td>
+                                            <div>@order.CustomerName - @order.CustomerPhone</div>
+                                            <div>@order.CustomerAddress</div>
+                                        </td>
+                                        <td style="text-align:right">@order.TotalPrice.ToString("N0")</td>
+                                        <td style="text-align:center">@order.Date.ToString("dd/MM/yyyy")</td>
+                                        <td style="text-align:right;width:100px">
+                                            <button class="btn btn-info btn-xs" @onclick="() => OrderDetailDialog.Show(order.Id)">Xem</button>
+                                         </td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="7">
+                                        <Pagination MetaData="SendMetaData" Spread="2" SelectedPage="SelectedPageSend"></Pagination>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    <div class="tab-pane fade" id="ReceiveOrders" role="tabpanel" aria-labelledby="custom-tabs-four-settings-tab">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Mã đơn</th>
+                                    <th>Khách hàng</th>
+                                    <th style="text-align:right">Tổng tiền</th>
+                                    <th style="text-align:center">Ngày tạo</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var order in ReceiveOrders)
+                                {
+                                    <tr>
+                                        <td>@order.Id</td>
+                                        <td>
+                                            <div>@order.CustomerName - @order.CustomerPhone</div>
+                                            <div>@order.CustomerAddress</div>
+                                        </td>
+                                        <td style="text-align:right">@order.TotalPrice.ToString("N0")</td>
+                                        <td style="text-align:center">@order.Date.ToString("dd/MM/yyyy")</td>
+                                        <td style="text-align:right;width:100px">
+                                            <button class="btn btn-info btn-xs" @onclick="() => OrderDetailDialog.Show(order.Id)">Xem</button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="7">
+                                        <Pagination MetaData="ReceiveMetaData" Spread="2" SelectedPage="SelectedPageReceive"></Pagination>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    <div class="tab-pane fade" id="CancelOrders" role="tabpanel" aria-labelledby="custom-tabs-four-settings-tab">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Mã đơn</th>
+                                    <th>Khách hàng</th>
+                                    <th style="text-align:right">Tổng tiền</th>
+                                    <th style="text-align:center">Ngày tạo</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var order in CancelOrders)
+                                {
+                                    <tr>
+                                        <td>@order.Id</td>
+                                        <td>
+                                            <div>@order.CustomerName - @order.CustomerPhone</div>
+                                            <div>@order.CustomerAddress</div>
+                                        </td>
+                                        <td style="text-align:right">@order.TotalPrice.ToString("N0")</td>
+                                        <td style="text-align:center">@order.Date.ToString("dd/MM/yyyy")</td>
+                                        <td style="text-align:right;width:100px">
+                                            <button class="btn btn-info btn-xs" @onclick="() => OrderDetailDialog.Show(order.Id)">Xem</button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="7">
+                                        <Pagination MetaData="CancelMetaData" Spread="2" SelectedPage="SelectedPageCancel"></Pagination>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
                 </div>
             </div>
-            <div class="col">
-                <OrderDetail @ref="DetailOrder" EventCallback="GetOrers"></OrderDetail>
-            </div>
+            <!-- /.card -->
         </div>
+
+        <Confirmation ConfirmationMessage="Bạn có chắc chắn xóa?"
+                      ConfirmationTitle="Xóa đơn hàng"
+                      @ref="DeleteConfirmation"
+                      ConfirmationChanged="OnConfirmDelete">
+        </Confirmation>
+
+        <OrderDetail @ref="OrderDetailDialog" EventCallback="GetOrers"></OrderDetail>
+
     </div>
 </section>
 
 @code {
     protected Confirmation DeleteConfirmation { set; get; }
+    protected OrderDetail OrderDetailDialog { set; get; }
 
     private List<OrderDto> NewOrders = new List<OrderDto>();
     private List<OrderDto> ConfirmOrders = new List<OrderDto>();
@@ -211,10 +268,6 @@
     public MetaData SendMetaData { get; set; } = new MetaData();
     public MetaData ReceiveMetaData { get; set; } = new MetaData();
     public MetaData CancelMetaData { get; set; } = new MetaData();
-
-    private OrderDetail DetailOrder { set; get; }
-
-    private string NewBackendApiUrl { get; set; }
 
     [CascadingParameter]
     private Error Error { set; get; }
@@ -323,5 +376,26 @@
     {
         CancelOrderPaging.PageNumber = page;
         await GetCancels();
+    }
+
+    public async Task OnConfirmDelete(bool deleteConfirmed)
+    {
+        if (deleteConfirmed)
+        {
+            var result = await OrderApiClient.DeleteOrder(DeleteId);
+            if (result)
+            {
+                ToastService.ShowWarning($"Đã xóa {DeleteId}");
+                if (NewOrders.Any(e => e.Id == DeleteId)) await GetNews();
+                else if (ConfirmOrders.Any(e => e.Id == DeleteId)) await GetConfirms();
+            }
+            else ToastService.ShowError("Xóa không thành công");
+
+        }
+    }
+    public void OnDelete(Guid deleteId)
+    {
+        DeleteId = deleteId;
+        DeleteConfirmation.Show();
     }
 }
