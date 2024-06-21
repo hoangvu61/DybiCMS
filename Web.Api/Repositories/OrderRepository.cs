@@ -98,6 +98,7 @@ namespace Web.Api.Repositories
         {
             var query = _context.Orders
                 .Include(e => e.Customer)
+                .Include(e => e.Products)
                 .Where(e => e.CompanyId == CompanyId && e.Id == OrderId);
             var result = await query.FirstOrDefaultAsync();
             return result;
@@ -105,7 +106,7 @@ namespace Web.Api.Repositories
 
         public async Task<bool> UpdateOrder(Order order)
         {
-            var query = _context.Orders.Update(order);
+            _context.Orders.Update(order);
             await _context.SaveChangesAsync();
             return true;
         }
@@ -166,9 +167,36 @@ namespace Web.Api.Repositories
         }
         public async Task<bool> UpdateCustomer(Customer customer)
         {
-            var query = _context.Customers.Add(customer);
+            var query = _context.Customers.Update(customer);
             await _context.SaveChangesAsync();
             return true;
         }
+
+        #region
+        public async Task<OrderDelivery> GetOrderDelivery(Guid orderId)
+        {
+            var result = await _context.OrderDeliveries.FirstOrDefaultAsync(e => e.OrderId == orderId);
+            return result;
+        }
+        public async Task<bool> AddOrderDelivery(OrderDelivery delivery)
+        {
+            _context.OrderDeliveries.Add(delivery);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        public async Task<bool> UpdateOrderDelivery(OrderDelivery delivery)
+        {
+            _context.OrderDeliveries.Update(delivery);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> DeleteOrderDelivery(OrderDelivery delivery)
+        {
+            _context.OrderDeliveries.Remove(delivery);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        #endregion
     }
 }

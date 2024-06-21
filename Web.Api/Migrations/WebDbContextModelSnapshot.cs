@@ -589,6 +589,16 @@ namespace Web.Api.Migrations
                     b.Property<Guid>("ItemId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("ComponentDetail")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("VARCHAR");
+
+                    b.Property<string>("ComponentList")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("VARCHAR");
+
                     b.Property<Guid?>("ParentId")
                         .HasColumnType("uniqueidentifier");
 
@@ -650,7 +660,6 @@ namespace Web.Api.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Content")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")
@@ -1065,6 +1074,32 @@ namespace Web.Api.Migrations
                     b.HasIndex("CustomerId");
 
                     b.ToTable("Orders");
+                });
+
+            modelBuilder.Entity("Web.Api.Entities.OrderDelivery", b =>
+                {
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("COD")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("DeliveryCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("DeliveryFee")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("DeliveryId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("DeliveryNote")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("OrderId");
+
+                    b.ToTable("OrderDeliveries");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.OrderProduct", b =>
@@ -1970,6 +2005,17 @@ namespace Web.Api.Migrations
                     b.Navigation("Customer");
                 });
 
+            modelBuilder.Entity("Web.Api.Entities.OrderDelivery", b =>
+                {
+                    b.HasOne("Web.Api.Entities.Order", "Order")
+                        .WithOne("Delivery")
+                        .HasForeignKey("Web.Api.Entities.OrderDelivery", "OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Order");
+                });
+
             modelBuilder.Entity("Web.Api.Entities.OrderProduct", b =>
                 {
                     b.HasOne("Web.Api.Entities.Order", "Order")
@@ -2188,6 +2234,8 @@ namespace Web.Api.Migrations
 
             modelBuilder.Entity("Web.Api.Entities.Order", b =>
                 {
+                    b.Navigation("Delivery");
+
                     b.Navigation("Products");
                 });
 #pragma warning restore 612, 618

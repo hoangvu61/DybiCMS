@@ -17,11 +17,14 @@ namespace Web.Api.Entities
         [Column(TypeName = "VARCHAR")]
         public string LanguageCode { get; set; }
 
+        [Required]
         [MaxLength(300)]
         public string Title { get; set; }
 
+        [Required]
         public string Brief { get; set; }
 
-        public string Content { get; set; }
+        [AllowNull]
+        public string? Content { get; set; }
     }
 }

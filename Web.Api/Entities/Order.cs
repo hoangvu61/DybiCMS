@@ -1,11 +1,9 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
+
 namespace Web.Api.Entities
 {
-    using System;
-    using System.ComponentModel.DataAnnotations;
-    using System.ComponentModel.DataAnnotations.Schema;
-    using System.Diagnostics.CodeAnalysis;
-    using System.Net.Mail;
-
     public partial class Order
     {
 
@@ -41,5 +39,7 @@ namespace Web.Api.Entities
         public string? Note { get; set; }
 
         public virtual ICollection<OrderProduct> Products { get; set; }
+
+        public virtual OrderDelivery? Delivery { get; set; }
     }
 }

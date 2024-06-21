@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.ComponentModel;
 using System.Linq;
@@ -900,6 +901,7 @@ namespace Web.Api.Controllers
             if (category == null) return NotFound($"Danh mục [{request.CategoryId}] không tồn tại");
 
             var languageItem = new ItemLanguage { Title = request.Title.Trim(), LanguageCode = request.LanguageCode, Brief = request.Brief, Content = request.Content };
+            if (string.IsNullOrEmpty(languageItem.Brief)) languageItem.Brief = languageItem.Title;
             var item = new Item()
             {
                 Id = request.Id,
@@ -1043,6 +1045,7 @@ namespace Web.Api.Controllers
                 Title = request.Title,
                 Brief = request.Brief
             };
+            if (string.IsNullOrEmpty(languageItem.Brief)) languageItem.Brief = languageItem.Title;
             await UpdateSEO(user.CompanyId, category.ComponentDetail, "smid", languageItem);
 
             return Ok(request);

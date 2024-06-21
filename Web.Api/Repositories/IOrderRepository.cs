@@ -22,5 +22,10 @@ namespace Web.Api.Repositories
 
         Task<Customer> GetCustomer(Guid companyId, Guid customerId);
         Task<bool> UpdateCustomer(Customer customer);
+
+        Task<OrderDelivery> GetOrderDelivery(Guid orderId);
+        Task<bool> AddOrderDelivery(OrderDelivery delivery);
+        Task<bool> UpdateOrderDelivery(OrderDelivery delivery);
+        Task<bool> DeleteOrderDelivery(OrderDelivery delivery);
     }
 }

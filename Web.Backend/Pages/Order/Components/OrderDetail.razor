@@ -32,15 +32,6 @@
                                     <div class="col">
                                         <div class="info-box bg-light">
                                             <div class="info-box-content">
-                                                <span class="info-box-text text-center text-muted" style="text-align:left !important"><lable>Khách hàng: </lable> @Model.CustomerName</span>
-                                                <span class="info-box-text text-center text-muted" style="text-align:left !important"><lable>Điện thoại: </lable> @Model.CustomerPhone</span>
-                                                <span class="info-box-text text-center text-muted" style="text-align:left !important"><lable>Địa chỉ: </lable> @Model.CustomerAddress</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col">
-                                        <div class="info-box bg-light">
-                                            <div class="info-box-content">
                                                 <span class="info-box-text text-center text-muted" style="text-align:left !important"><lable>Ngày tạo: </lable> @Model.CreateDate.ToString(Configuration["DateTimeFormat"])</span>
                                                 @if (Model.ConfirmDate != null)
                                                 {
@@ -61,6 +52,17 @@
                                                 Ghi chú: @Model.Note
                                             </div>
                                         </div>
+
+                                        <div class="info-box bg-light">
+                                            <div class="info-box-content">
+                                                <span class="info-box-text text-center text-muted" style="text-align:left !important"><lable>Khách hàng: </lable> @Model.CustomerName</span>
+                                                <span class="info-box-text text-center text-muted" style="text-align:left !important"><lable>Điện thoại: </lable> @Model.CustomerPhone</span>
+                                                <span class="info-box-text text-center text-muted" style="text-align:left !important"><lable>Địa chỉ: </lable> @Model.CustomerAddress</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        
                                     </div>
                                 </div>
                             </div>
@@ -155,7 +157,7 @@
     private List<OrderProductDto> Products { set; get; } = new List<OrderProductDto>();
 
     protected Confirmation DeleteConfirmation { set; get; }
-    private bool DeleteOrrder { set; get; }
+    private bool DeleteOrder { set; get; }
     private Guid DeleteProductId { set; get; }
 
     [Parameter]
@@ -191,13 +193,17 @@
 
     public void OpenDeleteOrderConfirm()
     {
-        DeleteOrrder = true;
+        DeleteOrder = true;
+        DeleteConfirmation.ConfirmationTitle = "Xóa đơn hàng";
+        DeleteConfirmation.ConfirmationMessage = "Bạn có chắc chắn xóa đơn hàng này?";
         DeleteConfirmation.Show();
     }
     public void OpenDeleteOrderProductConfirm(Guid priductId)
     {
         DeleteProductId = priductId;
-        DeleteOrrder = false;
+        DeleteOrder = false; 
+        DeleteConfirmation.ConfirmationTitle = "Xóa sản phẩm";
+        DeleteConfirmation.ConfirmationMessage = "Bạn có chắc chắn xóa sản phẩm này?";
         DeleteConfirmation.Show();
     }
 
@@ -226,7 +232,7 @@
         {
             var result = false;
 
-            if (DeleteOrrder)
+            if (DeleteOrder)
             {
                 result = await OrderApiClient.DeleteOrder(OrderId);
                 if (result)

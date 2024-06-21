@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Web.Api.Entities;
 
@@ -137,6 +136,8 @@ namespace Web.Api.Data
         public DbSet<CustomerInfo> CustomerInfos { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderProduct> OrderProducts { get; set; }
+        public DbSet<OrderDelivery> OrderDeliveries { get; set; }
+        
 
         public DbSet<SEO> SEOs { get; set; }
         public DbSet<Menu> Menus { get; set; }
