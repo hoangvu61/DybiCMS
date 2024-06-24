@@ -64,7 +64,7 @@
                     {
                         <div class="row form-switch" style="padding:0">
                             <div class="col"><label class="form-check-label">@att.Title</label></div>
-                            <div class="col" style="text-align:right;padding:0"><input type="checkbox" checked="@att.Value" class="form-check-input" role="switch" @onchange="@((e) => {att.Value = e.Value.ToString();Onchange(att);})"></input></div>
+                            <div class="col" style="text-align:right;padding:0"><input type="checkbox" checked="@(att.Value.ToLower() == "true")" class="form-check-input" role="switch" @onchange="@((e) => {att.Value = e.Value.ToString();Onchange(att);})"></input></div>
                         </div>
                     }
                     else if (att.Type == "Check" && att.Values != null && att.Values.Count > 0)
