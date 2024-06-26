@@ -28,7 +28,7 @@ namespace Web.Backend.Services
         #endregion
 
         #region customer
-        Task<bool> UpdateCustomer(Guid id, OrderCustomerDto request);
+        Task<bool> UpdateCustomer(OrderCustomerDto request);
         #endregion
 
         #region deliver

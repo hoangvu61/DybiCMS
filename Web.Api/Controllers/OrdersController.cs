@@ -157,6 +157,7 @@ namespace Web.Api.Controllers
             var orderDto = new OrderDetailDto()
             {
                 Id = order.Id,
+                CustomerId = order.CustomerId,
                 CustomerName = order.Customer.CustomerName,
                 CustomerPhone = order.Customer.CustomerPhone,
                 CustomerAddress = order.Customer.CustomerAddress,
@@ -352,27 +353,6 @@ namespace Web.Api.Controllers
         }
         #endregion
 
-        [HttpPut]
-        [Route("{id}/customers")]
-        public async Task<IActionResult> UpdateOrderCustomer([FromRoute] Guid id, OrderCustomerDto dto)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var userId = User.GetUserId();
-            var user = await _userManager.FindByIdAsync(userId);
-
-            var customer = await _orderRepository.GetCustomer(user.CompanyId, dto.Id);
-            if (customer == null) return NotFound($"{id} không tồn tại");
-
-            customer.CustomerName = dto.CustomerName;
-            customer.CustomerPhone = dto.CustomerPhone;
-            customer.CustomerAddress = dto.CustomerAddress;
-            await _orderRepository.UpdateCustomer(customer);
-
-            return Ok();
-        }
-
         #region delivery
         [HttpGet]
         [Route("{id}/OrderDeliveries")]
@@ -444,5 +424,26 @@ namespace Web.Api.Controllers
             return Ok();
         }
         #endregion
+
+        [HttpPut]
+        [Route("customers/{id}")]
+        public async Task<IActionResult> UpdateOrderCustomer([FromRoute] Guid id, OrderCustomerDto dto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+
+            var customer = await _orderRepository.GetCustomer(user.CompanyId, dto.Id);
+            if (customer == null) return NotFound($"{id} không tồn tại");
+
+            customer.CustomerName = dto.CustomerName;
+            customer.CustomerPhone = dto.CustomerPhone;
+            customer.CustomerAddress = dto.CustomerAddress;
+            await _orderRepository.UpdateCustomer(customer);
+
+            return Ok();
+        }
     }
 }

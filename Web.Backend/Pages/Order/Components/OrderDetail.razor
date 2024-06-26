@@ -56,6 +56,8 @@
                                             <span class="info-box-text text-center text-muted" style="text-align:left !important"><lable>Khách hàng: </lable> @Model.CustomerName</span>
                                             <span class="info-box-text text-center text-muted" style="text-align:left !important"><lable>Điện thoại: </lable> @Model.CustomerPhone</span>
                                             <span class="info-box-text text-center text-muted" style="text-align:left !important"><lable>Địa chỉ: </lable> @Model.CustomerAddress</span>
+                                            <hr />
+                                            <button type="button" class="btn btn-success btn-xs" @onclick="() => UpdateOrderCustomerControl.Show(Model)">Sửa thông tin người nhận</button>
                                         </div>
                                     </div>
                                 </div>
@@ -73,10 +75,10 @@
                                                 <hr />
                                                 <div class="row">
                                                     <div class="col text-center">
-                                                        <button type="button" class="btn btn-warning" @onclick="() => EditDeliveryControl.Show(Model.Id, Delivery)">Sửa đơn vị vận chuyển</button>
+                                                        <button type="button" class="btn btn-success btn-xs" @onclick="() => EditDeliveryControl.Show(Model.Id, Delivery)">Sửa đơn vị vận chuyển</button>
                                                     </div>
                                                     <div class="col text-center">
-                                                        <button type="button" class="btn btn-danger" @onclick="OpenDeleteOrderDiliveryConfirm">Bỏ đơn vị vận chuyển</button>
+                                                        <button type="button" class="btn btn-danger btn-xs" @onclick="OpenDeleteOrderDiliveryConfirm">Bỏ đơn vị vận chuyển</button>
                                                     </div>
                                                 </div>
                                             }
@@ -169,6 +171,7 @@
     <ProductListPopup @ref="ListProductControl" EventCallbak="SelectProduct"></ProductListPopup>
     <OrderProductUpdate @ref="UpdateOrderProduct" CloseEventCallback="LoadData"></OrderProductUpdate>
     <OrderDeliveryEdit @ref="EditDeliveryControl" CloseEventCallback="LoadData"></OrderDeliveryEdit>
+    <OrderCustomerUpdate @ref="UpdateOrderCustomerControl" CloseEventCallback="LoadData"></OrderCustomerUpdate>
 }
 
 @code {
@@ -189,6 +192,7 @@
     private OrderDeliveryEdit EditDeliveryControl { get; set; }
     private ProductListPopup ListProductControl { get; set; }
     private OrderProductUpdate UpdateOrderProduct { set; get; }
+    private OrderCustomerUpdate UpdateOrderCustomerControl { set; get; }
 
     protected async override Task OnInitializedAsync()
     {

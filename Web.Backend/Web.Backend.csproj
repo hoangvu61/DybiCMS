@@ -28,9 +28,6 @@
     <Content Update="Pages\Admin\Components\CompanyUserList.razor">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </Content>
-    <Content Update="Pages\Order\Components\CustomerUpdate.razor">
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-    </Content>
   </ItemGroup>
 
 </Project>

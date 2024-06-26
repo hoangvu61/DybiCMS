@@ -128,9 +128,9 @@ namespace Web.Backend.Services
         #endregion
 
         #region customer
-        public async Task<bool> UpdateCustomer(Guid id, OrderCustomerDto request)
+        public async Task<bool> UpdateCustomer(OrderCustomerDto request)
         {
-            var result = await _httpClient.PutAsJsonAsync($"/api/orders/{id}/customers", request);
+            var result = await _httpClient.PutAsJsonAsync($"/api/orders/customers/{request.Id}", request);
             return result.IsSuccessStatusCode;
         }
         #endregion
