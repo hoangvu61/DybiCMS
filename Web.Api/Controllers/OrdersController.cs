@@ -1,13 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Drawing;
 using Web.Api.Entities;
 using Web.Api.Extensions;
 using Web.Api.Repositories;
 using Web.Models;
+using Web.Models.Enums;
 using Web.Models.SeedWork;
 
 namespace Web.Api.Controllers
@@ -374,5 +373,76 @@ namespace Web.Api.Controllers
             return Ok();
         }
 
+        #region delivery
+        [HttpGet]
+        [Route("{id}/OrderDeliveries")]
+        public async Task<IActionResult> GetOrderDelivery(Guid id)
+        {
+            var order = await _orderRepository.GetOrderDelivery(id);
+
+            var orderDto = new OrderDeliveryDto();
+            if (order != null)
+            {
+                orderDto.OrderId = order.OrderId;
+                orderDto.DeliveryId = order.DeliveryId;
+                orderDto.DeliveryName = DataSource.Deliveries[order.DeliveryId];
+                orderDto.DeliveryCode = order.DeliveryCode;
+                orderDto.DeliveryFee = order.DeliveryFee;
+                orderDto.DeliveryNote = order.DeliveryNote;
+                orderDto.COD = order.COD;
+
+            }
+            return Ok(orderDto);
+        }
+
+        [HttpPut]
+        [Route("{id}/OrderDeliveries")]
+        public async Task<IActionResult> UpdateOrderDelivery([FromRoute] Guid id, OrderDeliveryRequest request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var delivery = await _orderRepository.GetOrderDelivery(id);
+            if (delivery == null)
+            {
+                delivery = new OrderDelivery
+                {
+                    OrderId = id,
+                    COD = request.COD,
+                    DeliveryCode = request.DeliveryCode,
+                    DeliveryFee = request.DeliveryFee,
+                    DeliveryId = request.DeliveryId,
+                    DeliveryNote = request.DeliveryNote
+                };
+                await _orderRepository.AddOrderDelivery(delivery);
+            }
+            else
+            {
+                delivery.COD = request.COD;
+                delivery.DeliveryId = request.DeliveryId;
+                delivery.DeliveryCode = request.DeliveryCode;
+                delivery.DeliveryFee = request.DeliveryFee;
+                delivery.DeliveryNote = request.DeliveryNote;
+                await _orderRepository.UpdateOrderDelivery(delivery);
+            }
+
+            return Ok(delivery);
+        }
+
+        [HttpDelete]
+        [Route("{id}/OrderDeliveries")]
+        public async Task<IActionResult> DeleteOrderDelivery([FromRoute] Guid id)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var order = await _orderRepository.GetOrderDelivery(id);
+            if (order == null) return NotFound($"{id} không tồn tại");
+
+            await _orderRepository.DeleteOrderDelivery(order);
+
+            return Ok();
+        }
+        #endregion
     }
 }

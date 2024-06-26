@@ -1,4 +1,5 @@
-﻿using Web.Models;
+﻿using System.Net.Http;
+using Web.Models;
 using Web.Models.SeedWork;
 
 namespace Web.Backend.Services
@@ -28,6 +29,14 @@ namespace Web.Backend.Services
 
         #region customer
         Task<bool> UpdateCustomer(Guid id, OrderCustomerDto request);
+        #endregion
+
+        #region deliver
+        Task<OrderDeliveryDto> GetOrderDelivery(Guid id);
+
+        Task<bool> UpdateOrderDelivery(Guid id, OrderDeliveryRequest request);
+
+        Task<bool> DeleteOrderDelivery(Guid id);
         #endregion
     }
 }

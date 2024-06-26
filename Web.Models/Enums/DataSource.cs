@@ -108,5 +108,13 @@ namespace Web.Models.Enums
             { "DISCOUNTUP", "Khuyến mãi tăng dần" },
             { "DISCOUNTDOWN", "Khuyến mãi giảm dần" }
         };
+
+        public static Dictionary<int, string> Deliveries = new Dictionary<int, string>()
+        {
+            { 0, "Giao hàng tiết kiệm" },
+            { 1, "Viettel Post" },
+            { 2, "Giao hàng nhanh" },
+            { 3, "Chành xe" }
+        };
     }
 }

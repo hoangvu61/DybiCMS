@@ -4,14 +4,14 @@
         <div class="modal-dialog modal-sm" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">@ConfirmationTitle</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">@confirmationTitle</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"
                         @onclick="() => OnConfirmationChange(false)">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    @ConfirmationMessage
+                    @confirmationMessage
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary btn-xs" data-dismiss="modal"
@@ -31,11 +31,14 @@
 @code {
     protected bool ShowConfirmation { get; set; }
 
-    [Parameter]
-    public string ConfirmationTitle { get; set; } = "Confirm Delete";
+    private string confirmationTitle { get; set; }
+    private string confirmationMessage { get; set; }
 
     [Parameter]
-    public string ConfirmationMessage { get; set; } = "Are you sure you want to delete";
+    public string ConfirmationTitle { get => confirmationTitle; set => SetTitle(value); }
+
+    [Parameter]
+    public string ConfirmationMessage { get => confirmationMessage; set => SetMessage(value); }
 
     [Parameter]
     public EventCallback<bool> ConfirmationChanged { get; set; }
@@ -43,6 +46,18 @@
     public void Show()
     {
         ShowConfirmation = true;
+        StateHasChanged();
+    }
+
+    public void SetTitle(string value)
+    {
+        confirmationTitle = value;
+        StateHasChanged();
+    }
+
+    public void SetMessage(string value)
+    {
+        confirmationMessage = value;
         StateHasChanged();
     }
 

@@ -134,5 +134,25 @@ namespace Web.Backend.Services
             return result.IsSuccessStatusCode;
         }
         #endregion
+
+        #region deliver
+        public async Task<OrderDeliveryDto> GetOrderDelivery(Guid id)
+        {
+            var result = await _httpClient.GetFromJsonAsync<OrderDeliveryDto>($"/api/orders/{id}/OrderDeliveries");
+            return result;
+        }
+
+        public async Task<bool> UpdateOrderDelivery(Guid id, OrderDeliveryRequest request)
+        {
+            var result = await _httpClient.PutAsJsonAsync($"/api/orders/{id}/OrderDeliveries", request);
+            return result.IsSuccessStatusCode;
+        }
+
+        public async Task<bool> DeleteOrderDelivery(Guid id)
+        {
+            var result = await _httpClient.DeleteAsync($"/api/orders/{id}/OrderDeliveries");
+            return result.IsSuccessStatusCode;
+        }
+        #endregion
     }
 }
