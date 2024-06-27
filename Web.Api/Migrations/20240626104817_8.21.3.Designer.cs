@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Web.Api.Data;
 
@@ -11,9 +12,11 @@ using Web.Api.Data;
 namespace Web.Api.Migrations
 {
     [DbContext(typeof(WebDbContext))]
-    partial class WebDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240626104817_8.21.3")]
+    partial class _8213
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -830,14 +833,14 @@ namespace Web.Api.Migrations
                     b.Property<Guid>("ItemId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Slug")
+                    b.Property<string>("TagName")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("TagName")
+                    b.Property<string>("Slug")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("ItemId", "Slug");
+                    b.HasKey("ItemId", "TagName");
 
                     b.ToTable("ItemTags");
                 });

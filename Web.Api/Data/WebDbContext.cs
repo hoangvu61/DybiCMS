@@ -61,7 +61,7 @@ namespace Web.Api.Data
             modelBuilder.Entity<ItemLanguage>()
                  .HasKey(m => new { m.ItemId, m.LanguageCode });
             modelBuilder.Entity<ItemTag>()
-                 .HasKey(m => new { m.ItemId, m.TagName });
+                 .HasKey(m => new { m.ItemId, m.Slug });
             modelBuilder.Entity<ItemImage>()
                  .HasKey(m => new { m.ItemId, m.Image });
             modelBuilder.Entity<ItemRelated>()

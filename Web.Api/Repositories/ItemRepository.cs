@@ -422,18 +422,20 @@ namespace Web.Api.Repositories
 
             if (item.Tags == null) item.Tags = new List<ItemTag>();
 
-            var removeTags = item.Tags.Where(e => !request.Tags.Contains(e.TagName)).ToList();
+            var requestTags = request.Tags.Select(e => ConvertToUnSign(e.Trim())).ToList();
+            var removeTags = item.Tags.Where(e => !requestTags.Contains(e.Slug)).ToList();
             foreach(var tag in removeTags)
             {
                 item.Tags.Remove(tag);
             }
-            var addTags = request.Tags.Where(e => !item.Tags.Select(e => e.TagName).Contains(e)).ToList();
+            var addTags = requestTags.Where(e => !item.Tags.Select(e => e.Slug).Contains(e)).ToList();
             foreach(var tag in addTags)
             {
                 item.Tags.Add(new ItemTag
                 {
                     ItemId = request.Id,
-                    TagName = tag
+                    TagName = tag,
+                    Slug = ConvertToUnSign(tag.Trim())
                 });
             }    
 
@@ -712,18 +714,20 @@ namespace Web.Api.Repositories
 
             if (item.Tags == null) item.Tags = new List<ItemTag>();
 
-            var removeTags = item.Tags.Where(e => !request.Tags.Contains(e.TagName)).ToList();
+            var requestTags = request.Tags.Select(e => ConvertToUnSign(e.Trim())).ToList();
+            var removeTags = item.Tags.Where(e => !requestTags.Contains(e.Slug)).ToList();
             foreach (var tag in removeTags)
             {
                 item.Tags.Remove(tag);
             }
-            var addTags = request.Tags.Where(e => !item.Tags.Select(e => e.TagName).Contains(e)).ToList();
+            var addTags = requestTags.Where(e => !item.Tags.Select(e => e.Slug).Contains(e)).ToList();
             foreach (var tag in addTags)
             {
                 item.Tags.Add(new ItemTag
                 {
                     ItemId = request.Id,
-                    TagName = tag
+                    TagName = tag,
+                    Slug = ConvertToUnSign(tag.Trim())
                 });
             }
 
@@ -916,6 +920,32 @@ namespace Web.Api.Repositories
             _context.Items.Remove(item);
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        private string ConvertToUnSign(string text)
+        {
+            if (text == null) return string.Empty;
+
+            for (int i = 33; i < 48; i++)
+            {
+                text = text.Replace(((char)i).ToString(), "");
+            }
+            for (int i = 58; i < 65; i++)
+            {
+                text = text.Replace(((char)i).ToString(), "");
+            }
+            for (int i = 91; i < 97; i++)
+            {
+                text = text.Replace(((char)i).ToString(), "");
+            }
+            for (int i = 123; i < 127; i++)
+            {
+                text = text.Replace(((char)i).ToString(), "");
+            }
+            text = text.Replace(" ", "-");
+            var regex = new System.Text.RegularExpressions.Regex(@"\p{IsCombiningDiacriticalMarks}+");
+            string strFormD = text.Normalize(System.Text.NormalizationForm.FormD);
+            return regex.Replace(strFormD, string.Empty).Replace('\u0111', 'd').Replace('\u0110', 'D');
         }
     }
 }

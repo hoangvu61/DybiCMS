@@ -669,7 +669,7 @@ namespace Web.Api.Controllers
                 item.Tags = new List<ItemTag>();
                 foreach(var tag in request.Tags)
                 {
-                    item.Tags.Add(new ItemTag() { TagName = tag });
+                    item.Tags.Add(new ItemTag() { TagName = tag, Slug = ConvertToUnSign(tag.Trim()) });
                 }    
             }
 
@@ -1256,6 +1256,7 @@ namespace Web.Api.Controllers
                 await fileHelper.Save();
             }
 
+            if (!string.IsNullOrEmpty(request.Code)) request.Code = ConvertToUnSign(request.Code.Trim());
             await _itemRepository.UpdateProduct(request);
 
             // SEO
