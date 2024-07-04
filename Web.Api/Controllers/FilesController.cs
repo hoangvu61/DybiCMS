@@ -154,7 +154,7 @@ namespace Web.Api.Controllers
                 {
                     domain = domains.Where(e => e.LanguageCode == languages[0]).Select(e => e.Domain).FirstOrDefault(e => !e.StartsWith("www") && !e.StartsWith("localhost"));
                     domain = "https://" + domain;
-                    WriteTag("1", "Monthly", domain, writer);
+                    WriteTag("1", "Daily", domain, writer);
                 }
 
                 foreach (var lang in languages)
@@ -166,7 +166,7 @@ namespace Web.Api.Controllers
                         if (domain != null)
                         {
                             domain = "https://" + domain;
-                            WriteTag("1", "Monthly", domain, writer);
+                            WriteTag("1", "Daily", domain, writer);
                         }
                     }
 
@@ -179,7 +179,7 @@ namespace Web.Api.Controllers
 
                         if (url.Url.ToLower().Contains("/scat/"))
                         {
-                            mapItem.Freq = "Daily";
+                            mapItem.Freq = "Weekly";
                             mapItem.Priority = "0.8";
                         }
                         else if (url.Url.ToLower().Contains("/satrvl") || url.Url.ToLower().Contains("/tag"))
