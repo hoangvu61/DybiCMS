@@ -37,5 +37,25 @@ namespace Web.Backend.Services
         Task<bool> UpdateAttributeCategoryOrder(Guid categoryid, string attibuteid, int order);
         Task<bool> DeleteAttributeCategory(Guid categoryid, string attibuteid);
         #endregion
+
+        #region order
+        Task<List<AttributeOrderContactDto>> GetAttributeOrderList();
+
+        Task<bool> CreateAttributeOrder(AttributeOrderContactCreateRequest request);
+
+        Task<bool> UpdateAttributeOrderOrder(string attibuteid, int order);
+
+        Task<bool> DeleteAttributeOrder(string attibuteid);
+        #endregion
+
+        #region contact
+        Task<List<AttributeOrderContactDto>> GetAttributeContactList();
+
+        Task<bool> CreateAttributeContact(AttributeOrderContactCreateRequest request);
+
+        Task<bool> UpdateAttributeContactOrder(string attibuteid, int order);
+
+        Task<bool> DeleteAttributeContact(string attibuteid);
+        #endregion
     }
 }

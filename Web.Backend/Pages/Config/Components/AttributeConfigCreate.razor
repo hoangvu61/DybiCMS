@@ -24,20 +24,32 @@
                     <div class="modal-body">
                         <div class="form-group">
                             <div class="input-group input-group-sm mb-3">
-                                <span class="input-group-text">Danh mục:</span>
-                                <InputSelect class="form-control form-control-sm" ValueExpression="@(()=>Model.CategoryId)"
-                                     Value="@Model.CategoryId"
-                                     ValueChanged="@((Guid value) => OnCategoryChanged(value))">
-                                    <option value="@Guid.Empty">Chọn danh mục</option>
-                                    @foreach (var category in Categories)
-                                    {
-                                        <option value="@category.Id">@category.Type @category.Titles.FirstOrDefault(e => e.Key == "vi").Value</option>
-                                    }
-                                </InputSelect>
-                                <ValidationMessage For="()=>Model.CategoryId"></ValidationMessage>
+                                <span class="input-group-text">Cấu hình thuộc tính cho:</span>
+                                <div class="form-check form-check-inline">
+                                    <input name="background" type="radio" class="form-check-input" @onchange="@(() => {ConfigType = 0;})" checked="@(ConfigType == 0)" /> Danh mục;
+                                    <input name="background" type="radio" class="form-check-input" @onchange="@(() => {ConfigType = 1;})" checked="@(ConfigType == 1)" /> Liên hệ;
+                                    <input name="background" type="radio" class="form-check-input" @onchange="@(() => {ConfigType = 2;})" checked="@(ConfigType == 2)" /> Đơn hàng;
+                                </div>
                             </div>
                         </div>
-
+                        @if (ConfigType == 0)
+                        {
+                            <div class="form-group">
+                                <div class="input-group input-group-sm mb-3">
+                                    <span class="input-group-text">Danh mục:</span>
+                                    <InputSelect class="form-control form-control-sm" ValueExpression="@(()=>Model.CategoryId)"
+                                                 Value="@Model.CategoryId"
+                                                 ValueChanged="@((Guid value) => OnCategoryChanged(value))">
+                                        <option value="@Guid.Empty">Chọn danh mục</option>
+                                        @foreach (var category in Categories)
+                                        {
+                                            <option value="@category.Id">@category.Type @category.Titles.FirstOrDefault(e => e.Key == "vi").Value</option>
+                                        }
+                                    </InputSelect>
+                                    <ValidationMessage For="()=>Model.CategoryId"></ValidationMessage>
+                                </div>
+                            </div>
+                        }
                         <div class="form-group">
                             <div class="input-group input-group-sm mb-3">
                                 <span class="input-group-text">Thuộc tính:</span>
@@ -81,9 +93,11 @@
     [Parameter]
     public EventCallback<bool> CloseEventCallbak { get; set; }
 
+    private int? ConfigType { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
-        
+
     }
 
     public async Task LoadData()
@@ -96,9 +110,31 @@
         AttributeCategories = await AttributeApiClient.GetAttributeCategoryList();
     }
 
+    public async Task Show()
+    {
+        await LoadData();
+
+        ShowDialog = true;
+        Model.AttributeId = string.Empty;
+        Model.Order = 50;
+        StateHasChanged();
+    }
+
+    public async Task Show(int configType)
+    {
+        await LoadData();
+        ConfigType = configType;
+
+        ShowDialog = true;
+        Model.AttributeId = string.Empty;
+        Model.Order = 50;
+        StateHasChanged();
+    }
+
     public async Task Show(Guid categoryId)
     {
         await LoadData();
+        ConfigType = 0;
 
         ShowDialog = true;
         Model.AttributeId = string.Empty;
@@ -123,21 +159,32 @@
 
     protected async Task HandleSubmit()
     {
-        if (Model.CategoryId == Guid.Empty) ToastService.ShowWarning("Vui lòng chọn danh mục cho thuộc tính");
+        var result = false;
+
+        if (ConfigType == null) ToastService.ShowWarning("Vui lòng chọn loại cấu hình");
         else if (Model.AttributeId == string.Empty) ToastService.ShowWarning("Vui lòng chọn thuộc tính");
-        else
+        else 
         {
-            var result = await AttributeApiClient.CreateAttributeCategory(Model);
-            if (result)
+            if (ConfigType == 0)
             {
-                ShowDialog = false;
-                await CloseEventCallbak.InvokeAsync(true);
-                ToastService.ShowInfo("Cài đặt thuộc tính thành công");
+                if (Model.CategoryId == Guid.Empty) ToastService.ShowWarning("Vui lòng chọn danh mục cho thuộc tính");
+                else result = await AttributeApiClient.CreateAttributeCategory(Model);
             }
             else
             {
-                ToastService.ShowError("Cài đặt thuộc tính không thành công");
+
             }
+        }
+
+        if (result)
+        {
+            ShowDialog = false;
+            await CloseEventCallbak.InvokeAsync(true);
+            ToastService.ShowInfo("Cài đặt thuộc tính thành công");
+        }
+        else
+        {
+            ToastService.ShowError("Cài đặt thuộc tính không thành công");
         }
     }
 

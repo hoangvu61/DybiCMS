@@ -138,5 +138,57 @@ namespace Web.Backend.Services
             return result.IsSuccessStatusCode;
         }
         #endregion
+
+        #region order
+        public async Task<List<AttributeOrderContactDto>> GetAttributeOrderList()
+        {
+            var result = await _httpClient.GetFromJsonAsync<List<AttributeOrderContactDto>>($"/api/attributes/orders");
+            return result;
+        }
+
+        public async Task<bool> CreateAttributeOrder(AttributeOrderContactCreateRequest request)
+        {
+            var result = await _httpClient.PostAsJsonAsync($"/api/attributes/orders", request);
+            return result.IsSuccessStatusCode;
+        }
+
+        public async Task<bool> UpdateAttributeOrderOrder(string attibuteid, int order)
+        {
+            var result = await _httpClient.PutAsync($"/api/attributes/orders/attribute/{attibuteid}/order/{order}", null);
+            return result.IsSuccessStatusCode;
+        }
+
+        public async Task<bool> DeleteAttributeOrder(string attibuteid)
+        {
+            var result = await _httpClient.DeleteAsync($"/api/attributes/orders/attribute/{attibuteid}");
+            return result.IsSuccessStatusCode;
+        }
+        #endregion
+
+        #region contact
+        public async Task<List<AttributeOrderContactDto>> GetAttributeContactList()
+        {
+            var result = await _httpClient.GetFromJsonAsync<List<AttributeOrderContactDto>>($"/api/attributes/contacts");
+            return result;
+        }
+
+        public async Task<bool> CreateAttributeContact(AttributeOrderContactCreateRequest request)
+        {
+            var result = await _httpClient.PostAsJsonAsync($"/api/attributes/contacts", request);
+            return result.IsSuccessStatusCode;
+        }
+
+        public async Task<bool> UpdateAttributeContactOrder(string attibuteid, int order)
+        {
+            var result = await _httpClient.PutAsync($"/api/attributes/contacts/attribute/{attibuteid}/order/{order}", null);
+            return result.IsSuccessStatusCode;
+        }
+
+        public async Task<bool> DeleteAttributeContact(string attibuteid)
+        {
+            var result = await _httpClient.DeleteAsync($"/api/attributes/contacts/attribute/{attibuteid}");
+            return result.IsSuccessStatusCode;
+        }
+        #endregion
     }
 }

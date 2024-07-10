@@ -228,5 +228,77 @@ namespace Web.Api.Repositories
             await _context.SaveChangesAsync();
             return true;
         }
+
+        #region AttributeOrder
+        public async Task<List<AttributeOrder>> GetAttributeOrders(Guid companyId)
+        {
+            var query = _context.AttributeOrders
+                .Include(e => e.Attribute)
+                .Include(e => e.Attribute.AttributeLanguages)
+                .Where(e => e.CompanyId == companyId);
+            return await query.OrderBy(e => e.Order).ToListAsync();
+        }
+        public async Task<AttributeOrder> GetAttributeOrder(Guid companyId, string attributeId)
+        {
+            var query = _context.AttributeOrders
+                .Include(e => e.Attribute)
+                .Where(e => e.AttributeId == attributeId && e.CompanyId == companyId);
+            return await query.FirstOrDefaultAsync();
+        }
+        public async Task<AttributeOrder> CreateAttributeOrder(AttributeOrder attOrder)
+        {
+            _context.AttributeOrders.Add(attOrder);
+            await _context.SaveChangesAsync();
+            return attOrder;
+        }
+        public async Task<AttributeOrder> UpdateAttributeOrder(AttributeOrder attOrder)
+        {
+            _context.AttributeOrders.Update(attOrder);
+            await _context.SaveChangesAsync();
+            return attOrder;
+        }
+        public async Task<bool> DeleteAttributeOrder(AttributeOrder attOrder)
+        {
+            _context.AttributeOrders.Remove(attOrder);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        #endregion
+
+        #region AttributeContact
+        public async Task<List<AttributeContact>> GetAttributeContacts(Guid companyId)
+        {
+            var query = _context.AttributeContacts
+                .Include(e => e.Attribute)
+                .Include(e => e.Attribute.AttributeLanguages)
+                .Where(e => e.CompanyId == companyId);
+            return await query.OrderBy(e => e.Order).ToListAsync();
+        }
+        public async Task<AttributeContact> GetAttributeContact(Guid companyId, string attributeId)
+        {
+            var query = _context.AttributeContacts
+                .Include(e => e.Attribute)
+                .Where(e => e.AttributeId == attributeId && e.CompanyId == companyId);
+            return await query.FirstOrDefaultAsync();
+        }
+        public async Task<AttributeContact> CreateAttributeContact(AttributeContact attContact)
+        {
+            _context.AttributeContacts.Add(attContact);
+            await _context.SaveChangesAsync();
+            return attContact;
+        }
+        public async Task<AttributeContact> UpdateAttributeContact(AttributeContact attContact)
+        {
+            _context.AttributeContacts.Update(attContact);
+            await _context.SaveChangesAsync();
+            return attContact;
+        }
+        public async Task<bool> DeleteAttributeContact(AttributeContact attContact)
+        {
+            _context.AttributeContacts.Remove(attContact);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        #endregion
     }
 }

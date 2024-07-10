@@ -196,83 +196,6 @@ namespace Web.Api.Controllers
         }
         #endregion
 
-        #region category
-        [HttpGet]
-        [Route("categories")]
-        public async Task<IActionResult> GetAllCategory()
-        {
-            var userId = User.GetUserId();
-            var user = await _userManager.FindByIdAsync(userId);
-
-            var list = await _attributeRepository.GetAttributeCategories(user.CompanyId);
-            var dtos = list.Select(e => new AttributeCategoryDto()
-            {
-                AttributeId = e.AttributeId,
-                CategoryId = e.CategoryId,
-                Order = e.Order,
-                AttributeTitles = e.Attribute.AttributeLanguages.ToDictionary(d => d.LanguageCode, d => d.Name),
-                CategoryNames = e.Category.Item.ItemLanguages.ToDictionary(d => d.LanguageCode, d => d.Title),
-            });
-
-            return Ok(dtos);
-        }
-
-        [HttpPost]
-        [Route("categories")]
-        public async Task<IActionResult> CreateAttributeCategory([FromBody] AttributeCategoryCreateRequest request)
-        {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-
-            var userId = User.GetUserId();
-            var user = await _userManager.FindByIdAsync(userId);
-
-            var obj = new Entities.AttributeCategory
-            {
-                AttributeId = request.AttributeId,
-                CompanyId = user.CompanyId,
-                CategoryId = request.CategoryId,
-                Order = request.Order
-            };
-
-            await _attributeRepository.CreateAttributeCategory(obj);
-
-            return Ok(obj);
-        }
-
-        [HttpPut]
-        [Route("categories/{categoryid}/attribute/{attibuteid}/order/{order}")]
-        public async Task<IActionResult> UpdateOrder([FromRoute] Guid categoryid, string attibuteid, int order)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var userId = User.GetUserId();
-            var user = await _userManager.FindByIdAsync(userId);
-
-            var obj = await _attributeRepository.GetAttributeCategory(user.CompanyId, attibuteid, categoryid);
-            if (obj == null) return NotFound($"{attibuteid} không tồn tại trong {categoryid}");
-
-            obj.Order = order;
-            await _attributeRepository.UpdateAttributeCategory(obj);
-
-            return Ok();
-        }
-
-        [HttpDelete]
-        [Route("categories/{categoryid}/attribute/{attibuteid}")]
-        public async Task<IActionResult> DeleteAttributeCategory([FromRoute] Guid categoryid, string attibuteid)
-        {
-            var userId = User.GetUserId();
-            var user = await _userManager.FindByIdAsync(userId);
-
-            var obj = await _attributeRepository.GetAttributeCategory(user.CompanyId, attibuteid, categoryid);
-            if (obj == null) return NotFound($"{attibuteid} không tồn tại trong {categoryid}");
-
-            await _attributeRepository.DeleteAttributeCategory(obj);
-            return Ok();
-        }
-        #endregion
-
         #region source
         [HttpGet]
         [Route("sources")]
@@ -525,6 +448,231 @@ namespace Web.Api.Controllers
             if (obj == null) return NotFound($"{id} không tồn tại");
 
             await _attributeRepository.DeleteAttributeValue(obj);
+            return Ok();
+        }
+        #endregion
+
+        #region order
+        [HttpGet]
+        [Route("orders")]
+        public async Task<IActionResult> GetAllOrders()
+        {
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+
+            var list = await _attributeRepository.GetAttributeOrders(user.CompanyId);
+            var dtos = list.Select(e => new AttributeOrderContactDto()
+            {
+                AttributeId = e.AttributeId,
+                Order = e.Order,
+                AttributeTitles = e.Attribute.AttributeLanguages.ToDictionary(d => d.LanguageCode, d => d.Name),
+            });
+
+            return Ok(dtos);
+        }
+
+        [HttpPost]
+        [Route("orders")]
+        public async Task<IActionResult> CreateAttributeOrder([FromBody] AttributeOrderContactCreateRequest request)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+
+            var obj = new AttributeOrder
+            {
+                AttributeId = request.AttributeId,
+                CompanyId = user.CompanyId,
+                Order = request.Order
+            };
+
+            await _attributeRepository.CreateAttributeOrder(obj);
+
+            return Ok(obj);
+        }
+
+        [HttpPut]
+        [Route("orders/attribute/{attibuteid}/order/{order}")]
+        public async Task<IActionResult> UpdateOrderOrder([FromRoute] string attibuteid, int order)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+
+            var obj = await _attributeRepository.GetAttributeOrder(user.CompanyId, attibuteid);
+            if (obj == null) return NotFound($"{attibuteid} không tồn tại trong Đặt hàng");
+
+            obj.Order = order;
+            await _attributeRepository.UpdateAttributeOrder(obj);
+
+            return Ok();
+        }
+
+        [HttpDelete]
+        [Route("orders/attribute/{attibuteid}")]
+        public async Task<IActionResult> DeleteAttributeOrder([FromRoute] string attibuteid)
+        {
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+
+            var obj = await _attributeRepository.GetAttributeOrder(user.CompanyId, attibuteid);
+            if (obj == null) return NotFound($"{attibuteid} không tồn tại trong Đặt hàng");
+
+            await _attributeRepository.DeleteAttributeOrder(obj);
+            return Ok();
+        }
+        #endregion
+
+        #region contact
+        [HttpGet]
+        [Route("contacts")]
+        public async Task<IActionResult> GetAllContacts()
+        {
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+
+            var list = await _attributeRepository.GetAttributeContacts(user.CompanyId);
+            var dtos = list.Select(e => new AttributeOrderContactDto()
+            {
+                AttributeId = e.AttributeId,
+                Order = e.Order,
+                AttributeTitles = e.Attribute.AttributeLanguages.ToDictionary(d => d.LanguageCode, d => d.Name),
+            });
+
+            return Ok(dtos);
+        }
+
+        [HttpPost]
+        [Route("contacts")]
+        public async Task<IActionResult> CreateAttributeContact([FromBody] AttributeOrderContactCreateRequest request)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+
+            var obj = new AttributeContact
+            {
+                AttributeId = request.AttributeId,
+                CompanyId = user.CompanyId,
+                Order = request.Order
+            };
+
+            await _attributeRepository.CreateAttributeContact(obj);
+
+            return Ok(obj);
+        }
+
+        [HttpPut]
+        [Route("contacts/attribute/{attibuteid}/order/{order}")]
+        public async Task<IActionResult> UpdateContactOrder([FromRoute] string attibuteid, int order)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+
+            var obj = await _attributeRepository.GetAttributeContact(user.CompanyId, attibuteid);
+            if (obj == null) return NotFound($"{attibuteid} không tồn tại trong Liên hệ");
+
+            obj.Order = order;
+            await _attributeRepository.UpdateAttributeContact(obj);
+
+            return Ok();
+        }
+
+        [HttpDelete]
+        [Route("contacts/attribute/{attibuteid}")]
+        public async Task<IActionResult> DeleteAttributeContact([FromRoute] string attibuteid)
+        {
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+
+            var obj = await _attributeRepository.GetAttributeContact(user.CompanyId, attibuteid);
+            if (obj == null) return NotFound($"{attibuteid} không tồn tại trong Liên hệ");
+
+            await _attributeRepository.DeleteAttributeContact(obj);
+            return Ok();
+        }
+        #endregion
+
+        #region category
+        [HttpGet]
+        [Route("categories")]
+        public async Task<IActionResult> GetAllCategory()
+        {
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+
+            var list = await _attributeRepository.GetAttributeCategories(user.CompanyId);
+            var dtos = list.Select(e => new AttributeCategoryDto()
+            {
+                AttributeId = e.AttributeId,
+                CategoryId = e.CategoryId,
+                Order = e.Order,
+                AttributeTitles = e.Attribute.AttributeLanguages.ToDictionary(d => d.LanguageCode, d => d.Name),
+                CategoryNames = e.Category.Item.ItemLanguages.ToDictionary(d => d.LanguageCode, d => d.Title),
+            });
+
+            return Ok(dtos);
+        }
+
+        [HttpPost]
+        [Route("categories")]
+        public async Task<IActionResult> CreateAttributeCategory([FromBody] AttributeCategoryCreateRequest request)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+
+            var obj = new Entities.AttributeCategory
+            {
+                AttributeId = request.AttributeId,
+                CompanyId = user.CompanyId,
+                CategoryId = request.CategoryId,
+                Order = request.Order
+            };
+
+            await _attributeRepository.CreateAttributeCategory(obj);
+
+            return Ok(obj);
+        }
+
+        [HttpPut]
+        [Route("categories/{categoryid}/attribute/{attibuteid}/order/{order}")]
+        public async Task<IActionResult> UpdateCategoryOrder([FromRoute] Guid categoryid, string attibuteid, int order)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+
+            var obj = await _attributeRepository.GetAttributeCategory(user.CompanyId, attibuteid, categoryid);
+            if (obj == null) return NotFound($"{attibuteid} không tồn tại trong {categoryid}");
+
+            obj.Order = order;
+            await _attributeRepository.UpdateAttributeCategory(obj);
+
+            return Ok();
+        }
+
+        [HttpDelete]
+        [Route("categories/{categoryid}/attribute/{attibuteid}")]
+        public async Task<IActionResult> DeleteAttributeCategory([FromRoute] Guid categoryid, string attibuteid)
+        {
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+
+            var obj = await _attributeRepository.GetAttributeCategory(user.CompanyId, attibuteid, categoryid);
+            if (obj == null) return NotFound($"{attibuteid} không tồn tại trong {categoryid}");
+
+            await _attributeRepository.DeleteAttributeCategory(obj);
             return Ok();
         }
         #endregion

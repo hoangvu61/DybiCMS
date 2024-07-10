@@ -93,7 +93,9 @@ namespace Web.Api.Data
         public DbSet<WebInfo> WebInfos { get; set; }
 
         public DbSet<Entities.Attribute> Attributes { get; set; }
-        public DbSet<Entities.AttributeCategory> AttributeCategories { get; set; }
+        public DbSet<AttributeCategory> AttributeCategories { get; set; }
+        public DbSet<AttributeOrder> AttributeOrders { get; set; }
+        public DbSet<AttributeContact> AttributeContacts { get; set; }
         public DbSet<AttributeLanguage> AttributeLanguages { get; set; }
         public DbSet<AttributeSource> AttributeSources { get; set; }
         public DbSet<AttributeSourceLanguage> AttributeSourceLanguages { get; set; }

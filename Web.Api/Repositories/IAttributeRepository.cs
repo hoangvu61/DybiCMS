@@ -39,5 +39,17 @@ namespace Web.Api.Repositories
         Task<AttributeCategory> CreateAttributeCategory(AttributeCategory attCat);
         Task<AttributeCategory> UpdateAttributeCategory(AttributeCategory attCat);
         Task<bool> DeleteAttributeCategory(AttributeCategory attCat);
+
+        Task<List<AttributeOrder>> GetAttributeOrders(Guid companyId);
+        Task<AttributeOrder> GetAttributeOrder(Guid companyId, string attributeId);
+        Task<AttributeOrder> CreateAttributeOrder(AttributeOrder attOrder);
+        Task<AttributeOrder> UpdateAttributeOrder(AttributeOrder attOrder);
+        Task<bool> DeleteAttributeOrder(AttributeOrder attOrder);
+
+        Task<List<AttributeContact>> GetAttributeContacts(Guid companyId);
+        Task<AttributeContact> GetAttributeContact(Guid companyId, string attributeId);
+        Task<AttributeContact> CreateAttributeContact(AttributeContact attContact);
+        Task<AttributeContact> UpdateAttributeContact(AttributeContact attContact);
+        Task<bool> DeleteAttributeContact(AttributeContact attContact);
     }
 }
