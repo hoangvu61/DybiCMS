@@ -8,7 +8,6 @@ namespace Web.Api.Entities
     public partial class AttributeValue
     {
         [Key]
-        [Required]
         [MaxLength(50)]
         [Column(TypeName = "VARCHAR")]
         public string Id { get; set; }

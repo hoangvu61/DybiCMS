@@ -1,6 +1,7 @@
 namespace Web.Api.Entities
 {
     using System;
+    using System.ComponentModel;
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Diagnostics.CodeAnalysis;
@@ -27,6 +28,10 @@ namespace Web.Api.Entities
         [AllowNull]
         public string? Code { get; set; }
 
+        [DefaultValue(1)] 
         public int SaleMin { get; set; }
+        
+        public WarehouseInventory Inventory { get; set; }
+        public virtual ICollection<WarehouseInputProduct> WarehouseInputs { get; set; }
     }
 }

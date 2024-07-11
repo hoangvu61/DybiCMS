@@ -28,6 +28,7 @@ namespace Web.Models
         public decimal Price { get; set; }
         public decimal Discount { get; set; }
         public int DiscountType { get; set; }
+        public int SaleMin { get; set; } = 1;
         public List<Guid> Relateds { get; set; } = new List<Guid>();
         public List<ProductAddOnDto> AddOns { get; set; } = new List<ProductAddOnDto>();
         public List<ItemAttributeDto> Attributes { get; set; } = new List<ItemAttributeDto>();

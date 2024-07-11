@@ -74,6 +74,15 @@ namespace Web.Api.Data
             
             modelBuilder.Entity<OrderProduct>()
                 .HasKey(m => new { m.OrderId, m.ProductId });
+            modelBuilder.Entity<AttributeOrder>()
+                .HasKey(m => new { m.AttributeId, m.CompanyId });
+            modelBuilder.Entity<AttributeContact>()
+                .HasKey(m => new { m.AttributeId, m.CompanyId });
+
+            modelBuilder.Entity<WarehouseInputProduct>()
+                .HasKey(m => new { m.WarehouseId, m.ProductId });
+            modelBuilder.Entity<WarehouseInventory>()
+                .HasKey(m => new { m.WarehouseId, m.ProductId });
 
             modelBuilder.Entity<CustomerInfo>()
                 .HasKey(m => new { m.Id, m.InfoKey });
@@ -139,7 +148,12 @@ namespace Web.Api.Data
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderProduct> OrderProducts { get; set; }
         public DbSet<OrderDelivery> OrderDeliveries { get; set; }
-        
+
+        public DbSet<Warehouse> Warehouses { get; set; }
+        public DbSet<WarehouseSource> WarehouseSources { get; set; }
+        public DbSet<WarehouseInput> WarehouseInputs { get; set; }
+        public DbSet<WarehouseInputProduct> WarehouseInputProducts { get; set; }
+        public DbSet<WarehouseInventory> WarehouseInventories { get; set; }
 
         public DbSet<SEO> SEOs { get; set; }
         public DbSet<Menu> Menus { get; set; }

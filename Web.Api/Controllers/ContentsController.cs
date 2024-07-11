@@ -1196,7 +1196,7 @@ namespace Web.Api.Controllers
                     Price = request.Price,
                     Discount = request.Discount,
                     DiscountType = request.DiscountType,
-                    SaleMin = 1
+                    SaleMin = request.SaleMin
                 },
                 ItemLanguages = new List<ItemLanguage>() { languageItem },
             };
