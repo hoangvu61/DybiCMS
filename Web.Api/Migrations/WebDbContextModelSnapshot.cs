@@ -1531,6 +1531,10 @@ namespace Web.Api.Migrations
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("InputCode")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.Property<string>("Note")
                         .HasColumnType("nvarchar(max)");
 

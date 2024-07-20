@@ -25,6 +25,11 @@ namespace Web.Api.Entities
 
         public DateTime CreateDate { get; set; }
 
+        [AllowNull]
+        [MaxLength(50)]
+        [Description("Mã lô hàng nhập")]
+        public string? InputCode { get; set; }
+
         [Description("Tổng phí nhập hàng")]
         [DefaultValue(0)]
         public decimal TotalPrice { get; set; }

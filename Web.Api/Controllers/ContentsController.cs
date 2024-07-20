@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.ComponentModel;
+using System.ComponentModel.Design;
 using System.Linq;
 using System.Security.Policy;
 using Web.Api.Entities;
@@ -1662,6 +1663,14 @@ namespace Web.Api.Controllers
             seo.Title = request.Title;
             seo.MetaDescription = request.MetaDescription;
             seo.MetaKeyWord = request.MetaKeyWord;
+
+            bool check = false;
+            do
+            {
+                if (check) seo.SeoUrl += "-";
+                check = await _seoRepository.CheckExist(user.CompanyId, seo.SeoUrl);
+            }
+            while (check);
 
             await _seoRepository.UpdateSEO(seo);
 
