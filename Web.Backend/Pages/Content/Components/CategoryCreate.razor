@@ -151,10 +151,17 @@
         }
     }
 
-    public void Show()
+    public async Task Show()
     {
         Model.Id = Guid.NewGuid();
         Model.LanguageCode = LanguageCode;
+        if (ParentId != null)
+        {
+            var category = await ContentApiClient.GetCategory(Model.ParentId.Value, Model.LanguageCode);
+            Model.ComponentList = category.ComponentList;
+            Model.ComponentDetail = category.ComponentDetail;
+        }
+        
         ShowBox = true;
         StateHasChanged();
     }
