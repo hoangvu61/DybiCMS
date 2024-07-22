@@ -4,7 +4,7 @@ namespace Web.Api.Entities
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
 
-    public partial class ContactAttributes
+    public partial class ContactAttribute
     {
         [ForeignKey("Id")]
         public Guid ContactId { get; set; }

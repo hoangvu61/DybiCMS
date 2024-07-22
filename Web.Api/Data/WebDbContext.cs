@@ -88,7 +88,7 @@ namespace Web.Api.Data
             modelBuilder.Entity<WarehouseOutputProductCode>()
                 .HasKey(m => new { m.ProductCode, m.ProductId });
 
-            modelBuilder.Entity<ContactAttributes>()
+            modelBuilder.Entity<ContactAttribute>()
                 .HasKey(m => new { m.ContactId, m.AttributeId });
 
             //modelBuilder.Entity<Role>().HasData(new Role { Name = "Product", NormalizedName = "PRODUCT", Id = Guid.NewGuid(), ConcurrencyStamp = Guid.NewGuid().ToString(), Description = "Product" });
@@ -150,7 +150,7 @@ namespace Web.Api.Data
         public DbSet<Customer> Customers { get; set; }
 
         public DbSet<Contact> Contacts { get; set; }
-        public DbSet<ContactAttributes> ContactInfos { get; set; }
+        public DbSet<ContactAttribute> ContactAttributes { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderProduct> OrderProducts { get; set; }
         public DbSet<OrderDelivery> OrderDeliveries { get; set; }

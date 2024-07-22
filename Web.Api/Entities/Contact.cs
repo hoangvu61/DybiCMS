@@ -31,6 +31,6 @@ namespace Web.Api.Entities
         [AllowNull]
         public string? Message { get; set; }
 
-        public virtual ICollection<ContactAttributes> Attributes { get; set; }
+        public virtual ICollection<ContactAttribute> Attributes { get; set; }
     }
 }
