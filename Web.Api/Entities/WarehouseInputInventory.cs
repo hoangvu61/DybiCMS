@@ -3,13 +3,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Web.Api.Entities
 {
-    public partial class WarehouseInventory
+    public partial class WarehouseInputInventory
     {
-        [Description("Mã kho")]
-        public Guid WarehouseId { get; set; }
+        [Description("Mã nhập kho")]
+        public Guid InputId { get; set; }
 
-        [ForeignKey("WarehouseId")]
-        public Warehouse Warehouse { get; set; }
+        [ForeignKey("InputId")]
+        public WarehouseInput Input { get; set; }
 
         public Guid ProductId { get; set; }
         [ForeignKey("ProductId")]

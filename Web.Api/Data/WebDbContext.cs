@@ -84,6 +84,8 @@ namespace Web.Api.Data
             modelBuilder.Entity<WarehouseInputProductCode>()
                 .HasKey(m => new { m.ProductCode, m.ProductId });
             modelBuilder.Entity<WarehouseInventory>()
+                .HasKey(m => new { m.WarehouseId, m.ProductId });
+            modelBuilder.Entity<WarehouseInputInventory>()
                 .HasKey(m => new { m.InputId, m.ProductId });
             modelBuilder.Entity<WarehouseOutputProductCode>()
                 .HasKey(m => new { m.ProductCode, m.ProductId });
@@ -161,6 +163,7 @@ namespace Web.Api.Data
         public DbSet<WarehouseInputProduct> WarehouseInputProducts { get; set; }
         public DbSet<WarehouseInputProductCode> WarehouseInputProductCodes { get; set; }
         public DbSet<WarehouseInventory> WarehouseInventories { get; set; }
+        public DbSet<WarehouseInputInventory> WarehouseInputInventories { get; set; }
         public DbSet<WarehouseOutput> WarehouseOutputs { get; set; }
         public DbSet<WarehouseOutputProductCode> WarehouseOutputProductCodes { get; set; }
 
