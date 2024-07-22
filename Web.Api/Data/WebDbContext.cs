@@ -80,12 +80,16 @@ namespace Web.Api.Data
                 .HasKey(m => new { m.AttributeId, m.CompanyId });
 
             modelBuilder.Entity<WarehouseInputProduct>()
-                .HasKey(m => new { m.WarehouseId, m.ProductId });
+                .HasKey(m => new { m.InputId, m.ProductId });
+            modelBuilder.Entity<WarehouseInputProductCode>()
+                .HasKey(m => new { m.ProductCode, m.ProductId });
             modelBuilder.Entity<WarehouseInventory>()
-                .HasKey(m => new { m.WarehouseId, m.ProductId });
+                .HasKey(m => new { m.InputId, m.ProductId });
+            modelBuilder.Entity<WarehouseOutputProductCode>()
+                .HasKey(m => new { m.ProductCode, m.ProductId });
 
-            modelBuilder.Entity<CustomerInfo>()
-                .HasKey(m => new { m.Id, m.InfoKey });
+            modelBuilder.Entity<ContactAttributes>()
+                .HasKey(m => new { m.ContactId, m.AttributeId });
 
             //modelBuilder.Entity<Role>().HasData(new Role { Name = "Product", NormalizedName = "PRODUCT", Id = Guid.NewGuid(), ConcurrencyStamp = Guid.NewGuid().ToString(), Description = "Product" });
             //modelBuilder.Entity<Role>().HasData(new Role { Name = "Admin", NormalizedName = "ADMIN", Id = Guid.NewGuid(), ConcurrencyStamp = Guid.NewGuid().ToString(), Description = "Admin" });
@@ -144,7 +148,9 @@ namespace Web.Api.Data
         public DbSet<ItemEvent> ItemEvents { get; set; }
 
         public DbSet<Customer> Customers { get; set; }
-        public DbSet<CustomerInfo> CustomerInfos { get; set; }
+
+        public DbSet<Contact> Contacts { get; set; }
+        public DbSet<ContactAttributes> ContactInfos { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderProduct> OrderProducts { get; set; }
         public DbSet<OrderDelivery> OrderDeliveries { get; set; }
@@ -153,7 +159,10 @@ namespace Web.Api.Data
         public DbSet<WarehouseSource> WarehouseSources { get; set; }
         public DbSet<WarehouseInput> WarehouseInputs { get; set; }
         public DbSet<WarehouseInputProduct> WarehouseInputProducts { get; set; }
+        public DbSet<WarehouseInputProductCode> WarehouseInputProductCodes { get; set; }
         public DbSet<WarehouseInventory> WarehouseInventories { get; set; }
+        public DbSet<WarehouseOutput> WarehouseOutputs { get; set; }
+        public DbSet<WarehouseOutputProductCode> WarehouseOutputProductCodes { get; set; }
 
         public DbSet<SEO> SEOs { get; set; }
         public DbSet<Menu> Menus { get; set; }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Web.Api.Data;
 
@@ -11,9 +12,11 @@ using Web.Api.Data;
 namespace Web.Api.Migrations
 {
     [DbContext(typeof(WebDbContext))]
-    partial class WebDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240722164208_8.22.1")]
+    partial class _8221
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -530,23 +533,28 @@ namespace Web.Api.Migrations
                     b.ToTable("Contacts");
                 });
 
-            modelBuilder.Entity("Web.Api.Entities.ContactAttributes", b =>
+            modelBuilder.Entity("Web.Api.Entities.ContactInfo", b =>
                 {
                     b.Property<Guid>("ContactId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("AttributeId")
-                        .HasMaxLength(50)
-                        .HasColumnType("VARCHAR");
+                    b.Property<string>("InfoKey")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Value")
+                    b.Property<string>("InfoTitle")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("InfoValue")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("ContactId", "AttributeId");
+                    b.HasKey("ContactId", "InfoKey");
 
                     b.HasIndex("Id");
 
@@ -2088,10 +2096,10 @@ namespace Web.Api.Migrations
                     b.Navigation("Company");
                 });
 
-            modelBuilder.Entity("Web.Api.Entities.ContactAttributes", b =>
+            modelBuilder.Entity("Web.Api.Entities.ContactInfo", b =>
                 {
                     b.HasOne("Web.Api.Entities.Contact", "Contact")
-                        .WithMany("Attributes")
+                        .WithMany("Infos")
                         .HasForeignKey("Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -2683,7 +2691,7 @@ namespace Web.Api.Migrations
 
             modelBuilder.Entity("Web.Api.Entities.Contact", b =>
                 {
-                    b.Navigation("Attributes");
+                    b.Navigation("Infos");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.Item", b =>

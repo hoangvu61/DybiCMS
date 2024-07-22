@@ -5,11 +5,11 @@ namespace Web.Api.Entities
 {
     public partial class WarehouseInventory
     {
-        [Description("Mã nhà cung cấp")]
-        public Guid WarehouseId { get; set; }
-        
-        [ForeignKey("WarehouseId")]
-        public Warehouse Warehouse { get; set; }
+        [Description("Mã nhập kho")]
+        public Guid InputId { get; set; }
+
+        [ForeignKey("InputId")]
+        public WarehouseInput Input { get; set; }
 
         public Guid ProductId { get; set; }
         [ForeignKey("ProductId")]
@@ -17,7 +17,5 @@ namespace Web.Api.Entities
 
         [DefaultValue(0)]
         public int InventoryNumber { get; set; }
-
-        
     }
 }

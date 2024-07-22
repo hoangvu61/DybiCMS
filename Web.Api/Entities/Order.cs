@@ -20,6 +20,18 @@ namespace Web.Api.Entities
         public Customer Customer { get; set; }
 
         [Required]
+        [MaxLength(200)]
+        public string CustomerName { get; set; }
+
+        [Required]
+        [MaxLength(30)]
+        public string CustomerPhone { get; set; }
+
+        [AllowNull]
+        [MaxLength(300)]
+        public string? CustomerAddress { get; set; }
+
+        [Required]
         public DateTime CreateDate { get; set; }
 
         [AllowNull]

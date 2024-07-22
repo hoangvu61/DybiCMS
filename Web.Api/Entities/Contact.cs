@@ -5,26 +5,32 @@ namespace Web.Api.Entities
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Diagnostics.CodeAnalysis;
 
-    public partial class Customer
+    public partial class Contact
     {
 
         [Key]
         public Guid Id { get; set; }
+
         public Guid CompanyId { get; set; }
 
         [ForeignKey("CompanyId")]
         public Company Company { get; set; }
 
-        [Required]
+        [AllowNull]
         [MaxLength(200)]
-        public string CustomerName { get; set; }
+        public string? ContactName { get; set; }
 
-        [Required]
+        [AllowNull]
         [MaxLength(30)]
-        public string CustomerPhone { get; set; }
+        public string? CustomerPhone { get; set; }
 
         [AllowNull]
         [MaxLength(300)]
         public string? CustomerAddress { get; set; }
+
+        [AllowNull]
+        public string? Message { get; set; }
+
+        public virtual ICollection<ContactAttributes> Attributes { get; set; }
     }
 }

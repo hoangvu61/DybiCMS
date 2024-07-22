@@ -31,6 +31,6 @@ namespace Web.Api.Entities
         [MaxLength(300)]
         public string? Address { get; set; }
 
-        
+        public virtual ICollection<WarehouseInput> Inputs { get; set; }
     }
 }

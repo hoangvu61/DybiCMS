@@ -484,12 +484,12 @@ else
                 await stream.ReadAsync(buf); // copy the stream to the buffer
             }
             Model.Images.Add(new FileData
-                {
-                    Base64data = Convert.ToBase64String(buf),
-                    ContentType = file.ContentType,
-                    FileName = file.Name,
-                    Type = FileType.ItemImage
-                });
+            {
+                Base64data = Convert.ToBase64String(buf),
+                ContentType = file.ContentType,
+                FileName = file.Name,
+                Type = FileType.ItemImage
+            });
         }
     }
 

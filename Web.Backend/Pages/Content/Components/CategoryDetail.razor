@@ -8,6 +8,7 @@
 @inject IToastService ToastService;
 @inject IContentApiClient ContentApiClient;
 @inject IConfiguration Configuration;
+@inject ITemplateApiClient TemplateApiClient;
 @inject NavigationManager NavigationManager;
 
 @if (ShowBox && Model != null)
@@ -31,6 +32,8 @@
                         <div class="info-box bg-light">
                             <div class="info-box-content">
                                 <span class="info-box-text text-center text-muted" style="text-align:left !important"><lable>Loại danh mục: </lable> @DataSource.CategoryTypes.First(e => e.Key == Model.Type).Value</span>
+                                <span class="info-box-text text-center text-muted" style="text-align:left !important"><lable>Trang Danh sách: </lable> @Components.First(e => e.ComponentName == Model.ComponentList).Describe </span>
+                                <span class="info-box-text text-center text-muted" style="text-align:left !important"><lable>Trang Chi tiết: </lable>@Components.First(e => e.ComponentName == Model.ComponentDetail).Describe </span>
                                 <span class="info-box-text text-center text-muted" style="text-align:left !important"><lable>Lượt xem: </lable> @Model.View</span>
                             </div>
                         </div>
@@ -154,6 +157,7 @@
     protected bool ShowBox { get; set; }
     private CategoryDetailDto Model { get; set; }
     private List<CategoryDto> Categories { set; get; }
+    private List<TemplateComponentDto> Components { set; get; }
 
     protected Confirmation DeleteConfirmation { set; get; }
     protected CategoryCreate CreateCategory { set; get; }
@@ -173,6 +177,7 @@
 
     protected async override Task OnInitializedAsync()
     {
+        Components = await TemplateApiClient.GetComponents();
     }
 
     public async Task LoadData(string language)

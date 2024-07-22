@@ -116,5 +116,12 @@ namespace Web.Models.Enums
             { 2, "Giao hàng nhanh" },
             { 3, "Chành xe" }
         };
+
+        public static Dictionary<int, string> WarehouseOutputType = new Dictionary<int, string>()
+        {
+            { 0, "Xuất bán hàng" },
+            //{ 1, "Xuất sản xuất" },
+            //{ 2, "Xuất chuyển kho" }
+        };
     }
 }
