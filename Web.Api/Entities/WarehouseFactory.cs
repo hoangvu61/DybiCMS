@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Web.Api.Entities
 {
-    public partial class WarehouseSource
+    public partial class WarehouseFactory
     {
 
         [Key]

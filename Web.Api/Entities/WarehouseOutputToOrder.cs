@@ -1,11 +1,9 @@
 ﻿using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Web.Api.Entities
 {
-    public partial class WarehouseOutputOrder
+    public partial class WarehouseOutputToOrder
     {
         [Description("Mã xuất kho")]
         public Guid OutputId { get; set; }

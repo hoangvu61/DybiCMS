@@ -5,7 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Web.Api.Entities
 {
-    public partial class WarehouseInputSource
+    public partial class WarehouseInputFromFactory
     {
         [Description("Mã nhập kho")]
         public Guid WarehouseInputId { get; set; }
@@ -13,26 +13,26 @@ namespace Web.Api.Entities
         [ForeignKey("WarehouseId")]
         public WarehouseInput WarehouseInput { get; set; }
 
-        [Description("Mã nhà cung cấp")]
-        public Guid SourceId { get; set; }
+        [Description("Mã nơi sản xuất")]
+        public Guid FactoryId { get; set; }
 
-        [ForeignKey("SourceId")]
-        public WarehouseSource Source { get; set; }
+        [ForeignKey("FactoryId")]
+        public WarehouseFactory Factory { get; set; }
 
         [Required]
         [MaxLength(150)]
-        public string SourceName { get; set; }
+        public string FactoryName { get; set; }
 
         [AllowNull]
         [MaxLength(30)]
-        public string? SourcePhone { get; set; }
+        public string? FactoryPhone { get; set; }
 
         [AllowNull]
         [MaxLength(100)]
-        public string? SourceEmail { get; set; }
+        public string? FactoryEmail { get; set; }
 
         [AllowNull]
         [MaxLength(300)]
-        public string? SourceAddress { get; set; }
+        public string? FactoryAddress { get; set; }
     }
 }

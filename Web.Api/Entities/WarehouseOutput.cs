@@ -19,7 +19,7 @@ namespace Web.Api.Entities
         public string? Note { get; set; }
 
         [Description("Xuất bán hàng phải có đơn hàng trước rồi mới xuất kho")]
-        public WarehouseOutputOrder? Order { get; set; }
+        public WarehouseOutputToOrder? Order { get; set; }
 
         public virtual ICollection<WarehouseOutputProduct> Products { get; set; }
     }
