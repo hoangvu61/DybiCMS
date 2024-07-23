@@ -32,5 +32,6 @@ namespace Web.Api.Entities
         public string? Address { get; set; }
 
         public virtual ICollection<WarehouseInput> Inputs { get; set; }
+        public virtual ICollection<WarehouseOutput> Outputs { get; set; }
     }
 }
