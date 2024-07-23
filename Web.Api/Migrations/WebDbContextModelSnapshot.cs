@@ -1801,9 +1801,7 @@ namespace Web.Api.Migrations
 
                     b.HasKey("ProductCode", "ProductId");
 
-                    b.HasIndex("InputId");
-
-                    b.HasIndex("ProductId");
+                    b.HasIndex("InputId", "ProductId");
 
                     b.ToTable("WarehouseInputProductCodes");
                 });
@@ -1884,9 +1882,7 @@ namespace Web.Api.Migrations
 
                     b.HasKey("ProductCode", "ProductId");
 
-                    b.HasIndex("OutputId");
-
-                    b.HasIndex("ProductId");
+                    b.HasIndex("OutputId", "ProductId");
 
                     b.ToTable("WarehouseOutputProductCodes");
                 });
@@ -1910,9 +1906,9 @@ namespace Web.Api.Migrations
 
                     b.HasKey("OutputId", "InputId", "ProductId");
 
-                    b.HasIndex("InputId");
+                    b.HasIndex("InputId", "ProductId");
 
-                    b.HasIndex("ProductId");
+                    b.HasIndex("OutputId", "ProductId");
 
                     b.ToTable("WarehouseOutputProductDetails");
                 });
@@ -2867,19 +2863,11 @@ namespace Web.Api.Migrations
 
             modelBuilder.Entity("Web.Api.Entities.WarehouseInputProductCode", b =>
                 {
-                    b.HasOne("Web.Api.Entities.WarehouseInput", "Input")
-                        .WithMany()
-                        .HasForeignKey("InputId")
+                    b.HasOne("Web.Api.Entities.WarehouseInputProduct", "Product")
+                        .WithMany("Codes")
+                        .HasForeignKey("InputId", "ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("Web.Api.Entities.ItemProduct", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Input");
 
                     b.Navigation("Product");
                 });
@@ -2906,7 +2894,7 @@ namespace Web.Api.Migrations
             modelBuilder.Entity("Web.Api.Entities.WarehouseOutput", b =>
                 {
                     b.HasOne("Web.Api.Entities.Warehouse", "Warehouse")
-                        .WithMany()
+                        .WithMany("Outputs")
                         .HasForeignKey("WarehouseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -2935,48 +2923,40 @@ namespace Web.Api.Migrations
 
             modelBuilder.Entity("Web.Api.Entities.WarehouseOutputProductCode", b =>
                 {
-                    b.HasOne("Web.Api.Entities.WarehouseOutput", "Output")
-                        .WithMany()
-                        .HasForeignKey("OutputId")
+                    b.HasOne("Web.Api.Entities.WarehouseOutputProduct", "Product")
+                        .WithMany("Codes")
+                        .HasForeignKey("OutputId", "ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Web.Api.Entities.ItemProduct", "Product")
+                    b.HasOne("Web.Api.Entities.WarehouseInputProductCode", "ProductInputCode")
                         .WithMany()
-                        .HasForeignKey("ProductId")
+                        .HasForeignKey("ProductCode", "ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Output");
 
                     b.Navigation("Product");
+
+                    b.Navigation("ProductInputCode");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.WarehouseOutputProductDetail", b =>
                 {
-                    b.HasOne("Web.Api.Entities.WarehouseInput", "Input")
+                    b.HasOne("Web.Api.Entities.WarehouseInputProduct", "ProductInput")
                         .WithMany()
-                        .HasForeignKey("InputId")
+                        .HasForeignKey("InputId", "ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Web.Api.Entities.WarehouseOutput", "Output")
-                        .WithMany()
-                        .HasForeignKey("OutputId")
+                    b.HasOne("Web.Api.Entities.WarehouseOutputProduct", "ProducOutput")
+                        .WithMany("Details")
+                        .HasForeignKey("OutputId", "ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Web.Api.Entities.ItemProduct", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("ProducOutput");
 
-                    b.Navigation("Input");
-
-                    b.Navigation("Output");
-
-                    b.Navigation("Product");
+                    b.Navigation("ProductInput");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.WarehouseOutputToFactory", b =>
@@ -3152,6 +3132,8 @@ namespace Web.Api.Migrations
             modelBuilder.Entity("Web.Api.Entities.Warehouse", b =>
                 {
                     b.Navigation("Inputs");
+
+                    b.Navigation("Outputs");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.WarehouseInput", b =>
@@ -3163,6 +3145,11 @@ namespace Web.Api.Migrations
                     b.Navigation("Supplier");
                 });
 
+            modelBuilder.Entity("Web.Api.Entities.WarehouseInputProduct", b =>
+                {
+                    b.Navigation("Codes");
+                });
+
             modelBuilder.Entity("Web.Api.Entities.WarehouseOutput", b =>
                 {
                     b.Navigation("Factory");
@@ -3170,6 +3157,13 @@ namespace Web.Api.Migrations
                     b.Navigation("Order");
 
                     b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("Web.Api.Entities.WarehouseOutputProduct", b =>
+                {
+                    b.Navigation("Codes");
+
+                    b.Navigation("Details");
                 });
 #pragma warning restore 612, 618
         }

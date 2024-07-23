@@ -17,5 +17,8 @@ namespace Web.Api.Entities
 
         [DefaultValue(0)]
         public int Quantity { get; set; }
+
+        public virtual ICollection<WarehouseOutputProductCode> Codes { get; set; }
+        public virtual ICollection<WarehouseOutputProductDetail> Details { get; set; }
     }
 }

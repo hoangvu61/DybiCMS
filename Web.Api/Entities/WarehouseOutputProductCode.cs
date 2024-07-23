@@ -11,15 +11,15 @@ namespace Web.Api.Entities
         [MaxLength(100)]
         public string ProductCode { get; set; }
 
-        public Guid ProductId { get; set; }
-        [ForeignKey("ProductId")]
-        public ItemProduct Product { get; set; }
-
         [Description("Mã xuất kho")]
         public Guid OutputId { get; set; }
 
+        public Guid ProductId { get; set; }
 
-        [ForeignKey("OutputId")]
-        public WarehouseOutput Output { get; set; }
+        [ForeignKey("OutputId,ProductId")]
+        public WarehouseOutputProduct Product { get; set; }
+
+        [ForeignKey("ProductCode,ProductId")]
+        public WarehouseInputProductCode ProductInputCode { get; set; }
     }
 }

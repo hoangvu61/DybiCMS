@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Web.Api.Entities
@@ -22,5 +23,7 @@ namespace Web.Api.Entities
 
         [DefaultValue(0)]
         public int Quantity { get; set; }
+
+        public virtual ICollection<WarehouseInputProductCode> Codes { get; set; }
     }
 }

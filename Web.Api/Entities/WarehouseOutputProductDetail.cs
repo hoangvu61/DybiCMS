@@ -7,19 +7,10 @@ namespace Web.Api.Entities
     {
         [Description("Mã xuất kho")]
         public Guid OutputId { get; set; }
-
-        [ForeignKey("OutputId")]
-        public WarehouseOutput Output { get; set; }
+        public Guid ProductId { get; set; }
 
         [Description("Mã nhập kho")]
         public Guid InputId { get; set; }
-
-        [ForeignKey("InputId")]
-        public WarehouseInput Input { get; set; }
-
-        public Guid ProductId { get; set; }
-        [ForeignKey("ProductId")]
-        public ItemProduct Product { get; set; }
 
         [Description("Gía đơn vị, giá vốn xuất kho")]
         [DefaultValue(0)]
@@ -27,5 +18,11 @@ namespace Web.Api.Entities
 
         [DefaultValue(0)]
         public int Quantity { get; set; }
+
+        [ForeignKey("OutputId,ProductId")]
+        public WarehouseOutputProduct ProducOutput { get; set; }
+
+        [ForeignKey("InputId,ProductId")]
+        public WarehouseInputProduct ProductInput { get; set; }
     }
 }
