@@ -13,6 +13,8 @@ namespace Web.Api.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<CompanyConfig>()
+                  .HasKey(m => new { m.CompanyId, m.Key });
             modelBuilder.Entity<CompanyDetail>()
                   .HasKey(m => new { m.CompanyId, m.LanguageCode });
             modelBuilder.Entity<CompanyLanguage>()
@@ -79,6 +81,8 @@ namespace Web.Api.Data
             modelBuilder.Entity<AttributeContact>()
                 .HasKey(m => new { m.AttributeId, m.CompanyId });
 
+            modelBuilder.Entity<WarehouseInputSource>()
+               .HasKey(m => new { m.WarehouseInputId, m.SourceId });
             modelBuilder.Entity<WarehouseInputProduct>()
                 .HasKey(m => new { m.InputId, m.ProductId });
             modelBuilder.Entity<WarehouseInputProductCode>()
@@ -87,6 +91,12 @@ namespace Web.Api.Data
                 .HasKey(m => new { m.WarehouseId, m.ProductId });
             modelBuilder.Entity<WarehouseInputInventory>()
                 .HasKey(m => new { m.InputId, m.ProductId });
+            modelBuilder.Entity<WarehouseOutputOrder>()
+               .HasKey(m => new { m.OutputId, m.OrderId });
+            modelBuilder.Entity<WarehouseOutputProduct>()
+              .HasKey(m => new { m.OutputId, m.ProductId });
+            modelBuilder.Entity<WarehouseOutputProductDetail>()
+              .HasKey(m => new { m.OutputId, m.InputId, m.ProductId});
             modelBuilder.Entity<WarehouseOutputProductCode>()
                 .HasKey(m => new { m.ProductCode, m.ProductId });
 
@@ -97,8 +107,10 @@ namespace Web.Api.Data
             //modelBuilder.Entity<Role>().HasData(new Role { Name = "Admin", NormalizedName = "ADMIN", Id = Guid.NewGuid(), ConcurrencyStamp = Guid.NewGuid().ToString(), Description = "Admin" });
         }
 
+        public DbSet<Config> Configs { get; set; }
         public DbSet<Language> Languages { get; set; }
         public DbSet<Company> Companies { get; set; }
+        public DbSet<CompanyConfig> CompanyConfigs { get; set; }
         public DbSet<CompanyDomain> CompanyDomains { get; set; }
         public DbSet<CompanyLanguage> CompanyLanguages { get; set; }
         public DbSet<CompanyLanguageConfig> CompanyLanguageConfigs { get; set; }
@@ -160,11 +172,15 @@ namespace Web.Api.Data
         public DbSet<Warehouse> Warehouses { get; set; }
         public DbSet<WarehouseSource> WarehouseSources { get; set; }
         public DbSet<WarehouseInput> WarehouseInputs { get; set; }
+        public DbSet<WarehouseInputSource> WarehouseInputSources { get; set; }
         public DbSet<WarehouseInputProduct> WarehouseInputProducts { get; set; }
         public DbSet<WarehouseInputProductCode> WarehouseInputProductCodes { get; set; }
         public DbSet<WarehouseInventory> WarehouseInventories { get; set; }
         public DbSet<WarehouseInputInventory> WarehouseInputInventories { get; set; }
         public DbSet<WarehouseOutput> WarehouseOutputs { get; set; }
+        public DbSet<WarehouseOutputOrder> WarehouseOutputOrders { get; set; }
+        public DbSet<WarehouseOutputProduct> WarehouseOutputProducts { get; set; }
+        public DbSet<WarehouseOutputProductDetail> WarehouseOutputProductDetails { get; set; }
         public DbSet<WarehouseOutputProductCode> WarehouseOutputProductCodes { get; set; }
 
         public DbSet<SEO> SEOs { get; set; }

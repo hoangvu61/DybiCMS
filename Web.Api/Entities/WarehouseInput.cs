@@ -16,13 +16,6 @@ namespace Web.Api.Entities
 
         [ForeignKey("WarehouseId")]
         public Warehouse Warehouse { get; set; }
-
-        [Description("Mã nhà cung cấp")]
-        public Guid SourceId { get; set; }
-
-        [ForeignKey("SourceId")]
-        public WarehouseSource Source { get; set; }
-
         public DateTime CreateDate { get; set; }
 
         [AllowNull]
@@ -37,6 +30,7 @@ namespace Web.Api.Entities
         [AllowNull]
         public string? Note { get; set; }
 
+        public WarehouseInputSource? Source { get; set; }
         public virtual ICollection<WarehouseInputProduct> Products { get; set; }
     }
 }

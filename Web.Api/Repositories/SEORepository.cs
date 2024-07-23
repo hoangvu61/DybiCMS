@@ -15,7 +15,7 @@ namespace Web.Api.Repositories
 
         public async Task<List<SEO>> GetAllSEOs(Guid companyId)
         {
-            var seos = await _context.SEOs.Where(e => e.CompanyId == companyId).ToListAsync();
+            var seos = await _context.SEOs.Where(e => e.CompanyId == companyId && (e.Item == null || e.Item.IsPublished)).ToListAsync();
             return seos;
         }
 

@@ -15,10 +15,8 @@ namespace Web.Api.Entities
         [ForeignKey("ProductId")]
         public ItemProduct Product { get; set; }
 
-
         [Description("Mã nhập kho")]
         public Guid InputId { get; set; }
-
 
         [ForeignKey("InputId")]
         public WarehouseInput Input { get; set; }

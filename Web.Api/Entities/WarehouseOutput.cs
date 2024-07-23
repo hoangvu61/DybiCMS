@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Web.Api.Entities
@@ -11,20 +10,6 @@ namespace Web.Api.Entities
         [Key]
         public Guid Id { get; set; }
 
-        public virtual ICollection<WarehouseInputProduct> Products { get; set; }
-
-        [Required]
-        [MaxLength(200)]
-        public string ToName { get; set; }
-
-        [AllowNull]
-        [MaxLength(30)]
-        public string? ToPhone { get; set; }
-
-        [Required]
-        [MaxLength(300)]
-        public string ToAddress { get; set; }
-
         [Description("Loại: Xuất bán hàng / Xuất sản xuất / Xuất chuyển kho")]
         [Required]
         [DefaultValue(0)]
@@ -32,5 +17,10 @@ namespace Web.Api.Entities
 
         [AllowNull]
         public string? Note { get; set; }
+
+        [Description("Xuất bán hàng phải có đơn hàng trước rồi mới xuất kho")]
+        public WarehouseOutputOrder? Order { get; set; }
+
+        public virtual ICollection<WarehouseOutputProduct> Products { get; set; }
     }
 }

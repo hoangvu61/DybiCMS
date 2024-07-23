@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Web.Models.SeedWork;
+﻿using Web.Models.SeedWork;
 
 namespace Web.Models.Enums
 {
@@ -119,9 +118,35 @@ namespace Web.Models.Enums
 
         public static Dictionary<int, string> WarehouseOutputType = new Dictionary<int, string>()
         {
-            { 0, "Xuất bán hàng" },
-            //{ 1, "Xuất sản xuất" },
-            //{ 2, "Xuất chuyển kho" }
+            { 1, "Xuất bán hàng" },
+            //{ 2, "Xuất sản xuất" },
+            //{ 3, "Xuất chuyển kho" }
+        };
+
+        public static Dictionary<string, string> ConfigTypes = new Dictionary<string, string>()
+        {
+            { "Number", "Số" },
+            { "Boolean", "Có/Không" },
+            { "Check", "Chọn nhiều từ danh sách" },
+            { "Option", "Chọn một từ danh sách" }
+        };
+
+        public static Dictionary<string, Dictionary<int, string>> ConfigSources = new Dictionary<string, Dictionary<int, string>>()
+        {
+            { "KyKeToan", new Dictionary<int, string>()
+                            {
+                                { 1, "Tháng" },
+                                { 2, "Quý" },
+                                { 3, "Năm" }
+                            } 
+            },
+            { "PhuongPhapTinhGiaXuatKho", new Dictionary<int, string>()
+                            {
+                                { 1, "Bình quân gia quyền" },
+                                { 2, "Đích danh" },
+                                { 3, "FIFO" }
+                            } 
+            }
         };
     }
 }
