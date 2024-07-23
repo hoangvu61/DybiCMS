@@ -30,7 +30,8 @@ namespace Web.Api.Entities
         [AllowNull]
         public string? Note { get; set; }
 
-        public WarehouseInputFromSupplier? Source { get; set; }
+        public WarehouseInputFromSupplier? Supplier { get; set; }
+        public WarehouseInputFromFactory? Factory { get; set; }
         public virtual ICollection<WarehouseInputProduct> Products { get; set; }
     }
 }
