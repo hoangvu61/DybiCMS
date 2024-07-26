@@ -14,5 +14,9 @@ namespace Web.Api.Entities
 
         [Required]
         public string DefaultValue { get; set; }
+
+        [Required]
+        public string Describe { get; set; }
+        
     }
 }

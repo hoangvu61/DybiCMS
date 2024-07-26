@@ -1,0 +1,100 @@
+﻿@using Dybi.App.Pages.Components
+<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">Dybi Solution</a>
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</div>
+
+<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+    <nav class="flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="oi oi-home" aria-hidden="true"></span> Trang chủ
+            </NavLink>
+        </div>
+
+        <hr />
+
+        <div class="nav-item menu-group">
+            <div class="menu-group-title px-3" @onclick="@(() => Click("BanHang"))">Bán hàng <span class="oi oi-chevron-@(Menu["BanHang"] ? "bottom" : "right")"></span></div>
+            <div style="display:@(Menu["BanHang"] ? "block" : "none")">
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="counter">
+                        <span class="oi oi-cart" aria-hidden="true"></span> Danh sách đơn hàng
+                    </NavLink>
+                    <NavLink class="nav-link" href="fetchdata">
+                        <span class="oi oi-people" aria-hidden="true"></span> Khách hàng
+                    </NavLink>
+                </div>
+            </div>
+        </div>
+
+        <div class="nav-item menu-group">
+            <div class="menu-group-title px-3" @onclick="@(() => Click("KhoHang"))">Kho hàng <span class="oi oi-chevron-@(Menu["BanHang"] ? "bottom" : "right")"></span></div>
+            <div style="display:@(Menu["KhoHang"] ? "block" : "none")">
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="counter">
+                        <span class="oi oi-account-login" aria-hidden="true"></span> Nhập kho
+                    </NavLink>
+                </div>
+            </div>
+        </div>
+
+        <div class="nav-item menu-group">
+            <div class="menu-group-title px-3" @onclick="@(() => Click("CaiDat"))"> Cài đặt <span class="oi oi-chevron-@(Menu["BanHang"] ? "bottom" : "right")"></span></div>
+            <div style="display:@(Menu["CaiDat"] ? "block" : "none")">
+                <div class="nav-item px-3">
+                    <span class="nav-link" href="fetchdata" @onclick="() => SetConfigDialog.Show()">
+                        <span class="oi oi-cog" aria-hidden="true"></span> Cấu hình hệ thống
+                    </span>
+                    <NavLink class="nav-link" href="fetchdata">
+                        <span class="oi oi-list-rich" aria-hidden="true"></span> DM Sản phẩm
+                    </NavLink>
+                    <NavLink class="nav-link" href="fetchdata">
+                        <span class="oi oi-list" aria-hidden="true"></span> DM Kho
+                    </NavLink>
+                    <NavLink class="nav-link" href="fetchdata">
+                        <span class="oi oi-list" aria-hidden="true"></span> DM Nhà cung cấp
+                    </NavLink>
+                </div>
+            </div>
+        </div>
+
+        <hr />
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="/logout">
+                Đăng xuất
+            </NavLink>
+        </div>
+    </nav>
+</div>
+
+<SetConfig @ref="SetConfigDialog"></SetConfig>
+@code {
+    private bool collapseNavMenu = true;
+    private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+    private Dictionary<string, bool> Menu;
+
+    protected SetConfig SetConfigDialog { set; get; }
+
+    protected override void OnInitialized()
+    {
+        Menu = new Dictionary<string, bool>();
+        Menu["BanHang"] = true;
+        Menu["KhoHang"] = false;
+        Menu["CaiDat"] = false;
+    }
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+    protected void Click(string key)
+    {
+        var flag = Menu[key];
+        Menu[key] = !flag;
+    }
+}

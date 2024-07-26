@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Web.Models", "Web.Models\We
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Web.Backend", "Web.Backend\Web.Backend.csproj", "{A0706176-6005-4ACA-8DE6-9D31B7A531ED}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dybi.App", "Dybi.App\Dybi.App.csproj", "{F5E92B1E-E8E7-4EF5-947F-E6FE6B90B8AB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,12 @@ Global
 		{A0706176-6005-4ACA-8DE6-9D31B7A531ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A0706176-6005-4ACA-8DE6-9D31B7A531ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A0706176-6005-4ACA-8DE6-9D31B7A531ED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F5E92B1E-E8E7-4EF5-947F-E6FE6B90B8AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F5E92B1E-E8E7-4EF5-947F-E6FE6B90B8AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F5E92B1E-E8E7-4EF5-947F-E6FE6B90B8AB}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{F5E92B1E-E8E7-4EF5-947F-E6FE6B90B8AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F5E92B1E-E8E7-4EF5-947F-E6FE6B90B8AB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F5E92B1E-E8E7-4EF5-947F-E6FE6B90B8AB}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

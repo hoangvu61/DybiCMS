@@ -528,6 +528,10 @@ namespace Web.Api.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Describe")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Type")
                         .IsRequired()
                         .HasMaxLength(10)
@@ -1604,6 +1608,25 @@ namespace Web.Api.Migrations
                     b.HasIndex("CompanyId");
 
                     b.ToTable("Warehouses");
+                });
+
+            modelBuilder.Entity("Web.Api.Entities.WarehouseConfig", b =>
+                {
+                    b.Property<string>("Key")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Key", "CompanyId");
+
+                    b.HasIndex("CompanyId");
+
+                    b.ToTable("WarehouseConfigs");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.WarehouseFactory", b =>
@@ -2761,6 +2784,25 @@ namespace Web.Api.Migrations
                         .IsRequired();
 
                     b.Navigation("Company");
+                });
+
+            modelBuilder.Entity("Web.Api.Entities.WarehouseConfig", b =>
+                {
+                    b.HasOne("Web.Api.Entities.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Web.Api.Entities.Config", "Config")
+                        .WithMany()
+                        .HasForeignKey("Key")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Company");
+
+                    b.Navigation("Config");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.WarehouseFactory", b =>

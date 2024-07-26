@@ -75,6 +75,7 @@ try
     builder.Services.AddTransient<IMenuRepository, MenuRepository>();
     builder.Services.AddTransient<ISEORepository, SEORepository>();
     builder.Services.AddTransient<IWebInfoRepository, WebInfoRepository>();
+    builder.Services.AddTransient<IWarehouseRepository, WarehouseRepository>();
 
     var app = builder.Build();
 

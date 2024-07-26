@@ -1,0 +1,16 @@
+﻿@page "/logout"
+@attribute [Authorize]
+
+@using Dybi.App.Services;
+@using Microsoft.AspNetCore.Authorization;
+
+@inject IAuthService AuthService
+@inject NavigationManager NavigationManager
+
+@code {
+    protected async override Task OnInitializedAsync()
+    {
+        await AuthService.Logout();
+        NavigationManager.NavigateTo("/");
+    }
+}

@@ -80,7 +80,9 @@ namespace Web.Api.Data
                 .HasKey(m => new { m.AttributeId, m.CompanyId });
             modelBuilder.Entity<AttributeContact>()
                 .HasKey(m => new { m.AttributeId, m.CompanyId });
-
+                        
+            modelBuilder.Entity<WarehouseConfig>()
+               .HasKey(m => new { m.Key, m.CompanyId });
             modelBuilder.Entity<WarehouseInputFromSupplier>()
                .HasKey(m => new { m.WarehouseInputId, m.SourceId });
             modelBuilder.Entity<WarehouseInputFromFactory>()
@@ -174,6 +176,7 @@ namespace Web.Api.Data
         public DbSet<OrderDelivery> OrderDeliveries { get; set; }
 
         public DbSet<Warehouse> Warehouses { get; set; }
+        public DbSet<WarehouseConfig> WarehouseConfigs { get; set; }
         public DbSet<WarehouseSupplier> WarehouseSuppliers { get; set; }
         public DbSet<WarehouseFactory> WarehouseFactorys { get; set; }
         public DbSet<WarehouseInput> WarehouseInputs { get; set; }

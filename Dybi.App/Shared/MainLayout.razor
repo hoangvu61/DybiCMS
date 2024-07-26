@@ -1,0 +1,53 @@
+﻿@inherits LayoutComponentBase
+@using Blazored.Toast.Configuration;
+@using Dybi.App.Pages;
+@using Dybi.App.Services
+@using Microsoft.AspNetCore.Components.Authorization;
+
+<BlazoredToasts Position="ToastPosition.BottomRight" Timeout="5" IconType="IconType.FontAwesome" ErrorIcon="fa fa-times"
+    InfoIcon="fa fa-info" SuccessIcon="fa fa-check" WarningIcon="fa fa-exclamation" />
+<div class="page">
+    <AuthorizeView>
+        <Authorized>
+            <div class="sidebar">
+                <NavMenu />
+            </div>
+
+            <main>
+                <article class="content px-4">
+                    @Body
+                </article>
+            </main>
+        </Authorized>
+        <NotAuthorized>
+            <main>
+                <article class="content px-4">
+                    <Login></Login>
+                </article>
+            </main>
+            
+        </NotAuthorized>
+    </AuthorizeView>
+</div>
+
+@* @inject NavigationManager NavigationManager
+@inject IAuthService AuthService
+@inject GlobalVariables Global;
+@inject IWarehouseApiClient WarehouseApiClient;
+@code{
+    protected async override Task OnInitializedAsync()
+    {
+        try
+        {
+            if (Global.Configs == null) Global.Configs = await WarehouseApiClient.GetConfigs();
+        }
+        catch(Exception ex)
+        {
+            if (ex.Message == "Response status code does not indicate success: 401 (Unauthorized).")
+            {
+                await AuthService.Logout(); 
+                NavigationManager.NavigateTo("/login");
+            }
+        }
+    }
+} *@
