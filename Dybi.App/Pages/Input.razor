@@ -1,0 +1,57 @@
+﻿@page "/input"
+@attribute [Authorize]
+
+@using Dybi.App.Pages.Components
+@using Microsoft.AspNetCore.Authorization;
+@using Microsoft.AspNetCore.Components.Authorization
+@using Dybi.App.Services;
+@using Web.Models;
+@using Microsoft.Extensions.Configuration
+@using Web.Models.Enums;
+@using Web.Models.SeedWork;
+
+@inject NavigationManager NavigationManager
+@inject IConfiguration Configuration;
+@inject IOrderApiClient OrderApiClient;
+@inject IWarehouseApiClient WarehouseApiClient;
+@inject GlobalVariables Global;
+
+<h1>Quản lý Nhập kho</h1>
+<section>
+    
+</section>
+<SetConfig @ref="SetConfigDialog"></SetConfig>
+
+@code {
+    private PagingParameters NewOrderPaging = new PagingParameters();
+
+    protected int NewOrder { get; set; }
+
+    protected SetConfig SetConfigDialog { set; get; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        NewOrderPaging.PageSize = 0;
+        try
+        {
+            var pagingOrderResponse = await OrderApiClient.GetNewOrders(NewOrderPaging);
+            NewOrder = pagingOrderResponse.MetaData.TotalCount;
+        }
+        catch (Exception ex)
+        {
+            if (ex.Message != null && ex.Message.Contains("Unauthorized"))
+                NavigationManager.NavigateTo("Logout");
+        }
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            if (Global.Configs == null) Global.Configs = await WarehouseApiClient.GetConfigs();
+            if (Global.Configs.Count == 0)
+            {
+                SetConfigDialog.Show();
+            }
+        }
+    }
+}

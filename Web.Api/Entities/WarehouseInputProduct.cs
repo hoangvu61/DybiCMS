@@ -9,10 +9,6 @@ namespace Web.Api.Entities
         [Description("Mã nhập kho")]
         public Guid InputId { get; set; }
 
-
-        [ForeignKey("InputId")]
-        public WarehouseInput Input { get; set; }
-
         public Guid ProductId { get; set; }
         [ForeignKey("ProductId")]
         public ItemProduct Product { get; set; }
@@ -24,6 +20,9 @@ namespace Web.Api.Entities
         [DefaultValue(0)]
         public int Quantity { get; set; }
 
+
+        [ForeignKey("InputId")]
+        public WarehouseInput Input { get; set; }
         public virtual ICollection<WarehouseInputProductCode> Codes { get; set; }
     }
 }

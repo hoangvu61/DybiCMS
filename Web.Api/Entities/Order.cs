@@ -16,9 +16,6 @@ namespace Web.Api.Entities
         public Company Company { get; set; }
         public Guid CustomerId { get; set; }
 
-        [ForeignKey("CustomerId")]
-        public Customer Customer { get; set; }
-
         [Required]
         [MaxLength(200)]
         public string CustomerName { get; set; }
@@ -50,8 +47,12 @@ namespace Web.Api.Entities
         [MaxLength(300)]
         public string? Note { get; set; }
 
+        [ForeignKey("CustomerId")]
+        public Customer Customer { get; set; }
+
         public virtual ICollection<OrderProduct> Products { get; set; }
 
         public virtual OrderDelivery? Delivery { get; set; }
+        public virtual OrderDebt? Debt { get; set; }
     }
 }

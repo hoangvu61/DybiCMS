@@ -50,5 +50,35 @@ namespace Web.Api.Repositories
             return config;
         }
         #endregion
+
+        #region warehouse
+        public async Task<List<WarehouseInput>> GetInputs(Guid companyId)
+        {
+            var configs = await _context.WarehouseInputs
+                                .Include(e => e.Supplier)
+                                .Include(e => e.Debt)
+                                .Include(e => e.Products)
+                                .Where(e => e.Warehouse.CompanyId == companyId)
+                                .ToListAsync();
+            return configs;
+        }
+
+        public async Task<WarehouseInput?> GetInput(Guid companyId, Guid inputId)
+        {
+            var config = await _context.WarehouseInputs
+                                .Include(e => e.Debt)
+                                .Include(e => e.Products)
+                                .Where(e => e.Warehouse.CompanyId == companyId && e.Id == inputId)
+                                .FirstOrDefaultAsync();
+            return config;
+        }
+
+        public async Task<ThirdParty> DeleteInput(ThirdParty thirdParty)
+        {
+            _context.ThirdParties.Remove(thirdParty);
+            await _context.SaveChangesAsync();
+            return thirdParty;
+        }
+        #endregion
     }
 }

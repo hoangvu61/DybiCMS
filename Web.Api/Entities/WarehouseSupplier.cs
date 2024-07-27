@@ -35,6 +35,7 @@ namespace Web.Api.Entities
         [MaxLength(300)]
         public string? Note { get; set; }
 
-
+        public virtual ICollection<WarehouseInput> Inputs { get; set; }
+        public virtual ICollection<DebtSupplier> Debts { get; set; }
     }
 }

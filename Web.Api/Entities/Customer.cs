@@ -26,5 +26,8 @@ namespace Web.Api.Entities
         [AllowNull]
         [MaxLength(300)]
         public string? CustomerAddress { get; set; }
+
+        public virtual ICollection<Order> Orders { get; set; }
+        public virtual ICollection<DebtCustomer> Debts { get; set; }
     }
 }

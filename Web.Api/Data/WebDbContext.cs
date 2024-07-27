@@ -172,14 +172,19 @@ namespace Web.Api.Data
         public DbSet<Contact> Contacts { get; set; }
         public DbSet<ContactAttribute> ContactAttributes { get; set; }
         public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderDebt> OrderDebts { get; set; }
         public DbSet<OrderProduct> OrderProducts { get; set; }
         public DbSet<OrderDelivery> OrderDeliveries { get; set; }
+
+        public DbSet<DebtCustomer> DebtCustomers { get; set; }
+        public DbSet<DebtSupplier> DebtSuppliers { get; set; }
 
         public DbSet<Warehouse> Warehouses { get; set; }
         public DbSet<WarehouseConfig> WarehouseConfigs { get; set; }
         public DbSet<WarehouseSupplier> WarehouseSuppliers { get; set; }
         public DbSet<WarehouseFactory> WarehouseFactorys { get; set; }
         public DbSet<WarehouseInput> WarehouseInputs { get; set; }
+        public DbSet<WarehouseInputDebt> WarehouseInputDebts { get; set; }
         public DbSet<WarehouseInputFromSupplier> WarehouseInputFromSuppliers { get; set; }
         public DbSet<WarehouseInputFromFactory> WarehouseInputFromFactorys { get; set; }
         public DbSet<WarehouseInputProduct> WarehouseInputProducts { get; set; }
