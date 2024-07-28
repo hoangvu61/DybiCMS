@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
@@ -30,6 +31,9 @@ namespace Web.Api.Entities
         [AllowNull]
         [MaxLength(300)]
         public string? Address { get; set; }
+
+        [DefaultValue(true)]
+        public bool IsActive { get; set; }
 
         public virtual ICollection<WarehouseInput> Inputs { get; set; }
         public virtual ICollection<WarehouseOutput> Outputs { get; set; }

@@ -1,0 +1,101 @@
+﻿@using Dybi.App.Services;
+@using Web.Models;
+@using System.IO;
+@using Web.Models.Enums;
+@using Web.Models.SeedWork;
+@using Microsoft.Extensions.Configuration
+
+@inject IToastService ToastService;
+@inject IWarehouseApiClient WarehouseApiClient;
+
+@if (ShowDialog && Model != null)
+{
+    <div class="modal fade show d-block" id="assignModel" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <EditForm Model="Model" OnValidSubmit="HandleSubmit">
+                <DataAnnotationsValidator></DataAnnotationsValidator>
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Cập nhật Nơi sản xuất</h5>
+                        <button type="button" class="close" data-dismiss="modal" @onclick="()=>Hide()" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label class="col-form-label">Tên:</label>
+                            <InputText class="form-control form-control-sm" @bind-Value="Model.Name"></InputText>
+                            <ValidationMessage For="()=> Model.Name"></ValidationMessage>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-form-label">Địa chỉ:</label>
+                            <InputText class="form-control form-control-sm" @bind-Value="Model.Address"></InputText>
+                            <ValidationMessage For="()=> Model.Address"></ValidationMessage>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-form-label">Số điện thoại:</label>
+                            <InputText class="form-control form-control-sm" @bind-Value="Model.Phone"></InputText>
+                            <ValidationMessage For="()=> Model.Phone"></ValidationMessage>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-form-label">Email:</label>
+                            <InputText class="form-control form-control-sm" @bind-Value="Model.Email"></InputText>
+                            <ValidationMessage For="()=> Model.Email"></ValidationMessage>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-form-label">Ghi chú:</label>
+                            <InputTextArea class="form-control form-control-sm" @bind-Value="Model.Note"></InputTextArea>
+                            <ValidationMessage For="()=> Model.Note"></ValidationMessage>
+                        </div>
+                        <div class="form-check form-switch" style="padding-left:25px">
+                            <InputCheckbox @bind-Value="Model.IsActive" class="form-check-input" role="switch"></InputCheckbox>
+                            <label class="form-check-label">Sử dụng</label>
+                            <ValidationMessage For="()=> Model.IsActive"></ValidationMessage>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-xs" @onclick="()=>Hide()" data-dismiss="modal">Đóng</button>
+                        <button type="submit" class="btn btn-primary btn-xs">Lưu</button>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@code {
+    protected bool ShowDialog { get; set; }
+
+    private WarehouseFactoryDto Model { set; get; }
+
+    [Parameter]
+    public EventCallback<bool> CloseEventCallbak { get; set; }
+
+    public async void Show(Guid id)
+    {
+        ShowDialog = true;
+        Model = await WarehouseApiClient.GetFactory(id);
+        StateHasChanged();
+    }
+
+    private void Hide()
+    {
+        ShowDialog = false;
+        StateHasChanged();
+    }
+
+    protected async Task HandleSubmit()
+    {
+        var result = await WarehouseApiClient.UpdateFactory(Model);
+        if (result)
+        {
+            ShowDialog = false;
+            await CloseEventCallbak.InvokeAsync(true);
+            ToastService.ShowInfo("Lưu Nơi sản xuất thành công");
+        }
+        else
+        {
+            ToastService.ShowError("Lưu Nơi sản xuất không thành công");
+        }
+    }
+}

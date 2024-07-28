@@ -1,0 +1,126 @@
+﻿@page "/settings/suppliers"
+@attribute [Authorize]
+
+@using Dybi.App.Pages.Settings.Components
+@using Microsoft.AspNetCore.Authorization;
+@using Dybi.App.Components;
+@using Dybi.App.Services;
+@using Web.Models;
+@using Web.Models.SeedWork;
+
+@inject IToastService ToastService;
+
+<h1>Quản lý Nhà cung cấp</h1>
+<section>
+    @if (ListSuppliers == null)
+    {
+        <LoadingIndicator></LoadingIndicator>
+    }
+    else
+    {
+        <div class="card card-outline card-info">
+            <div class="card-header">
+                <h3 class="card-title">Danh sách Nhà cung cấp</h3>
+            </div>
+            <div class="card-body">
+                <table class="table table-sm table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th class="text-center">Tên</th>
+                            <th class="text-center">Địa chỉ</th>
+                            <th class="text-center">Số ĐT</th>
+                            <th class="text-center">Email</th>
+                            <th class="text-center">Sử dụng</th>
+                            <th class="text-center" style="width:100px">
+                                <button class="btn btn-primary btn-sm" @onclick="()=> OpenCreatePopup()">Thêm</button>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in ListSuppliers)
+                        {
+                            <tr>
+                                <td>@item.Name</td>
+                                <td>@item.Address</td>
+                                <td>@item.Phone</td>
+                                <td>@item.Email</td>
+                                <td class="form-switch" style="text-align: center; padding-left: 30px;">
+                                    <input type="checkbox" checked="@item.IsActive" class="form-check-input" role="switch" @onchange="@((e) => {item.IsActive = bool.Parse(e.Value.ToString()); CheckboxChanged(item);})"></input>
+                                </td>
+                                <td style="text-align:right">
+                                    <button class="btn btn-success btn-sm" @onclick="()=> OpenUpdatePopup(item.Id)">Sửa</button>
+                                    <button class="btn btn-danger btn-sm" @onclick="()=> OnDelete(item.Id)">Xóa</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <Confirmation ConfirmationMessage="Bạn có chắc chắn xóa?"
+                    ConfirmationTitle="Xóa mã nhún"
+                    @ref="DeleteConfirmation"
+                    ConfirmationChanged="OnConfirmDelete">
+        </Confirmation>
+
+        <SupplierCreate @ref="CreateDialog" CloseEventCallbak="RefreshList"></SupplierCreate>
+        <SupplierUpdate @ref="UpdateDialog" CloseEventCallbak="RefreshList"></SupplierUpdate>
+    }
+</section>
+
+@code {
+    [Inject] private IWarehouseApiClient WarehouseApiClient { get; set; }
+
+    protected Confirmation DeleteConfirmation { set; get; }
+    protected SupplierCreate CreateDialog { set; get; }
+    protected SupplierUpdate UpdateDialog { set; get; }
+
+    private List<WarehouseSupplierDto> ListSuppliers;
+    private Guid DeleteId { set; get; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        ListSuppliers = await WarehouseApiClient.GetSuppliers();
+    }
+
+    public void OnDelete(Guid deleteId)
+    {
+        DeleteId = deleteId;
+        DeleteConfirmation.Show();
+    }
+
+    public async Task OnConfirmDelete(bool deleteConfirmed)
+    {
+        if (deleteConfirmed)
+        {
+            await WarehouseApiClient.DeleteWarehouse(DeleteId);
+            ListSuppliers = await WarehouseApiClient.GetSuppliers();
+        }
+    }
+
+    public void OpenCreatePopup()
+    {
+        CreateDialog.Show();
+    }
+
+    public void OpenUpdatePopup(Guid id)
+    {
+        UpdateDialog.Show(id);
+    }
+
+    private async Task CheckboxChanged(WarehouseSupplierDto dto)
+    {
+        var result = await WarehouseApiClient.UpdateSupplier(dto);
+        if (result) ToastService.ShowInfo("Cập nhật thành công");
+        else ToastService.ShowError("Cập nhật không thành công");
+    }
+
+    public async Task RefreshList(bool result)
+    {
+        if (result)
+        {
+            ListSuppliers = await WarehouseApiClient.GetSuppliers();
+        }
+    }
+}

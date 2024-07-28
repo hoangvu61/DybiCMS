@@ -12,9 +12,31 @@ namespace Web.Api.Repositories
         #endregion
 
         #region warehouse
-        Task<List<WarehouseInput>> GetInputs(Guid companyId);
-        Task<ThirdParty> DeleteInput(ThirdParty thirdParty);
+        Task<List<Warehouse>> GetWarehouses(Guid companyId);
+        Task<Warehouse?> GetWarehouse(Guid id);
+        Task<Warehouse> CreateWarehouse(Warehouse warehouse);
+        Task<Warehouse> UpdateWarehouse(Warehouse warehouse);
+        Task<Warehouse> DeleteWarehouse(Warehouse warehouse);
 
+
+        Task<List<WarehouseInput>> GetInputs(Guid companyId);
+        Task<WarehouseInput> DeleteInput(WarehouseInput warehouseInput);
+        #endregion
+
+        #region factory
+        Task<List<WarehouseFactory>> GetFactories(Guid companyId);
+        Task<WarehouseFactory?> GetFactory(Guid id);
+        Task<WarehouseFactory> CreateFactory(WarehouseFactory factory);
+        Task<WarehouseFactory> UpdateFactory(WarehouseFactory factory);
+        Task<WarehouseFactory> DeleteFactory(WarehouseFactory factory);
+        #endregion
+
+        #region supplier
+        Task<List<WarehouseSupplier>> GetSuppliers(Guid companyId);
+        Task<WarehouseSupplier?> GetSupplier(Guid id);
+        Task<WarehouseSupplier> CreateSupplier(WarehouseSupplier supplier);
+        Task<WarehouseSupplier> UpdateSupplier(WarehouseSupplier supplier);
+        Task<WarehouseSupplier> DeleteSupplier(WarehouseSupplier factory);
         #endregion
     }
 }

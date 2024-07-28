@@ -33,7 +33,7 @@
         </div>
 
         <div class="nav-item menu-group">
-            <div class="menu-group-title px-3" @onclick="@(() => Click("KhoHang"))">Kho hàng <span class="oi oi-chevron-@(Menu["BanHang"] ? "bottom" : "right")"></span></div>
+            <div class="menu-group-title px-3" @onclick="@(() => Click("KhoHang"))">Kho hàng <span class="oi oi-chevron-@(Menu["KhoHang"] ? "bottom" : "right")"></span></div>
             <div style="display:@(Menu["KhoHang"] ? "block" : "none")">
                 <div class="nav-item px-3">
                     <NavLink class="nav-link" href="input">
@@ -44,21 +44,24 @@
         </div>
 
         <div class="nav-item menu-group">
-            <div class="menu-group-title px-3" @onclick="@(() => Click("CaiDat"))"> Cài đặt <span class="oi oi-chevron-@(Menu["BanHang"] ? "bottom" : "right")"></span></div>
+            <div class="menu-group-title px-3" @onclick="@(() => Click("CaiDat"))"> Cài đặt <span class="oi oi-chevron-@(Menu["CaiDat"] ? "bottom" : "right")"></span></div>
             <div style="display:@(Menu["CaiDat"] ? "block" : "none")">
                 <div class="nav-item px-3">
-                    <span class="nav-link" href="fetchdata" @onclick="() => SetConfigDialog.Show()">
-                        <span class="oi oi-cog" aria-hidden="true"></span> Cấu hình hệ thống
-                    </span>
                     <NavLink class="nav-link" href="fetchdata">
                         <span class="oi oi-list-rich" aria-hidden="true"></span> DM Sản phẩm
                     </NavLink>
-                    <NavLink class="nav-link" href="fetchdata">
+                    <NavLink class="nav-link" href="settings/warehouses">
                         <span class="oi oi-list" aria-hidden="true"></span> DM Kho
                     </NavLink>
-                    <NavLink class="nav-link" href="fetchdata">
+                    <NavLink class="nav-link" href="settings/suppliers">
                         <span class="oi oi-list" aria-hidden="true"></span> DM Nhà cung cấp
                     </NavLink>
+                    <NavLink class="nav-link" href="settings/factories">
+                        <span class="oi oi-list" aria-hidden="true"></span> DM Nơi sản xuất
+                    </NavLink>
+                    <span class="nav-link" @onclick="() => SetConfigDialog.Show()">
+                        <span class="oi oi-cog" aria-hidden="true"></span> Cấu hình hệ thống
+                    </span>
                 </div>
             </div>
         </div>
@@ -83,7 +86,7 @@
     protected override void OnInitialized()
     {
         Menu = new Dictionary<string, bool>();
-        Menu["BanHang"] = true;
+        Menu["BanHang"] = false;
         Menu["KhoHang"] = false;
         Menu["CaiDat"] = false;
     }

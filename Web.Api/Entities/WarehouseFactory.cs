@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
@@ -11,9 +12,6 @@ namespace Web.Api.Entities
         public Guid Id { get; set; }
 
         public Guid CompanyId { get; set; }
-
-        [ForeignKey("CompanyId")]
-        public Company Company { get; set; }
 
         [Required]
         [MaxLength(150)]
@@ -31,10 +29,16 @@ namespace Web.Api.Entities
         [MaxLength(300)]
         public string? Address { get; set; }
 
+        [DefaultValue(true)]
+        public bool IsActive { get; set; }
+
         [AllowNull]
         [MaxLength(300)]
         public string? Note { get; set; }
 
+
+        [ForeignKey("CompanyId")]
+        public Company Company { get; set; }
         public virtual ICollection<WarehouseInput> Inputs { get; set; }
         public virtual ICollection<WarehouseOutput> Outputs { get; set; }
     }

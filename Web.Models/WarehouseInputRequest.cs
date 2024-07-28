@@ -1,5 +1,4 @@
-﻿
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Web.Models
@@ -10,13 +9,15 @@ namespace Web.Models
         [Key]
         public Guid Id { get; set; }
 
-        [AllowNull]
-        public string? DeliveryName { get; set; }
-        public string DeliveryCode { get; set; }
-        public decimal DeliveryFee { get; set; }
-        public bool COD { get; set; }
+        public Guid WarehouseId { get; set; }
 
         [AllowNull]
-        public string? DeliveryNote { get; set; }   
+        public string? InputCode { get; set; }
+
+        public decimal TotalPrice { get; set; }
+        
+        public string? Note { get; set; }
+
+        public Guid Payment { get; set; }
     }
 }

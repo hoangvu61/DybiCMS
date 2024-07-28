@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Web.Api.Data;
 using Web.Api.Entities;
+using Web.Models;
 
 namespace Web.Api.Repositories
 {
@@ -52,6 +53,36 @@ namespace Web.Api.Repositories
         #endregion
 
         #region warehouse
+        public async Task<List<Warehouse>> GetWarehouses(Guid companyId)
+        {
+            var query = _context.Warehouses.Where(e => e.CompanyId == companyId);
+            return await query.ToListAsync();
+        }
+        public async Task<Warehouse?> GetWarehouse(Guid id)
+        {
+            var query = _context.Warehouses.Where(e => e.Id == id);
+            return await query.FirstOrDefaultAsync();
+        }
+        public async Task<Warehouse> CreateWarehouse(Warehouse warehouse)
+        {
+            _context.Warehouses.Add(warehouse);
+            await _context.SaveChangesAsync();
+            return warehouse;
+        }
+        public async Task<Warehouse> UpdateWarehouse(Warehouse warehouse)
+        {
+            _context.Warehouses.Update(warehouse);
+            await _context.SaveChangesAsync();
+            return warehouse;
+        }
+        public async Task<Warehouse> DeleteWarehouse(Warehouse warehouse)
+        {
+            _context.Warehouses.Remove(warehouse);
+            await _context.SaveChangesAsync();
+            return warehouse;
+        }
+
+
         public async Task<List<WarehouseInput>> GetInputs(Guid companyId)
         {
             var configs = await _context.WarehouseInputs
@@ -73,11 +104,73 @@ namespace Web.Api.Repositories
             return config;
         }
 
-        public async Task<ThirdParty> DeleteInput(ThirdParty thirdParty)
+        public async Task<WarehouseInput> DeleteInput(WarehouseInput warehouseInput)
         {
-            _context.ThirdParties.Remove(thirdParty);
+            _context.WarehouseInputs.Remove(warehouseInput);
             await _context.SaveChangesAsync();
-            return thirdParty;
+            return warehouseInput;
+        }
+        #endregion
+
+        #region factory
+        public async Task<List<WarehouseFactory>> GetFactories(Guid companyId)
+        {
+            var query = _context.WarehouseFactorys.Where(e => e.CompanyId == companyId);
+            return await query.ToListAsync();
+        }
+        public async Task<WarehouseFactory?> GetFactory(Guid id)
+        {
+            var query = _context.WarehouseFactorys.Where(e => e.Id == id);
+            return await query.FirstOrDefaultAsync();
+        }
+        public async Task<WarehouseFactory> CreateFactory(WarehouseFactory factory)
+        {
+            _context.WarehouseFactorys.Add(factory);
+            await _context.SaveChangesAsync();
+            return factory;
+        }
+        public async Task<WarehouseFactory> UpdateFactory(WarehouseFactory factory)
+        {
+            _context.WarehouseFactorys.Update(factory);
+            await _context.SaveChangesAsync();
+            return factory;
+        }
+        public async Task<WarehouseFactory> DeleteFactory(WarehouseFactory factory)
+        {
+            _context.WarehouseFactorys.Remove(factory);
+            await _context.SaveChangesAsync();
+            return factory;
+        }
+        #endregion
+
+        #region supplier
+        public async Task<List<WarehouseSupplier>> GetSuppliers(Guid companyId)
+        {
+            var query = _context.WarehouseSuppliers.Where(e => e.CompanyId == companyId);
+            return await query.ToListAsync();
+        }
+        public async Task<WarehouseSupplier?> GetSupplier(Guid id)
+        {
+            var query = _context.WarehouseSuppliers.Where(e => e.Id == id);
+            return await query.FirstOrDefaultAsync();
+        }
+        public async Task<WarehouseSupplier> CreateSupplier(WarehouseSupplier supplier)
+        {
+            _context.WarehouseSuppliers.Add(supplier);
+            await _context.SaveChangesAsync();
+            return supplier;
+        }
+        public async Task<WarehouseSupplier> UpdateSupplier(WarehouseSupplier supplier)
+        {
+            _context.WarehouseSuppliers.Update(supplier);
+            await _context.SaveChangesAsync();
+            return supplier;
+        }
+        public async Task<WarehouseSupplier> DeleteSupplier(WarehouseSupplier factory)
+        {
+            _context.WarehouseSuppliers.Remove(factory);
+            await _context.SaveChangesAsync();
+            return factory;
         }
         #endregion
     }
