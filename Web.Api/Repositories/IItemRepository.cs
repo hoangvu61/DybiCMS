@@ -39,7 +39,9 @@ namespace Web.Api.Repositories
         Task<bool> DeleteItemReview(ItemReview review);
 
         Task<List<ItemCategory>> GetCategories(Guid companyId, string type = "");
-        Task<ItemCategory> GetCategory(Guid companyId, Guid id);
+        Task<ItemCategory?> GetCategory(Guid companyId, Guid id);
+        Task<bool> UpdateCategory(WarehouseCategoryDto request, string languageCode);
+        Task<bool> PublishCategory(WarehouseCategoryDto request);
         Task<bool> UpdateCategory(CategoryDetailDto request);
         Task<bool> UpdateParentCategory(Guid companyId, Guid id, Guid? parentId);
         Task<bool> DeleteCategory(ItemCategory category);

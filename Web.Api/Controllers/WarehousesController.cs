@@ -6,6 +6,8 @@ using Web.Api.Entities;
 using Web.Api.Extensions;
 using Web.Api.Repositories;
 using Web.Models;
+using Web.Models.Enums;
+using Web.Models.SeedWork;
 
 namespace Web.Api.Controllers
 {
@@ -16,11 +18,13 @@ namespace Web.Api.Controllers
     {
         private readonly UserManager<User> _userManager;
         private readonly IWarehouseRepository _warehouseRepository;
-        
-        public WarehousesController(UserManager<User> userManager, IWarehouseRepository warehouseRepository)
+        private readonly IItemRepository _itemRepository;
+
+        public WarehousesController(UserManager<User> userManager, IWarehouseRepository warehouseRepository, IItemRepository itemRepository)
         {
             _warehouseRepository = warehouseRepository;
             _userManager = userManager;
+            _itemRepository = itemRepository;
         }
 
         #region config
@@ -372,6 +376,227 @@ namespace Web.Api.Controllers
 
             var resultData = await _warehouseRepository.DeleteSupplier(obj);
             return Ok(resultData);
+        }
+        #endregion
+
+        #region danh mục
+        [HttpGet]
+        [Route("categories")]
+        public async Task<IActionResult> GetCategories()
+        {
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Unauthorized();
+
+            var categoryType = "PRO";
+            var languageCode = "vi";
+
+            var itemLanguage = await _itemRepository.GetCategories(user.CompanyId, categoryType);
+            var categorydtos = itemLanguage
+                .Select(e => new WarehouseCategoryDto()
+                {
+                    Id = e.ItemId,
+                    IsPuslished = e.Item.IsPublished,
+                    ParentId = e.Item.Category?.ParentId,
+                    Title = e.Item.ItemLanguages.Where(e => e.LanguageCode == languageCode).Select(e => e.Title).FirstOrDefault() ?? string.Empty,
+                    Describe = e.Item.ItemLanguages.Where(e => e.LanguageCode == languageCode).Select(e => e.Title).FirstOrDefault() ?? string.Empty,
+                    ComponentDetail = e.CategoryComponent?.ComponentDetail,
+                    ComponentList = e.CategoryComponent?.ComponentList,
+                }).ToList();
+
+            return Ok(categorydtos);
+        }
+        [HttpGet]
+        [Route("categories/{id}")]
+        public async Task<IActionResult> GetCategory(Guid id)
+        {
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Unauthorized();
+
+            var languageCode = "vi";
+
+            var itemLanguage = await _itemRepository.GetItemLanguage(user.CompanyId, id, languageCode);
+            if (itemLanguage == null) itemLanguage = new ItemLanguage
+            {
+                LanguageCode = languageCode,
+                Item = await _itemRepository.GetItem(user.CompanyId, id),
+            };
+            var category = await _itemRepository.GetCategory(user.CompanyId, id);
+            var dto = new WarehouseCategoryDto()
+            {
+                Id = id,
+                Describe = itemLanguage.Brief,
+                Title = itemLanguage.Title,
+                ParentId = category.ParentId,
+                IsPuslished = category.Item.IsPublished,
+                ComponentDetail = category.CategoryComponent?.ComponentDetail,
+                ComponentList = category.CategoryComponent?.ComponentList,
+            };
+
+            return Ok(dto);
+        }
+        [HttpPost]
+        [Route("Categories")]
+        public async Task<IActionResult> CreateCategory([FromBody] WarehouseCategoryDto request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Unauthorized();
+
+            var categoryType = "PRO";
+            var languageCode = "vi";
+
+            var languageItem = new ItemLanguage { Title = request.Title.Trim(), LanguageCode = languageCode, Brief = request.Describe.Trim(), Content = "" };
+            var item = new Item()
+            {
+                Id = request.Id,
+                CompanyId = user.CompanyId,
+                IsPublished = false,
+                Order = 20,
+                View = 0,
+                CreateDate = DateTime.Now,
+                Category = new ItemCategory()
+                {
+                    Type = categoryType,
+                    ParentId = request.ParentId
+                },
+                ItemLanguages = new List<ItemLanguage>() { languageItem }
+            };
+            await _itemRepository.CreateItem(item);
+
+            return Ok();
+        }
+        [HttpPut]
+        [Route("categories/update/{id}")]
+        public async Task<IActionResult> UpdateCategory([FromRoute] Guid id, WarehouseCategoryDto request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var languageCode = "vi";
+
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Unauthorized();
+
+            var category = await _itemRepository.GetCategory(user.CompanyId, id);
+            if (category == null) return ValidationProblem($"Danh mục {id} không tồn tại");
+
+            await _itemRepository.UpdateCategory(request, languageCode);
+
+            return Ok(request);
+        }
+        [HttpPut]
+        [Route("categories/publish/{id}")]
+        public async Task<IActionResult> PublishCategory([FromRoute] Guid id, WarehouseCategoryDto request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Unauthorized();
+
+            var category = await _itemRepository.GetCategory(user.CompanyId, id);
+            if (category == null) return ValidationProblem($"Danh mục {id} không tồn tại");
+
+            await _itemRepository.PublishCategory(request);
+
+            return Ok(request);
+        }
+        [HttpDelete]
+        [Route("categories/{id}")]
+        public async Task<IActionResult> DeleteCategory([FromRoute] Guid id)
+        {
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+
+            var category = await _itemRepository.GetCategory(user.CompanyId, id);
+            if (category == null) return NotFound($"{id} không tồn tại");
+
+            var result = await _itemRepository.DeleteCategory(category);
+
+            return Ok(result);
+        }
+        #endregion
+
+        #region product
+        [HttpGet]
+        [Route("products")]
+        public async Task<IActionResult> GetAllProduct([FromQuery] ProductListSearch search)
+        {
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Unauthorized();
+
+            var languageCode = "vi";
+
+            var products = await _itemRepository.GetProducts(user.CompanyId, search);
+            var productDtos = products.Items.Select(e => new WarehouseProductDto()
+            {
+                Id = e.ItemId,
+                Code = e.Code,
+                CategoryId = e.CategoryId,
+                Title = e.Item.ItemLanguages.Where(e => e.LanguageCode == languageCode).Select(e => e.Title).FirstOrDefault() ?? string.Empty,
+                Image = new FileData() { FileName = e.Item.Image, Type = FileType.ProductImage, Folder = user.CompanyId.ToString() },
+            }).ToList();
+            var categoryIds = productDtos.Select(e => e.CategoryId).Distinct().ToList();
+            var categoryLanguages = await _itemRepository.GetItemLanguages(user.CompanyId, categoryIds);
+            foreach (var dto in productDtos)
+            {
+                dto.CategoryName = categoryLanguages.Where(e => e.LanguageCode == languageCode).Select(e => e.Title).FirstOrDefault() ?? string.Empty;
+            }
+
+            return Ok(new PagedList<WarehouseProductDto>(productDtos,
+                       products.MetaData.TotalCount,
+                       products.MetaData.CurrentPage,
+                       products.MetaData.PageSize));
+        }
+
+        [HttpPost]
+        [Route("products")]
+        public async Task<IActionResult> CreateProduct([FromBody] WarehouseProductDto request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Unauthorized();
+
+            var category = await _itemRepository.GetCategory(user.CompanyId, request.CategoryId);
+            if (category == null) return ValidationProblem($"Danh mục [{request.CategoryId}] không tồn tại");
+
+            var languageCode = "vi";
+
+            var languageItem = new ItemLanguage { Title = request.Title.Trim(), LanguageCode = languageCode, Brief = request.Title };
+            var item = new Item()
+            {
+                Id = request.Id,
+                CompanyId = user.CompanyId,
+                IsPublished = false,
+                Order = 50,
+                View = 0,
+                CreateDate = DateTime.Now,
+                Product = new ItemProduct()
+                {
+                    CategoryId = request.CategoryId,
+                    Code = request.Code,
+                    Price = 0,
+                    Discount = 0,
+                    DiscountType = 0,
+                    SaleMin = 0
+                },
+                ItemLanguages = new List<ItemLanguage>() { languageItem },
+            };
+
+            await _itemRepository.CreateProduct(item, null, null, null);
+
+            return Ok();
         }
         #endregion
     }

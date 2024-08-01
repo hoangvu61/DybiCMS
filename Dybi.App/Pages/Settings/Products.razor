@@ -1,0 +1,145 @@
+﻿@page "/settings/products"
+@attribute [Authorize]
+
+@using Dybi.App.Components
+@using Dybi.App.Pages.Components
+@using Microsoft.AspNetCore.Authorization;
+@using Dybi.App.Services;
+@using Web.Models;
+@using Web.Models.SeedWork;
+@using Microsoft.Extensions.Configuration
+
+@inject IToastService ToastService;
+@inject IWarehouseApiClient WarehouseApiClient;
+
+<h1>Quản lý sản phẩm</h1>
+
+<section>
+    @if (ListProducts == null)
+    {
+        <LoadingIndicator></LoadingIndicator>
+    }
+    else
+    {
+        <div class="card card-outline card-info">
+            <div class="card-header">
+                <h3 class="card-title">Danh sách sản phẩm</h3>
+            </div>
+            <div class="card-body">
+                <ProductSearch @ref="ProductSearchControl" OnSearch="SearchProduct"></ProductSearch>
+                <table class="table table-sm table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th class="text-center">Mã</th>
+                            <th class="text-center">Tên</th>
+                            <th class="text-center">Danh mục</th>
+                            <th class="text-center" style="width:105px">
+                                <a href="/ProductCreate" class="btn btn-primary btn-sm">Thêm</a>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in ListProducts)
+                        {
+                            <tr>
+                                <td>@item.Code</td>
+                                <td>@item.Title</td>
+                                <td>@item.CategoryName</td>
+                                <td style="text-align:right;width:100px">
+                                    <a href="/settings/products/@item.Id" class="btn btn-primary btn-sm">Xem</a>
+                                    <button class="btn btn-danger btn-sm" @onclick="()=> OnDelete(item.Id)">Xóa</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="9">
+                                <Pagination MetaData="MetaData" Spread="2" SelectedPage="SelectedPage"></Pagination>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <Confirmation ConfirmationMessage="Bạn có chắc chắn xóa?"
+                    ConfirmationTitle="Xóa sản phẩm"
+                    @ref="DeleteConfirmation"
+                    ConfirmationChanged="OnConfirmDelete">
+        </Confirmation>
+    }
+</section>
+
+@code {
+    protected Confirmation DeleteConfirmation { set; get; }
+
+    private const int PageSize = 12;
+    private List<WarehouseProductDto> ListProducts;
+    private Guid DeleteId { set; get; }
+
+    private ProductSearch ProductSearchControl { set; get; }
+    private ProductListSearch ProductListSearch = new ProductListSearch();
+    public MetaData MetaData { get; set; } = new MetaData();
+
+    [CascadingParameter]
+    private Error Error { set; get; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        ProductListSearch.PageSize = PageSize;
+        await RefreshList(true);
+    }
+
+    public async Task RefreshList(bool result)
+    {
+        if (result)
+        {
+            try
+            {
+                var pagingResponse = await WarehouseApiClient.GetProducts(ProductListSearch);
+                ListProducts = pagingResponse.Items;
+                MetaData = pagingResponse.MetaData;
+
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                Error.ProcessError(ex);
+            }
+        }
+    }
+
+    public async Task SearchProduct(ProductListSearch productListSearch)
+    {
+        ProductListSearch = productListSearch;
+        ProductListSearch.PageSize = PageSize;
+        await RefreshList(true);
+    }
+
+    private async Task SelectedPage(int page)
+    {
+        ProductListSearch.PageNumber = page;
+        await RefreshList(true);
+    }
+
+    public async Task OnConfirmDelete(bool deleteConfirmed)
+    {
+        if (deleteConfirmed)
+        {
+            var result = await WarehouseApiClient.DeleteProduct(DeleteId);
+            if (result)
+            {
+                ToastService.ShowWarning($"Đã xóa {DeleteId}");
+                await RefreshList(true);
+            }
+            else ToastService.ShowError("Xóa không thành công");
+            
+        }
+    }
+    public void OnDelete(Guid deleteId)
+    {
+        DeleteId = deleteId;
+        DeleteConfirmation.Show();
+    }
+}

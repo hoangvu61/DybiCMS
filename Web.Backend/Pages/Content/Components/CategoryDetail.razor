@@ -32,8 +32,14 @@
                         <div class="info-box bg-light">
                             <div class="info-box-content">
                                 <span class="info-box-text text-center text-muted" style="text-align:left !important"><lable>Loại danh mục: </lable> @DataSource.CategoryTypes.First(e => e.Key == Model.Type).Value</span>
-                                <span class="info-box-text text-center text-muted" style="text-align:left !important"><lable>Trang Danh sách: </lable> @Components.First(e => e.ComponentName == Model.ComponentList).Describe </span>
-                                <span class="info-box-text text-center text-muted" style="text-align:left !important"><lable>Trang Chi tiết: </lable>@Components.First(e => e.ComponentName == Model.ComponentDetail).Describe </span>
+                                @if(@Components.Any(e => e.ComponentName == Model.ComponentList))
+                                {
+                                    <span class="info-box-text text-center text-muted" style="text-align:left !important"><lable>Trang Danh sách: </lable> @Components.First(e => e.ComponentName == Model.ComponentList).Describe </span>
+                                }
+                                @if (@Components.Any(e => e.ComponentName == Model.ComponentDetail))
+                                {
+                                    <span class="info-box-text text-center text-muted" style="text-align:left !important"><lable>Trang Chi tiết: </lable>@Components.First(e => e.ComponentName == Model.ComponentDetail).Describe </span>
+                                }
                                 <span class="info-box-text text-center text-muted" style="text-align:left !important"><lable>Lượt xem: </lable> @Model.View</span>
                             </div>
                         </div>

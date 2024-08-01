@@ -261,34 +261,80 @@ namespace Web.Api.Repositories
 
         public async Task<List<ItemCategory>> GetCategories(Guid companyId, string type = "")
         {
-            var query = _context.ItemCategories.Include(e => e.Item)
+            var query = _context.ItemCategories
+                .Include(e => e.Item)
                 .Include(e => e.Item.ItemLanguages)
+                .Include(e => e.CategoryComponent)
                 .Where(e => e.Item.CompanyId == companyId);
             if (!string.IsNullOrEmpty(type)) query = query.Where(e => e.Type == type);
             return await query.OrderBy(e => e.Type).ThenBy(e => e.Item.Order).ThenBy(e => e.Item.CreateDate).ToListAsync();
         }
-        public async Task<ItemCategory> GetCategory(Guid companyId, Guid id)
+        public async Task<ItemCategory?> GetCategory(Guid companyId, Guid id)
         {
-            var query = _context.ItemCategories.Include(e => e.Item).Where(e => e.Item.CompanyId == companyId && e.ItemId == id);
+            var query = _context.ItemCategories
+                .Include(e => e.Item)
+                .Include(e => e.CategoryComponent)
+                .Where(e => e.Item.CompanyId == companyId && e.ItemId == id);
             return await query.FirstOrDefaultAsync();
+        }
+        public async Task<bool> UpdateCategory(WarehouseCategoryDto request, string languageCode)
+        {
+            var detail = await _context.ItemLanguages
+                .Include(e => e.Item)
+                .Include(e => e.Item.Category)
+                .FirstOrDefaultAsync(e => e.ItemId == request.Id && e.LanguageCode == languageCode);
+            if (detail == null) return false;
+            if (detail.Item.Category == null) return false;
+
+            detail.Title = request.Title;
+            detail.Brief = request.Describe;
+            detail.Item.Category.ParentId = request.ParentId;
+            if (detail.Item.Category.ParentId == Guid.Empty) detail.Item.Category.ParentId = null;
+
+            _context.ItemLanguages.Update(detail);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        public async Task<bool> PublishCategory(WarehouseCategoryDto request)
+        {
+            var category = await _context.ItemCategories
+                .Include(e => e.Item)
+                .Include(e => e.CategoryComponent)
+                .FirstOrDefaultAsync(e => e.ItemId == request.Id);
+            if (category == null) return false;
+
+            category.Item.IsPublished = request.IsPuslished;
+            if(category.CategoryComponent == null) category.CategoryComponent = new ItemCategoryComponent();
+            category.CategoryComponent.ComponentList = request.ComponentList;
+            category.CategoryComponent.ComponentDetail = request.ComponentDetail;
+
+            _context.ItemCategories.Update(category);
+            await _context.SaveChangesAsync();
+            return true;
         }
         public async Task<bool> UpdateCategory(CategoryDetailDto request)
         {
-            var item = await _context.Items.Include(e => e.Category).FirstOrDefaultAsync(e => e.Id == request.Id);
+            var item = await _context.Items
+                .Include(e => e.Category)
+                .Include(e => e.Category.CategoryComponent)
+                .FirstOrDefaultAsync(e => e.Id == request.Id);
             if (item == null) return false;
             if (item.Category == null) return false;
-            if (item.Category.ComponentDetail != request.ComponentDetail)
+            if (item.Category.CategoryComponent != null)
             {
-                if (await _context.ItemArticles.AnyAsync(e => e.CategoryId == request.Id)) return false;
-                if (await _context.ItemProducts.AnyAsync(e => e.CategoryId == request.Id)) return false;
-                if (await _context.ItemMedias.AnyAsync(e => e.CategoryId == request.Id)) return false;
-            }
+                if (item.Category.CategoryComponent.ComponentDetail != request.ComponentDetail)
+                {
+                    if (await _context.ItemArticles.AnyAsync(e => e.CategoryId == request.Id)) return false;
+                    if (await _context.ItemProducts.AnyAsync(e => e.CategoryId == request.Id)) return false;
+                    if (await _context.ItemMedias.AnyAsync(e => e.CategoryId == request.Id)) return false;
+                }
+                if (item.Category.CategoryComponent.ComponentList != request.ComponentList)
+                    item.Category.CategoryComponent.ComponentList = request.ComponentList;
+            }   
 
             item.Order = request.Order;
             if (request.Image != null && !string.IsNullOrEmpty(request.Image.FileName))
                 item.Image = request.Image.FileName;
-
-            item.Category.ComponentList = request.ComponentList;
 
             _context.Items.Update(item);
 
@@ -627,9 +673,10 @@ namespace Web.Api.Repositories
                     .Include(e => e.Item.ItemLanguages)
                     .Where(e => e.Item.CompanyId == companyId);
 
-            if (!string.IsNullOrEmpty(productSearch.Title))
+            if (!string.IsNullOrEmpty(productSearch.Key))
             {
-                query = query.Where(e => e.Item.ItemLanguages.Any(l => l.Title.Contains(productSearch.Title)));
+                var key = productSearch.Key.Trim();
+                query = query.Where(e => (e.Code != null && e.Code.Contains(key)) || e.Item.ItemLanguages.Any(l => l.Title.Contains(key)));
             }
 
             if (productSearch.CategoryId != null && productSearch.CategoryId != Guid.Empty)
@@ -665,33 +712,46 @@ namespace Web.Api.Repositories
         public async Task<Item> CreateProduct(Item item, List<ItemAttributeDto> Attributes, List<Guid> relatedItems, List<ProductAddOnDto> addOnProducts)
         {
             _context.Items.Add(item);
-            foreach (var attribute in Attributes)
+
+            if (Attributes != null)
             {
-                _context.ItemAttributes.Add(new ItemAttribute
+                foreach (var attribute in Attributes)
                 {
-                    ItemId = item.Id,
-                    AttributeId = attribute.Id,
-                    Value = attribute.Value
-                });
+                    _context.ItemAttributes.Add(new ItemAttribute
+                    {
+                        ItemId = item.Id,
+                        AttributeId = attribute.Id,
+                        Value = attribute.Value
+                    });
+                }
             }
-            foreach (var id in relatedItems)
+
+            if (relatedItems != null)
             {
-                _context.ItemRelateds.Add(new ItemRelated
+                foreach (var id in relatedItems)
                 {
-                    ItemId = item.Id,
-                    RelatedId = id
-                });
+                    _context.ItemRelateds.Add(new ItemRelated
+                    {
+                        ItemId = item.Id,
+                        RelatedId = id
+                    });
+                }
             }
-            foreach (var addon in addOnProducts)
+
+            if (addOnProducts != null)
             {
-                _context.ItemProductAddOns.Add(new ItemProductAddOn
+                foreach (var addon in addOnProducts)
                 {
-                    ProductId = item.Id,
-                    ProductAddOnId = addon.ProductId,
-                    Price = addon.Price,
-                    Quantity = addon.Quantity
-                });
+                    _context.ItemProductAddOns.Add(new ItemProductAddOn
+                    {
+                        ProductId = item.Id,
+                        ProductAddOnId = addon.ProductId,
+                        Price = addon.Price,
+                        Quantity = addon.Quantity
+                    });
+                }
             }
+
             await _context.SaveChangesAsync();
             return item;
         }

@@ -21,29 +21,31 @@
                     <button type="submit" class="btn btn-success btn-xs">Lưu</button>
                 </div>
             </div>
-        <div class="card-body">
+            <div class="card-body">
+                <ValidationMessage For="()=> Model.Title"></ValidationMessage>
                 <div class="form-group input-group input-group-sm">
                     <div class="input-group-prepend">
                         <span class="input-group-text">Meta Title</span>
                     </div>
                     <InputText @bind-Value="Model.Title" class="form-control form-control-sm"></InputText>
-                    <ValidationMessage For="()=> Model.Title"></ValidationMessage>
-            </div>
+                </div>
+
+                <ValidationMessage For="()=> Model.MetaDescription"></ValidationMessage>
                 <div class="form-group input-group input-group-sm">
                     <div class="input-group-prepend">
                         <span class="input-group-text">Meta Description</span>
                     </div>
                     <InputTextArea @bind-Value="Model.MetaDescription" class="form-control form-control-sm"></InputTextArea>
-                    <ValidationMessage For="()=> Model.MetaDescription"></ValidationMessage>
+                </div>
+
+                <ValidationMessage For="()=> Model.MetaKeyWord"></ValidationMessage>
+                <div class="form-group input-group input-group-sm">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">Meta Keyword</span>
+                        </div>
+                        <InputText @bind-Value="Model.MetaKeyWord" class="form-control form-control-sm"></InputText>
+                </div>
             </div>
-            <div class="form-group input-group input-group-sm">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text">Meta Keyword</span>
-                    </div>
-                    <InputText @bind-Value="Model.MetaKeyWord" class="form-control form-control-sm"></InputText>
-                    <ValidationMessage For="()=> Model.MetaKeyWord"></ValidationMessage>
-            </div>
-        </div>
     </EditForm>
 </div>
 }

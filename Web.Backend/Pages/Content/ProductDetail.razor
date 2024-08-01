@@ -1,4 +1,7 @@
 ﻿@page "/ProductDetail/{Id}"
+@attribute [Authorize]
+
+@using Microsoft.AspNetCore.Authorization;
 @using Web.Backend.Components
 @using Web.Backend.Pages.Content.Components;
 @using Web.Backend.Services;
@@ -6,18 +9,18 @@
 @using Web.Models.Enums;
 @using Web.Models.SeedWork;
 @using Microsoft.Extensions.Configuration
+
 @inject IConfiguration Configuration
 @inject IToastService ToastService;
 @inject IContentApiClient ContentApiClient;
-@inject NavigationManager NavigationManager;
 @inject ICompanyApiClient CompanyApiClient;
 
- @if (Model== null)
-        {
-            <LoadingIndicator></LoadingIndicator>
-        }
-        else
-        {
+@if (Model== null)
+{
+    <LoadingIndicator></LoadingIndicator>
+}
+else
+{
 <section class="content-header">
     <div class="container-fluid">
         <h1 class="m-0">@Model.Title</h1>

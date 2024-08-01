@@ -1,0 +1,118 @@
+﻿@attribute [Authorize]
+
+@using Microsoft.AspNetCore.Authorization;
+@using Dybi.App.Components;
+@using Dybi.App.Pages.Components;
+@using Dybi.App.Services;
+@using Web.Models;
+@using Web.Models.Enums;
+@using Web.Models.SeedWork;
+@using Microsoft.Extensions.Configuration
+
+@inject IConfiguration Configuration
+@inject IToastService ToastService;
+@inject IWebsiteApiClient WebsiteApiClient;
+@if (Images != null)
+{
+    <div class="card my-3">
+        <div class="card-header">
+            <div class="form-group">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text">Hình chi tiết</span>
+                    <InputFile multiple type="file" OnChange="AddImageDetails" accept="image/png, image/jpeg, image/gif"></InputFile>
+                </div>
+            </div>
+        </div>
+        <!-- /.card-header -->
+        <div class="card-body">
+            <div class="row">
+                @foreach (var image in Images)
+                {
+                    <div class="col-sm-3">
+                        <div class="position-relative p-3 bg-gray" style="text-align:center; padding:0px !important">
+                            <div class="ribbon-wrapper" style="text-align:right;color:red">
+                                <button type="button" class="btn btn-tool" @onclick="() => RemoveImage(image)">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <img src="@(BackendApiUrl + "/" + image.FullPath + "?DummyId=" + DateTime.Now.Ticks)" asp-append-version="true" style="max-width:100%; height:75px" />
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+        <!-- /.card-body -->
+    </div>
+}
+@code {
+    [Parameter]
+    public Guid ItemId { set; get; }
+
+    private List<FileData> Images { set; get; }
+    private string BackendApiUrl { get; set; }
+
+    [CascadingParameter]
+    private Error Error { set; get; }
+
+    private ProductListPopup ListProductRelatedControl { set; get; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        BackendApiUrl = Configuration["BackendApiUrl"];
+    }
+
+    protected async override Task OnParametersSetAsync()
+    {
+        if (ItemId != null && ItemId != Guid.Empty)
+        {
+            Images = await WebsiteApiClient.GetImages(ItemId);
+        }
+    }
+
+    private async void AddImageDetails(InputFileChangeEventArgs e)
+    {
+        var files = e.GetMultipleFiles(); // get the files selected by the users
+
+        if (files.Count > 0)
+        {
+            var images = new List<FileData>();
+            foreach (var file in files)
+            {
+                //var resizedFile = await file.RequestImageFileAsync(file.ContentType, 640, 480); // resize the image file
+                var buf = new byte[file.Size]; // allocate a buffer to fill with the file's data
+                using (var stream = file.OpenReadStream(file.Size))
+                {
+                    await stream.ReadAsync(buf); // copy the stream to the buffer
+                }
+                var image = new FileData
+                    {
+                        Base64data = Convert.ToBase64String(buf),
+                        ContentType = file.ContentType,
+                        FileName = file.Name,
+                        Type = FileType.ItemImage
+                    };
+                images.Add(image);
+            }
+            var result = await WebsiteApiClient.CreateImage(ItemId, images);
+            if (result)
+            {
+                ToastService.ShowWarning($"Đã thêm {images.Count} hình");
+                Images = await WebsiteApiClient.GetImages(ItemId);
+                StateHasChanged();
+            }
+            else ToastService.ShowError($"Thêm hình không thành công");
+        }   
+    }
+
+    protected async Task RemoveImage(FileData file)
+    {
+        var result = await WebsiteApiClient.DeleteImage(ItemId, file.FileName);
+        if (result)
+        {
+            ToastService.ShowWarning($"Đã xóa {file.FileName}");
+            Images.Remove(file);
+            StateHasChanged();
+        }
+        else ToastService.ShowError($"Xóa {file.FileName} không thành công");
+    }
+}

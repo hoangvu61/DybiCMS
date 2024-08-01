@@ -1,4 +1,6 @@
-﻿using Web.Models;
+﻿using Microsoft.AspNetCore.WebUtilities;
+using Web.Models;
+using Web.Models.SeedWork;
 
 namespace Dybi.App.Services
 {
@@ -118,6 +120,86 @@ namespace Dybi.App.Services
         public async Task<bool> DeleteSupplier(Guid id)
         {
             var result = await _httpClient.DeleteAsync($"/api/warehouses/suppliers/{id}");
+            return result.IsSuccessStatusCode;
+        }
+        #endregion
+
+        #region Danh muc san pham
+        public async Task<List<WarehouseCategoryDto>> GetCategories()
+        {
+            var result = await _httpClient.GetFromJsonAsync<List<WarehouseCategoryDto>>($"/api/warehouses/categories");
+            return result;
+        }
+        public async Task<WarehouseCategoryDto> GetCategory(Guid id)
+        {
+            var result = await _httpClient.GetFromJsonAsync<WarehouseCategoryDto>($"/api/warehouses/categories/{id}");
+            return result;
+        }
+        public async Task<bool> CreateCategory(WarehouseCategoryDto request)
+        {
+            var result = await _httpClient.PostAsJsonAsync($"/api/warehouses/Categories", request);
+            return result.IsSuccessStatusCode;
+        }
+        public async Task<bool> UpdateCategory(WarehouseCategoryDto request)
+        {
+            var result = await _httpClient.PutAsJsonAsync($"/api/warehouses/categories/update/{request.Id}", request);
+            return result.IsSuccessStatusCode;
+        }
+        public async Task<bool> PublishCategory(WarehouseCategoryDto request)
+        {
+            var result = await _httpClient.PutAsJsonAsync($"/api/warehouses/categories/publish/{request.Id}", request);
+            return result.IsSuccessStatusCode;
+        }
+        public async Task<bool> DeleteCategory(Guid id)
+        {
+            var result = await _httpClient.DeleteAsync($"/api/warehouses/categories/{id}");
+            return result.IsSuccessStatusCode;
+        }
+        #endregion
+
+        #region San pham
+        public async Task<PagedList<WarehouseProductDto>> GetProducts(ProductListSearch paging)
+        {
+            var queryStringParam = new Dictionary<string, string>
+            {
+                ["pageNumber"] = paging.PageNumber.ToString(),
+                ["pageSize"] = paging.PageSize.ToString()
+            };
+
+            if (paging.CategoryId != null && paging.CategoryId != Guid.Empty)
+                queryStringParam.Add("CategoryId", paging.CategoryId?.ToString() ?? string.Empty);
+            if (!string.IsNullOrEmpty(paging.Key))
+                queryStringParam.Add("Key", paging.Key);
+
+            string url = QueryHelpers.AddQueryString("/api/warehouses/products", queryStringParam);
+            var result = await _httpClient.GetFromJsonAsync<PagedList<WarehouseProductDto>>(url);
+            return result;
+        }
+        public async Task<ProductDetailDto> GetProduct(string id)
+        {
+            var result = await _httpClient.GetFromJsonAsync<ProductDetailDto>($"/api/contents/products/{id}/vi");
+            return result;
+        }
+        public async Task<bool> CreateProduct(WarehouseProductDto request)
+        {
+            var result = await _httpClient.PostAsJsonAsync($"/api/warehouses/products", request);
+            return result.IsSuccessStatusCode;
+        }
+        public async Task<bool> UpdateProduct(ProductDetailDto request)
+        {
+            string url = $"/api/contents/products/{request.Id}";
+            var result = await _httpClient.PutAsJsonAsync(url, request);
+            return result.IsSuccessStatusCode;
+        }
+        public async Task<bool> UpdateProductCategory(Guid itemId, Guid categoryId)
+        {
+            string url = $"/api/contents/products/{itemId}/{categoryId}";
+            var result = await _httpClient.PutAsync(url, null);
+            return result.IsSuccessStatusCode;
+        }
+        public async Task<bool> DeleteProduct(Guid id)
+        {
+            var result = await _httpClient.DeleteAsync($"/api/contents/products/{id}");
             return result.IsSuccessStatusCode;
         }
         #endregion

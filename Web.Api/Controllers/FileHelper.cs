@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using SixLabors.ImageSharp.Formats.Webp;
-using System.IO;
-using Web.Models.Enums;
+﻿using SixLabors.ImageSharp.Formats.Webp;
 using Web.Models.SeedWork;
 
 namespace Web.Api.Controllers

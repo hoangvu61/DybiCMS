@@ -10,6 +10,8 @@
 @inject IToastService ToastService;
 @inject IWarehouseApiClient WarehouseApiClient;
 @inject GlobalVariables Global;
+@inject IAuthService AuthService
+@inject NavigationManager NavigationManager
 
 @if (ShowBox)
 {
@@ -92,7 +94,16 @@
 
     protected async override Task OnInitializedAsync()
     {
-        Configs = await WarehouseApiClient.GetConfigDefaults();
+        try
+        {
+            Configs = await WarehouseApiClient.GetConfigDefaults();
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            await AuthService.Logout();
+            NavigationManager.NavigateTo("/login");
+        }
+
         if (Global.Configs == null) Global.Configs = await WarehouseApiClient.GetConfigs();
         if (Global.Configs.Count > 0)
         {

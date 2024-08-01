@@ -1,8 +1,6 @@
 ﻿@page "/logout"
-@attribute [Authorize]
 
 @using Web.Backend.Services;
-@using Microsoft.AspNetCore.Authorization;
 
 @inject IAuthService AuthService
 @inject NavigationManager NavigationManager
@@ -11,6 +9,6 @@
     protected async override Task OnInitializedAsync()
     {
         await AuthService.Logout();
-        NavigationManager.NavigateTo("/");
+        NavigationManager.NavigateTo("/login");
     }
 }

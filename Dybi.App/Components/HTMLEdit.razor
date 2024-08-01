@@ -1,0 +1,51 @@
+﻿@if (ShowHTML)
+{
+    <div class="modal" tabindex="-1" style="display:block" role="dialog">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <b class="modal-title">HTML Code</b>
+                    <!-- Close Button -->
+                    <button type="button" class="close"
+                        @onclick="Hide">
+                        <span aria-hidden="true" @onclick="Hide">X</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <InputTextArea @bind-Value="HTML" class="form-control form-control-sm" style="height:200px"></InputTextArea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-xs" @onclick="Hide" data-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-primary btn-xs" @onclick="Agree">Đồng ý</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@inject IConfiguration Configuration
+
+@code {
+    // ImageSelected is an EventCallback that will
+    // notify the parent component when an image is selected
+    // passing the url of the image to the parent component
+    [Parameter] public EventCallback<string> TextChanged { get; set; }
+    private string HTML { get; set; }
+    private bool ShowHTML = false;
+
+    public async void Show(string html)
+    {
+        HTML = html;
+        ShowHTML = true;
+    }
+    public async void Hide()
+    {
+        ShowHTML = false;
+    }
+
+    private async Task Agree()
+    {
+        await TextChanged.InvokeAsync(HTML);
+        ShowHTML = false;
+    }
+}

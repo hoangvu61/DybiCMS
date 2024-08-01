@@ -6,34 +6,28 @@
 
 @inject IContentApiClient ContentApiClient;
 
-        <div class="row">
-            <div class="col">
-            <InputText class="form-control form-control-sm" @bind-Value="Model.Title" placeholder="Tìm tiêu đề"></InputText>
-            </div>
-
-            <div class="col">
-            <InputSelect class="form-control form-control-sm" @bind-Value="Model.CategoryId">
-                <option value="@Guid.Empty">Chọn danh mục</option>
-                @if (Categories != null)
+<div class="form-group">
+    <div class="input-group input-group-sm mb-3">
+        <span class="input-group-text">Tên hoặc mã sản phẩm</span>
+        <input class="form-control form-control-sm" @bind="Model.Key" @bind:event="oninput" @onkeyup="TextChange" @onchange="TextChange" />
+        <span class="input-group-text">Danh mục</span>
+        <InputSelect class="form-control form-control-sm" ValueExpression="@(()=>Model.CategoryId)"
+                     Value="@Model.CategoryId"
+                     ValueChanged="@((Guid? value) => CategoryChange(value))">
+            <option value="@Guid.Empty">Chọn danh mục</option>
+            @if (Categories != null)
+            {
+                @foreach (var item in Categories)
                 {
-                    @foreach (var item in Categories)
-                    {
                     <option value="@item.Id">@item.Type @item.Titles.FirstOrDefault(e => e.Key == "vi").Value</option>
-                    }
                 }
-            </InputSelect>
-            </div>
-
-            <div class="col">
-        <InputText class="form-control form-control-sm" @bind-Value="Model.Code" placeholder="Tìm mã"></InputText>
-            </div>
-
-            <div class="col button-top">
-        <button type="button" class="btn btn-primary btn-sm" @onclick="SearchForm">Tìm</button>
-            </div>
-        </div>
+            }
+        </InputSelect>
+    </div>
+</div>
 
 @code {
+
     [Parameter]
     public EventCallback<ProductListSearch> OnSearch { set; get; }
 
@@ -43,12 +37,19 @@
 
     protected async override Task OnInitializedAsync()
     {
-        var categories = await ContentApiClient.GetCategories("PRO");
-        Categories = SortTable(categories, null, "", "---");
+        Categories = await ContentApiClient.GetCategories();
+        Categories = SortTable(Categories, null, "", "---");
     }
 
-    private async Task SearchForm()
+    private async Task TextChange()
     {
+        if (Model.Key.Length > 3)
+            await OnSearch.InvokeAsync(Model);
+    }
+
+    private async Task CategoryChange(Guid? value)
+    {
+        Model.CategoryId = value;
         await OnSearch.InvokeAsync(Model);
     }
 

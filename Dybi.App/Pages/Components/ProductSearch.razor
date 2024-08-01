@@ -1,0 +1,72 @@
+﻿@using Dybi.App.Services;
+@using Web.Models;
+@using System.IO;
+@using Web.Models.Enums;
+@using Web.Models.SeedWork;
+
+@inject IWarehouseApiClient WarehouseApiClient;
+
+<div class="form-group">
+    <div class="input-group input-group-sm mb-3">
+        <span class="input-group-text">Tên hoặc mã sản phẩm</span>
+        <input class="form-control form-control-sm" @bind="Model.Key" @bind:event="oninput" @onkeyup="TextChange" @onchange="TextChange" />
+        <span class="input-group-text">Danh mục</span>
+        <InputSelect class="form-control form-control-sm"  ValueExpression="@(()=>Model.CategoryId)"
+                     Value="@Model.CategoryId"
+                     ValueChanged="@((Guid? value) => CategoryChange(value))">
+            <option value="@Guid.Empty">Chọn danh mục</option>
+            @if (Categories != null)
+            {
+                @foreach (var item in Categories)
+                {
+                    <option value="@item.Id">@item.Title</option>
+                }
+            }
+        </InputSelect>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public EventCallback<ProductListSearch> OnSearch { set; get; }
+
+    private ProductListSearch Model = new ProductListSearch();
+
+    private List<WarehouseCategoryDto> Categories { set; get; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        Categories = await WarehouseApiClient.GetCategories();
+        Categories = SortTable(Categories, null, "", "---");
+    }
+
+    private async Task TextChange()
+    {
+        if (Model.Key.Length > 3)
+            await OnSearch.InvokeAsync(Model);
+    }
+
+    private async Task CategoryChange(Guid? value)
+    {
+        Model.CategoryId = value;
+        await OnSearch.InvokeAsync(Model);
+    }
+
+    private List<WarehouseCategoryDto> SortTable(List<WarehouseCategoryDto> table, Guid? parentId, string space = "", string distance = "....")
+    {
+        var rows = table.Where(dto => dto.ParentId == parentId).ToList();
+        if (!rows.Any()) return new List<WarehouseCategoryDto>();
+        var sortData = new List<WarehouseCategoryDto>();
+        foreach (var row in rows)
+        {
+            var spaceNext = space + distance;
+            var dt = SortTable(table, row.Id, spaceNext, distance);
+            row.Title = space + row.Title;
+            //row.Title = space + row.Title;
+            sortData.Add(row);
+
+            if (dt.Count > 0) sortData.AddRange(dt);
+        }
+        return sortData;
+    }
+}

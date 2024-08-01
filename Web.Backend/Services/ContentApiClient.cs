@@ -1,10 +1,6 @@
 ﻿using Microsoft.AspNetCore.WebUtilities;
-using System;
-using System.Net.Http.Json;
-using System.Net.NetworkInformation;
 using Web.Models;
 using Web.Models.SeedWork;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Web.Backend.Services
 {
@@ -126,6 +122,7 @@ namespace Web.Backend.Services
 
             string url = QueryHelpers.AddQueryString($"/api/contents/Categories", queryStringParam);
             var result = await _httpClient.GetFromJsonAsync<List<CategoryDto>>(url);
+            //result = result?.Where(e => e.ComponentDetail != null && e.ComponentList != null).ToList();
             return result;
         }
         public async Task<CategoryDetailDto> GetCategory(Guid id, string languageCode)
@@ -300,9 +297,9 @@ namespace Web.Backend.Services
             };
 
             if (paging.CategoryId != null && paging.CategoryId != Guid.Empty)
-                queryStringParam.Add("CategoryId", paging.CategoryId.ToString());
-            if (!string.IsNullOrEmpty(paging.Title))
-                queryStringParam.Add("Title", paging.Title);
+                queryStringParam.Add("CategoryId", paging.CategoryId?.ToString() ?? string.Empty);
+            if (!string.IsNullOrEmpty(paging.Key))
+                queryStringParam.Add("Key", paging.Key);
 
             string url = QueryHelpers.AddQueryString("/api/contents/products", queryStringParam);
             var result = await _httpClient.GetFromJsonAsync<PagedList<ProductDto>>(url);

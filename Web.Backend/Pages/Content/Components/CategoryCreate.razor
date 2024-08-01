@@ -45,9 +45,11 @@
                         @if (ParentId == null && Categories != null)
                         {
                             <div class="form-group">
-                                <div class="input-group input-group-sm mb-3">
+                                 <div class="input-group input-group-sm mb-3">
                                     <span class="input-group-text">Danh mục cha</span>
-                                    <InputSelect class="form-control form-control-sm" @bind-Value="Model.ParentId">
+                                    <InputSelect class="form-control form-control-sm" ValueExpression="@(()=>Model.ParentId)"
+                                             Value="@Model.ParentId"
+                                                 ValueChanged="@((Guid? value) => CategoryChange(Model.ParentId))">
                                         <option value="">Chọn danh mục cha</option>
                                         @foreach (var category in Categories)
                                         {
@@ -70,9 +72,9 @@
                             <div class="input-group input-group-sm mb-3">
                                 <span class="input-group-text">Trang dách sách</span>
                                 <InputSelect class="form-control form-control-sm" @bind-Value="Model.ComponentList">
-                                    <option value="">Chọn trang</option>
                                     @if (Components != null)
                                     {
+                                        <option value="">Chọn trang</option>
                                         @foreach (var item in Components)
                                         {
                                             <option value="@item.ComponentName">@item.ComponentName - @item.Describe</option>
@@ -86,9 +88,9 @@
                             <div class="input-group input-group-sm mb-3">
                                 <span class="input-group-text">Trang chi tiết</span>
                                 <InputSelect class="form-control form-control-sm" @bind-Value="Model.ComponentDetail">
-                                    <option value="">Chọn trang</option>
                                     @if (Components != null)
                                     {
+                                        <option value="">Chọn trang</option>
                                         @foreach (var item in Components)
                                         {
                                             <option value="@item.ComponentName">@item.ComponentName - @item.Describe</option>
@@ -114,7 +116,7 @@
 
     private CaterogyCreateRequest Model { set; get; } = new CaterogyCreateRequest();
     private List<TemplateComponentDto> Components { set; get; }
-    private List<CategoryDto> Categories { set; get; }
+    private List<CategoryDto> Categories { set; get; } = new List<CategoryDto>();
     private bool ManageProduct { set; get; }
 
     [Parameter]
@@ -148,6 +150,7 @@
         if (ParentId != null)
         {
             Model.ParentId = ParentId;
+            CategoryChange(Model.ParentId);
         }
     }
 
@@ -161,7 +164,7 @@
             Model.ComponentList = category.ComponentList;
             Model.ComponentDetail = category.ComponentDetail;
         }
-        
+
         ShowBox = true;
         StateHasChanged();
     }
@@ -192,6 +195,19 @@
                 if (Components.Any(e => e.ComponentName == "Medias")) Model.ComponentList = "Medias";
                 if (Components.Any(e => e.ComponentName == "Media")) Model.ComponentDetail = "Media";
                 break;
+        }
+    }
+
+    protected void CategoryChange(Guid? id)
+    {
+        if (id != null && id != Guid.Empty)
+        {
+            var category = Categories.FirstOrDefault(e => e.Id == id);
+            if (category != null && !string.IsNullOrEmpty(category.ComponentList) && !string.IsNullOrEmpty(category.ComponentDetail))
+            {
+                Model.ComponentList = category.ComponentList;
+                Model.ComponentDetail = category.ComponentDetail;
+            }
         }
     }
 

@@ -83,7 +83,7 @@ a, .btn-link {
     }
 }
 
-.sidebar{position:static !important; font-size:16px}
+.sidebar{position:static !important; font-size:16px; height:unset!important}
 .sidebar .menu-group,.sidebar .menu-group .nav-item {padding-top:0px !important;padding-bottom:0px !important}
 .sidebar .menu-group-title, .sidebar span.nav-link {color: #d7d7d7;border-radius: 4px;height: 3rem;display: flex;align-items: center;line-height: 3rem;cursor:pointer}
 .sidebar .menu-group-title:hover, .sidebar span.nav-link:hover {background-color: rgba(255, 255, 255, 0.1);color: white;}
@@ -106,3 +106,10 @@ hr{background:#fff}
 .modalconfig{position:absolute}
 .modal button.close {border: none;background: none}
 .configsetup {margin:10px 0px}
+
+.card-header{display:flex; justify-content: space-between;}
+.card-title{margin:0px}
+
+.tags label {float: left;}
+.tags .tag {float: left;margin-left: 5px;margin-top: 5px;margin-bottom: 5px;background: #e0e0e0;padding: 5px;}
+.tags img {width: 10px;}

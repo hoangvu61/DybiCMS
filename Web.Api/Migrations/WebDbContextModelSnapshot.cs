@@ -767,16 +767,6 @@ namespace Web.Api.Migrations
                     b.Property<Guid>("ItemId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("ComponentDetail")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("VARCHAR");
-
-                    b.Property<string>("ComponentList")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("VARCHAR");
-
                     b.Property<Guid?>("ParentId")
                         .HasColumnType("uniqueidentifier");
 
@@ -790,6 +780,26 @@ namespace Web.Api.Migrations
                     b.HasIndex("ParentId");
 
                     b.ToTable("ItemCategories");
+                });
+
+            modelBuilder.Entity("Web.Api.Entities.ItemCategoryComponent", b =>
+                {
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ComponentDetail")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("VARCHAR");
+
+                    b.Property<string>("ComponentList")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("VARCHAR");
+
+                    b.HasKey("CategoryId");
+
+                    b.ToTable("ItemCategoryComponent");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.ItemEvent", b =>
@@ -2580,6 +2590,17 @@ namespace Web.Api.Migrations
                     b.Navigation("Parent");
                 });
 
+            modelBuilder.Entity("Web.Api.Entities.ItemCategoryComponent", b =>
+                {
+                    b.HasOne("Web.Api.Entities.ItemCategory", "Category")
+                        .WithOne("CategoryComponent")
+                        .HasForeignKey("Web.Api.Entities.ItemCategoryComponent", "CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+                });
+
             modelBuilder.Entity("Web.Api.Entities.ItemEvent", b =>
                 {
                     b.HasOne("Web.Api.Entities.Item", "Item")
@@ -3319,6 +3340,8 @@ namespace Web.Api.Migrations
             modelBuilder.Entity("Web.Api.Entities.ItemCategory", b =>
                 {
                     b.Navigation("Artices");
+
+                    b.Navigation("CategoryComponent");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.ItemProduct", b =>

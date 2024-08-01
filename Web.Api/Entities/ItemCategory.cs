@@ -19,20 +19,11 @@ namespace Web.Api.Entities
         [Column(TypeName = "VARCHAR")]
         public string Type { get; set; }
 
-        [MaxLength(50)]
-        [Column(TypeName = "VARCHAR")]
-        [AllowNull]
-        public string ComponentList { get; set; }
-
-        [MaxLength(50)]
-        [Column(TypeName = "VARCHAR")]
-        [AllowNull]
-        public string ComponentDetail { get; set; }
-
         public Guid? ParentId { get; set; }
         [ForeignKey("ParentId")]
         public ItemCategory? Parent { get; set; }
 
-        public virtual ICollection<ItemArticle> Artices{ get; set; }
+        public virtual ICollection<ItemArticle> Artices { get; set; }
+        public ItemCategoryComponent? CategoryComponent { get; set; }
     }
 }

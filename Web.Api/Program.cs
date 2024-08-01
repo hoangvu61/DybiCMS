@@ -8,19 +8,10 @@ using Web.Api.Data;
 using Web.Api.Repositories;
 using Microsoft.Extensions.FileProviders;
 
-using NLog;
-using NLog.Web;
-
-var logger = LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
-
-try
-{
     var builder = WebApplication.CreateBuilder(args);
 
     // NLog: Setup NLog for Dependency injection
-    builder.Logging.ClearProviders();
-    builder.Logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
-    builder.Host.UseNLog();
+    builder.Logging.SetMinimumLevel(LogLevel.Trace);
 
     // Add services to the container.
 
@@ -86,7 +77,6 @@ try
         app.UseSwaggerUI();
     }
 
-
     app.MigrateDbContext<WebDbContext>(async (context, services) =>
     {
         var logger = services.GetRequiredService<ILogger<WebDbContextSeed>>();
@@ -110,15 +100,3 @@ try
     app.MapControllers();
 
     app.Run();
-}
-catch (Exception exception)
-{
-    // NLog: catch setup errors
-    logger.Error(exception, "Stopped program because of exception");
-    throw;
-}
-finally
-{
-    // Ensure to flush and stop internal timers/threads before application-exit (Avoid segmentation fault on Linux)
-    NLog.LogManager.Shutdown();
-}
