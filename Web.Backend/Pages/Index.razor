@@ -16,6 +16,7 @@
 @inject IConfiguration Configuration;
 @inject IContentApiClient ContentApiClient;
 @inject IOrderApiClient OrderApiClient;
+@inject IAuthService AuthService
 
 <PageTitle>Trang quản trị</PageTitle>
 
@@ -186,10 +187,15 @@
             NewOrder = pagingOrderResponse.MetaData.TotalCount;
 
         }
+        catch (UnauthorizedAccessException ex)
+        {
+            await AuthService.Logout();
+            NavigationManager.NavigateTo("/login");
+        }
         catch (Exception ex)
         {
-            if (ex.Message != null && ex.Message.Contains("Unauthorized"))
-                NavigationManager.NavigateTo("Logout");
+            await AuthService.Logout();
+            NavigationManager.NavigateTo("/login");
         }
     }
 }

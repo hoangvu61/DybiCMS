@@ -1,5 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Net;
 using System.Net.Http.Json;
+using Newtonsoft.Json;
 
 namespace Web.Backend
 {
@@ -12,7 +14,20 @@ namespace Web.Backend
         {
             if (UseHttpMethodOverride && httpClient.DefaultRequestHeaders.Any(e => e.Key == "X-HTTP-Method-Override"))
                 httpClient.DefaultRequestHeaders.Remove("X-HTTP-Method-Override");
-            return await httpClient.GetFromJsonAsync<TValue>(requestUri, cancellationToken);
+            //return await httpClient.GetFromJsonAsync<TValue>(requestUri, cancellationToken);
+            var response = await httpClient.GetAsync(requestUri);
+            if (response.IsSuccessStatusCode)
+            {
+                var stringData = await response.Content.ReadAsStringAsync();
+                var result = JsonConvert.DeserializeObject<TValue>(stringData);
+                return result;
+            }
+            else
+            {
+                if (response.StatusCode == HttpStatusCode.Unauthorized)
+                    throw new UnauthorizedAccessException();
+                return default(TValue);
+            }
         }
 
         public async Task<HttpResponseMessage> PostAsJsonAsync<TValue>([StringSyntax(StringSyntaxAttribute.Uri)] string? requestUri, TValue value, CancellationToken cancellationToken = default)

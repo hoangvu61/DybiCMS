@@ -3,6 +3,7 @@
 
 @using Dybi.App.Components
 @using Dybi.App.Pages.Components
+@using Dybi.App.Pages.Settings.Components
 @using Microsoft.AspNetCore.Authorization;
 @using Dybi.App.Services;
 @using Web.Models;
@@ -34,7 +35,7 @@
                             <th class="text-center">Tên</th>
                             <th class="text-center">Danh mục</th>
                             <th class="text-center" style="width:105px">
-                                <a href="/ProductCreate" class="btn btn-primary btn-sm">Thêm</a>
+                                <button @onclick="() => CreateDialog.Show()" class="btn btn-primary btn-sm">Thêm</button>
                             </th>
                         </tr>
                     </thead>
@@ -68,11 +69,14 @@
                     @ref="DeleteConfirmation"
                     ConfirmationChanged="OnConfirmDelete">
         </Confirmation>
+
+        <ProductCreate @ref="CreateDialog" CloseEventCallbak="RefreshList"></ProductCreate>
     }
 </section>
 
 @code {
     protected Confirmation DeleteConfirmation { set; get; }
+    protected ProductCreate CreateDialog { set; get; }
 
     private const int PageSize = 12;
     private List<WarehouseProductDto> ListProducts;

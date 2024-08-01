@@ -231,8 +231,22 @@
     }
     protected async Task ApplyHTML(string content)
     {
-        await this.QuillHtml.LoadHTMLContent(content);
-        StateHasChanged();
+        var count = 0;
+        while (count < 10)
+        {
+            try
+            {
+                if (content == null) content = string.Empty;
+                await this.QuillHtml.LoadHTMLContent(content);
+                StateHasChanged();
+                count = 10;
+            }
+            catch
+            {
+                await Task.Delay(100);
+                count++;
+            }
+        }
     }
 
     protected async Task InsertImageClick()

@@ -11,7 +11,9 @@ namespace Web.Models
         public string? Code { get; set; }
         public string Title { get; set; }
         public Guid CategoryId { get; set; }
-        public string CategoryName { get; set; }
+
+        [AllowNull]
+        public string? CategoryName { get; set; }
         public FileData? Image { get; set; }
     }
 }

@@ -75,6 +75,9 @@
       <Content Update="Pages\Settings\Categories.razor">
         <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       </Content>
+      <Content Update="Pages\Settings\Components\ProductCreate.razor">
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      </Content>
       <Content Update="Pages\Settings\Components\CategoryPublish.razor">
         <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       </Content>
