@@ -192,10 +192,5 @@
             await AuthService.Logout();
             NavigationManager.NavigateTo("/login");
         }
-        catch (Exception ex)
-        {
-            await AuthService.Logout();
-            NavigationManager.NavigateTo("/login");
-        }
     }
 }
