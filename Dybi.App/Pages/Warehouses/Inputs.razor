@@ -1,0 +1,152 @@
+﻿@page "/settings/products"
+@attribute [Authorize]
+
+@using Dybi.App.Components
+@using Dybi.App.Pages.Components
+@using Dybi.App.Pages.Warehouses.Components
+@using Microsoft.AspNetCore.Authorization;
+@using Dybi.App.Services;
+@using Web.Models;
+@using Web.Models.SeedWork;
+@using Microsoft.Extensions.Configuration
+
+@inject IToastService ToastService;
+@inject IWarehouseApiClient WarehouseApiClient;
+
+<h1>Quản lý Nhập kho</h1>
+
+<section>
+    @if (ListInputs == null)
+    {
+        <LoadingIndicator></LoadingIndicator>
+    }
+    else
+    {
+        <div class="card card-outline card-info">
+            <div class="card-header">
+                <h3 class="card-title">Danh Nhập kho</h3>
+            </div>
+            <div class="card-body">
+                <InputSearch @ref="InputSearchControl" OnSearch="SearchInput"></InputSearch>
+                <table class="table table-sm table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th class="text-center">Mã</th>
+                            <th class="text-center">Ngày</th>
+                            <th class="text-center">Tổng sản phẩm</th>
+                            <th class="text-center">Tổng tiền</th>
+                            <th class="text-center">Loại</th>
+                            <th class="text-center">Nguồn</th>
+                            <th class="text-center" style="width:105px">
+                                <button @onclick="() => {}" class="btn btn-primary btn-sm">Thêm</button>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in ListInputs)
+                        {
+                            <tr>
+                                <td>@item.InputCode</td>
+                                <td>@item.CreateDate</td>
+                                <td>@item.ProductCount</td>
+                                <td>@item.TotalPrice</td>
+                                <td>@item.TypeName</td>
+                                <td>@item.SourceName</td>
+                                <td style="text-align:right;width:100px">
+                                    <a href="/settings/products/@item.Id" class="btn btn-primary btn-sm">Xem</a>
+                                    <button class="btn btn-danger btn-sm" @onclick="()=> OnDelete(item.Id)">Xóa</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="9">
+                                <Pagination MetaData="MetaData" Spread="2" SelectedPage="SelectedPage"></Pagination>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <Confirmation ConfirmationMessage="Bạn có chắc chắn xóa?"
+                    ConfirmationTitle="Xóa phiếu nhập kho"
+                    @ref="DeleteConfirmation"
+                    ConfirmationChanged="OnConfirmDelete">
+        </Confirmation>
+    }
+</section>
+
+@code {
+    protected Confirmation DeleteConfirmation { set; get; }
+
+    private const int PageSize = 12;
+    private List<WarehouseInputDto> ListInputs;
+    private Guid DeleteId { set; get; }
+
+    private InputSearch InputSearchControl { set; get; }
+    private WarehouseInputSearch WarehouseInputSearch = new WarehouseInputSearch();
+    public MetaData MetaData { get; set; } = new MetaData();
+
+    [CascadingParameter]
+    private Error Error { set; get; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        WarehouseInputSearch.PageSize = PageSize;
+        await RefreshList(true);
+    }
+
+    public async Task RefreshList(bool result)
+    {
+        if (result)
+        {
+            try
+            {
+                var pagingResponse = await WarehouseApiClient.GetWarehouseInputs(WarehouseInputSearch);
+                ListInputs = pagingResponse.Items;
+                MetaData = pagingResponse.MetaData;
+
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                Error.ProcessError(ex);
+            }
+        }
+    }
+
+    public async Task SearchInput(WarehouseInputSearch inputListSearch)
+    {
+        WarehouseInputSearch = inputListSearch;
+        WarehouseInputSearch.PageSize = PageSize;
+        await RefreshList(true);
+    }
+
+    private async Task SelectedPage(int page)
+    {
+        WarehouseInputSearch.PageNumber = page;
+        await RefreshList(true);
+    }
+
+    public async Task OnConfirmDelete(bool deleteConfirmed)
+    {
+        if (deleteConfirmed)
+        {
+            var result = await WarehouseApiClient.DeleteProduct(DeleteId);
+            if (result)
+            {
+                ToastService.ShowWarning($"Đã xóa {DeleteId}");
+                await RefreshList(true);
+            }
+            else ToastService.ShowError("Xóa không thành công");
+            
+        }
+    }
+    public void OnDelete(Guid deleteId)
+    {
+        DeleteId = deleteId;
+        DeleteConfirmation.Show();
+    }
+}

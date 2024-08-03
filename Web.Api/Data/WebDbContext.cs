@@ -87,6 +87,8 @@ namespace Web.Api.Data
                .HasKey(m => new { m.WarehouseInputId, m.SourceId });
             modelBuilder.Entity<WarehouseInputFromFactory>()
               .HasKey(m => new { m.WarehouseInputId, m.FactoryId });
+            modelBuilder.Entity<WarehouseInputFromWarehouse>()
+              .HasKey(m => new { m.WarehouseInputId, m.WarehouseId });
             modelBuilder.Entity<WarehouseInputProduct>()
                 .HasKey(m => new { m.InputId, m.ProductId });
             modelBuilder.Entity<WarehouseInputProductCode>()
@@ -99,6 +101,10 @@ namespace Web.Api.Data
                .HasKey(m => new { m.OutputId, m.OrderId });
             modelBuilder.Entity<WarehouseOutputToFactory>()
                .HasKey(m => new { m.OutputId, m.FactoryId });
+            modelBuilder.Entity<WarehouseOutputToSupplier>()
+               .HasKey(m => new { m.OutputId, m.SourceId });
+            modelBuilder.Entity<WarehouseOutputToWarehouse>()
+               .HasKey(m => new { m.OutputId, m.WarehouseId });
             modelBuilder.Entity<WarehouseOutputProduct>()
               .HasKey(m => new { m.OutputId, m.ProductId });
             modelBuilder.Entity<WarehouseOutputProductDetail>()
@@ -186,14 +192,18 @@ namespace Web.Api.Data
         public DbSet<WarehouseInput> WarehouseInputs { get; set; }
         public DbSet<WarehouseInputDebt> WarehouseInputDebts { get; set; }
         public DbSet<WarehouseInputFromSupplier> WarehouseInputFromSuppliers { get; set; }
-        public DbSet<WarehouseInputFromFactory> WarehouseInputFromFactorys { get; set; }
+        public DbSet<WarehouseInputFromFactory> WarehouseInputFromFactories { get; set; }
+        public DbSet<WarehouseInputFromWarehouse> WarehouseInputFromWarehouses { get; set; }
+        
         public DbSet<WarehouseInputProduct> WarehouseInputProducts { get; set; }
         public DbSet<WarehouseInputProductCode> WarehouseInputProductCodes { get; set; }
         public DbSet<WarehouseInventory> WarehouseInventories { get; set; }
         public DbSet<WarehouseInputInventory> WarehouseInputInventories { get; set; }
         public DbSet<WarehouseOutput> WarehouseOutputs { get; set; }
         public DbSet<WarehouseOutputToOrder> WarehouseOutputToOrders { get; set; }
-        public DbSet<WarehouseOutputToFactory> WarehouseOutputToFactorys { get; set; }
+        public DbSet<WarehouseOutputToFactory> WarehouseOutputToFactories { get; set; }
+        public DbSet<WarehouseOutputToSupplier> WarehouseOutputToSuppliers { get; set; }
+        public DbSet<WarehouseOutputToWarehouse> WarehouseOutputToWarehouses { get; set; }
         public DbSet<WarehouseOutputProduct> WarehouseOutputProducts { get; set; }
         public DbSet<WarehouseOutputProductDetail> WarehouseOutputProductDetails { get; set; }
         public DbSet<WarehouseOutputProductCode> WarehouseOutputProductCodes { get; set; }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Web.Api.Data;
 
@@ -11,9 +12,11 @@ using Web.Api.Data;
 namespace Web.Api.Migrations
 {
     [DbContext(typeof(WebDbContext))]
-    partial class WebDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240803094552_8.22.17")]
+    partial class _82217
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1847,7 +1850,7 @@ namespace Web.Api.Migrations
                     b.HasIndex("WarehouseId")
                         .IsUnique();
 
-                    b.ToTable("WarehouseInputFromFactories");
+                    b.ToTable("WarehouseInputFromFactorys");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.WarehouseInputFromSupplier", b =>
@@ -1886,39 +1889,6 @@ namespace Web.Api.Migrations
                         .IsUnique();
 
                     b.ToTable("WarehouseInputFromSuppliers");
-                });
-
-            modelBuilder.Entity("Web.Api.Entities.WarehouseInputFromWarehouse", b =>
-                {
-                    b.Property<Guid>("WarehouseInputId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("WarehouseId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("WarehouseAddress")
-                        .HasMaxLength(300)
-                        .HasColumnType("nvarchar(300)");
-
-                    b.Property<string>("WarehouseEmail")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("WarehouseName")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
-
-                    b.Property<string>("WarehousePhone")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.HasKey("WarehouseInputId", "WarehouseId");
-
-                    b.HasIndex("WarehouseId")
-                        .IsUnique();
-
-                    b.ToTable("WarehouseInputFromWarehouses");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.WarehouseInputInventory", b =>
@@ -2123,7 +2093,7 @@ namespace Web.Api.Migrations
                     b.HasIndex("OutputId")
                         .IsUnique();
 
-                    b.ToTable("WarehouseOutputToFactories");
+                    b.ToTable("WarehouseOutputToFactorys");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.WarehouseOutputToOrder", b =>
@@ -2142,76 +2112,6 @@ namespace Web.Api.Migrations
                         .IsUnique();
 
                     b.ToTable("WarehouseOutputToOrders");
-                });
-
-            modelBuilder.Entity("Web.Api.Entities.WarehouseOutputToSupplier", b =>
-                {
-                    b.Property<Guid>("OutputId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("SourceId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("SupplierAddress")
-                        .HasMaxLength(300)
-                        .HasColumnType("nvarchar(300)");
-
-                    b.Property<string>("SupplierEmail")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("SupplierName")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
-
-                    b.Property<string>("SupplierPhone")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.HasKey("OutputId", "SourceId");
-
-                    b.HasIndex("OutputId")
-                        .IsUnique();
-
-                    b.HasIndex("SourceId");
-
-                    b.ToTable("WarehouseOutputToSuppliers");
-                });
-
-            modelBuilder.Entity("Web.Api.Entities.WarehouseOutputToWarehouse", b =>
-                {
-                    b.Property<Guid>("OutputId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("WarehouseId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("WarehouseAddress")
-                        .HasMaxLength(300)
-                        .HasColumnType("nvarchar(300)");
-
-                    b.Property<string>("WarehouseEmail")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("WarehouseName")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
-
-                    b.Property<string>("WarehousePhone")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.HasKey("OutputId", "WarehouseId");
-
-                    b.HasIndex("OutputId")
-                        .IsUnique();
-
-                    b.HasIndex("WarehouseId");
-
-                    b.ToTable("WarehouseOutputToWarehouses");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.WarehouseSupplier", b =>
@@ -3127,7 +3027,7 @@ namespace Web.Api.Migrations
                         .IsRequired();
 
                     b.HasOne("Web.Api.Entities.WarehouseInput", "WarehouseInput")
-                        .WithOne("FromFactory")
+                        .WithOne("Factory")
                         .HasForeignKey("Web.Api.Entities.WarehouseInputFromFactory", "WarehouseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -3146,31 +3046,12 @@ namespace Web.Api.Migrations
                         .IsRequired();
 
                     b.HasOne("Web.Api.Entities.WarehouseInput", "WarehouseInput")
-                        .WithOne("FromSupplier")
+                        .WithOne("Supplier")
                         .HasForeignKey("Web.Api.Entities.WarehouseInputFromSupplier", "WarehouseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Supplier");
-
-                    b.Navigation("WarehouseInput");
-                });
-
-            modelBuilder.Entity("Web.Api.Entities.WarehouseInputFromWarehouse", b =>
-                {
-                    b.HasOne("Web.Api.Entities.Warehouse", "Warehouse")
-                        .WithMany()
-                        .HasForeignKey("WarehouseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Web.Api.Entities.WarehouseInput", "WarehouseInput")
-                        .WithOne("FromWarehouse")
-                        .HasForeignKey("Web.Api.Entities.WarehouseInputFromWarehouse", "WarehouseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Warehouse");
 
                     b.Navigation("WarehouseInput");
                 });
@@ -3324,7 +3205,7 @@ namespace Web.Api.Migrations
                         .IsRequired();
 
                     b.HasOne("Web.Api.Entities.WarehouseOutput", "Output")
-                        .WithOne("ToFactory")
+                        .WithOne("Factory")
                         .HasForeignKey("Web.Api.Entities.WarehouseOutputToFactory", "OutputId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -3343,7 +3224,7 @@ namespace Web.Api.Migrations
                         .IsRequired();
 
                     b.HasOne("Web.Api.Entities.WarehouseOutput", "Output")
-                        .WithOne("ToOrder")
+                        .WithOne("Order")
                         .HasForeignKey("Web.Api.Entities.WarehouseOutputToOrder", "OutputId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -3351,44 +3232,6 @@ namespace Web.Api.Migrations
                     b.Navigation("Order");
 
                     b.Navigation("Output");
-                });
-
-            modelBuilder.Entity("Web.Api.Entities.WarehouseOutputToSupplier", b =>
-                {
-                    b.HasOne("Web.Api.Entities.WarehouseOutput", "Output")
-                        .WithOne("ToSupplier")
-                        .HasForeignKey("Web.Api.Entities.WarehouseOutputToSupplier", "OutputId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Web.Api.Entities.WarehouseSupplier", "Supplier")
-                        .WithMany()
-                        .HasForeignKey("SourceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Output");
-
-                    b.Navigation("Supplier");
-                });
-
-            modelBuilder.Entity("Web.Api.Entities.WarehouseOutputToWarehouse", b =>
-                {
-                    b.HasOne("Web.Api.Entities.WarehouseOutput", "Output")
-                        .WithOne("ToWarehouse")
-                        .HasForeignKey("Web.Api.Entities.WarehouseOutputToWarehouse", "OutputId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Web.Api.Entities.Warehouse", "Warehouse")
-                        .WithMany()
-                        .HasForeignKey("WarehouseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Output");
-
-                    b.Navigation("Warehouse");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.WarehouseSupplier", b =>
@@ -3552,13 +3395,11 @@ namespace Web.Api.Migrations
                 {
                     b.Navigation("Debt");
 
-                    b.Navigation("FromFactory");
-
-                    b.Navigation("FromSupplier");
-
-                    b.Navigation("FromWarehouse");
+                    b.Navigation("Factory");
 
                     b.Navigation("Products");
+
+                    b.Navigation("Supplier");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.WarehouseInputProduct", b =>
@@ -3568,15 +3409,11 @@ namespace Web.Api.Migrations
 
             modelBuilder.Entity("Web.Api.Entities.WarehouseOutput", b =>
                 {
+                    b.Navigation("Factory");
+
+                    b.Navigation("Order");
+
                     b.Navigation("Products");
-
-                    b.Navigation("ToFactory");
-
-                    b.Navigation("ToOrder");
-
-                    b.Navigation("ToSupplier");
-
-                    b.Navigation("ToWarehouse");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.WarehouseOutputProduct", b =>

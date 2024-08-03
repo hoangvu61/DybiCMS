@@ -66,6 +66,12 @@ namespace Dybi.App.Services
             var result = await _httpClient.DeleteAsync($"/api/warehouses/{id}");
             return result.IsSuccessStatusCode;
         }
+
+        public async Task<PagedList<WarehouseInputDto>> GetWarehouseInputs(WarehouseInputSearch search)
+        {
+            var result = await _httpClient.GetFromJsonAsync<PagedList<WarehouseInputDto>>($"/api/warehouses/inputs");
+            return result;
+        }
         #endregion
 
         #region Xuong san xuat

@@ -18,7 +18,6 @@ namespace Web.Api.Entities
         public Warehouse Warehouse { get; set; }
         public DateTime CreateDate { get; set; }
 
-        [Description("Loại: Xuất bán hàng / Xuất sản xuất / Xuất chuyển kho")]
         [Required]
         [DefaultValue(0)]
         public int Type { get; set; }
@@ -27,10 +26,16 @@ namespace Web.Api.Entities
         public string? Note { get; set; }
 
         [Description("Xuất bán hàng phải có đơn hàng trước rồi mới xuất kho")]
-        public WarehouseOutputToOrder? Order { get; set; }
+        public WarehouseOutputToOrder? ToOrder { get; set; }
 
         [Description("Xuất sản xuất")]
-        public WarehouseOutputToFactory? Factory { get; set; }
+        public WarehouseOutputToFactory? ToFactory { get; set; }
+
+        [Description("Xuất sản trả Nhà cung cấp")]
+        public WarehouseOutputToSupplier? ToSupplier { get; set; }
+
+        [Description("Xuất chuyển kho")]
+        public WarehouseOutputToWarehouse? ToWarehouse { get; set; }
 
         public virtual ICollection<WarehouseOutputProduct> Products { get; set; }
     }

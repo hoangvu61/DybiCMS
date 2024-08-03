@@ -13,9 +13,7 @@ namespace Web.Api.Entities
 
         [Description("Mã kho")]
         public Guid WarehouseId { get; set; }
-
-        [ForeignKey("WarehouseId")]
-        public Warehouse Warehouse { get; set; }
+        
         public DateTime CreateDate { get; set; }
 
         [AllowNull]
@@ -27,12 +25,20 @@ namespace Web.Api.Entities
         [DefaultValue(0)]
         public decimal TotalPrice { get; set; }
 
+        [Required]
+        [DefaultValue(0)]
+        public int Type { get; set; }
+
         [AllowNull]
         public string? Note { get; set; }
 
+        [ForeignKey("WarehouseId")]
+        public Warehouse Warehouse { get; set; }
+
         public WarehouseInputDebt? Debt { get; set; }
-        public WarehouseInputFromSupplier? Supplier { get; set; }
-        public WarehouseInputFromFactory? Factory { get; set; }
+        public WarehouseInputFromSupplier? FromSupplier { get; set; }
+        public WarehouseInputFromFactory? FromFactory { get; set; }
+        public WarehouseInputFromWarehouse? FromWarehouse { get; set; }
         public virtual ICollection<WarehouseInputProduct> Products { get; set; }
     }
 }

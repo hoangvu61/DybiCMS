@@ -181,6 +181,38 @@ namespace Web.Api.Controllers
             var resultData= await _warehouseRepository.DeleteWarehouse(obj);
             return Ok(resultData);
         }
+
+
+        [HttpGet]
+        [Route("inputs")]
+        public async Task<IActionResult> GetInputs([FromBody] WarehouseInputSearch search)
+        {
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+
+            var inputs = await _warehouseRepository.GetInputs(user.CompanyId, search);
+
+            var dtos = inputs.Items.Select(e => new WarehouseInputDto()
+            {
+                Id = e.Id,
+                InputCode = e.InputCode,
+                TotalPrice = e.TotalPrice,
+                Note = e.Note,
+                CreateDate = e.CreateDate,
+                ProductCount = e.Products.Sum(p => p.Quantity),
+                WarehouseId = e.WarehouseId,
+                WarehouseName = e.Warehouse.Name,
+                Type = e.Type,
+                TypeName = DataSource.WarehouseInputTypes.First(s => s.Key == e.Type).Value,
+                Debt = e.Debt?.Debit ?? 0,
+                SourceName = e.FromSupplier?.SupplierName ?? e.FromFactory?.FactoryName ?? string.Empty
+            }).ToList();
+
+            return Ok(new PagedList<WarehouseInputDto>(dtos,
+                       inputs.MetaData.TotalCount,
+                       inputs.MetaData.CurrentPage,
+                       inputs.MetaData.PageSize));
+        }
         #endregion
 
         #region xưởng sản xuất
@@ -527,7 +559,7 @@ namespace Web.Api.Controllers
         #region product
         [HttpGet]
         [Route("products")]
-        public async Task<IActionResult> GetAllProduct([FromQuery] ProductListSearch search)
+        public async Task<IActionResult> GetAllProducts([FromQuery] ProductListSearch search)
         {
             var userId = User.GetUserId();
             var user = await _userManager.FindByIdAsync(userId);

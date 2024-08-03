@@ -1,4 +1,6 @@
 ﻿using Web.Api.Entities;
+using Web.Models;
+using Web.Models.SeedWork;
 
 namespace Web.Api.Repositories
 {
@@ -19,7 +21,7 @@ namespace Web.Api.Repositories
         Task<Warehouse> DeleteWarehouse(Warehouse warehouse);
 
 
-        Task<List<WarehouseInput>> GetInputs(Guid companyId);
+        Task<PagedList<WarehouseInput>> GetInputs(Guid companyId, WarehouseInputSearch search);
         Task<WarehouseInput> DeleteInput(WarehouseInput warehouseInput);
         #endregion
 

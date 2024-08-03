@@ -2,6 +2,7 @@
 using Web.Api.Data;
 using Web.Api.Entities;
 using Web.Models;
+using Web.Models.SeedWork;
 
 namespace Web.Api.Repositories
 {
@@ -83,17 +84,36 @@ namespace Web.Api.Repositories
         }
 
 
-        public async Task<List<WarehouseInput>> GetInputs(Guid companyId)
+        public async Task<PagedList<WarehouseInput>> GetInputs(Guid companyId, WarehouseInputSearch search)
         {
-            var configs = await _context.WarehouseInputs
-                                .Include(e => e.Supplier)
+            var query = _context.WarehouseInputs
+                                .Include(e => e.FromSupplier)
+                                .Include(e => e.FromFactory)
+                                .Include(e => e.FromWarehouse)
                                 .Include(e => e.Debt)
                                 .Include(e => e.Products)
-                                .Where(e => e.Warehouse.CompanyId == companyId)
-                                .ToListAsync();
-            return configs;
-        }
+                                .Where(e => e.Warehouse.CompanyId == companyId);
 
+            if (!string.IsNullOrEmpty(search.Code))
+            {
+                var key = search.Code.Trim();
+                query = query.Where(e => (e.InputCode != null && e.InputCode.Contains(key)));
+            }
+            if (search.FromDate != null) query = query.Where(e => search.FromDate <= e.CreateDate);
+            if (search.ToDate != null) query = query.Where(e => e.CreateDate <= search.ToDate);
+            if (search.WarehouseId != null) query = query.Where(e => e.Warehouse.Id == search.WarehouseId);
+            if (search.SupplyerId != null) query = query.Where(e => e.FromSupplier != null && e.FromSupplier.SourceId == search.SupplyerId);
+            if (search.FactoryId != null) query = query.Where(e => e.FromFactory != null && e.FromFactory.FactoryId == search.FactoryId);
+            if (search.FromWarehouseId != null) query = query.Where(e => e.FromWarehouse != null && e.FromWarehouse.WarehouseId == search.FromWarehouseId);
+
+            var count = await query.CountAsync();
+
+            var data = await query.OrderBy(e => e.CreateDate)
+                .Skip((search.PageNumber - 1) * search.PageSize)
+                .Take(search.PageSize)
+                .ToListAsync();
+            return new PagedList<WarehouseInput>(data, count, search.PageNumber, search.PageSize);
+        }
         public async Task<WarehouseInput?> GetInput(Guid companyId, Guid inputId)
         {
             var config = await _context.WarehouseInputs
@@ -103,7 +123,6 @@ namespace Web.Api.Repositories
                                 .FirstOrDefaultAsync();
             return config;
         }
-
         public async Task<WarehouseInput> DeleteInput(WarehouseInput warehouseInput)
         {
             _context.WarehouseInputs.Remove(warehouseInput);
