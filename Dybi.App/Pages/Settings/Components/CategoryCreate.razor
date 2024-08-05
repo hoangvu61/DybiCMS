@@ -7,7 +7,7 @@
 @if (ShowDialog)
 {
     <div class="modal fade show d-block" id="assignModel" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
+        <div class="modal-dialog modal-dialog-centered" role="document">
             <EditForm Model="Model" OnValidSubmit="HandleSubmit">
                 <DataAnnotationsValidator></DataAnnotationsValidator>
                 <div class="modal-content">
@@ -43,8 +43,8 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary btn-xs" @onclick="()=>Hide()" data-dismiss="modal">Đóng</button>
-                        <button type="submit" class="btn btn-primary btn-xs">Thêm</button>
+                        <button type="button" class="btn btn-secondary btn-sm" @onclick="()=>Hide()" data-dismiss="modal">Đóng</button>
+                        <button type="submit" class="btn btn-primary btn-sm">Thêm</button>
                     </div>
                 </div>
             </EditForm>

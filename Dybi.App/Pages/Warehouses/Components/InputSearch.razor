@@ -14,10 +14,10 @@
         <input type="date" value="@Model.ToDate?.ToString("dd/MM/yyyy")" @onchange="@(() => OnSearch.InvokeAsync(Model))" />
         <span class="input-group-text">Mã nhập kho</span>
         <input class="form-control form-control-sm" @bind="Model.Code" @bind:event="oninput" @onkeyup="TextChange" @onchange="TextChange" />
-        <InputSelect class="form-control form-control-sm" ValueExpression="@(()=>InputType)"
+        <InputSelect class="form-select form-select-sm" ValueExpression="@(()=>InputType)"
                      Value="@InputType"
                      ValueChanged="@((int? value) => TypeChange(value))">
-            <option value="@Guid.Empty">Loại nhập kho</option>
+            <option value="0">Loại nhập kho</option>
             @foreach (var item in DataSource.WarehouseInputTypes)
             {
                 <option value="@item.Key">@item.Value</option>
@@ -26,7 +26,7 @@
         @if (InputType == 1)
         {
             <span class="input-group-text">Nhà cung cấp</span>
-            <InputSelect class="form-control form-control-sm" ValueExpression="@(()=>Model.SupplyerId)"
+            <InputSelect class="form-select form-select-sm" ValueExpression="@(()=>Model.SupplyerId)"
                          Value="@Model.SupplyerId"
                          ValueChanged="@((Guid? value) => SupplyerChange(value))">
                 @if (Supplyers != null)
@@ -39,7 +39,7 @@
             </InputSelect>
         } else if (InputType == 2) {
             <span class="input-group-text">Nơi sản xuất</span>
-            <InputSelect class="form-control form-control-sm" ValueExpression="@(()=>Model.FactoryId)"
+            <InputSelect class="form-select form-select-sm" ValueExpression="@(()=>Model.FactoryId)"
                          Value="@Model.FactoryId"
                          ValueChanged="@((Guid? value) => FactoryChange(value))">
                 @if (Factories != null)
@@ -53,7 +53,7 @@
         }
         else if (InputType == 3) {
             <span class="input-group-text">Từ kho</span>
-            <InputSelect class="form-control form-control-sm" ValueExpression="@(()=>Model.FromWarehouseId)"
+            <InputSelect class="form-select form-select-sm" ValueExpression="@(()=>Model.FromWarehouseId)"
                          Value="@Model.FromWarehouseId"
                          ValueChanged="@((Guid? value) => FromWarehouseChange(value))">
                 @if (Factories != null)

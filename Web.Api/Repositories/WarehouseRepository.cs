@@ -123,6 +123,29 @@ namespace Web.Api.Repositories
                                 .FirstOrDefaultAsync();
             return config;
         }
+
+        public async Task<WarehouseInput> CreateInput(WarehouseInput input)
+        {
+            _context.WarehouseInputs.Add(input);
+
+            if (input.Debt != null && input.FromSupplier != null)
+            {
+                var currentDebt = await _context.DebtSuppliers.Where(e => e.SupplierId == input.FromSupplier.SourceId)
+                    .OrderByDescending(e => e.CreateDate)
+                    .Select(e => e.TotalDebt)
+                    .FirstOrDefaultAsync();
+                var debt = new DebtSupplier();
+                debt.SupplierId = input.FromSupplier.SourceId;
+                debt.Type = 1;
+                debt.CreateDate = DateTime.Now;
+                debt.Price = input.Debt.Debit;
+                debt.TotalDebt = currentDebt + input.Debt.Debit;
+                _context.DebtSuppliers.Add(debt);
+            }
+
+            await _context.SaveChangesAsync();
+            return input;
+        }
         public async Task<WarehouseInput> DeleteInput(WarehouseInput warehouseInput)
         {
             _context.WarehouseInputs.Remove(warehouseInput);

@@ -19,12 +19,14 @@ namespace Web.Api.Controllers
         private readonly UserManager<User> _userManager;
         private readonly IWarehouseRepository _warehouseRepository;
         private readonly IItemRepository _itemRepository;
+        private readonly IOrderRepository _orderRepository;
 
-        public WarehousesController(UserManager<User> userManager, IWarehouseRepository warehouseRepository, IItemRepository itemRepository)
+        public WarehousesController(UserManager<User> userManager, IWarehouseRepository warehouseRepository, IItemRepository itemRepository, IOrderRepository orderRepository)
         {
             _warehouseRepository = warehouseRepository;
             _userManager = userManager;
             _itemRepository = itemRepository;
+            _orderRepository = orderRepository;
         }
 
         #region config
@@ -49,6 +51,7 @@ namespace Web.Api.Controllers
         {
             var userId = User.GetUserId();
             var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Unauthorized();
 
             var list = await _warehouseRepository.GetConfigs(user.CompanyId);
             var dtos = list.Select(e => new ConfigDto()
@@ -65,6 +68,7 @@ namespace Web.Api.Controllers
         {
             var userId = User.GetUserId();
             var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Unauthorized();
 
             var value = await _warehouseRepository.GetConfig(user.CompanyId, key);
             return Ok(value);
@@ -79,6 +83,7 @@ namespace Web.Api.Controllers
 
             var userId = User.GetUserId();
             var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Unauthorized();
 
             var obj = await _warehouseRepository.SetConfig(user.CompanyId, key, value);
 
@@ -98,6 +103,7 @@ namespace Web.Api.Controllers
         {
             var userId = User.GetUserId();
             var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Unauthorized();
 
             var list = await _warehouseRepository.GetWarehouses(user.CompanyId);
             var dtos = list.Select(e => new WarehouseDto()
@@ -136,6 +142,7 @@ namespace Web.Api.Controllers
 
             var userId = User.GetUserId();
             var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Unauthorized();
 
             var obj = await _warehouseRepository.CreateWarehouse(new Warehouse
             {
@@ -185,10 +192,11 @@ namespace Web.Api.Controllers
 
         [HttpGet]
         [Route("inputs")]
-        public async Task<IActionResult> GetInputs([FromBody] WarehouseInputSearch search)
+        public async Task<IActionResult> GetInputs([FromQuery] WarehouseInputSearch search)
         {
             var userId = User.GetUserId();
             var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Unauthorized();
 
             var inputs = await _warehouseRepository.GetInputs(user.CompanyId, search);
 
@@ -212,6 +220,79 @@ namespace Web.Api.Controllers
                        inputs.MetaData.TotalCount,
                        inputs.MetaData.CurrentPage,
                        inputs.MetaData.PageSize));
+        }
+
+        [HttpPost]
+        [Route("inputs")]
+        public async Task<IActionResult> CreateInput([FromBody] WarehouseInputRequest request)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Unauthorized();
+
+            var obj = new WarehouseInput
+            {
+                Id = request.Id,
+                InputCode = request.InputCode?.Trim() ?? request.Id.ToString(),
+                WarehouseId = request.WarehouseId,
+                Type = request.Type,
+                CreateDate = DateTime.Now,
+                TotalPrice = request.TotalPrice,
+                Note = request.Note,
+            };
+
+            if (request.TotalPrice < request.Payment)
+            {
+                obj.Debt = new WarehouseInputDebt();
+                obj.Debt.Debit = request.TotalPrice - request.Payment;
+                obj.Debt.DebitExpire = request.DebitExpire;
+            }    
+            
+            switch (request.Type)
+            {
+                case 1:
+                    var supplier = await _warehouseRepository.GetSupplier(request.FromId);
+                    if (supplier == null) return ValidationProblem($"Không tìm thấy NCC [{request.FromId}]");
+                    obj.FromSupplier = new WarehouseInputFromSupplier();
+                    obj.FromSupplier.SourceId = request.FromId;
+                    obj.FromSupplier.SupplierName = supplier.Name;
+                    obj.FromSupplier.SupplierPhone = supplier.Phone;
+                    obj.FromSupplier.SupplierEmail = supplier.Email;
+                    obj.FromSupplier.SupplierAddress = supplier.Address;
+                    break;
+                case 2:
+                    var factory = await _warehouseRepository.GetFactory(request.FromId);
+                    if (factory == null) return ValidationProblem($"Không tìm thấy Nơi sản xuất [{request.FromId}]");
+                    obj.FromFactory = new WarehouseInputFromFactory();
+                    obj.FromFactory.FactoryId = request.FromId;
+                    obj.FromFactory.FactoryName = factory.Name;
+                    obj.FromFactory.FactoryPhone = factory.Phone;
+                    obj.FromFactory.FactoryEmail = factory.Email;
+                    obj.FromFactory.FactoryAddress = factory.Address;
+                    break;
+                case 3:
+                    var warehouse = await _warehouseRepository.GetWarehouse(request.FromId);
+                    if (warehouse == null) return ValidationProblem($"Không tìm thấy Kho [{request.FromId}]");
+                    obj.FromWarehouse = new WarehouseInputFromWarehouse();
+                    obj.FromWarehouse.WarehouseId = request.FromId;
+                    obj.FromWarehouse.WarehouseName = warehouse.Name;
+                    obj.FromWarehouse.WarehousePhone = warehouse.Phone;
+                    obj.FromWarehouse.WarehouseEmail = warehouse.Email;
+                    obj.FromWarehouse.WarehouseAddress = warehouse.Address;
+                    break;
+                case 4:
+                    var order = await _orderRepository.GetOrder(user.CompanyId, request.FromId);
+                    if (order == null) return ValidationProblem($"Không tìm thấy Hóa đơn [{request.FromId}]");
+                    obj.FromOrder = new WarehouseInputFromOrder();
+                    obj.FromOrder.OrderId = request.FromId;
+                    break;
+            };
+
+            var input = await _warehouseRepository.CreateInput(obj);
+
+            return CreatedAtAction(nameof(GetWarehouse), new { id = input.Id }, request);
         }
         #endregion
 

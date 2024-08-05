@@ -1,0 +1,173 @@
+﻿@using Dybi.App.Services;
+@using Web.Models;
+@using System.IO;
+@using Web.Models.Enums
+
+@inject IToastService ToastService;
+@inject IWarehouseApiClient WarehouseApiClient;
+
+@if (ShowDialog)
+{
+    <div class="modal fade show d-block" id="assignModel" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <EditForm Model="Model" OnValidSubmit="HandleSubmit">
+                <DataAnnotationsValidator></DataAnnotationsValidator>
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Thêm danh Nhập kho</h5>
+                        <button type="button" class="close" data-dismiss="modal" @onclick="()=>Hide()" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col">
+                                @foreach (var item in DataSource.WarehouseInputTypes)
+                                {
+                                    <div class="form-check">
+                                        <input id="Type_@item.Key" class="form-check-input" type="radio" name="Type" checked="@(Model.Type == item.Key)" @onchange="@(() => Model.Type = item.Key)" />
+                                        <label for="Type_@item.Key">@item.Value</label>
+                                    </div>
+                                }
+                            </div>
+                            <div class="col">
+                                <div class="input-group input-group-sm mb-3">
+                                    <label class="input-group-text">Nhập vào kho:</label>
+                                    <InputSelect class="form-select form-select-sm" @bind-Value="Model.WarehouseId">
+                                        @foreach (var item in Warehouses)
+                                        {
+                                            <option value="@item.Id">@item.Name</option>
+                                        }
+                                    </InputSelect>
+                                </div>
+                                <div class="form-group">
+                                    @if (Model.Type == 1)
+                                    {
+                                        <div class="input-group input-group-sm mb-3">
+                                            <span class="input-group-text">Nhà cung cấp</span>
+                                            <InputSelect class="form-select form-select-sm" @bind-Value="Model.FromId">
+                                                @if (Supplyers != null)
+                                                {
+                                                    @foreach (var item in Supplyers)
+                                                    {
+                                                        <option value="@item.Id">@item.Name</option>
+                                                    }
+                                                }
+                                            </InputSelect>
+                                        </div>
+                                        <div class="input-group input-group-sm mb-3">
+                                            <span class="input-group-text">Tổng tiền</span>
+                                            <input class="form-control form-control-sm" type="number" @bind="Model.TotalPrice" @bind:event="oninput" @onkeyup="TotalPriceChange" @onchange="TotalPriceChange" />
+                                        </div>
+                                        <div class="input-group input-group-sm mb-3">
+                                            <span class="input-group-text">Trả trước</span>
+                                            <InputNumber class="form-control form-control-sm" @bind-Value="Model.Payment"></InputNumber>
+                                            @if (Model.TotalPrice == Model.Payment)
+                                            {
+                                                <span class="input-group-text"> (Trả đủ)</span>
+                                            }
+                                            else if (Model.TotalPrice > Model.Payment)
+                                            {
+                                                <span class="input-group-text"> (Nợ: @($"{(Model.TotalPrice - Model.Payment):N0}"))</span>
+                                            }
+                                            else Model.Payment = Model.TotalPrice;
+                                        </div>
+                                    }
+                                    else if (Model.Type == 2)
+                                    {
+                                        <div class="input-group input-group-sm mb-3">
+                                            <span class="input-group-text">Nơi sản xuất</span>
+                                            <InputSelect class="form-select form-select-sm" @bind-Value="Model.FromId">
+                                                @if (Factories != null)
+                                                {
+                                                    @foreach (var item in Factories)
+                                                    {
+                                                        <option value="@item.Id">@item.Name</option>
+                                                    }
+                                                }
+                                            </InputSelect>
+                                        </div>
+                                    }
+                                    else if (Model.Type == 3)
+                                    {
+                                        <div class="input-group input-group-sm mb-3">
+                                            <span class="input-group-text">Từ kho</span>
+                                            <InputSelect class="form-select form-select-sm" @bind-Value="Model.FromId">
+                                                @if (Factories != null)
+                                                {
+                                                    @foreach (var item in Warehouses)
+                                                    {
+                                                        <option value="@item.Id">@item.Name</option>
+                                                    }
+                                                }
+                                            </InputSelect>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-sm" @onclick="()=>Hide()" data-dismiss="modal">Đóng</button>
+                        <button type="submit" class="btn btn-primary btn-sm">Thêm</button>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@code {
+    protected bool ShowDialog { get; set; }
+
+    private WarehouseInputRequest Model { set; get; } = new WarehouseInputRequest();
+
+    private List<WarehouseSupplierDto> Supplyers { set; get; }
+    private List<WarehouseFactoryDto> Factories { set; get; }
+    private List<WarehouseDto> Warehouses { set; get; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        Supplyers = await WarehouseApiClient.GetSuppliers();
+        Supplyers = Supplyers.Where(e => e.IsActive).ToList();
+
+        Factories = await WarehouseApiClient.GetFactories();
+        Factories = Factories.Where(e => e.IsActive).ToList();
+
+        Warehouses = await WarehouseApiClient.GetWarehouses();
+        Warehouses = Warehouses.Where(e => e.IsActive).ToList();
+    }
+
+    public void Show()
+    {
+        ShowDialog = true;
+        Model.Id = Guid.NewGuid();
+        Model.Type = 1;
+        StateHasChanged();
+    }
+
+    private void Hide()
+    {
+        ShowDialog = false;
+        StateHasChanged();
+    }
+
+    private async Task TotalPriceChange()
+    {
+        Model.Payment = Model.TotalPrice;
+    }
+
+    protected async Task HandleSubmit()
+    {
+        var result = await WarehouseApiClient.CreateWarehouseInput(Model);
+        if (result)
+        {
+            ShowDialog = false;
+            ToastService.ShowInfo("Thêm Danh mục thành công");
+        }
+        else
+        {
+            ToastService.ShowError("Thêm Danh mục không thành công");
+        }
+    }
+}

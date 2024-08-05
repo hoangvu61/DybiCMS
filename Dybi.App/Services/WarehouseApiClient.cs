@@ -69,8 +69,35 @@ namespace Dybi.App.Services
 
         public async Task<PagedList<WarehouseInputDto>> GetWarehouseInputs(WarehouseInputSearch search)
         {
-            var result = await _httpClient.GetFromJsonAsync<PagedList<WarehouseInputDto>>($"/api/warehouses/inputs");
+            var queryStringParam = new Dictionary<string, string>
+            {
+                ["pageNumber"] = search.PageNumber.ToString(),
+                ["pageSize"] = search.PageSize.ToString()
+            };
+
+            if (search.WarehouseId != null && search.WarehouseId != Guid.Empty)
+                queryStringParam.Add("WarehouseId", search.WarehouseId?.ToString() ?? string.Empty);
+            if (search.SupplyerId != null && search.SupplyerId != Guid.Empty)
+                queryStringParam.Add("SupplyerId", search.SupplyerId?.ToString() ?? string.Empty);
+            if (search.FactoryId != null && search.FactoryId != Guid.Empty)
+                queryStringParam.Add("FactoryId", search.FactoryId?.ToString() ?? string.Empty);
+            if (search.FromWarehouseId != null && search.FromWarehouseId != Guid.Empty)
+                queryStringParam.Add("FromWarehouseId", search.FromWarehouseId?.ToString() ?? string.Empty);
+            if (search.FromDate != null)
+                queryStringParam.Add("FromDate", search.FromDate?.ToString() ?? string.Empty);
+            if (search.ToDate != null)
+                queryStringParam.Add("ToDate", search.ToDate?.ToString() ?? string.Empty);
+            if (!string.IsNullOrEmpty(search.Code))
+                queryStringParam.Add("Code", search.Code);
+
+            string url = QueryHelpers.AddQueryString("/api/warehouses/inputs", queryStringParam);
+            var result = await _httpClient.GetFromJsonAsync<PagedList<WarehouseInputDto>>(url);
             return result;
+        }
+        public async Task<bool> CreateWarehouseInput(WarehouseInputRequest request)
+        {
+            var result = await _httpClient.PostAsJsonAsync($"/api/warehouses/inputs", request);
+            return result.IsSuccessStatusCode;
         }
         #endregion
 

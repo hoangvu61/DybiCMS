@@ -22,6 +22,7 @@ namespace Web.Api.Repositories
 
 
         Task<PagedList<WarehouseInput>> GetInputs(Guid companyId, WarehouseInputSearch search);
+        Task<WarehouseInput> CreateInput(WarehouseInput input);
         Task<WarehouseInput> DeleteInput(WarehouseInput warehouseInput);
         #endregion
 

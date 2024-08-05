@@ -39,6 +39,9 @@ namespace Web.Api.Entities
         public WarehouseInputFromSupplier? FromSupplier { get; set; }
         public WarehouseInputFromFactory? FromFactory { get; set; }
         public WarehouseInputFromWarehouse? FromWarehouse { get; set; }
+
+        [Description("Xuất bán hàng phải có đơn hàng trước rồi mới xuất kho")]
+        public WarehouseInputFromOrder? FromOrder { get; set; }
         public virtual ICollection<WarehouseInputProduct> Products { get; set; }
     }
 }

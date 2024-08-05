@@ -89,6 +89,8 @@ namespace Web.Api.Data
               .HasKey(m => new { m.WarehouseInputId, m.FactoryId });
             modelBuilder.Entity<WarehouseInputFromWarehouse>()
               .HasKey(m => new { m.WarehouseInputId, m.WarehouseId });
+            modelBuilder.Entity<WarehouseInputFromOrder>()
+              .HasKey(m => new { m.WarehouseInputId, m.OrderId });
             modelBuilder.Entity<WarehouseInputProduct>()
                 .HasKey(m => new { m.InputId, m.ProductId });
             modelBuilder.Entity<WarehouseInputProductCode>()
@@ -194,7 +196,8 @@ namespace Web.Api.Data
         public DbSet<WarehouseInputFromSupplier> WarehouseInputFromSuppliers { get; set; }
         public DbSet<WarehouseInputFromFactory> WarehouseInputFromFactories { get; set; }
         public DbSet<WarehouseInputFromWarehouse> WarehouseInputFromWarehouses { get; set; }
-        
+        public DbSet<WarehouseInputFromOrder> WarehouseInputFromOrders { get; set; }
+
         public DbSet<WarehouseInputProduct> WarehouseInputProducts { get; set; }
         public DbSet<WarehouseInputProductCode> WarehouseInputProductCodes { get; set; }
         public DbSet<WarehouseInventory> WarehouseInventories { get; set; }
