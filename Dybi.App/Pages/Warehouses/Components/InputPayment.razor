@@ -1,0 +1,73 @@
+﻿@using Dybi.App.Services;
+@using Web.Models;
+@using System.IO;
+@using Web.Models.Enums
+
+@inject IToastService ToastService;
+@inject IWarehouseApiClient WarehouseApiClient;
+
+@if (ShowDialog)
+{
+    <div class="modal fade show d-block" id="assignModel" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Nợ nhà cung cấp</h5>
+                    <button type="button" class="close" data-dismiss="modal" @onclick="()=>Hide()" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <div class="input-group input-group-sm mb-3">
+                            <span class="input-group-text">Tổng tiền</span>
+                            <InputNumber class="form-control form-control-sm" type="number" @bind-Value="TotalPrice" disabled="disabled" />
+                        </div>
+                        <div class="input-group input-group-sm mb-3">
+                            <span class="input-group-text">Trả trước</span>
+                            <input class="form-control form-control-sm" type="number" @bind="Payment" @bind:event="oninput" @onkeyup="StateHasChanged" @onchange="StateHasChanged" />
+                            @if (Payment > 0 && TotalPrice > Payment)
+                            {
+                                <span class="input-group-text" style="color:red"> (Nợ: @($"{(TotalPrice - Payment):N0}")) <sup>đ</sup></span>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" @onclick="()=>Hide()" data-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-primary btn-sm" @onclick="()=>Save()">Lưu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    protected bool ShowDialog { get; set; }
+
+    private decimal TotalPrice { set; get; }
+    private decimal Payment { set; get; }
+
+    [Parameter]
+    public EventCallback<decimal> OnPayment { set; get; }
+
+    public void Show(decimal totalPrice)
+    {
+        TotalPrice = totalPrice;
+        ShowDialog = true;
+        StateHasChanged();
+    }
+
+    private void Hide()
+    {
+        ShowDialog = false;
+        StateHasChanged();
+    }
+
+    private async Task Save()
+    {
+        await OnPayment.InvokeAsync(Payment);
+        ShowDialog = false;
+        StateHasChanged();
+    }
+}
