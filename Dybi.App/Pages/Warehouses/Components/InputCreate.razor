@@ -1,8 +1,9 @@
-﻿@using Dybi.App.Services;
-@using Web.Models;
+﻿@using Web.Models;
 @using System.IO;
 @using Web.Models.Enums
+@using Dybi.App.Services;
 @using Dybi.App.Pages.Warehouses.Components
+@using Dybi.App.Pages.Settings.Components
 
 @inject IToastService ToastService;
 @inject IWarehouseApiClient WarehouseApiClient;
@@ -35,11 +36,15 @@
                                 <div class="input-group input-group-sm mb-3">
                                     <label class="input-group-text">Nhập vào kho:</label>
                                     <InputSelect class="form-select form-select-sm" @bind-Value="Model.WarehouseId">
-                                        @foreach (var item in Warehouses)
+                                        @if (Warehouses != null)
                                         {
-                                            <option value="@item.Id">@item.Name</option>
+                                            @foreach (var item in Warehouses)
+                                            {
+                                                <option value="@item.Id">@item.Name</option>
+                                            }
                                         }
                                     </InputSelect>
+                                    <button type="button" class="btn btn-light btn-sm" @onclick="() => { WarehouseCreateDialog.Show(); Hide(); }"><span class="oi oi-plus"></span></button>
                                 </div>
                                 <div class="form-group">
                                     @if (Model.Type == 1)
@@ -55,13 +60,14 @@
                                                     }
                                                 }
                                             </InputSelect>
+                                            <button type="button" class="btn btn-light btn-sm" @onclick="() => { SupplierCreateDialog.Show(); Hide(); }"><span class="oi oi-plus"></span></button>
                                         </div>
                                         <div class="input-group input-group-sm mb-3">
                                             <span class="input-group-text">Tổng tiền</span>
                                             <input class="form-control form-control-sm" type="number" @bind="Model.TotalPrice" @bind:event="oninput" @onkeyup="StateHasChanged" @onchange="StateHasChanged" />
                                             @if (Model.TotalPrice > 0)
                                             {
-                                                <button type="button" class="btn btn-light btn-sm" @onclick="()=>DebtDialog.Show(Model.TotalPrice)"><span class="oi oi-plus"></span> Trả trước</button>
+                                                <button type="button" class="btn btn-light btn-sm" @onclick="()=>{ DebtDialog.Show(Model.TotalPrice); Hide(); }"><span class="oi oi-plus"></span> Trả trước</button>
                                             }
                                         </div>
                                         @if (Model.Payment > 0)
@@ -85,6 +91,7 @@
                                                     }
                                                 }
                                             </InputSelect>
+                                            <button type="button" class="btn btn-light btn-sm" @onclick="() => { FactoryCreateDialog.Show(); Hide(); }"><span class="oi oi-plus"></span></button>
                                         </div>
                                     }
                                     else if (Model.Type == 3)
@@ -92,7 +99,7 @@
                                         <div class="input-group input-group-sm mb-3">
                                             <span class="input-group-text">Từ kho</span>
                                             <InputSelect class="form-select form-select-sm" @bind-Value="Model.FromId">
-                                                @if (Factories != null)
+                                                @if (Warehouses != null)
                                                 {
                                                     @foreach (var item in Warehouses)
                                                     {
@@ -100,6 +107,7 @@
                                                     }
                                                 }
                                             </InputSelect>
+                                            <button type="button" class="btn btn-light btn-sm" @onclick="() => { WarehouseCreateDialog.Show(); Hide(); }"><span class="oi oi-plus"></span></button>
                                         </div>
                                     }
                                 </div>
@@ -114,13 +122,20 @@
             </EditForm>
         </div>
     </div>
-
-    <InputPayment @ref="DebtDialog" OnPayment="PaymentChange"></InputPayment>
 }
+
+<InputPayment @ref="DebtDialog" OnPayment="PaymentChange"></InputPayment>
+<WarehouseCreate @ref="WarehouseCreateDialog" CloseEventCallbak="LoadWarehouses"></WarehouseCreate>
+<SupplierCreate @ref="SupplierCreateDialog" CloseEventCallbak="LoadSupplyers"></SupplierCreate>
+<FactoryCreate @ref="FactoryCreateDialog" CloseEventCallbak="LoadFactories"></FactoryCreate>
 
 @code {
     protected bool ShowDialog { get; set; }
+
     protected InputPayment DebtDialog { set; get; }
+    protected WarehouseCreate WarehouseCreateDialog { set; get; }
+    protected SupplierCreate SupplierCreateDialog { set; get; }
+    protected FactoryCreate FactoryCreateDialog { set; get; }
 
     private WarehouseInputRequest Model { set; get; } = new WarehouseInputRequest();
 
@@ -132,7 +147,7 @@
     {
         Supplyers = await WarehouseApiClient.GetSuppliers();
         Supplyers = Supplyers.Where(e => e.IsActive).ToList();
-
+        
         Factories = await WarehouseApiClient.GetFactories();
         Factories = Factories.Where(e => e.IsActive).ToList();
 
@@ -154,9 +169,45 @@
         StateHasChanged();
     }
 
+    private async Task LoadSupplyers(bool isLoad)
+    {
+        if (isLoad)
+        {
+            Supplyers = await WarehouseApiClient.GetSuppliers();
+            Supplyers = Supplyers.Where(e => e.IsActive).ToList();
+        }
+        
+        ShowDialog = true;
+        StateHasChanged();
+    }
+    private async Task LoadFactories(bool isLoad)
+    {
+        if (isLoad)
+        {
+            Factories = await WarehouseApiClient.GetFactories();
+            Factories = Factories.Where(e => e.IsActive).ToList();
+        }
+
+        ShowDialog = true;
+        StateHasChanged();
+    }
+    private async Task LoadWarehouses(bool isLoad)
+    {
+        if (isLoad)
+        {
+            Warehouses = await WarehouseApiClient.GetWarehouses();
+            Warehouses = Warehouses.Where(e => e.IsActive).ToList();
+        }
+
+        ShowDialog = true;
+        StateHasChanged();
+    }
+
     private void PaymentChange(decimal payment)
     {
-        Model.Payment = payment;
+        if (Model.Payment != payment) Model.Payment = payment;
+        ShowDialog = true;
+        StateHasChanged();
     }
 
     protected async Task HandleSubmit()

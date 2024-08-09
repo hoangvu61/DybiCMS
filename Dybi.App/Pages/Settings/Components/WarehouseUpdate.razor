@@ -42,15 +42,15 @@
                             <InputText class="form-control form-control-sm" @bind-Value="Model.Email"></InputText>
                             <ValidationMessage For="()=> Model.Email"></ValidationMessage>
                         </div>
-                        <div class="form-check form-switch" style="padding-left:25px">
+                        <div class="form-check form-switch">
                             <InputCheckbox @bind-Value="Model.IsActive" class="form-check-input" role="switch"></InputCheckbox>
                             <label class="form-check-label">Sử dụng</label>
                             <ValidationMessage For="()=> Model.IsActive"></ValidationMessage>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary btn-xs" @onclick="()=>Hide()" data-dismiss="modal">Đóng</button>
-                        <button type="submit" class="btn btn-primary btn-xs">Lưu</button>
+                        <button type="button" class="btn btn-secondary btn-sm" @onclick="()=>Hide()" data-dismiss="modal">Đóng</button>
+                        <button type="submit" class="btn btn-primary btn-sm">Lưu</button>
                     </div>
                 </div>
             </EditForm>
@@ -73,8 +73,9 @@
         StateHasChanged();
     }
 
-    private void Hide()
+    private async Task Hide()
     {
+        await CloseEventCallbak.InvokeAsync(false);
         ShowDialog = false;
         StateHasChanged();
     }
