@@ -7,6 +7,7 @@ namespace Web.Api.Entities
 {
     public partial class WarehouseOutputToWarehouse
     {
+        [Key]
         [Description("Mã xuất kho")]
         public Guid OutputId { get; set; }
 

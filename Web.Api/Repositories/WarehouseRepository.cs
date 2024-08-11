@@ -87,6 +87,7 @@ namespace Web.Api.Repositories
         public async Task<PagedList<WarehouseInput>> GetInputs(Guid companyId, WarehouseInputSearch search)
         {
             var query = _context.WarehouseInputs
+                                .Include(e => e.Warehouse)
                                 .Include(e => e.FromSupplier)
                                 .Include(e => e.FromFactory)
                                 .Include(e => e.FromWarehouse)
@@ -116,12 +117,23 @@ namespace Web.Api.Repositories
         }
         public async Task<WarehouseInput?> GetInput(Guid companyId, Guid inputId)
         {
-            var config = await _context.WarehouseInputs
+            var input = await _context.WarehouseInputs
+                                .Include(e => e.FromSupplier)
+                                .Include(e => e.FromFactory)
+                                .Include(e => e.FromWarehouse)
+                                .Include(e => e.FromOrder)
                                 .Include(e => e.Debt)
                                 .Include(e => e.Products)
                                 .Where(e => e.Warehouse.CompanyId == companyId && e.Id == inputId)
                                 .FirstOrDefaultAsync();
-            return config;
+            return input;
+        }
+
+        public async Task<bool> CheckExistCode(Guid companyId, string inputCode)
+        {
+            var check = await _context.WarehouseInputs.Where(e => e.Warehouse.CompanyId == companyId && e.InputCode == inputCode)
+                                .AnyAsync();
+            return check;
         }
 
         public async Task<WarehouseInput> CreateInput(WarehouseInput input)

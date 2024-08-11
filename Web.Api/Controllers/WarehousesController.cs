@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.Design;
 using Web.Api.Entities;
 using Web.Api.Extensions;
 using Web.Api.Repositories;
@@ -183,7 +184,7 @@ namespace Web.Api.Controllers
         public async Task<IActionResult> DeleteWarehouse([FromRoute] Guid id)
         {
             var obj = await _warehouseRepository.GetWarehouse(id);
-            if (obj == null) return BadRequest($"Kho [{id}] không tồn tại");
+            if (obj == null) return ValidationProblem($"Kho [{id}] không tồn tại");
 
             var resultData= await _warehouseRepository.DeleteWarehouse(obj);
             return Ok(resultData);
@@ -231,6 +232,13 @@ namespace Web.Api.Controllers
             var userId = User.GetUserId();
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return Unauthorized();
+
+            var code = request.InputCode?.Trim() ?? string.Empty;
+            if (!string.IsNullOrEmpty(code))
+            {
+                var checkExistCode = await _warehouseRepository.CheckExistCode(user.CompanyId, code);
+                if (checkExistCode) return ValidationProblem($"Mã nhập kho [{code}] đã tồn tại");
+            }
 
             var obj = new WarehouseInput
             {
@@ -293,6 +301,21 @@ namespace Web.Api.Controllers
             var input = await _warehouseRepository.CreateInput(obj);
 
             return CreatedAtAction(nameof(GetWarehouse), new { id = input.Id }, request);
+        }
+
+        [HttpDelete]
+        [Route("inputs/{id}")]
+        public async Task<IActionResult> DeleteInput([FromRoute] Guid id)
+        {
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Unauthorized();
+
+            var obj = await _warehouseRepository.GetInput(user.CompanyId, id);
+            if (obj == null) return ValidationProblem($"Kho [{id}] không tồn tại");
+
+            var resultData = await _warehouseRepository.DeleteInput(obj);
+            return Ok(resultData);
         }
         #endregion
 

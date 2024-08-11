@@ -1,14 +1,16 @@
 ﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Web.Api.Entities
 {
     public partial class WarehouseInputFromOrder
     {
+        [Key]
         [Description("Mã nhập kho")]
-        public Guid WarehouseInputId { get; set; }
+        public Guid InputId { get; set; }
 
-        [ForeignKey("WarehouseInputId")]
+        [ForeignKey("InputId")]
         public WarehouseInput Input { get; set; }
 
         [Description("Mã đơn hàng")]

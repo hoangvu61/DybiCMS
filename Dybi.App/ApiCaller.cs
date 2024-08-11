@@ -34,7 +34,8 @@ namespace Dybi.App
         {
             if (UseHttpMethodOverride && httpClient.DefaultRequestHeaders.Any(e => e.Key == "X-HTTP-Method-Override"))
                 httpClient.DefaultRequestHeaders.Remove("X-HTTP-Method-Override");
-            return await httpClient.PostAsJsonAsync(requestUri, value, cancellationToken);
+            var response = await httpClient.PostAsJsonAsync(requestUri, value, cancellationToken);
+            return response;
         }
 
         //public async Task<HttpResponseMessage> PostAsJsonAsync<TValue>([StringSyntax(StringSyntaxAttribute.Uri)] string? requestUri, TValue value, JsonSerializerOptions? options = null, CancellationToken cancellationToken = default)

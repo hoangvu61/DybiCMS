@@ -18,8 +18,9 @@ namespace Dybi.App.Services
         Task<bool> UpdateWarehouse(WarehouseDto request);
         Task<bool> DeleteWarehouse(Guid id);
 
-        Task<bool> CreateWarehouseInput(WarehouseInputRequest request);
+        Task<string> CreateWarehouseInput(WarehouseInputRequest request);
         Task<PagedList<WarehouseInputDto>> GetWarehouseInputs(WarehouseInputSearch search);
+        Task<bool> DeleteInput(Guid id);
         #endregion
 
         #region Xuong san xuat

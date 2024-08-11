@@ -83,14 +83,6 @@ namespace Web.Api.Data
                         
             modelBuilder.Entity<WarehouseConfig>()
                .HasKey(m => new { m.Key, m.CompanyId });
-            modelBuilder.Entity<WarehouseInputFromSupplier>()
-               .HasKey(m => new { m.WarehouseInputId, m.SourceId });
-            modelBuilder.Entity<WarehouseInputFromFactory>()
-              .HasKey(m => new { m.WarehouseInputId, m.FactoryId });
-            modelBuilder.Entity<WarehouseInputFromWarehouse>()
-              .HasKey(m => new { m.WarehouseInputId, m.WarehouseId });
-            modelBuilder.Entity<WarehouseInputFromOrder>()
-              .HasKey(m => new { m.WarehouseInputId, m.OrderId });
             modelBuilder.Entity<WarehouseInputProduct>()
                 .HasKey(m => new { m.InputId, m.ProductId });
             modelBuilder.Entity<WarehouseInputProductCode>()

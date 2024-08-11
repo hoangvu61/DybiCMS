@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.WebUtilities;
+using Newtonsoft.Json;
+using System.Net;
 using Web.Models;
 using Web.Models.SeedWork;
 
@@ -94,9 +96,20 @@ namespace Dybi.App.Services
             var result = await _httpClient.GetFromJsonAsync<PagedList<WarehouseInputDto>>(url);
             return result;
         }
-        public async Task<bool> CreateWarehouseInput(WarehouseInputRequest request)
+        public async Task<string> CreateWarehouseInput(WarehouseInputRequest request)
         {
             var result = await _httpClient.PostAsJsonAsync($"/api/warehouses/inputs", request);
+            if (!result.IsSuccessStatusCode)
+            {
+                var stringData = await result.Content.ReadAsStringAsync();
+                var resultData = JsonConvert.DeserializeObject<ResponseErrorDto>(stringData);
+                return resultData.Detail;
+            }
+            return string.Empty;
+        }
+        public async Task<bool> DeleteInput(Guid id)
+        {
+            var result = await _httpClient.DeleteAsync($"/api/warehouses/inputs/{id}");
             return result.IsSuccessStatusCode;
         }
         #endregion

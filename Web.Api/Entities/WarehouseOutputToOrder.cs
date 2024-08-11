@@ -1,10 +1,12 @@
 ﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Web.Api.Entities
 {
     public partial class WarehouseOutputToOrder
     {
+        [Key]
         [Description("Mã xuất kho")]
         public Guid OutputId { get; set; }
 

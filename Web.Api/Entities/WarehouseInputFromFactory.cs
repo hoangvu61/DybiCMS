@@ -7,10 +7,11 @@ namespace Web.Api.Entities
 {
     public partial class WarehouseInputFromFactory
     {
+        [Key]
         [Description("Mã nhập kho")]
-        public Guid WarehouseInputId { get; set; }
+        public Guid InputId { get; set; }
 
-        [ForeignKey("WarehouseId")]
+        [ForeignKey("InputId")]
         public WarehouseInput WarehouseInput { get; set; }
 
         [Description("Mã nơi sản xuất")]
