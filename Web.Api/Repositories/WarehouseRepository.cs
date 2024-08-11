@@ -91,6 +91,7 @@ namespace Web.Api.Repositories
                                 .Include(e => e.FromSupplier)
                                 .Include(e => e.FromFactory)
                                 .Include(e => e.FromWarehouse)
+                                .Include(e => e.FromOrder)
                                 .Include(e => e.Debt)
                                 .Include(e => e.Products)
                                 .Where(e => e.Warehouse.CompanyId == companyId);
@@ -118,6 +119,7 @@ namespace Web.Api.Repositories
         public async Task<WarehouseInput?> GetInput(Guid companyId, Guid inputId)
         {
             var input = await _context.WarehouseInputs
+                                .Include(e => e.Warehouse)
                                 .Include(e => e.FromSupplier)
                                 .Include(e => e.FromFactory)
                                 .Include(e => e.FromWarehouse)
@@ -132,6 +134,12 @@ namespace Web.Api.Repositories
         public async Task<bool> CheckExistCode(Guid companyId, string inputCode)
         {
             var check = await _context.WarehouseInputs.Where(e => e.Warehouse.CompanyId == companyId && e.InputCode == inputCode)
+                                .AnyAsync();
+            return check;
+        }
+        public async Task<bool> CheckExistProducts(Guid companyId, Guid inputId)
+        {
+            var check = await _context.WarehouseInputProducts.Where(e => e.Input.Warehouse.CompanyId == companyId && e.InputId == inputId)
                                 .AnyAsync();
             return check;
         }
@@ -158,6 +166,7 @@ namespace Web.Api.Repositories
             await _context.SaveChangesAsync();
             return input;
         }
+        
         public async Task<WarehouseInput> DeleteInput(WarehouseInput warehouseInput)
         {
             _context.WarehouseInputs.Remove(warehouseInput);

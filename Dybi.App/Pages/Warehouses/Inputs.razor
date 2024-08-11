@@ -48,8 +48,8 @@
                             <tr>
                                 <td>@item.InputCode</td>
                                 <td>@item.CreateDate.ToString("dd/MM/yyyy hh:mm")</td>
-                                <td class="text-right">@item.ProductCount.ToString("N0")</td>
-                                <td class="text-right">@item.TotalPrice.ToString("N0")</td>
+                                <td style="text-align:right">@item.ProductCount.ToString("N0")</td>
+                                <td style="text-align:right">@item.TotalPrice.ToString("N0") <sup>đ</sup></td>
                                 <td>@item.TypeName</td>
                                 <td>@item.SourceName</td>
                                 <td style="text-align:right;width:100px">
@@ -138,12 +138,12 @@
         if (deleteConfirmed)
         {
             var result = await WarehouseApiClient.DeleteInput(DeleteId);
-            if (result)
+            if (string.IsNullOrEmpty(result))
             {
                 ToastService.ShowWarning($"Đã xóa {DeleteId}");
                 await RefreshList(true);
             }
-            else ToastService.ShowError("Xóa không thành công");
+            else ToastService.ShowError(result);
             
         }
     }

@@ -1,0 +1,145 @@
+﻿@page "/warehouses/inputs/{Id}"
+@attribute [Authorize]
+
+@using Dybi.App.Components
+@using Dybi.App.Pages.Components
+@using Dybi.App.Pages.Warehouses.Components
+@using Microsoft.AspNetCore.Authorization;
+@using Dybi.App.Services;
+@using Web.Models;
+@using Web.Models.SeedWork;
+@using Microsoft.Extensions.Configuration
+
+@inject NavigationManager NavigationManager;
+@inject IToastService ToastService;
+@inject IWarehouseApiClient WarehouseApiClient;
+
+<h1>Quản lý Nhập kho</h1>
+
+<section>
+        @if (Model == null)
+    {
+        <LoadingIndicator></LoadingIndicator>
+    }
+    else
+    {
+        <div class="card card-outline card-info mb-3">
+            <div class="card-header">
+                <h3 class="card-title">@Model.TypeName</h3>
+                <button class="btn btn-danger btn-sm" style="float:right" @onclick="()=> OnDelete(Model.Id)">Xóa</button>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col" style="border-right:1px dotted #ccc">
+                        <div><label class="form-label">Mã nhập kho:</label> @Model.InputCode</div>
+                        <div><label class="form-label">Ngày nhập kho:</label> @Model.CreateDate.ToString("dd/MM/yyyy hh:mm")</div>
+                        <div><label class="form-label">Kho nhập:</label> @Model.WarehouseName</div>
+                        @if (Model.Type == 1)
+                        {
+                            <div><label class="form-label">Nhà cung cấp:</label> @Model.SourceName</div>
+                        }
+                        else if (Model.Type == 2)
+                        {
+                            <div><label class="form-label">Nơi sản xuất:</label> @Model.SourceName</div>
+                        }
+                        else if (Model.Type == 3)
+                        {
+                            <div><label class="form-label">Từ kho:</label> @Model.SourceName</div>
+                        }
+                        else if (Model.Type == 4)
+                        {
+                            <div><label class="form-label">Mã đơn hàng:</label> @Model.SourceName</div>
+                        }
+                    </div>
+                    <div class="col">
+                        @if (Model.Type == 1)
+                        {
+                            <div><label class="form-label">Tổng tiền:</label> @Model.TotalPrice.ToString("N0") <sup>đ</sup></div>
+                            @if (Model.Debt > 0)
+                            {
+                                <div>
+                                    <label class="form-label">Thanh toán:</label> @((Model.TotalPrice - Model.Debt).ToString("N0")) <sup>đ</sup>
+                                    <label class="form-label">Nợ:</label> @Model.Debt.ToString("N0") <sup>đ</sup>
+                                </div>
+                            }
+                        }
+                        <div><label class="form-label">Ghi chú:</label> @Model.Note</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card card-outline card-primary">
+            <div class="card-header">
+                <h3 class="card-title">Danh sách Vật tư / Hàng hóa</h3>
+            </div>
+            <div class="card-body">
+            </div>
+        </div>
+
+        <Confirmation ConfirmationMessage="Bạn có chắc chắn xóa?"
+                    ConfirmationTitle="Xóa phiếu nhập kho"
+                    @ref="DeleteConfirmation"
+                    ConfirmationChanged="OnConfirmDelete">
+        </Confirmation>
+    }
+</section>
+
+@code {
+    [Parameter]
+    public string Id { set; get; }
+
+    protected Confirmation DeleteConfirmation { set; get; }
+    protected InputCreate CreateDialog { set; get; }
+
+    private const int PageSize = 12;
+    private WarehouseInputDto Model { set; get; }
+    private Guid DeleteId { set; get; }
+
+    private InputSearch InputSearchControl { set; get; }
+    private WarehouseInputSearch WarehouseInputSearch = new WarehouseInputSearch();
+    public MetaData MetaData { get; set; } = new MetaData();
+
+    [CascadingParameter]
+    private Error Error { set; get; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!string.IsNullOrEmpty(Id))
+        {
+            await LoadData(Id);
+        }
+    }
+
+    public async Task LoadData(string id)
+    {
+        try
+        {
+            Model = await WarehouseApiClient.GetWarehouseInput(id);
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Error.ProcessError(ex);
+        }
+    }
+
+    public async Task OnConfirmDelete(bool deleteConfirmed)
+    {
+        if (deleteConfirmed)
+        {
+            var result = await WarehouseApiClient.DeleteInput(DeleteId);
+            if (string.IsNullOrEmpty(result))
+            {
+                ToastService.ShowWarning($"Đã xóa {DeleteId}");
+                NavigationManager.NavigateTo($"warehouses/inputs");
+            }
+            else ToastService.ShowError(result);
+        }
+    }
+    public void OnDelete(Guid deleteId)
+    {
+        DeleteId = deleteId;
+        DeleteConfirmation.Show();
+    }
+}

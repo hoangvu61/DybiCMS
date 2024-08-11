@@ -66,9 +66,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Content Update="Pages\Input.razor">
-        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      </Content>
       <Content Update="Pages\Index.razor">
         <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       </Content>

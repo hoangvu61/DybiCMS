@@ -223,6 +223,34 @@ namespace Web.Api.Controllers
                        inputs.MetaData.PageSize));
         }
 
+        [HttpGet]
+        [Route("inputs/{id}")]
+        public async Task<IActionResult> GetInput([FromRoute] Guid id)
+        {
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Unauthorized();
+
+            var input = await _warehouseRepository.GetInput(user.CompanyId, id);
+            if (input == null) return ValidationProblem($"Phiếu nhập kho [{id}] không tồn tại");
+
+            var dto = new WarehouseInputDto();
+            dto.Id = input.Id;
+            dto.InputCode = input.InputCode;
+            dto.TotalPrice = input.TotalPrice;
+            dto.Note = input.Note;
+            dto.CreateDate = input.CreateDate;
+            dto.ProductCount = input.Products.Sum(p => p.Quantity);
+            dto.WarehouseId = input.WarehouseId;
+            dto.WarehouseName = input.Warehouse.Name;
+            dto.Type = input.Type;
+            dto.TypeName = DataSource.WarehouseInputTypes.First(s => s.Key == input.Type).Value;
+            dto.Debt = input.Debt?.Debit ?? 0;
+            dto.SourceName = input.FromSupplier?.SupplierName ?? input.FromFactory?.FactoryName ?? input.FromOrder?.OrderId.ToString() ?? string.Empty;
+
+            return Ok(dto);
+        }
+
         [HttpPost]
         [Route("inputs")]
         public async Task<IActionResult> CreateInput([FromBody] WarehouseInputRequest request)
@@ -312,7 +340,10 @@ namespace Web.Api.Controllers
             if (user == null) return Unauthorized();
 
             var obj = await _warehouseRepository.GetInput(user.CompanyId, id);
-            if (obj == null) return ValidationProblem($"Kho [{id}] không tồn tại");
+            if (obj == null) return ValidationProblem($"Phiếu nhập kho [{id}] không tồn tại");
+
+            var checkExistProduct = await _warehouseRepository.CheckExistProducts(user.CompanyId, id);
+            if (checkExistProduct) return ValidationProblem($"Phải xóa hết sản phẩm trước");
 
             var resultData = await _warehouseRepository.DeleteInput(obj);
             return Ok(resultData);

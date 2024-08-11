@@ -5,6 +5,7 @@
 @using Dybi.App.Pages.Warehouses.Components
 @using Dybi.App.Pages.Settings.Components
 
+@inject NavigationManager NavigationManager;
 @inject IToastService ToastService;
 @inject IWarehouseApiClient WarehouseApiClient;
 @inject IJSRuntime JS
@@ -112,6 +113,12 @@
                                     <button type="button" class="btn btn-light btn-sm" @onclick="() => { WarehouseCreateDialog.Show(); Hide(); }"><span class="oi oi-plus"></span></button>
                                 </div>
                             }
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="input-group input-group-sm mb-3">
+                            <label class="input-group-text">Ghi chú:</label>
+                            <InputTextArea id="inputCode" class="form-control form-control-sm" tabindex="1" @bind-Value="Model.Note" />
                         </div>
                     </div>
                 </div>
@@ -228,10 +235,8 @@
         {
             ShowDialog = false;
             ToastService.ShowInfo("Thêm phiếu nhập kho thành công");
+            NavigationManager.NavigateTo($"warehouses/inputs/{Model.Id}");
         }
-        else
-        {
-            ToastService.ShowError(result);
-        }
+        else ToastService.ShowError(result);
     }
 }

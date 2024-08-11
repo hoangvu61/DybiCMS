@@ -24,6 +24,7 @@ namespace Web.Api.Repositories
         Task<PagedList<WarehouseInput>> GetInputs(Guid companyId, WarehouseInputSearch search);
         Task<WarehouseInput?> GetInput(Guid companyId, Guid inputId);
         Task<bool> CheckExistCode(Guid companyId, string inputCode);
+        Task<bool> CheckExistProducts(Guid companyId, Guid inputId);
         Task<WarehouseInput> CreateInput(WarehouseInput input);
         Task<WarehouseInput> DeleteInput(WarehouseInput warehouseInput);
         #endregion
