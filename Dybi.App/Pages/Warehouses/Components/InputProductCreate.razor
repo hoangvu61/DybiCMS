@@ -1,0 +1,92 @@
+﻿@using Web.Models;
+@using System.IO;
+@using Web.Models.Enums
+@using Dybi.App.Services;
+@using Dybi.App.Pages.Warehouses.Components
+@using Dybi.App.Pages.Settings.Components
+
+@inject NavigationManager NavigationManager;
+@inject IToastService ToastService;
+@inject IWarehouseApiClient WarehouseApiClient;
+@inject IJSRuntime JS
+
+@if (ShowDialog)
+{
+    <div class="modal fade show d-block" id="assignModel" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">@Product.Title</h5>
+                    <button type="button" class="close" data-dismiss="modal" @onclick="()=>Hide()" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div><label class="form-label">Mã sản phẩm:</label> @Product.Code</div>
+                    <div><label class="form-label">Danh mục:</label> @Product.CategoryName</div>
+                    <div class="input-group input-group-sm mb-3">
+                        <span class="input-group-text">Giá nhập</span>
+                        <InputNumber class="form-control form-control-sm" type="number" @bind-Value="Model.Price" />
+                    </div>
+                    <div class="input-group input-group-sm mb-3">
+                        <span class="input-group-text">Số lượng</span>
+                        <InputNumber class="form-control form-control-sm" type="number" @bind-Value="Model.Quantity" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" @onclick="()=>Hide()" data-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-primary btn-sm" @onclick="()=>AddProduct()">Nhập kho</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    protected bool ShowDialog { get; set; }
+
+    private WarehouseProductInputRequest Model { set; get; } = new WarehouseProductInputRequest();
+    private WarehouseProductInputDto Product { set; get; }
+
+    [Parameter]
+    public Guid InputId { set; get; }
+
+    [Parameter]
+    public EventCallback<WarehouseProductInputDto> OnAddProduct { set; get; }
+
+    public void Show(WarehouseProductDto dto)
+    {
+        ShowDialog = true;
+        Model.Id = dto.Id;
+        Product = new WarehouseProductInputDto
+        {
+            Id = dto.Id,
+            Code = dto.Code,
+            CategoryName = dto.CategoryName,
+            Title = dto.Title
+        };
+    }
+
+    private void Hide()
+    {
+        ShowDialog = false;
+        StateHasChanged();
+    }
+
+    protected async Task AddProduct()
+    {
+        if (Model.Quantity <= 0) ToastService.ShowWarning("Số lượng phải lớn hơn 0");
+
+        var result = await WarehouseApiClient.CreateWarehouseInputProduct(InputId, Model);
+        if (string.IsNullOrEmpty(result))
+        {
+            ShowDialog = false;
+            ToastService.ShowInfo($"Đã nhập sản phẩm [{Product.Title}] vào kho");
+
+            Product.Price = Model.Price;
+            Product.Quantity = Model.Quantity;
+            await OnAddProduct.InvokeAsync(Product);
+        }
+        else ToastService.ShowError(result);
+    }
+}

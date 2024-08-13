@@ -20,7 +20,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body" id="inputCreateForm">
+            <div class="modal-body">
                 <div class="row">
                     <div class="col">
                         @foreach (var item in DataSource.WarehouseInputTypes)
@@ -162,14 +162,6 @@
         Warehouses = await WarehouseApiClient.GetWarehouses();
         Warehouses = Warehouses.Where(e => e.IsActive).ToList();
         if (Warehouses.Count > 0) Model.WarehouseId = Warehouses.First().Id;
-    }
-
-    protected override void OnAfterRender(bool firstRender)
-    {
-        if (firstRender)
-        {
-            Console.WriteLine();
-        }
     }
 
     public async Task Show()

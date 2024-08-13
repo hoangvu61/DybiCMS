@@ -124,6 +124,62 @@ namespace Dybi.App.Services
             }
             return string.Empty;
         }
+
+        public async Task<List<WarehouseProductInputDto>> GetWarehouseInputProducts(Guid id)
+        {
+            var result = await _httpClient.GetFromJsonAsync<List<WarehouseProductInputDto>>($"/api/warehouses/inputs/{id}/products");
+            return result;
+        }
+        public async Task<string> CreateWarehouseInputProduct(Guid inputId, WarehouseProductInputRequest request)
+        {
+            var result = await _httpClient.PostAsJsonAsync($"/api/warehouses/inputs/{inputId}/products", request);
+            if (!result.IsSuccessStatusCode)
+            {
+                var stringData = await result.Content.ReadAsStringAsync();
+                var resultData = JsonConvert.DeserializeObject<ResponseErrorDto>(stringData);
+                return resultData.Detail;
+            }
+            return string.Empty;
+        }
+        public async Task<string> DeleteWarehouseInputProduct(Guid inputid, Guid productid)
+        {
+            var result = await _httpClient.DeleteAsync($"/api/warehouses/inputs/{inputid}/products/{productid}");
+            if (!result.IsSuccessStatusCode)
+            {
+                var stringData = await result.Content.ReadAsStringAsync();
+                var resultData = JsonConvert.DeserializeObject<ResponseErrorDto>(stringData);
+                return resultData.Detail;
+            }
+            return string.Empty;
+        }
+
+        public async Task<List<string>> GetWarehouseInputProductCodes(Guid inputid, Guid productid)
+        {
+            var result = await _httpClient.GetFromJsonAsync<List<string>>($"/api/warehouses/inputs/{inputid}/products/{productid}/codes");
+            return result;
+        }
+        public async Task<string> CreateWarehouseInputProductCode(WarehouseProductInputCodeRequest request)
+        {
+            var result = await _httpClient.PostAsJsonAsync($"/api/warehouses/inputs/{request.InputId}/products/{request.ProductId}/codes", request);
+            if (!result.IsSuccessStatusCode)
+            {
+                var stringData = await result.Content.ReadAsStringAsync();
+                var resultData = JsonConvert.DeserializeObject<ResponseErrorDto>(stringData);
+                return resultData.Detail;
+            }
+            return string.Empty;
+        }
+        public async Task<string> DeleteWarehouseInputProductCode(Guid inputid, Guid productid, string code)
+        {
+            var result = await _httpClient.DeleteAsync($"/api/warehouses/inputs/{inputid}/products/{productid}/codes/{code}");
+            if (!result.IsSuccessStatusCode)
+            {
+                var stringData = await result.Content.ReadAsStringAsync();
+                var resultData = JsonConvert.DeserializeObject<ResponseErrorDto>(stringData);
+                return resultData.Detail;
+            }
+            return string.Empty;
+        }
         #endregion
 
         #region Xuong san xuat

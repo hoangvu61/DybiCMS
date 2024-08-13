@@ -81,6 +81,12 @@
       <Content Update="Pages\Settings\Warehouses.razor">
         <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       </Content>
+      <Content Update="Pages\Warehouses\Components\InputProductCodeCreate.razor">
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      </Content>
+      <Content Update="Pages\Warehouses\Components\InputProductCreate.razor">
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      </Content>
       <Content Update="Pages\Warehouses\Components\InputPayment.razor">
         <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       </Content>

@@ -264,7 +264,7 @@ namespace Web.Api.Controllers
             var code = request.InputCode?.Trim() ?? string.Empty;
             if (!string.IsNullOrEmpty(code))
             {
-                var checkExistCode = await _warehouseRepository.CheckExistCode(user.CompanyId, code);
+                var checkExistCode = await _warehouseRepository.CheckExistInputCode(user.CompanyId, code);
                 if (checkExistCode) return ValidationProblem($"Mã nhập kho [{code}] đã tồn tại");
             }
 
@@ -346,6 +346,159 @@ namespace Web.Api.Controllers
             if (checkExistProduct) return ValidationProblem($"Phải xóa hết sản phẩm trước");
 
             var resultData = await _warehouseRepository.DeleteInput(obj);
+            return Ok(resultData);
+        }
+
+
+        [HttpGet]
+        [Route("inputs/{id}/products")]
+        public async Task<IActionResult> GetInputProducts([FromRoute] Guid id)
+        {
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Unauthorized();
+
+            var list = await _warehouseRepository.GetInputProducts(user.CompanyId, id);
+            var dtos = list.Select(e => new WarehouseProductInputDto()
+            {
+                Id = e.ProductId,
+                Code = e.Product.Code,
+                CategoryName = e.Product.CategoryId.ToString(),
+                Price = e.Price,
+                Quantity = e.Quantity,
+                SeriCount = e.Codes.Count(),
+            }).ToList();
+
+            var productIds = list.Select(e => e.ProductId).Distinct().ToList();
+            var productLanguages = await _itemRepository.GetItemLanguages(user.CompanyId, productIds);
+            var categoryIds = list.Select(e => e.Product.CategoryId).Distinct().ToList();
+            var categoryLanguages = await _itemRepository.GetItemLanguages(user.CompanyId, categoryIds);
+
+            foreach (var dto in dtos)
+            {
+                dto.Title = productLanguages.Where(e => e.ItemId == dto.Id && e.LanguageCode == "vi").Select(e => e.Title).FirstOrDefault() ?? string.Empty;
+                dto.CategoryName = categoryLanguages.Where(e => e.ItemId == Guid.Parse(dto?.CategoryName ?? string.Empty) && e.LanguageCode == "vi").Select(e => e.Title).FirstOrDefault() ?? string.Empty;
+            }
+
+            return Ok(dtos);
+        }
+
+        [HttpPost]
+        [Route("inputs/{id}/products")]
+        public async Task<IActionResult> CreateInputProduct([FromRoute] Guid id, [FromBody] WarehouseProductInputRequest request)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Unauthorized();
+
+            var product = await _itemRepository.GetProduct(user.CompanyId, request.Id);
+            if (product == null) return ValidationProblem($"Sản phẩm [{request.Id}] không tồn tại");
+
+            var checkExistProductInput = await _warehouseRepository.CheckExistProductInput(user.CompanyId, id, request.Id);
+            if (checkExistProductInput) return ValidationProblem($"Sản phẩm  [{product.Item.ItemLanguages.Where(e => e.LanguageCode=="vi").Select(e => e.Title).FirstOrDefault()}] đã tồn tại trên phiếu nhập kho");
+
+            var obj = new WarehouseInputProduct
+            {
+                ProductId = request.Id,
+                InputId = id,
+                Price = request.Price,
+                Quantity = request.Quantity
+            };
+
+            var productInput = await _warehouseRepository.CreateInputProduct(obj);
+
+            return Ok(productInput);
+        }
+
+        [HttpDelete]
+        [Route("inputs/{inputid}/products/{productid}")]
+        public async Task<IActionResult> DeleteInputProduct([FromRoute] Guid inputid, [FromRoute] Guid productid)
+        {
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Unauthorized();
+
+            var obj = await _warehouseRepository.GetInputProduct(user.CompanyId, inputid, productid);
+            if (obj == null) return ValidationProblem($"Sản phẩm [{productid}] không tồn tại trong phiếu nhập kho {inputid}");
+
+            var resultData = await _warehouseRepository.DeleteInputProduct(obj);
+            switch(resultData)
+            {
+                case 0: return Ok(resultData);
+                case 1: return ValidationProblem("[1] Không tồn tại phiếu nhập kho");
+                case 2: return ValidationProblem("[2] Không tồn tại sản phẩm trong hàng tồn kho");
+                case 3: return ValidationProblem("[3] Số lượng hàng tồn ít hơn số lượng sản phẩm cần xóa");
+                case 4: return ValidationProblem("[4] Không tồn tại sản phẩm trong đợt nhập hàng");
+                case 5: return ValidationProblem("[5] Số lượng hàng tồn trong lô nhập ít hơn số lượng sản phẩm cần xóa");
+                case -1: return ValidationProblem("[-1] Lỗi khi lưu sản phẩm");
+            }
+            return Ok(resultData);
+        }
+
+
+        [HttpGet]
+        [Route("inputs/{inputid}/products/{productid}/codes")]
+        public async Task<IActionResult> GetInputProductCodes([FromRoute] Guid inputid, [FromRoute] Guid productid)
+        {
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Unauthorized();
+
+            var list = await _warehouseRepository.GetInputProductCodes(user.CompanyId, inputid, productid);
+            var codes = list.Select(e => e.ProductCode).ToList();
+
+            return Ok(codes);
+        }
+
+        [HttpPost]
+        [Route("inputs/{inputid}/products/{productid}/codes")]
+        public async Task<IActionResult> CreateInputProduct([FromRoute] Guid inputid, [FromRoute] Guid productid, [FromBody] WarehouseProductInputCodeRequest request)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Unauthorized();
+
+            var product = await _itemRepository.GetProduct(user.CompanyId, productid);
+            if (product == null) return ValidationProblem($"Sản phẩm [{productid}] không tồn tại");
+
+            var checkExistProductInput = await _warehouseRepository.CheckExistProductInputCode(user.CompanyId, productid, request.Code);
+            if (checkExistProductInput) return ValidationProblem($"Mã [{request.Code}] đã tồn tại trong sản phẩm [{product.Item.ItemLanguages.Where(e => e.LanguageCode == "vi").Select(e => e.Title).FirstOrDefault()}]");
+
+            var obj = new WarehouseInputProductCode
+            {
+                ProductId = productid,
+                InputId = inputid,
+                ProductCode = request.Code
+            };
+
+            var productInput = await _warehouseRepository.CreateInputProductCode(obj);
+
+            return Ok(productInput);
+        }
+
+        [HttpDelete]
+        [Route("inputs/{inputid}/products/{productid}/codes/{code}")]
+        public async Task<IActionResult> DeleteInputProductCode([FromRoute] Guid inputid, [FromRoute] Guid productid, [FromRoute] string code)
+        {
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Unauthorized();
+
+            var obj = await _warehouseRepository.GetInputProductCode(user.CompanyId, inputid, productid, code);
+            if (obj == null) return ValidationProblem($"Mã [{productid}] không tồn tại");
+
+            var resultData = await _warehouseRepository.DeleteInputProductCode(obj);
+            switch (resultData)
+            {
+                case 0: return Ok(resultData);
+                case 1: return ValidationProblem("[1] Không tồn tại phiếu nhập kho");
+                case 2: return ValidationProblem("[2] Không tồn tại sản phẩm phiếu nhập kho");
+                case -1: return ValidationProblem("[-1] Lỗi khi lưu mã");
+            }
             return Ok(resultData);
         }
         #endregion
@@ -737,6 +890,12 @@ namespace Web.Api.Controllers
 
             var category = await _itemRepository.GetCategory(user.CompanyId, request.CategoryId);
             if (category == null) return ValidationProblem($"Danh mục [{request.CategoryId}] không tồn tại");
+
+            if (!string.IsNullOrEmpty(request.Code))
+            {
+                var checkExistCode = await _itemRepository.CheckExistProductCode(user.CompanyId, request.Code);
+                if (checkExistCode) return ValidationProblem($"Mã sản phẩm [{request.Code}] đã tồn tại");
+            }
 
             var languageCode = "vi";
 

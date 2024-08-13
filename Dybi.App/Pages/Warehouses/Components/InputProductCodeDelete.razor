@@ -1,0 +1,86 @@
+﻿@using Web.Models;
+@using System.IO;
+@using Web.Models.Enums
+@using Dybi.App.Services;
+@using Dybi.App.Pages.Warehouses.Components
+@using Dybi.App.Pages.Settings.Components
+
+@inject IToastService ToastService;
+@inject IWarehouseApiClient WarehouseApiClient;
+@inject IJSRuntime JS
+
+@if (ShowDialog)
+{
+    <div class="modal fade show d-block" id="assignModel" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Xóa Mã sản phẩm / vật tư</h5>
+                    <button type="button" class="close" data-dismiss="modal" @onclick="()=>Hide(false)" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <EditForm Model="Seri" OnValidSubmit="HandleSubmit">
+                        <div class="input-group input-group-sm mb-3">
+                            <span class="input-group-text">Mã</span>
+                            <InputText id="inputCode" class="form-control form-control-sm" @bind-Value="Seri" />
+                            <button type="submit" class="btn btn-danger btn-sm">Xóa</button>
+                        </div>
+                    </EditForm>
+                    <div class="alert alert-secondary" role="alert">
+                        @foreach (var seri in Seris)
+                        {
+                            <span class="badge bg-info text-dark" style="margin-left:5px">@seri</span>
+                        }
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" @onclick="()=>Hide(false)" data-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    protected bool ShowDialog { get; set; }
+
+    private List<string> Seris { set; get; }
+    private string Seri { set; get; }
+    private Guid InputId { set; get; }
+    private Guid ProductId { set; get; }
+
+    [Parameter]
+    public EventCallback CloseEventCallback { set; get; }
+
+    public async Task Show(Guid inputId, Guid productId)
+    {
+        InputId = inputId;
+        ProductId = productId;
+        Seris = await WarehouseApiClient.GetWarehouseInputProductCodes(InputId, ProductId);
+        ShowDialog = true;
+        await JS.InvokeVoidAsync("setFocus", "#inputCode");
+        StateHasChanged();
+    }
+
+    private async Task Hide(bool callback)
+    {
+        if (callback) await CloseEventCallback.InvokeAsync();
+
+        ShowDialog = false;
+        StateHasChanged();
+    }
+
+    protected async Task HandleSubmit()
+    {
+        var result = await WarehouseApiClient.DeleteWarehouseInputProductCode(InputId, ProductId, Seri);
+        if (string.IsNullOrEmpty(result))
+        {
+            Seris.Remove(Seri);
+            ToastService.ShowInfo("Thêm mã thành công");
+            await Hide(true);
+        }
+        else ToastService.ShowError(result);
+    }
+}

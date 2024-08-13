@@ -29,9 +29,7 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                    <div class="row">
                             <ProductSearch @ref="ProductSearchControl" OnSearch="SearchProduct"></ProductSearch>
-                    </div>
                     <table class="table table-sm">
                         <thead>
                             <tr>
@@ -44,7 +42,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                                @foreach (var item in Products)
+                            @foreach (var item in Products)
                             {
                                 <tr>
                                     <td>@item.Code</td>

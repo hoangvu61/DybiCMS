@@ -13,11 +13,12 @@
 @inject NavigationManager NavigationManager;
 @inject IToastService ToastService;
 @inject IWarehouseApiClient WarehouseApiClient;
+@inject GlobalVariables Global;
 
 <h1>Quản lý Nhập kho</h1>
 
 <section>
-        @if (Model == null)
+    @if (Model == null)
     {
         <LoadingIndicator></LoadingIndicator>
     }
@@ -26,7 +27,7 @@
         <div class="card card-outline card-info mb-3">
             <div class="card-header">
                 <h3 class="card-title">@Model.TypeName</h3>
-                <button class="btn btn-danger btn-sm" style="float:right" @onclick="()=> OnDelete(Model.Id)">Xóa</button>
+                <button class="btn btn-danger btn-sm" style="float:right" @onclick='()=>{ DeleteConfirmation.SetTitle("Xóa phiếu nhập kho"); DeleteConfirmation.Show();}'>Xóa</button>
             </div>
             <div class="card-body">
                 <div class="row">
@@ -74,6 +75,39 @@
                 <h3 class="card-title">Danh sách Vật tư / Hàng hóa</h3>
             </div>
             <div class="card-body">
+                <table class="table table-sm table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th class="text-center">Mã</th>
+                            <th class="text-center">Tên</th>
+                            <th class="text-center">Danh mục</th>
+                            <th class="text-center">Đơn giá</th>
+                            <th class="text-center">Số lượng</th>
+                            <th class="text-center" style="width:105px">
+                                <button @onclick="() => ProductListDialog.Show()" class="btn btn-primary btn-sm">Thêm</button>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in ListProducts)
+                        {
+                            <tr>
+                                <td>@item.Code</td>
+                                <td>@item.Title</td>
+                                <td>@item.CategoryName</td>
+                                <td style="text-align:right">@item.Price.ToString("N0") <sup>đ</sup></td>
+                                <td style="text-align:right">@item.Quantity.ToString("N0")</td>
+                                <td style="text-align:center;width:@(Global.GetConfig("PhuongPhapTinhGiaXuatKho") == "2"? "200px":"70px")">
+                                    @if (Global.GetConfig("PhuongPhapTinhGiaXuatKho") == "2")
+                                    {
+                                        <button class="btn btn-success btn-sm" style="margin-right:10px" @onclick="()=>InputProductCodeCreateDialog.Show(Model.Id, item)">Seri (@item.SeriCount.ToString("N0")/@item.Quantity.ToString("N0"))</button>
+                                    }
+                                    <button class="btn btn-danger btn-sm" @onclick="()=> OnDelete(item.Id)">Xóa</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
             </div>
         </div>
 
@@ -82,6 +116,9 @@
                     @ref="DeleteConfirmation"
                     ConfirmationChanged="OnConfirmDelete">
         </Confirmation>
+
+        <ProductListPopup @ref="ProductListDialog" EventCallbak="SelectProduct"></ProductListPopup>
+        <InputProductCodeCreate @ref="InputProductCodeCreateDialog" CloseEventCallback="UpdateCode"></InputProductCodeCreate>
     }
 </section>
 
@@ -90,15 +127,16 @@
     public string Id { set; get; }
 
     protected Confirmation DeleteConfirmation { set; get; }
-    protected InputCreate CreateDialog { set; get; }
-
-    private const int PageSize = 12;
     private WarehouseInputDto Model { set; get; }
-    private Guid DeleteId { set; get; }
 
-    private InputSearch InputSearchControl { set; get; }
-    private WarehouseInputSearch WarehouseInputSearch = new WarehouseInputSearch();
     public MetaData MetaData { get; set; } = new MetaData();
+    private List<WarehouseProductInputDto> ListProducts;
+
+    private ProductListPopup ProductListDialog { set; get; }
+    private InputProductCreate ProductInputCreateDialog { set; get; }
+    private InputProductCodeCreate InputProductCodeCreateDialog { set; get; }
+
+    private Guid DeleteId { set; get; }
 
     [CascadingParameter]
     private Error Error { set; get; }
@@ -116,6 +154,7 @@
         try
         {
             Model = await WarehouseApiClient.GetWarehouseInput(id);
+            if (Model != null) ListProducts = await WarehouseApiClient.GetWarehouseInputProducts(Model.Id);
             StateHasChanged();
         }
         catch (Exception ex)
@@ -124,21 +163,51 @@
         }
     }
 
+    public void SelectProduct(WarehouseProductDto product)
+    {
+        ProductInputCreateDialog.Show(product);
+    }
+    public void UpdateCode(WarehouseProductInputDto product)
+    {
+        foreach (var pro in ListProducts)
+        {
+            if (pro.Id == product.Id) pro.SeriCount = product.SeriCount;
+        }
+        StateHasChanged();
+    }
+
     public async Task OnConfirmDelete(bool deleteConfirmed)
     {
         if (deleteConfirmed)
         {
-            var result = await WarehouseApiClient.DeleteInput(DeleteId);
-            if (string.IsNullOrEmpty(result))
+            if (DeleteId == Guid.Empty)
             {
-                ToastService.ShowWarning($"Đã xóa {DeleteId}");
-                NavigationManager.NavigateTo($"warehouses/inputs");
+                var result = await WarehouseApiClient.DeleteInput(Model.Id);
+                if (string.IsNullOrEmpty(result))
+                {
+                    ToastService.ShowWarning($"Đã xóa lô nhập [{Model.Id}]");
+                    NavigationManager.NavigateTo($"warehouses/inputs");
+                }
+                else ToastService.ShowError(result);
             }
-            else ToastService.ShowError(result);
+            else
+            {
+                var message = await WarehouseApiClient.DeleteWarehouseInputProduct(Model.Id, DeleteId);
+                if (string.IsNullOrEmpty(message))
+                {
+                    ToastService.ShowInfo($"Đã xóa sản phẩm [{Model.Id}]");
+                    ListProducts.RemoveAll(e => e.Id == DeleteId);
+                }
+                else ToastService.ShowError(message);
+            }
+            StateHasChanged();
         }
+
+        DeleteId = Guid.Empty;
     }
     public void OnDelete(Guid deleteId)
     {
+        DeleteConfirmation.SetTitle("Xóa sản phẩm");
         DeleteId = deleteId;
         DeleteConfirmation.Show();
     }

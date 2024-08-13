@@ -706,9 +706,17 @@ namespace Web.Api.Repositories
             var query = _context.ItemProducts
                    .Include(e => e.Item)
                    .Include(e => e.Item.Tags)
+                   .Include(e => e.Item.ItemLanguages)
                    .Where(e => e.Item.CompanyId == companyId && e.ItemId == id);
             return await query.FirstOrDefaultAsync();
         }
+        public async Task<bool> CheckExistProductCode(Guid companyId, string code)
+        {
+            var check = await _context.ItemProducts.Where(e => e.Item.CompanyId == companyId && e.Code == code)
+                                .AnyAsync();
+            return check;
+        }
+
         public async Task<Item> CreateProduct(Item item, List<ItemAttributeDto> Attributes, List<Guid> relatedItems, List<ProductAddOnDto> addOnProducts)
         {
             _context.Items.Add(item);

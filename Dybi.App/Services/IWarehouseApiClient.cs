@@ -22,6 +22,14 @@ namespace Dybi.App.Services
         Task<WarehouseInputDto> GetWarehouseInput(string id);
         Task<string> CreateWarehouseInput(WarehouseInputRequest request);
         Task<string> DeleteInput(Guid id);
+
+        Task<List<WarehouseProductInputDto>> GetWarehouseInputProducts(Guid id);
+        Task<string> CreateWarehouseInputProduct(Guid inputId, WarehouseProductInputRequest request);
+        Task<string> DeleteWarehouseInputProduct(Guid inputid, Guid productid);
+
+        Task<List<string>> GetWarehouseInputProductCodes(Guid inputid, Guid productid);
+        Task<string> CreateWarehouseInputProductCode(WarehouseProductInputCodeRequest request);
+        Task<string> DeleteWarehouseInputProductCode(Guid inputid, Guid productid, string code);
         #endregion
 
         #region Xuong san xuat
