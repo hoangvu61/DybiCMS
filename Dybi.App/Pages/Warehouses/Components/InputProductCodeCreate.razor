@@ -16,15 +16,18 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel">@Model.Title</h5>
-                    <button type="button" class="close" data-dismiss="modal" @onclick="()=>Hide(false)" aria-label="Close">
+                    <button type="button" class="close" data-dismiss="modal" @onclick="()=>Hide()" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
                     <div><label class="form-label">Mã sản phẩm:</label> @Model.Code</div>
-                    <div><label class="form-label">Danh mục:</label> @Model.CategoryName</div>4
+                    <div><label class="form-label">Danh mục:</label> @Model.CategoryName</div>
                     <div><label class="form-label">Giá nhập:</label> @Model.Price.ToString("N0")</div>
-                    <div><label class="form-label">Seri / Số lượng:</label> @Seris.Count.ToString("N0") / @Model.Price.ToString("N0")</div>
+                    <div><label class="form-label">Số lượng seri / Số lượng tổng:</label></div>
+                    <div class="text-center p-3" style="font-size:16px">
+                        @Seris.Count.ToString("N0") / @Model.Quantity.ToString("N0")
+                    </div>
                     <hr />
                     <div class="alert alert-secondary" role="alert">
                         <EditForm Model="Model" OnValidSubmit="HandleSubmit">
@@ -35,17 +38,17 @@
                             </div>
                             @foreach (var seri in Seris)
                             {
-                                <span class="badge bg-info text-dark" style="margin-left:5px">@seri</span>
+                                <span class="badge bg-info text-dark" style="margin-right:5px">@seri</span>
                             }
                             @if (Seris.Count > 0)
                             {
-                                <button type="button" class="badge bg-danger">Xóa</button>
+                                <button type="button" class="badge bg-danger" @onclick="()=>InputProductCodeDeleteDialog.Show(Request.InputId, Model.Id)">Xóa</button>
                             }
                         </EditForm>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary btn-sm" @onclick="()=>Hide(false)" data-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-secondary btn-sm" @onclick="()=>Hide()" data-dismiss="modal">Đóng</button>
                 </div>
             </div>
         </div>
@@ -59,6 +62,7 @@
     private WarehouseProductInputDto Model { set; get; }
     private WarehouseProductInputCodeRequest Request { set; get; }
     private List<string> Seris { set; get; }
+    private bool IsChange { set; get; }
 
     private InputProductCodeDelete InputProductCodeDeleteDialog { set; get; }
 
@@ -79,9 +83,9 @@
         StateHasChanged();
     }
 
-    private async Task Hide(bool callback)
+    private async Task Hide()
     {
-        if (callback)
+        if (IsChange)
         {
             Model.SeriCount = Seris.Count;
             await CloseEventCallback.InvokeAsync(Model);
@@ -102,9 +106,14 @@
         if (string.IsNullOrEmpty(result))
         {
             Seris.Add(Request.Code);
-            ToastService.ShowInfo("Xóa mã thành công");
-            await Hide(true);
+            ToastService.ShowInfo("Thêm mã thành công");
+            Request.Code = string.Empty;
+            IsChange = true;
         }
-        else ToastService.ShowError(result);
+        else
+        {
+            ToastService.ShowError(result);
+            Request.Code = string.Empty;
+        }
     }
 }

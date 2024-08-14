@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.Design;
@@ -265,7 +266,7 @@ namespace Web.Api.Controllers
             if (!string.IsNullOrEmpty(code))
             {
                 var checkExistCode = await _warehouseRepository.CheckExistInputCode(user.CompanyId, code);
-                if (checkExistCode) return ValidationProblem($"Mã nhập kho [{code}] đã tồn tại");
+                if (checkExistCode) return Conflict($"Mã nhập kho [{code}] đã tồn tại");
             }
 
             var obj = new WarehouseInput
@@ -397,7 +398,7 @@ namespace Web.Api.Controllers
             if (product == null) return ValidationProblem($"Sản phẩm [{request.Id}] không tồn tại");
 
             var checkExistProductInput = await _warehouseRepository.CheckExistProductInput(user.CompanyId, id, request.Id);
-            if (checkExistProductInput) return ValidationProblem($"Sản phẩm  [{product.Item.ItemLanguages.Where(e => e.LanguageCode=="vi").Select(e => e.Title).FirstOrDefault()}] đã tồn tại trên phiếu nhập kho");
+            if (checkExistProductInput) return Conflict($"Sản phẩm  [{product.Item.ItemLanguages.Where(e => e.LanguageCode=="vi").Select(e => e.Title).FirstOrDefault()}] đã tồn tại trên phiếu nhập kho");
 
             var obj = new WarehouseInputProduct
             {
@@ -409,7 +410,7 @@ namespace Web.Api.Controllers
 
             var productInput = await _warehouseRepository.CreateInputProduct(obj);
 
-            return Ok(productInput);
+            return Ok();
         }
 
         [HttpDelete]
@@ -466,7 +467,7 @@ namespace Web.Api.Controllers
             if (product == null) return ValidationProblem($"Sản phẩm [{productid}] không tồn tại");
 
             var checkExistProductInput = await _warehouseRepository.CheckExistProductInputCode(user.CompanyId, productid, request.Code);
-            if (checkExistProductInput) return ValidationProblem($"Mã [{request.Code}] đã tồn tại trong sản phẩm [{product.Item.ItemLanguages.Where(e => e.LanguageCode == "vi").Select(e => e.Title).FirstOrDefault()}]");
+            if (checkExistProductInput) return Conflict($"Mã [{request.Code}] đã tồn tại trong sản phẩm [{product.Item.ItemLanguages.Where(e => e.LanguageCode == "vi").Select(e => e.Title).FirstOrDefault()}]");
 
             var obj = new WarehouseInputProductCode
             {
@@ -894,7 +895,7 @@ namespace Web.Api.Controllers
             if (!string.IsNullOrEmpty(request.Code))
             {
                 var checkExistCode = await _itemRepository.CheckExistProductCode(user.CompanyId, request.Code);
-                if (checkExistCode) return ValidationProblem($"Mã sản phẩm [{request.Code}] đã tồn tại");
+                if (checkExistCode) return Conflict($"Mã sản phẩm [{request.Code}] đã tồn tại");
             }
 
             var languageCode = "vi";

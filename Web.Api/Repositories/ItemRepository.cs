@@ -704,9 +704,8 @@ namespace Web.Api.Repositories
         public async Task<ItemProduct> GetProduct(Guid companyId, Guid id)
         {
             var query = _context.ItemProducts
-                   .Include(e => e.Item)
-                   .Include(e => e.Item.Tags)
-                   .Include(e => e.Item.ItemLanguages)
+                   .Include(e => e.Item).ThenInclude(i => i.Tags)
+                   .Include(e => e.Item).ThenInclude(i => i.ItemLanguages)
                    .Where(e => e.Item.CompanyId == companyId && e.ItemId == id);
             return await query.FirstOrDefaultAsync();
         }

@@ -41,7 +41,7 @@
                             <InputSelect tabindex="2" class="form-select form-select-sm" @bind-Value="Model.WarehouseId">
                                 @if (Warehouses != null)
                                 {
-                                    @foreach (var item in Warehouses)
+                                    foreach (var item in Warehouses)
                                     {
                                         <option value="@item.Id">@item.Name</option>
                                     }
@@ -55,9 +55,10 @@
                                 <div class="input-group input-group-sm mb-3">
                                     <span class="input-group-text">Nhà cung cấp</span>
                                     <InputSelect tabindex="3" class="form-select form-select-sm" @bind-Value="Model.FromId">
-                                        @if (Supplyers != null)
+                                        @if (Supplyers != null && Supplyers.Count > 0)
                                         {
-                                            @foreach (var item in Supplyers)
+                                            if (Supplyers.Count == 1) Model.FromId = Supplyers[0].Id;
+                                            foreach (var item in Supplyers)
                                             {
                                                 <option value="@item.Id">@item.Name</option>
                                             }
@@ -88,7 +89,8 @@
                                     <InputSelect tabindex="3" class="form-select form-select-sm" @bind-Value="Model.FromId">
                                         @if (Factories != null)
                                         {
-                                            @foreach (var item in Factories)
+                                            if (Factories.Count == 1) Model.FromId = Factories[0].Id;
+                                            foreach (var item in Factories)
                                             {
                                                 <option value="@item.Id">@item.Name</option>
                                             }
@@ -104,7 +106,8 @@
                                     <InputSelect tabindex="3" class="form-select form-select-sm" @bind-Value="Model.FromId">
                                         @if (Warehouses != null)
                                         {
-                                            @foreach (var item in Warehouses)
+                                            if (Warehouses.Count == 1) Model.FromId = Warehouses[0].Id;
+                                            foreach (var item in Warehouses)
                                             {
                                                 <option value="@item.Id">@item.Name</option>
                                             }
@@ -169,6 +172,7 @@
         ShowDialog = true;
         Model.Id = Guid.NewGuid();
         Model.Type = 1;
+        if (Supplyers != null && Supplyers.Count == 1) Model.FromId = Supplyers[0].Id;
         await JS.InvokeVoidAsync("setFocus", "#inputCode");
         StateHasChanged();
     }

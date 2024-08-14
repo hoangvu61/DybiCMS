@@ -118,6 +118,7 @@
         </Confirmation>
 
         <ProductListPopup @ref="ProductListDialog" EventCallbak="SelectProduct"></ProductListPopup>
+        <InputProductCreate @ref="ProductInputCreateDialog" InputId="Model.Id" OnAddProduct="AddProduct"></InputProductCreate>
         <InputProductCodeCreate @ref="InputProductCodeCreateDialog" CloseEventCallback="UpdateCode"></InputProductCodeCreate>
     }
 </section>
@@ -166,6 +167,11 @@
     public void SelectProduct(WarehouseProductDto product)
     {
         ProductInputCreateDialog.Show(product);
+    }
+    public void AddProduct(WarehouseProductInputDto product)
+    {
+        ListProducts.Add(product);
+        StateHasChanged();
     }
     public void UpdateCode(WarehouseProductInputDto product)
     {

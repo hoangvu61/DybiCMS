@@ -1202,6 +1202,12 @@ namespace Web.Api.Controllers
             var category = await _itemRepository.GetCategory(user.CompanyId, request.CategoryId);
             if (category == null) return ValidationProblem($"Danh mục [{request.CategoryId}] không tồn tại");
 
+            if (!string.IsNullOrEmpty(request.Code))
+            {
+                var checkExistCode = await _itemRepository.CheckExistProductCode(user.CompanyId, request.Code);
+                if (checkExistCode) return Conflict($"Mã sản phẩm [{request.Code}] đã tồn tại");
+            }
+
             var languageItem = new ItemLanguage { Title = request.Title.Trim(), LanguageCode = request.LanguageCode, Brief = request.Brief, Content = request.Content };
             var item = new Item()
             {
