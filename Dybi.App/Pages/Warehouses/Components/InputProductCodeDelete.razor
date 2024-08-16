@@ -24,14 +24,14 @@
                     <EditForm Model="Seri" OnValidSubmit="HandleSubmit">
                         <div class="input-group input-group-sm mb-3">
                             <span class="input-group-text">Mã</span>
-                            <InputText id="inputCode" class="form-control form-control-sm" @bind-Value="Seri" />
+                            <InputText id="inputDeleteCode" class="form-control form-control-sm" @bind-Value="Seri.Code" />
                             <button type="submit" class="btn btn-danger btn-sm">Xóa</button>
                         </div>
                     </EditForm>
                     <div class="alert alert-secondary" role="alert">
                         @foreach (var seri in Seris)
                         {
-                            <span class="badge bg-info text-dark" style="margin-left:5px">@seri</span>
+                            <span class="badge bg-info text-dark" style="margin-right:5px">@seri</span>
                         }
                     </div>
                 </div>
@@ -47,20 +47,17 @@
     protected bool ShowDialog { get; set; }
 
     private List<string> Seris { set; get; }
-    private string Seri { set; get; }
-    private Guid InputId { set; get; }
-    private Guid ProductId { set; get; }
+    private WarehouseProductInputCodeRequest Seri { set; get; }
 
     [Parameter]
     public EventCallback CloseEventCallback { set; get; }
 
-    public async Task Show(Guid inputId, Guid productId)
+    public async Task Show(WarehouseProductInputCodeRequest seri, List<string> seris)
     {
-        InputId = inputId;
-        ProductId = productId;
-        Seris = await WarehouseApiClient.GetWarehouseInputProductCodes(InputId, ProductId);
+        Seri = seri;
+        Seris = seris;
         ShowDialog = true;
-        await JS.InvokeVoidAsync("setFocus", "#inputCode");
+        await JS.InvokeVoidAsync("setFocus", "#inputDeleteCode");
         StateHasChanged();
     }
 
@@ -74,13 +71,16 @@
 
     protected async Task HandleSubmit()
     {
-        var result = await WarehouseApiClient.DeleteWarehouseInputProductCode(InputId, ProductId, Seri);
+        var result = await WarehouseApiClient.DeleteWarehouseInputProductCode(Seri.InputId, Seri.ProductId, Seri.Code);
         if (string.IsNullOrEmpty(result))
         {
-            Seris.Remove(Seri);
             ToastService.ShowInfo("Xóa mã thành công");
             await Hide(true);
         }
-        else ToastService.ShowError(result);
+        else
+        {
+            ToastService.ShowError(result);
+            Seri.Code = string.Empty;
+        }
     }
 }

@@ -1205,7 +1205,7 @@ namespace Web.Api.Controllers
             if (!string.IsNullOrEmpty(request.Code))
             {
                 var checkExistCode = await _itemRepository.CheckExistProductCode(user.CompanyId, request.Code);
-                if (checkExistCode) return Conflict($"Mã sản phẩm [{request.Code}] đã tồn tại");
+                if (checkExistCode) return ValidationProblem($"Mã sản phẩm [{request.Code}] đã tồn tại");
             }
 
             var languageItem = new ItemLanguage { Title = request.Title.Trim(), LanguageCode = request.LanguageCode, Brief = request.Brief, Content = request.Content };

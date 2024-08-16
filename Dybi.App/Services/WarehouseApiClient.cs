@@ -171,7 +171,8 @@ namespace Dybi.App.Services
         }
         public async Task<string> DeleteWarehouseInputProductCode(Guid inputid, Guid productid, string code)
         {
-            var result = await _httpClient.DeleteAsync($"/api/warehouses/inputs/{inputid}/products/{productid}/codes/{code}");
+            var endcode = WebUtility.UrlEncode(code);
+            var result = await _httpClient.DeleteAsync($"/api/warehouses/inputs/{inputid}/products/{productid}/codes/{endcode}");
             if (!result.IsSuccessStatusCode)
             {
                 var stringData = await result.Content.ReadAsStringAsync();
@@ -179,6 +180,35 @@ namespace Dybi.App.Services
                 return resultData.Detail;
             }
             return string.Empty;
+        }
+        #endregion
+
+        #region 
+        public async Task<PagedList<WarehouseInventoryDto>> GetInventories(WarehouseInventorySearch search)
+        {
+            var queryStringParam = new Dictionary<string, string>
+            {
+                ["pageNumber"] = search.PageNumber.ToString(),
+                ["pageSize"] = search.PageSize.ToString()
+            };
+
+            if (search.WarehouseId != null && search.WarehouseId != Guid.Empty)
+                queryStringParam.Add("WarehouseId", search.WarehouseId?.ToString() ?? string.Empty);
+            if (search.CategoryId != null && search.CategoryId != Guid.Empty)
+                queryStringParam.Add("CategoryId", search.CategoryId?.ToString() ?? string.Empty);
+            if (!string.IsNullOrEmpty(search.Key))
+                queryStringParam.Add("Key", search.Key);
+            if (search.IsAlertEmpty == true)
+                queryStringParam.Add("IsAlertEmpty", search.IsAlertEmpty.ToString());
+
+            string url = QueryHelpers.AddQueryString("/api/warehouses/inventories", queryStringParam);
+            var result = await _httpClient.GetFromJsonAsync<PagedList<WarehouseInventoryDto>>(url);
+            return result;
+        }
+        public async Task<List<WarehouseInputInventoryDto>> GetInventories(Guid productid)
+        {
+            var result = await _httpClient.GetFromJsonAsync<List<WarehouseInputInventoryDto>>($"/api/warehouses/inventories/{productid}");
+            return result;
         }
         #endregion
 

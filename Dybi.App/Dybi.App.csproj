@@ -93,6 +93,12 @@
       <Content Update="Pages\Warehouses\Components\InputCreate.razor">
         <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       </Content>
+      <Content Update="Pages\Warehouses\Components\InventoryInput.razor">
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      </Content>
+      <Content Update="Pages\Warehouses\Components\InventorySearch.razor">
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      </Content>
       <Content Update="wwwroot\favicon.png">
         <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
         <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>

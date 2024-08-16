@@ -1,0 +1,149 @@
+﻿@page "/warehouses/Inventories"
+@attribute [Authorize]
+
+@using Dybi.App.Components
+@using Dybi.App.Pages.Components
+@using Dybi.App.Pages.Warehouses.Components
+@using Microsoft.AspNetCore.Authorization;
+@using Dybi.App.Services;
+@using Web.Models;
+@using Web.Models.SeedWork;
+@using Microsoft.Extensions.Configuration
+
+@inject IToastService ToastService;
+@inject IWarehouseApiClient WarehouseApiClient;
+@inject NavigationManager Navigation
+
+<h1>Quản lý Nhập kho</h1>
+
+<div class="row">
+    <div class="col">
+        <section>
+            @if (ListProducts == null)
+            {
+                <LoadingIndicator></LoadingIndicator>
+            }
+            else
+            {
+                <div class="card card-outline card-info">
+                    <div class="card-header">
+                        <h3 class="card-title">Danh sách Nhập kho</h3>
+                    </div>
+                    <div class="card-body">
+                        <InventorySearch @ref="InventorySearchControl" IsAlertEmpty="IsAlertEmpty" OnSearch="Search"></InventorySearch>
+                        <table class="table table-sm table-striped table-bordered">
+                            <thead>
+                                <tr>
+                                    @if (WarehouseInventorySearch.WarehouseId == null || WarehouseInventorySearch.WarehouseId == Guid.Empty)
+                                    {
+                                        <th class="text-center">Kho</th>
+                                    }
+                                    <th class="text-center">Mã sản phẩm</th>
+                                    <th class="text-center">Tên sản phẩm</th>
+                                    @if (WarehouseInventorySearch.CategoryId == null || WarehouseInventorySearch.CategoryId == Guid.Empty)
+                                    {
+                                        <th class="text-center">Danh mục</th>
+                                    }
+                                    <th class="text-center">Tồn kho</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in ListProducts)
+                                {
+                                    <tr style="cursor:pointer" @onclick="()=>InventoryInputControl.Load(item.ProductId, item.ProductName)">
+                                        @if (WarehouseInventorySearch.WarehouseId == null || WarehouseInventorySearch.WarehouseId == Guid.Empty)
+                                        {
+                                            <td>@item.WarehouseName</td>
+                                        }
+                                        <td>@item.ProductCode</td>
+                                        <td>@item.ProductName</td>
+                                        @if (WarehouseInventorySearch.CategoryId == null || WarehouseInventorySearch.CategoryId == Guid.Empty)
+                                        {
+                                            <td>@item.ProductCategory</td>
+                                        }
+                                        <td style="text-align:right">@item.InventoryNumber.ToString("N0")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="9">
+                                        <Pagination MetaData="MetaData" Spread="2" SelectedPage="SelectedPage"></Pagination>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            }
+        </section>
+    </div>
+    <InventoryInput @ref="InventoryInputControl"></InventoryInput>
+</div>
+
+
+@code {
+    private bool IsAlertEmpty { set; get; }
+
+    private const int PageSize = 12;
+    private List<WarehouseInventoryDto> ListProducts;
+
+    private InventoryInput InventoryInputControl { set; get; }
+    private InventorySearch InventorySearchControl { set; get; }
+    private WarehouseInventorySearch WarehouseInventorySearch = new WarehouseInventorySearch();
+    public MetaData MetaData { get; set; } = new MetaData();
+
+    [CascadingParameter]
+    private Error Error { set; get; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Get the current URI
+        var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
+
+        // Parse the query string
+        var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
+
+        // Retrieve the value of the 'query' parameter
+        if (query.TryGetValue("IsAlertEmpty", out var paramValue))
+        {
+            IsAlertEmpty = bool.Parse(paramValue);
+            WarehouseInventorySearch.IsAlertEmpty = IsAlertEmpty;
+        }
+
+        WarehouseInventorySearch.PageSize = PageSize;
+        await RefreshList(true);
+    }
+
+    public async Task RefreshList(bool result)
+    {
+        if (result)
+        {
+            try
+            {
+                var pagingResponse = await WarehouseApiClient.GetInventories(WarehouseInventorySearch);
+                ListProducts = pagingResponse.Items;
+                MetaData = pagingResponse.MetaData;
+
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                Error.ProcessError(ex);
+            }
+        }
+    }
+
+    public async Task Search(WarehouseInventorySearch inventoryListSearch)
+    {
+        WarehouseInventorySearch = inventoryListSearch;
+        WarehouseInventorySearch.PageSize = PageSize;
+        await RefreshList(true);
+    }
+
+    private async Task SelectedPage(int page)
+    {
+        WarehouseInventorySearch.PageNumber = page;
+        await RefreshList(true);
+    }
+}

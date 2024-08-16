@@ -25,10 +25,9 @@
                     <div><label class="form-label">Danh mục:</label> @Model.CategoryName</div>
                     <div><label class="form-label">Giá nhập:</label> @Model.Price.ToString("N0")</div>
                     <div><label class="form-label">Số lượng seri / Số lượng tổng:</label></div>
-                    <div class="text-center p-3" style="font-size:16px">
+                    <div class="text-center p-2" style="font-size:36px; font-weight:600;color: @(Seris.Count < Model.Quantity ? "red" : Seris.Count == Model.Quantity ? "blue" : "orange")">
                         @Seris.Count.ToString("N0") / @Model.Quantity.ToString("N0")
                     </div>
-                    <hr />
                     <div class="alert alert-secondary" role="alert">
                         <EditForm Model="Model" OnValidSubmit="HandleSubmit">
                             <div class="input-group input-group-sm mb-3">
@@ -42,7 +41,7 @@
                             }
                             @if (Seris.Count > 0)
                             {
-                                <button type="button" class="badge bg-danger" @onclick="()=>InputProductCodeDeleteDialog.Show(Request.InputId, Model.Id)">Xóa</button>
+                                <button type="button" class="badge bg-danger" @onclick="OpenDeleteCode">Xóa</button>
                             }
                         </EditForm>
                     </div>
@@ -94,6 +93,10 @@
         StateHasChanged();
     }
 
+    private async Task OpenDeleteCode()
+    {
+        await InputProductCodeDeleteDialog.Show(Request, Seris);
+    }
     private async Task RemoveCode()
     {
         Seris = await WarehouseApiClient.GetWarehouseInputProductCodes(Request.InputId, Request.ProductId);

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Web.Api.Data;
 using Web.Api.Entities;
 using Web.Models;
@@ -394,6 +395,60 @@ namespace Web.Api.Repositories
         }
         #endregion
 
+        #region inventory
+        public async Task<PagedList<WarehouseInventory>> GetInventories(Guid companyId, WarehouseInventorySearch search)
+        {
+            var query = _context.WarehouseInventories
+                                .Include(e => e.Warehouse)
+                                .Include(e => e.Product).ThenInclude(e => e.Item).ThenInclude(e => e.ItemLanguages)
+                                .Include(e => e.Product).ThenInclude(e => e.Category).ThenInclude(e => e.Item).ThenInclude(e => e.ItemLanguages)
+                                .Where(e => e.Warehouse.CompanyId == companyId);
 
+            if (search.WarehouseId != null && search.WarehouseId != Guid.Empty)
+            {
+                query = query.Where(e => e.WarehouseId == search.WarehouseId);
+            }
+
+            if (search.CategoryId != null && search.CategoryId != Guid.Empty)
+            {
+                query = query.Where(e => e.Product.CategoryId == search.CategoryId);
+            }
+
+            if (!string.IsNullOrEmpty(search.Key))
+            {
+                var key = search.Key.Trim();
+                query = query.Where(e => (e.Product.Code != null && e.Product.Code.Contains(key)) || e.Product.Item.ItemLanguages.Any(l => l.Title.Contains(key)));
+            }
+
+            if(search.IsAlertEmpty)
+            {
+                var config = await _context.WarehouseConfigs.Where(e => e.CompanyId == companyId && e.Key == "ThongBaoNhapHangKhiConBaoNhieuSanPham").Select(e => e.Value).FirstOrDefaultAsync();
+                var ThongBaoNhapHangKhiConBaoNhieuSanPham = int.Parse(config ?? "0");
+                query = query.Where(e => e.InventoryNumber <= ThongBaoNhapHangKhiConBaoNhieuSanPham);
+            }    
+
+            var count = await query.CountAsync();
+
+            var data = await query.OrderBy(e => e.Product.Item.CreateDate)
+                .Skip((search.PageNumber - 1) * search.PageSize)
+                .Take(search.PageSize)
+                .ToListAsync();
+            return new PagedList<WarehouseInventory>(data, count, search.PageNumber, search.PageSize);
+        }
+        public async Task<List<WarehouseInputInventory>> GetInventories(Guid companyId, Guid productId)
+        {
+            var data = await _context.WarehouseInputInventories
+                                .Include(e => e.Input).ThenInclude(e => e.Warehouse)
+                                .Include(e => e.Input).ThenInclude(e => e.FromSupplier)
+                                .Include(e => e.Input).ThenInclude(e => e.FromFactory)
+                                .Include(e => e.Input).ThenInclude(e => e.FromWarehouse)
+                                .Include(e => e.Input).ThenInclude(e => e.FromOrder)
+                                .Include(e => e.Input).ThenInclude(e => e.Products)
+                                .Where(e => e.Input.Warehouse.CompanyId == companyId && e.ProductId == productId && e.InventoryNumber > 0)
+                                .OrderByDescending(e => e.Input.CreateDate)
+                                .ToListAsync();
+            return data;
+        }
+        #endregion
     }
 }

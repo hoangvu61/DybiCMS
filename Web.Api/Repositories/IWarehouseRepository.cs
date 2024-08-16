@@ -57,5 +57,10 @@ namespace Web.Api.Repositories
         Task<WarehouseSupplier> UpdateSupplier(WarehouseSupplier supplier);
         Task<WarehouseSupplier> DeleteSupplier(WarehouseSupplier factory);
         #endregion
+
+        #region inventory
+        Task<PagedList<WarehouseInventory>> GetInventories(Guid companyId, WarehouseInventorySearch search);
+        Task<List<WarehouseInputInventory>> GetInventories(Guid companyId, Guid productId);
+        #endregion
     }
 }

@@ -30,6 +30,9 @@ namespace Dybi.App.Services
         Task<List<string>> GetWarehouseInputProductCodes(Guid inputid, Guid productid);
         Task<string> CreateWarehouseInputProductCode(WarehouseProductInputCodeRequest request);
         Task<string> DeleteWarehouseInputProductCode(Guid inputid, Guid productid, string code);
+
+        Task<PagedList<WarehouseInventoryDto>> GetInventories(WarehouseInventorySearch search);
+        Task<List<WarehouseInputInventoryDto>> GetInventories(Guid productid);
         #endregion
 
         #region Xuong san xuat
