@@ -379,6 +379,14 @@ namespace Web.Api.Repositories
                                 .FirstOrDefaultAsync();
             return output;
         }
+        public async Task<Order> GetOutputOrder(Guid companyId, Guid orderId)
+        {
+            var query = _context.WarehouseOutputToOrders
+                .Include(e => e.Order).ThenInclude(e => e.Products)
+                .Where(e => e.Output.Warehouse.CompanyId == companyId && e.OrderId == orderId)
+                .Select(e => e.Order);
+            return await query.FirstOrDefaultAsync();
+        }
         public async Task<bool> CheckExistProductInOutputs(Guid companyId, Guid outputId, Guid productId)
         {
             var query = _context.WarehouseOutputProducts.Where(e => e.Output.Warehouse.CompanyId == companyId && e.OutputId == outputId);
@@ -472,7 +480,7 @@ namespace Web.Api.Repositories
                 .Include(e => e.Details)
                 .Where(e => e.Output.Warehouse.CompanyId == companyId && e.OutputId == outputId && e.ProductId == productId);
             return await query.FirstOrDefaultAsync();
-        }
+        }\
         public async Task<int> CreateOutputProduct(Guid companyId, WarehouseOutputProduct product)
         {
             var output = await _context.WarehouseOutputs.Where(e => e.Id == product.OutputId).FirstOrDefaultAsync();

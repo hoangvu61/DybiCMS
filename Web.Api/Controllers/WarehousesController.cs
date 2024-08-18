@@ -321,7 +321,7 @@ namespace Web.Api.Controllers
                     obj.FromWarehouse.WarehouseAddress = warehouse.Address;
                     break;
                 case 4:
-                    var order = await _orderRepository.GetOrder(user.CompanyId, request.FromId);
+                    var order = await _warehouseRepository.GetOutputOrder(user.CompanyId, request.FromId);
                     if (order == null) return ValidationProblem($"Không tìm thấy Hóa đơn [{request.FromId}]");
                     obj.FromOrder = new WarehouseInputFromOrder();
                     obj.FromOrder.OrderId = request.FromId;
@@ -641,9 +641,18 @@ namespace Web.Api.Controllers
                     break;
             };
 
-            var input = await _warehouseRepository.CreateOutput(user.CompanyId, obj);
+            var resultData = await _warehouseRepository.CreateOutput(user.CompanyId, obj);
+            switch (resultData)
+            {
+                case 0: return Ok(resultData);
+                case 1: return ValidationProblem("[1] Chưa cấu hình");
+                case 2: return ValidationProblem("[2] Không tồn tại sản phẩm trong hàng tồn kho");
+                case 3: return ValidationProblem("[3] Không đủ hàng tồn kho để xuất");
+                case 4: return ValidationProblem("[4] Không tồn tại hàng trong lô nhập");
+                case -1: return ValidationProblem("[-1] Lỗi khi lưu sản phẩm");
+            }
 
-            return CreatedAtAction(nameof(GetWarehouse), new { id = input.Id }, request);
+            return Ok(resultData);
         }
 
         [HttpDelete]

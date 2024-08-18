@@ -43,6 +43,7 @@ namespace Web.Api.Repositories
 
         Task<PagedList<WarehouseOutput>> GetOutputs(Guid companyId, WarehouseIOSearch search);
         Task<WarehouseOutput?> GetOutput(Guid companyId, Guid inputId);
+        Task<Order> GetOutputOrder(Guid companyId, Guid orderId);
         Task<bool> CheckExistProductInOutputs(Guid companyId, Guid outputId, Guid productId);
         Task<int> CreateOutput(Guid companyId, WarehouseOutput output);
         Task<WarehouseOutput> DeleteOutput(WarehouseOutput warehouseOutput);
