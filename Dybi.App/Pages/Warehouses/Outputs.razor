@@ -1,4 +1,4 @@
-﻿@page "/warehouses/inputs"
+﻿@page "/warehouses/outputs"
 @attribute [Authorize]
 
 @using Dybi.App.Components
@@ -24,7 +24,7 @@
     {
         <div class="card card-outline card-info">
             <div class="card-header">
-                <h3 class="card-title">Danh sách Nhập kho</h3>
+                <h3 class="card-title">Danh sách Xuất kho</h3>
             </div>
             <div class="card-body">
                 <InputSearch @ref="InputSearchControl" OnSearch="SearchInput"></InputSearch>

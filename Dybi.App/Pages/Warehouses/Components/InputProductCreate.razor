@@ -85,6 +85,7 @@
 
             Product.Price = Model.Price;
             Product.Quantity = Model.Quantity;
+            if (Product.Quantity == 1 && !string.IsNullOrEmpty(Product.Code)) Product.SeriCount = 1;
             await OnAddProduct.InvokeAsync(Product);
         }
         else ToastService.ShowError(result);

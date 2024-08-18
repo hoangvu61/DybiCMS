@@ -3,6 +3,7 @@
 @using System.IO;
 @inject IToastService ToastService;
 @inject IWarehouseApiClient WarehouseApiClient;
+@inject IJSRuntime JS
 
 @if (ShowDialog)
 {
@@ -20,6 +21,20 @@
                     <div class="modal-body">
                         <div class="form-group mb-3">
                             <div class="input-group input-group-sm">
+                                <label class="input-group-text">Mã sản phẩm:</label>
+                                <InputText id="productCreateCode" class="form-control form-control-sm" @bind-Value="Model.Code"></InputText>
+                            </div>
+                            <ValidationMessage For="()=> Model.Code"></ValidationMessage>
+                        </div>
+                        <div class="form-group mb-3">
+                            <div class="input-group input-group-sm">
+                                <label class="input-group-text">Tên</label>
+                                <InputText class="form-control form-control-sm" @bind-Value="Model.Title"></InputText>
+                            </div>
+                            <ValidationMessage For="()=> Model.Title"></ValidationMessage>
+                        </div>
+                        <div class="form-group mb-3">
+                            <div class="input-group input-group-sm">
                                 <label class="input-group-text">Danh mục</label>
                                 <InputSelect class="form-control form-control-sm" @bind-Value="Model.CategoryId">
                                     <option value="">Chọn danh mục</option>
@@ -31,20 +46,6 @@
                                 <button class="btn btn-outline-secondary" type="button" @onclick="() => CreateCategory.Show()">+</button>
                             </div>
                             <ValidationMessage For="()=>Model.CategoryId"></ValidationMessage>
-                        </div>
-                        <div class="form-group mb-3">
-                            <div class="input-group input-group-sm">
-                                <label class="input-group-text">Tên</label>
-                                <InputText class="form-control form-control-sm" @bind-Value="Model.Title"></InputText>
-                            </div>
-                            <ValidationMessage For="()=> Model.Title"></ValidationMessage>
-                        </div>
-                        <div class="form-group">
-                            <div class="input-group input-group-sm">
-                                <label class="input-group-text">Mã sản phẩm:</label>
-                                <InputText class="form-control form-control-sm" @bind-Value="Model.Code"></InputText>
-                            </div>
-                            <ValidationMessage For="()=> Model.Code"></ValidationMessage>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -64,13 +65,15 @@
     private WarehouseProductDto Model { set; get; } = new WarehouseProductDto();
 
     public List<WarehouseCategoryDto> ListCategories { get; set; }
+
     [Parameter]
-    public EventCallback<bool> CloseEventCallbak { get; set; }
+    public EventCallback<WarehouseProductDto> CloseEventCallbak { get; set; }
 
     protected CategoryCreate CreateCategory { set; get; }
 
     protected override async Task OnInitializedAsync()
     {
+        await JS.InvokeVoidAsync("setFocus", "#productCreateCode");
         await LoadData();
     }
 
@@ -99,7 +102,7 @@
         if (result)
         {
             ShowDialog = false;
-            await CloseEventCallbak.InvokeAsync(true);
+            await CloseEventCallbak.InvokeAsync(Model);
             ToastService.ShowInfo("Thêm Sản phẩm thành công");
         }
         else

@@ -21,18 +21,17 @@ namespace Web.Api.Repositories
         Task<Warehouse> DeleteWarehouse(Warehouse warehouse);
 
 
-        Task<PagedList<WarehouseInput>> GetInputs(Guid companyId, WarehouseInputSearch search);
+        Task<PagedList<WarehouseInput>> GetInputs(Guid companyId, WarehouseIOSearch search);
         Task<WarehouseInput?> GetInput(Guid companyId, Guid inputId);
         Task<bool> CheckExistInputCode(Guid companyId, string inputCode);
-        Task<bool> CheckExistProducts(Guid companyId, Guid inputId);
-        Task<WarehouseInput> CreateInput(WarehouseInput input);
+        Task<bool> CheckExistProductInInput(Guid companyId, Guid inputId, Guid productId);
+        Task<int> CreateInput(WarehouseInput input);
         Task<WarehouseInput> DeleteInput(WarehouseInput warehouseInput);
 
 
         Task<List<WarehouseInputProduct>> GetInputProducts(Guid companyId, Guid inputId);
         Task<WarehouseInputProduct> GetInputProduct(Guid companyId, Guid inputId, Guid productId);
-        Task<bool> CheckExistProductInput(Guid companyId, Guid inputId, Guid productId);
-        Task<WarehouseInputProduct> CreateInputProduct(WarehouseInputProduct product);
+        Task<int> CreateInputProduct(WarehouseInputProduct product);
         Task<int> DeleteInputProduct(WarehouseInputProduct product);
 
         Task<List<WarehouseInputProductCode>> GetInputProductCodes(Guid companyId, Guid inputId, Guid productId);
@@ -40,6 +39,24 @@ namespace Web.Api.Repositories
         Task<bool> CheckExistProductInputCode(Guid companyId, Guid productId, string code);
         Task<int> CreateInputProductCode(WarehouseInputProductCode productCode);
         Task<int> DeleteInputProductCode(WarehouseInputProductCode productCode);
+
+
+        Task<PagedList<WarehouseOutput>> GetOutputs(Guid companyId, WarehouseIOSearch search);
+        Task<WarehouseOutput?> GetOutput(Guid companyId, Guid inputId);
+        Task<bool> CheckExistProductInOutputs(Guid companyId, Guid outputId, Guid productId);
+        Task<int> CreateOutput(Guid companyId, WarehouseOutput output);
+        Task<WarehouseOutput> DeleteOutput(WarehouseOutput warehouseOutput);
+
+        Task<List<WarehouseOutputProductDetail>> GetOutputProducts(Guid companyId, Guid outputId);
+        Task<WarehouseOutputProduct> GetOutputProduct(Guid companyId, Guid outputId, Guid productId);
+        Task<int> CreateOutputProduct(Guid companyId, WarehouseOutputProduct product);
+        Task<int> DeleteOutputProduct(WarehouseOutputProduct product);
+
+        Task<List<WarehouseOutputProductCode>> GetOutputProductCodes(Guid companyId, Guid outputId, Guid productId);
+        Task<WarehouseOutputProductCode> GetOutputProductCode(Guid companyId, Guid outputId, Guid productId, string code);
+        Task<bool> CheckExistProductOutputCode(Guid companyId, Guid productId, string code);
+        Task<int> CreateOutputProductCode(WarehouseOutputProductCode productCode);
+        Task<int> DeleteOutputProductCode(WarehouseOutputProductCode productCode);
         #endregion
 
         #region factory

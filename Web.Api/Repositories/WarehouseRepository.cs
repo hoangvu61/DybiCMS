@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Polly;
+using System.ComponentModel.Design;
 using Web.Api.Data;
 using Web.Api.Entities;
 using Web.Models;
@@ -85,7 +87,7 @@ namespace Web.Api.Repositories
         }
 
 
-        public async Task<PagedList<WarehouseInput>> GetInputs(Guid companyId, WarehouseInputSearch search)
+        public async Task<PagedList<WarehouseInput>> GetInputs(Guid companyId, WarehouseIOSearch search)
         {
             var query = _context.WarehouseInputs
                                 .Include(e => e.Warehouse)
@@ -107,7 +109,7 @@ namespace Web.Api.Repositories
             if (search.WarehouseId != null) query = query.Where(e => e.Warehouse.Id == search.WarehouseId);
             if (search.SupplyerId != null) query = query.Where(e => e.FromSupplier != null && e.FromSupplier.SourceId == search.SupplyerId);
             if (search.FactoryId != null) query = query.Where(e => e.FromFactory != null && e.FromFactory.FactoryId == search.FactoryId);
-            if (search.FromWarehouseId != null) query = query.Where(e => e.FromWarehouse != null && e.FromWarehouse.WarehouseId == search.FromWarehouseId);
+            if (search.FromOrToWarehouseId != null) query = query.Where(e => e.FromWarehouse != null && e.FromWarehouse.WarehouseId == search.FromOrToWarehouseId);
 
             var count = await query.CountAsync();
 
@@ -137,13 +139,17 @@ namespace Web.Api.Repositories
                                 .AnyAsync();
             return check;
         }
-        public async Task<bool> CheckExistProducts(Guid companyId, Guid inputId)
+        public async Task<bool> CheckExistProductInInput(Guid companyId, Guid inputId, Guid productId)
         {
-            var check = await _context.WarehouseInputProducts.Where(e => e.Input.Warehouse.CompanyId == companyId && e.InputId == inputId)
-                                .AnyAsync();
+            var query = _context.WarehouseInputProducts.Where(e => e.Input.Warehouse.CompanyId == companyId && e.InputId == inputId);
+            if (productId != Guid.Empty)
+            {
+                query = query.Where(e => e.ProductId == productId);
+            }
+            var check = await query.AnyAsync();
             return check;
         }
-        public async Task<WarehouseInput> CreateInput(WarehouseInput input)
+        public async Task<int> CreateInput(WarehouseInput input)
         {
             _context.WarehouseInputs.Add(input);
 
@@ -160,13 +166,15 @@ namespace Web.Api.Repositories
                 debt.Price = input.Debt.Debit;
                 debt.TotalDebt = currentDebt + input.Debt.Debit;
                 _context.DebtSuppliers.Add(debt);
-            }
+            }  
 
             await _context.SaveChangesAsync();
-            return input;
+            return 0;
         }
         public async Task<WarehouseInput> DeleteInput(WarehouseInput warehouseInput)
         {
+            var inventories = await _context.WarehouseInputInventories.Where(e => e.InputId == warehouseInput.Id).ToListAsync();
+            if (inventories != null) _context.WarehouseInputInventories.RemoveRange(inventories);
             _context.WarehouseInputs.Remove(warehouseInput);
             await _context.SaveChangesAsync();
             return warehouseInput;
@@ -189,19 +197,17 @@ namespace Web.Api.Repositories
                 .Where(e => e.Input.Warehouse.CompanyId == companyId && e.InputId == inputId && e.ProductId == productId);
             return await query.FirstOrDefaultAsync();
         }
-        public async Task<bool> CheckExistProductInput(Guid companyId, Guid inputId, Guid productId)
-        {
-            var check = await _context.WarehouseInputProducts.Where(e => e.Input.Warehouse.CompanyId == companyId 
-                                                                    && e.InputId == inputId 
-                                                                    && e.ProductId == productId)
-                                .AnyAsync();
-            return check;
-        }
-        public async Task<WarehouseInputProduct> CreateInputProduct(WarehouseInputProduct product)
+        public async Task<int> CreateInputProduct(WarehouseInputProduct product)
         {
             var input = await _context.WarehouseInputs.Where(e => e.Id == product.InputId).FirstOrDefaultAsync();
-            if (input == null) return null;
+            if (input == null) return 1;
 
+            var item = await _context.ItemProducts.FirstOrDefaultAsync(e => e.ItemId == product.ProductId);
+            if (item == null) return 2;
+
+            if (product.Quantity == 1 && !string.IsNullOrEmpty(item.Code)) 
+                product.Codes = new List<WarehouseInputProductCode> { new WarehouseInputProductCode { ProductCode = item.Code } };
+            
             _context.WarehouseInputProducts.Add(product);
 
             var warehouseInventory = await _context.WarehouseInventories.FirstOrDefaultAsync(e => e.WarehouseId == input.WarehouseId && e.ProductId == product.ProductId);
@@ -239,7 +245,7 @@ namespace Web.Api.Repositories
             }    
 
             await _context.SaveChangesAsync();
-            return product;
+            return 0;
         }
         public async Task<int> DeleteInputProduct(WarehouseInputProduct product)
         {
@@ -270,6 +276,7 @@ namespace Web.Api.Repositories
                 return -1;
             }
         }
+
 
         public async Task<List<WarehouseInputProductCode>> GetInputProductCodes(Guid companyId, Guid inputId, Guid productId)
         {
@@ -322,6 +329,301 @@ namespace Web.Api.Repositories
                 if (input == null) return 2;
 
                 _context.WarehouseInputProductCodes.Remove(productCode);
+
+                await _context.SaveChangesAsync();
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                return -1;
+            }
+        }
+
+
+        public async Task<PagedList<WarehouseOutput>> GetOutputs(Guid companyId, WarehouseIOSearch search)
+        {
+            var query = _context.WarehouseOutputs
+                                .Include(e => e.Warehouse)
+                                .Include(e => e.ToSupplier)
+                                .Include(e => e.ToFactory)
+                                .Include(e => e.ToWarehouse)
+                                .Include(e => e.ToOrder)
+                                .Include(e => e.Products)
+                                .Where(e => e.Warehouse.CompanyId == companyId);
+
+            if (search.FromDate != null) query = query.Where(e => search.FromDate <= e.CreateDate);
+            if (search.ToDate != null) query = query.Where(e => e.CreateDate <= search.ToDate);
+            if (search.WarehouseId != null) query = query.Where(e => e.Warehouse.Id == search.WarehouseId);
+            if (search.SupplyerId != null) query = query.Where(e => e.ToSupplier != null && e.ToSupplier.SourceId == search.SupplyerId);
+            if (search.FactoryId != null) query = query.Where(e => e.ToFactory != null && e.ToFactory.FactoryId == search.FactoryId);
+            if (search.FromOrToWarehouseId != null) query = query.Where(e => e.ToWarehouse != null && e.ToWarehouse.WarehouseId == search.FromOrToWarehouseId);
+
+            var count = await query.CountAsync();
+
+            var data = await query.OrderBy(e => e.CreateDate)
+                .Skip((search.PageNumber - 1) * search.PageSize)
+                .Take(search.PageSize)
+                .ToListAsync();
+            return new PagedList<WarehouseOutput>(data, count, search.PageNumber, search.PageSize);
+        }
+        public async Task<WarehouseOutput?> GetOutput(Guid companyId, Guid inputId)
+        {
+            var output = await _context.WarehouseOutputs
+                                .Include(e => e.Warehouse)
+                                .Include(e => e.ToSupplier)
+                                .Include(e => e.ToFactory)
+                                .Include(e => e.ToWarehouse)
+                                .Include(e => e.ToOrder)
+                                .Include(e => e.Products)
+                                .Where(e => e.Warehouse.CompanyId == companyId && e.Id == inputId)
+                                .FirstOrDefaultAsync();
+            return output;
+        }
+        public async Task<bool> CheckExistProductInOutputs(Guid companyId, Guid outputId, Guid productId)
+        {
+            var query = _context.WarehouseOutputProducts.Where(e => e.Output.Warehouse.CompanyId == companyId && e.OutputId == outputId);
+            if (productId != Guid.Empty)
+            {
+                query = query.Where(e => e.ProductId == productId);
+            }
+            var check = await query.AnyAsync();
+            return check;
+        }
+        public async Task<int> CreateOutput(Guid companyId, WarehouseOutput output)
+        {
+            _context.WarehouseOutputs.Add(output);
+
+            if (output.Type == 1)
+            {
+                var phuongPhapTinhGiaXuatKho = await _context.WarehouseConfigs.Where(e => e.CompanyId == companyId && e.Key == "PhuongPhapTinhGiaXuatKho").Select(e => e.Value).FirstOrDefaultAsync();
+                if (phuongPhapTinhGiaXuatKho == null) return 1;
+                if (phuongPhapTinhGiaXuatKho != "2")
+                {
+                    foreach (var product in output.Products)
+                    {
+                        var warehouseInventory = await _context.WarehouseInventories.FirstOrDefaultAsync(e => e.WarehouseId == output.WarehouseId && e.ProductId == product.ProductId);
+                        if (warehouseInventory == null) return 2;
+                        else if (warehouseInventory.InventoryNumber < product.Quantity) return 3;
+
+                        warehouseInventory.InventoryNumber -= product.Quantity;
+                        _context.WarehouseInventories.Update(warehouseInventory);
+
+                        var warehouseInputInventories = await _context.WarehouseInputInventories.Where(e => e.ProductId == product.ProductId && e.InventoryNumber > 0).ToListAsync();
+                        if (warehouseInputInventories == null || warehouseInputInventories.Count == 0) return 4;
+
+                        var inputIds = warehouseInputInventories.Select(e => e.InputId).ToList();
+                        var inputProducts = await _context.WarehouseInputProducts.Where(e => inputIds.Contains(e.InputId)).OrderBy(e => e.Input.CreateDate).ToListAsync();
+
+                        foreach (var inputProduct in inputProducts)
+                        {
+                            var detail = new WarehouseOutputProductDetail
+                            {
+                                OutputId = product.OutputId,
+                                InputId = inputProduct.InputId,
+                                ProductId = inputProduct.ProductId,
+                                Price = inputProduct.Price
+                            };
+
+                            var warehouseInputInventory = warehouseInputInventories.First(e => e.InputId == inputProduct.InputId);
+                            if (warehouseInputInventory.InventoryNumber < product.Quantity)
+                            {
+                                detail.Quantity = warehouseInputInventory.InventoryNumber;
+
+                                _context.WarehouseInputInventories.Remove(warehouseInputInventory);
+                            }
+                            else
+                            {
+                                detail.Quantity = product.Quantity;
+                                warehouseInputInventory.InventoryNumber -= product.Quantity;
+                                _context.WarehouseInputInventories.Update(warehouseInputInventory);
+                                break;
+                            }
+
+                            _context.WarehouseOutputProductDetails.Add(detail);
+                        }
+                    }
+                }
+            }    
+
+            await _context.SaveChangesAsync();
+            return 0;
+        }
+        public async Task<WarehouseOutput> DeleteOutput(WarehouseOutput warehouseOutput)
+        {
+            _context.WarehouseOutputs.Remove(warehouseOutput);
+            await _context.SaveChangesAsync();
+            return warehouseOutput;
+        }
+
+        public async Task<List<WarehouseOutputProductDetail>> GetOutputProducts(Guid companyId, Guid outputId)
+        {
+            var query = _context.WarehouseOutputProductDetails
+                .Include(e => e.ProductInput).ThenInclude(e => e.Product).ThenInclude(e => e.Category)
+                .Include(e => e.ProductInput).ThenInclude(e => e.Input)
+                .Include(e => e.ProducOutput).ThenInclude(e => e.Codes)
+                .Where(e => e.ProducOutput.Output.Warehouse.CompanyId == companyId && e.OutputId == outputId);
+            return await query.ToListAsync();
+        }
+        public async Task<WarehouseOutputProduct> GetOutputProduct(Guid companyId, Guid outputId, Guid productId)
+        {
+            var query = _context.WarehouseOutputProducts
+                .Include(e => e.Product).ThenInclude(e => e.Category)
+                .Include(e => e.Codes)
+                .Include(e => e.Details)
+                .Where(e => e.Output.Warehouse.CompanyId == companyId && e.OutputId == outputId && e.ProductId == productId);
+            return await query.FirstOrDefaultAsync();
+        }
+        public async Task<int> CreateOutputProduct(Guid companyId, WarehouseOutputProduct product)
+        {
+            var output = await _context.WarehouseOutputs.Where(e => e.Id == product.OutputId).FirstOrDefaultAsync();
+            if (output == null) return 1;
+
+            var item = await _context.ItemProducts.FirstOrDefaultAsync(e => e.ItemId == product.ProductId);
+            if (item == null) return 2;
+
+            var warehouseInventory = await _context.WarehouseInventories.FirstOrDefaultAsync(e => e.WarehouseId == output.WarehouseId && e.ProductId == product.ProductId);
+            if (warehouseInventory == null) return 3;
+            else if (warehouseInventory.InventoryNumber < product.Quantity) return 4;
+
+            var phuongPhapTinhGiaXuatKho = await _context.WarehouseConfigs.Where(e => e.CompanyId == companyId && e.Key == "PhuongPhapTinhGiaXuatKho").Select(e => e.Value).FirstOrDefaultAsync();
+            if (phuongPhapTinhGiaXuatKho != "2")
+            {
+                var warehouseInputInventories = await _context.WarehouseInputInventories.Where(e => e.ProductId == product.ProductId && e.InventoryNumber > 0).ToListAsync();
+                if(warehouseInputInventories == null || warehouseInputInventories.Count == 0) return 5;
+
+                var inputIds = warehouseInputInventories.Select(e => e.InputId).ToList();
+                var inputProducts = await _context.WarehouseInputProducts.Where(e => inputIds.Contains(e.InputId)).OrderBy(e => e.Input.CreateDate).ToListAsync();
+
+                foreach(var inputProduct in inputProducts)
+                {
+                    var detail = new WarehouseOutputProductDetail
+                    {
+                        OutputId = product.OutputId,
+                        InputId = inputProduct.InputId,
+                        ProductId = inputProduct.ProductId,
+                        Price = inputProduct.Price
+                    };
+
+                    var warehouseInputInventory = warehouseInputInventories.First(e => e.InputId == inputProduct.InputId);
+                    if (warehouseInputInventory.InventoryNumber < product.Quantity)
+                    {
+                        detail.Quantity = warehouseInputInventory.InventoryNumber;
+
+                        _context.WarehouseInputInventories.Remove(warehouseInputInventory);
+                    }
+                    else
+                    {
+                        detail.Quantity = product.Quantity;
+
+                        warehouseInputInventory.InventoryNumber -= product.Quantity;
+                        _context.WarehouseInputInventories.Update(warehouseInputInventory);
+                        break;
+                    }
+                    
+                    _context.WarehouseOutputProductDetails.Add(detail);
+                }    
+            }    
+
+            _context.WarehouseOutputProducts.Add(product);
+
+            warehouseInventory.InventoryNumber -= product.Quantity;
+            _context.WarehouseInventories.Update(warehouseInventory);
+
+            await _context.SaveChangesAsync();
+            return 0;
+        }
+        public async Task<int> DeleteOutputProduct(WarehouseOutputProduct product)
+        {
+            try
+            {
+                var input = await _context.WarehouseOutputs.Where(e => e.Id == product.OutputId).FirstOrDefaultAsync();
+                if (input == null) return 1;
+
+                var warehouseInventory = await _context.WarehouseInventories.FirstOrDefaultAsync(e => e.WarehouseId == input.WarehouseId && e.ProductId == product.ProductId);
+                if (warehouseInventory == null) return 2;
+                warehouseInventory.InventoryNumber += product.Quantity;
+                _context.WarehouseInventories.Update(warehouseInventory);
+
+                foreach(var detail in product.Details)
+                {
+                    var warehouseInputInventory = await _context.WarehouseInputInventories.FirstOrDefaultAsync(e => e.InputId == detail.InputId && e.ProductId == detail.ProductId);
+                    if (warehouseInputInventory == null)
+                    {
+                        warehouseInputInventory = new WarehouseInputInventory
+                        {
+                            InputId = detail.InputId,
+                            ProductId = detail.ProductId,
+                        };
+                        _context.WarehouseInputInventories.Add(warehouseInputInventory);
+                    }
+                    else _context.WarehouseInputInventories.Update(warehouseInputInventory);
+
+                    warehouseInputInventory.InventoryNumber += detail.Quantity;
+                }
+
+                product.Details.Clear();
+                _context.WarehouseOutputProducts.Remove(product);
+
+                await _context.SaveChangesAsync();
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                return -1;
+            }
+        }
+
+        public async Task<List<WarehouseOutputProductCode>> GetOutputProductCodes(Guid companyId, Guid outputId, Guid productId)
+        {
+            var query = _context.WarehouseOutputProductCodes
+                .Where(e => e.Product.Output.Warehouse.CompanyId == companyId && e.OutputId == outputId && e.ProductId == productId);
+            return await query.ToListAsync();
+        }
+        public async Task<WarehouseOutputProductCode> GetOutputProductCode(Guid companyId, Guid outputId, Guid productId, string code)
+        {
+            var query = _context.WarehouseOutputProductCodes
+                .Where(e => e.Product.Output.Warehouse.CompanyId == companyId && e.OutputId == outputId && e.ProductId == productId && e.ProductCode == code);
+            return await query.FirstOrDefaultAsync();
+        }
+        public async Task<bool> CheckExistProductOutputCode(Guid companyId, Guid productId, string code)
+        {
+            var check = await _context.WarehouseOutputProductCodes.Where(e => e.Product.Output.Warehouse.CompanyId == companyId
+                                                                    && e.ProductId == productId
+                                                                    && e.ProductCode == code)
+                                .AnyAsync();
+            return check;
+        }
+        public async Task<int> CreateOutputProductCode(WarehouseOutputProductCode productCode)
+        {
+            try
+            {
+                var input = await _context.WarehouseOutputs.Where(e => e.Id == productCode.OutputId).FirstOrDefaultAsync();
+                if (input == null) return 1;
+
+                var product = await _context.WarehouseOutputProducts.Where(e => e.ProductId == productCode.ProductId).FirstOrDefaultAsync();
+                if (input == null) return 2;
+
+                _context.WarehouseOutputProductCodes.Add(productCode);
+
+                await _context.SaveChangesAsync();
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                return -1;
+            }
+        }
+        public async Task<int> DeleteOutputProductCode(WarehouseOutputProductCode productCode)
+        {
+            try
+            {
+                var input = await _context.WarehouseOutputs.Where(e => e.Id == productCode.OutputId).FirstOrDefaultAsync();
+                if (input == null) return 1;
+
+                var product = await _context.WarehouseOutputProducts.Where(e => e.ProductId == productCode.ProductId).FirstOrDefaultAsync();
+                if (input == null) return 2;
+
+                _context.WarehouseOutputProductCodes.Remove(productCode);
 
                 await _context.SaveChangesAsync();
                 return 0;

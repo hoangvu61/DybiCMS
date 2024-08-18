@@ -53,8 +53,8 @@
         }
         else if (InputType == 3) {
             <span class="input-group-text">Từ kho</span>
-            <InputSelect class="form-select form-select-sm" ValueExpression="@(()=>Model.FromWarehouseId)"
-                         Value="@Model.FromWarehouseId"
+            <InputSelect class="form-select form-select-sm" ValueExpression="@(()=>Model.FromOrToWarehouseId)"
+                         Value="@Model.FromOrToWarehouseId"
                          ValueChanged="@((Guid? value) => FromWarehouseChange(value))">
                 @if (Factories != null)
                 {
@@ -70,9 +70,9 @@
 
 @code {
     [Parameter]
-    public EventCallback<WarehouseInputSearch> OnSearch { set; get; }
+    public EventCallback<WarehouseIOSearch> OnSearch { set; get; }
 
-    private WarehouseInputSearch Model = new WarehouseInputSearch();
+    private WarehouseIOSearch Model = new WarehouseIOSearch();
 
     private List<WarehouseSupplierDto> Supplyers { set; get; }
     private List<WarehouseFactoryDto> Factories { set; get; }
@@ -106,20 +106,20 @@
             case 1:
                 Model.SupplyerId = Supplyers.Select(e => e.Id).FirstOrDefault();
                 Model.FactoryId = null;
-                Model.FromWarehouseId = null;
+                Model.FromOrToWarehouseId = null;
                 break;
             case 2:
                 Model.SupplyerId = null;
                 Model.FactoryId = Factories.Select(e => e.Id).FirstOrDefault();
-                Model.FromWarehouseId = null;
+                Model.FromOrToWarehouseId = null;
                 break;
             case 3:
                 Model.SupplyerId = null;
                 Model.FactoryId = null;
-                Model.FromWarehouseId = Warehouses.Select(e => e.Id).FirstOrDefault();
+                Model.FromOrToWarehouseId = Warehouses.Select(e => e.Id).FirstOrDefault();
                 break;
             default:
-                Model.SupplyerId = Model.FactoryId = Model.FromWarehouseId = null;
+                Model.SupplyerId = Model.FactoryId = Model.FromOrToWarehouseId = null;
                 break;
         }
     }
@@ -138,7 +138,7 @@
 
     private async Task FromWarehouseChange(Guid? value)
     {
-        Model.FromWarehouseId = value;
+        Model.FromOrToWarehouseId = value;
         await OnSearch.InvokeAsync(Model);
     }
 

@@ -3,7 +3,7 @@ using Web.Models.SeedWork;
 
 namespace Web.Models
 {
-    public partial class WarehouseInputSearch : PagingParameters
+    public partial class WarehouseIOSearch : PagingParameters
     {
         [AllowNull]
         public DateTime? FromDate { get; set; }
@@ -22,6 +22,8 @@ namespace Web.Models
 
         [AllowNull]
         public Guid? WarehouseId { get; set; }
-        public Guid? FromWarehouseId { get; set; }
+
+        [AllowNull]
+        public Guid? FromOrToWarehouseId { get; set; }
     }
 }

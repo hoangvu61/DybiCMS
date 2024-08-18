@@ -92,25 +92,22 @@
     protected override async Task OnInitializedAsync()
     {
         ProductListSearch.PageSize = PageSize;
-        await RefreshList(true);
+        await RefreshList(null);
     }
 
-    public async Task RefreshList(bool result)
+    public async Task RefreshList(WarehouseProductDto product)
     {
-        if (result)
+        try
         {
-            try
-            {
-                var pagingResponse = await WarehouseApiClient.GetProducts(ProductListSearch);
-                ListProducts = pagingResponse.Items;
-                MetaData = pagingResponse.MetaData;
+            var pagingResponse = await WarehouseApiClient.GetProducts(ProductListSearch);
+            ListProducts = pagingResponse.Items;
+            MetaData = pagingResponse.MetaData;
 
-                StateHasChanged();
-            }
-            catch (Exception ex)
-            {
-                Error.ProcessError(ex);
-            }
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Error.ProcessError(ex);
         }
     }
 
@@ -118,13 +115,13 @@
     {
         ProductListSearch = productListSearch;
         ProductListSearch.PageSize = PageSize;
-        await RefreshList(true);
+        await RefreshList(null);
     }
 
     private async Task SelectedPage(int page)
     {
         ProductListSearch.PageNumber = page;
-        await RefreshList(true);
+        await RefreshList(null);
     }
 
     public async Task OnConfirmDelete(bool deleteConfirmed)
@@ -135,7 +132,7 @@
             if (result)
             {
                 ToastService.ShowWarning($"Đã xóa {DeleteId}");
-                await RefreshList(true);
+                await RefreshList(null);
             }
             else ToastService.ShowError("Xóa không thành công");
             

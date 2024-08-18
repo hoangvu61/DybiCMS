@@ -18,7 +18,7 @@ namespace Dybi.App.Services
         Task<bool> UpdateWarehouse(WarehouseDto request);
         Task<bool> DeleteWarehouse(Guid id);
 
-        Task<PagedList<WarehouseInputDto>> GetWarehouseInputs(WarehouseInputSearch search);
+        Task<PagedList<WarehouseInputDto>> GetWarehouseInputs(WarehouseIOSearch search);
         Task<WarehouseInputDto> GetWarehouseInput(string id);
         Task<string> CreateWarehouseInput(WarehouseInputRequest request);
         Task<string> DeleteInput(Guid id);

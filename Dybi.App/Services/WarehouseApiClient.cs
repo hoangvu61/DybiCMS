@@ -69,7 +69,7 @@ namespace Dybi.App.Services
             return result.IsSuccessStatusCode;
         }
 
-        public async Task<PagedList<WarehouseInputDto>> GetWarehouseInputs(WarehouseInputSearch search)
+        public async Task<PagedList<WarehouseInputDto>> GetWarehouseInputs(WarehouseIOSearch search)
         {
             var queryStringParam = new Dictionary<string, string>
             {
@@ -83,8 +83,8 @@ namespace Dybi.App.Services
                 queryStringParam.Add("SupplyerId", search.SupplyerId?.ToString() ?? string.Empty);
             if (search.FactoryId != null && search.FactoryId != Guid.Empty)
                 queryStringParam.Add("FactoryId", search.FactoryId?.ToString() ?? string.Empty);
-            if (search.FromWarehouseId != null && search.FromWarehouseId != Guid.Empty)
-                queryStringParam.Add("FromWarehouseId", search.FromWarehouseId?.ToString() ?? string.Empty);
+            if (search.FromOrToWarehouseId != null && search.FromOrToWarehouseId != Guid.Empty)
+                queryStringParam.Add("FromWarehouseId", search.FromOrToWarehouseId?.ToString() ?? string.Empty);
             if (search.FromDate != null)
                 queryStringParam.Add("FromDate", search.FromDate?.ToString() ?? string.Empty);
             if (search.ToDate != null)

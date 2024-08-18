@@ -117,7 +117,7 @@
                     ConfirmationChanged="OnConfirmDelete">
         </Confirmation>
 
-        <ProductListPopup @ref="ProductListDialog" EventCallbak="SelectProduct"></ProductListPopup>
+        <ProductListPopup @ref="ProductListDialog" EventCallbak="SelectProduct" AllowAddProduct="true"></ProductListPopup>
         <InputProductCreate @ref="ProductInputCreateDialog" InputId="Model.Id" OnAddProduct="AddProduct"></InputProductCreate>
         <InputProductCodeCreate @ref="InputProductCodeCreateDialog" CloseEventCallback="UpdateCode"></InputProductCodeCreate>
     }

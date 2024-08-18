@@ -16,11 +16,11 @@
     <div class="modal fade show d-block" id="assignModel" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-lg" role="document">
             @if (Products == null)
-        {
-            <LoadingIndicator></LoadingIndicator>
-        }
-        else
-        {
+            {
+                <LoadingIndicator></LoadingIndicator>
+            }
+            else
+            {
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="exampleModalLabel">Chọn sản phẩm</h5>
@@ -29,46 +29,52 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                            <ProductSearch @ref="ProductSearchControl" OnSearch="SearchProduct"></ProductSearch>
-                    <table class="table table-sm">
-                        <thead>
-                            <tr>
-                                <th>Mã</th>
-                                <th>Tên</th>
-                                    <th style="text-align:center">Hình</th>
-                                <th>Danh mục</th>
-                                <th style="text-align:right">
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var item in Products)
-                            {
+                        <ProductSearch @ref="ProductSearchControl" OnSearch="SearchProduct"></ProductSearch>
+                        <table class="table table-sm">
+                            <thead>
                                 <tr>
-                                    <td>@item.Code</td>
-                                    <td>@item.Title</td>
-                                    <td style="text-align:center"><img src="@(BackendApiUrl + "/" + item.Image.FullPath + "?DummyId=" + DateTime.Now.Ticks)" asp-append-version="true" width="50px" /></td>
-                                    <td>@item.CategoryName</td>
-                                    <td style="text-align:right;width:75px">
-                                        <button class="btn btn-primary btn-sm" @onclick="() => Add(item)">Thêm</button>
+                                    <th>Mã</th>
+                                    <th>Tên</th>
+                                    <th style="text-align:center">Hình</th>
+                                    <th>Danh mục</th>
+                                    <th style="text-align:right">
+                                        @if (AllowAddProduct)
+                                        {
+                                            <button class="btn btn-success btn-sm" @onclick="() => CreateDialog.Show()">Thêm</button>
+                                        }
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Products)
+                                {
+                                    <tr>
+                                        <td>@item.Code</td>
+                                        <td>@item.Title</td>
+                                        <td style="text-align:center"><img src="@(BackendApiUrl + "/" + item.Image.FullPath + "?DummyId=" + DateTime.Now.Ticks)" asp-append-version="true" width="50px" /></td>
+                                        <td>@item.CategoryName</td>
+                                        <td style="text-align:right;width:75px">
+                                            <button class="btn btn-primary btn-sm" @onclick="() => Add(item)">Thêm</button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="5">
+                                        <Pagination MetaData="MetaData" Spread="2" SelectedPage="SelectedPage"></Pagination>
                                     </td>
                                 </tr>
-                            }
-                        </tbody>
-                        <tfoot>
-                            <tr>
-                                <td colspan="5">
-                                    <Pagination MetaData="MetaData" Spread="2" SelectedPage="SelectedPage"></Pagination>
-                                </td>
-                            </tr>
-                        </tfoot>
-                    </table>
+                            </tfoot>
+                        </table>
+                    </div>
                 </div>
-            </div>
-        }
+            }
         </div>
     </div>
+    <ProductCreate @ref="CreateDialog" CloseEventCallbak="Add"></ProductCreate>
 }
+
 @code {
     protected bool ShowBox { get; set; }
     private List<WarehouseProductDto> Products;
@@ -76,6 +82,10 @@
     [Parameter]
     public EventCallback<WarehouseProductDto> EventCallbak { get; set; }
 
+    [Parameter]
+    public bool AllowAddProduct { get; set; }
+
+    protected ProductCreate CreateDialog { set; get; }
     private ProductSearch ProductSearchControl { set; get; }
     private ProductListSearch ProductListSearch = new ProductListSearch();
     public MetaData MetaData { get; set; } = new MetaData();
@@ -87,7 +97,7 @@
 
     private string LanguageCode { set; get; }
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         BackendApiUrl = Configuration["BackendApiUrl"];
 
