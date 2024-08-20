@@ -21,10 +21,10 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <EditForm Model="Code" OnValidSubmit="HandleSubmit">
+                    <EditForm Model="Model" OnValidSubmit="HandleSubmit">
                         <div class="input-group input-group-sm mb-3">
                             <span class="input-group-text">Mã</span>
-                            <InputText id="inputDeleteCode" class="form-control form-control-sm" @bind-Value="Code" />
+                            <InputText id="inputDeleteCode" class="form-control form-control-sm" @bind-Value="Model.Code" />
                             <button type="submit" class="btn btn-danger btn-sm">Xóa</button>
                         </div>
                     </EditForm>
@@ -50,7 +50,7 @@
     private WarehouseIOType IOType { set; get; }
     private Guid IOId { set; get; }
     private Guid ProductId { set; get; }
-    private string Code { set; get; }
+    private WarehouseProductCodeRequest Model { set; get; } = new WarehouseProductCodeRequest();
 
     [Parameter]
     public EventCallback CloseEventCallback { set; get; }
@@ -62,8 +62,8 @@
         IOId = ioId;
         ProductId = productId;
         ShowDialog = true;
+        StateHasChanged(); 
         await JS.InvokeVoidAsync("setFocus", "#inputDeleteCode");
-        StateHasChanged();
     }
 
     private async Task Hide(bool callback)
@@ -76,18 +76,21 @@
 
     protected async Task HandleSubmit()
     {
-        var result = string.Empty;
-        if (IOType == WarehouseIOType.Input) result = await WarehouseApiClient.DeleteWarehouseInputProductCode(IOId, ProductId, Code);
-        else result = await WarehouseApiClient.DeleteWarehouseInputProductCode(IOId, ProductId, Code);
-        if (string.IsNullOrEmpty(result))
+        if (!string.IsNullOrEmpty(Model.Code))
         {
-            ToastService.ShowInfo("Xóa mã thành công");
-            await Hide(true);
-        }
-        else
-        {
-            ToastService.ShowError(result);
-            Code = string.Empty;
+            var result = string.Empty;
+            if (IOType == WarehouseIOType.Input) result = await WarehouseApiClient.DeleteWarehouseInputProductCode(IOId, ProductId, Model.Code);
+            else result = await WarehouseApiClient.DeleteWarehouseInputProductCode(IOId, ProductId, Model.Code);
+            if (string.IsNullOrEmpty(result))
+            {
+                ToastService.ShowInfo("Xóa mã thành công");
+                await Hide(true);
+            }
+            else
+            {
+                ToastService.ShowError(result);
+                Model.Code = string.Empty;
+            }
         }
     }
 }

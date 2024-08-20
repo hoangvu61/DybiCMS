@@ -73,7 +73,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await JS.InvokeVoidAsync("setFocus", "#productCreateCode");
         await LoadData();
     }
 
@@ -83,11 +82,12 @@
         ListCategories = SortTable(ListCategories, null, "", "---");
     }
 
-    public void Show()
+    public async Task Show()
     {
         ShowDialog = true;
         Model.Id = Guid.NewGuid();
         StateHasChanged();
+        await JS.InvokeVoidAsync("setFocus", "#productCreateCode");
     }
 
     private void Hide()

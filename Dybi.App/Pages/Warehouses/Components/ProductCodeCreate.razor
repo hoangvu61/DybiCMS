@@ -29,7 +29,7 @@
                         @Seris.Count.ToString("N0") / @Model.Quantity.ToString("N0")
                     </div>
                     <div class="alert alert-secondary" role="alert">
-                        <EditForm Model="Model" OnValidSubmit="HandleSubmit">
+                        <EditForm Model="Request" OnValidSubmit="HandleSubmit">
                             <div class="input-group input-group-sm mb-3">
                                 <span class="input-group-text">Mã</span>
                                 <InputText id="inputCode" class="form-control form-control-sm" @bind-Value="Request.Code" />
@@ -78,8 +78,8 @@
         if (IOType == WarehouseIOType.Input) Seris = await WarehouseApiClient.GetWarehouseInputProductCodes(IOId, Model.Id);
         else Seris = await WarehouseApiClient.GetWarehouseOutputProductCodes(IOId, Model.Id);
         ShowDialog = true;
-        await JS.InvokeVoidAsync("setFocus", "#inputCode");
         StateHasChanged();
+        await JS.InvokeVoidAsync("setFocus", "#inputCode");
     }
 
     private async Task Hide()
@@ -106,20 +106,23 @@
 
     protected async Task HandleSubmit()
     {
-        var result = string.Empty;
-        if (IOType == WarehouseIOType.Input) result = await WarehouseApiClient.CreateWarehouseInputProductCode(IOId, Model.Id, Request);
-        else result = await WarehouseApiClient.CreateWarehouseOutputProductCode(IOId, Model.Id, Request);
-        if (string.IsNullOrEmpty(result))
+        if (!string.IsNullOrEmpty(Request.Code))
         {
-            Seris.Add(Request.Code);
-            ToastService.ShowInfo("Thêm mã thành công");
-            Request.Code = string.Empty;
-            IsChange = true;
-        }
-        else
-        {
-            ToastService.ShowError(result);
-            Request.Code = string.Empty;
+            var result = string.Empty;
+            if (IOType == WarehouseIOType.Input) result = await WarehouseApiClient.CreateWarehouseInputProductCode(IOId, Model.Id, Request);
+            else result = await WarehouseApiClient.CreateWarehouseOutputProductCode(IOId, Model.Id, Request);
+            if (string.IsNullOrEmpty(result))
+            {
+                Seris.Add(Request.Code);
+                ToastService.ShowInfo("Thêm mã thành công");
+                Request.Code = string.Empty;
+                IsChange = true;
+            }
+            else
+            {
+                ToastService.ShowError(result);
+                Request.Code = string.Empty;
+            }
         }
     }
 }

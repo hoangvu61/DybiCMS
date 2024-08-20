@@ -69,12 +69,16 @@
                 {
                     <EditForm Model="Model" OnValidSubmit="SeriChanged">
                         <div class="input-group input-group-sm mb-3">
-                            <div class="input-group-text">
+                            
                                 <InputRadioGroup @bind-Value="SeriAction">
-                                    <InputRadio Value="1" class="btn-check" /> Thêm
-                                    <InputRadio Value="0" class="btn-check" /> Xóa
+                                    <div class="input-group-text">
+                                        <InputRadio Value="1" class="form-check-input mt-0" /> Thêm
+                                    </div>
+                                    <div class="input-group-text">
+                                        <InputRadio Value="0" class="form-check-input mt-0" /> Xóa
+                                    </div>
                                 </InputRadioGroup>
-                            </div>
+                            
                             <span class="input-group-text">Mã sản phẩm xuất đi</span>
                             <InputText tabindex="1" id="inputSeri" class="form-control form-control-sm" @bind-Value="Seri" />
                             <button type="submit" class="btn btn-primary btn-sm">Lưu</button>
@@ -91,7 +95,7 @@
                             <th class="text-center">Mã lô nhập</th>
                             <th class="text-center">Giá nhập</th>
                             <th class="text-center">Ngày nhập</th>
-                            <th class="text-center">
+                            <th class="text-center" style="width:70px">
                                 <button @onclick="() => ProductListDialog.Show()" class="btn btn-primary btn-sm">Thêm</button>
                             </th>
                         </tr>
@@ -103,15 +107,20 @@
                                 <td>@item.Code</td>
                                 <td>@item.Title</td>
                                 <td>@item.CategoryName</td>
-                                <td style="text-align:right">@item.Quantity.ToString("N0")</td>
-                                <td class="text-center">@item.InputId</td>
-                                <td style="text-align:right">@item.Price.ToString("N0") <sup>đ</sup></td>
-                                <td class="text-center">@item.InputCreateDate.ToString("dd/MM/yyyy hh:mm")</td>
-                                <td style="text-align:center;width:;width:@(Global.GetConfig("PhuongPhapTinhGiaXuatKho") == "2"? "200px":"70px")">
+                                <td style="text-align:right">
                                     @if (Global.GetConfig("PhuongPhapTinhGiaXuatKho") == "2")
                                     {
-                                        <button class="btn btn-success btn-sm" style="margin-right:10px" @onclick="()=>AddCode(item.InputId, item.Id)">Seri (@item.SeriCount.ToString("N0")/@item.Quantity.ToString("N0"))</button>
+                                        <button class="btn btn-success btn-sm" style="margin-right:10px" @onclick="()=>AddCode(item.InputId, item.Id)">@item.SeriCount.ToString("N0")</button>
                                     }
+                                    else
+                                    {
+                                        @item.Quantity.ToString("N0")
+                                    }
+                                </td>
+                                <td class="text-center">@item.InputId</td>
+                                <td style="text-align:right">@item.Price.ToString("N0")<sup>đ</sup></td>
+                                <td class="text-center">@item.InputCreateDate.ToString("dd/MM/yyyy hh:mm")</td>
+                                <td style="text-align:center">
                                     <button class="btn btn-danger btn-sm" @onclick="()=> OnDelete(item.Id)">Xóa</button>
                                 </td>
                             </tr>
@@ -160,8 +169,8 @@
         {
             await LoadData(Id);
         }
-        await JS.InvokeVoidAsync("setFocus", "#inputSeri");
         StateHasChanged();
+        await JS.InvokeVoidAsync("setFocus", "#inputSeri");
     }
 
     public async Task LoadData(string id)
@@ -178,9 +187,26 @@
         }
     }
 
-    public void SelectProduct(WarehouseProductDto product)
+    public async Task SelectProduct(WarehouseProductDto product)
     {
-        ProductOutputCreateDialog.Show(product);
+        if (Global.GetConfig("PhuongPhapTinhGiaXuatKho") == "2")
+        {
+            var productOutput = new WarehouseProductOutputRequest
+            {
+                Id = product.Id,
+                Quantity = 0,
+            };
+
+            var result = await WarehouseApiClient.CreateWarehouseOutputProduct(Model.Id, productOutput);
+            if (string.IsNullOrEmpty(result))
+            {
+                ToastService.ShowInfo($"Đã xuất sản phẩm [{product.Title}] đế [{Model.ToName}]");
+                ListProducts = await WarehouseApiClient.GetWarehouseOutputProducts(Model.Id);
+                StateHasChanged();
+            }
+            else ToastService.ShowError(result);
+        }
+        else ProductOutputCreateDialog.Show(product);
     }
     public void AddProduct(WarehouseProductOutputDto product)
     {
@@ -216,6 +242,7 @@
                 else ToastService.ShowError(message);
             }
         }
+        await JS.InvokeVoidAsync("setFocus", "#inputSeri");
     }
 
     public async Task AddCode(Guid inputId, Guid productId)

@@ -161,8 +161,8 @@
         Model.Id = Guid.NewGuid();
         Model.Type = 1;
         if (Supplyers != null && Supplyers.Count == 1) Model.ToId = Supplyers[0].Id;
-        await JS.InvokeVoidAsync("setFocus", "#inputOrderId");
         StateHasChanged();
+        await JS.InvokeVoidAsync("setFocus", "#inputOrderId");
     }
 
     private void Hide()

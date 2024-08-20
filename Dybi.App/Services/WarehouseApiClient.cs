@@ -262,7 +262,7 @@ namespace Dybi.App.Services
         }
         public async Task<string> CreateOutputProductByCode(Guid outputId, string code)
         {
-            var result = await _httpClient.PostAsJsonAsync($"/api/warehouses/outputs/{outputId}/products/codes", new WarehouseProductCodeOutputRequest { ProductCode = code });
+            var result = await _httpClient.PostAsJsonAsync($"/api/warehouses/outputs/{outputId}/products/codes", new WarehouseProductCodeRequest { Code = code });
             if (!result.IsSuccessStatusCode)
             {
                 var stringData = await result.Content.ReadAsStringAsync();

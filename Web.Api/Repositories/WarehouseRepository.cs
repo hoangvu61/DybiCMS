@@ -530,7 +530,11 @@ namespace Web.Api.Repositories
                     
                     _context.WarehouseOutputProductDetails.Add(detail);
                 }    
-            }    
+            }
+            else
+            {
+
+            }  
 
             _context.WarehouseOutputProducts.Add(product);
 
@@ -613,17 +617,60 @@ namespace Web.Api.Repositories
                                 .AnyAsync();
             return check;
         }
-        public async Task<int> CreateOutputProductCode(WarehouseOutputProductCode productCode)
+        public async Task<int> CreateOutputProductCode(Guid companyId, Guid outputId, Guid productId, string productCode)
         {
             try
             {
-                var input = await _context.WarehouseOutputs.Where(e => e.Id == productCode.OutputId).FirstOrDefaultAsync();
-                if (input == null) return 1;
+                var output = await _context.WarehouseOutputs.FirstOrDefaultAsync(e => e.Id == outputId && e.Warehouse.CompanyId == companyId);
+                if (output == null) return 1;
 
-                var product = await _context.WarehouseOutputProducts.Where(e => e.ProductId == productCode.ProductId).FirstOrDefaultAsync();
-                if (input == null) return 2;
+                var inputProductCode = await _context.WarehouseInputProductCodes
+                                                .Include(e => e.InputProduct)
+                                                .Where(e => e.ProductId == productId
+                                                            && e.ProductCode == productCode
+                                                            && e.InputProduct.Input.WarehouseId == output.WarehouseId
+                                                            && e.InputProduct.Input.Warehouse.CompanyId == companyId)
+                                                .OrderByDescending(e => e.InputProduct.Input.CreateDate)
+                                                .FirstOrDefaultAsync();
+                if (inputProductCode == null) return 2;
 
-                _context.WarehouseOutputProductCodes.Add(productCode);
+                var outProductCode = await _context.WarehouseOutputProductCodes.FirstOrDefaultAsync(e => e.ProductCode == productCode && e.OutProduct.OutputId == outputId && e.OutProduct.Output.Warehouse.CompanyId == companyId);
+                if (outProductCode != null) return 3;
+
+                var warehouseInventory = await _context.WarehouseInventories
+                                            .FirstOrDefaultAsync(e => e.WarehouseId == output.WarehouseId && e.ProductId == productId);
+                if (warehouseInventory == null) return 4;
+                else if (warehouseInventory.InventoryNumber < 1) return 5;
+
+                var inputInventory = await _context.WarehouseInputInventories
+                                            .OrderBy(e => e.Input.CreateDate)
+                                            .FirstOrDefaultAsync(e => e.ProductId == productId && e.InventoryNumber > 0);
+                if (inputInventory == null) return 6;
+
+                var outputProduct = await _context.WarehouseOutputProducts
+                    .Include(e => e.Codes)
+                    .Include(e => e.Details)
+                    .FirstOrDefaultAsync(e => e.ProductId == productId && e.OutputId == outputId);
+                if (outputProduct == null) return 7;
+
+                outputProduct.Quantity += 1;
+                outputProduct.Codes.Add(new WarehouseOutputProductCode { ProductCode = productCode, InputId = inputProductCode.InputId });
+                var detail = outputProduct.Details.FirstOrDefault(e => e.InputId == inputProductCode.InputId && e.ProductId == inputProductCode.ProductId);
+                if (detail == null)
+                {
+                    detail = new WarehouseOutputProductDetail { InputId = inputProductCode.InputId, Quantity = 1, ProductId = inputProductCode.ProductId, Price = inputProductCode.InputProduct.Price };
+                    outputProduct.Details.Add(detail);
+                }
+                else detail.Quantity += 1;
+                _context.WarehouseOutputProducts.Update(outputProduct);
+
+                warehouseInventory.InventoryNumber -= 1;
+                if (warehouseInventory.InventoryNumber == 0) _context.WarehouseInventories.Remove(warehouseInventory);
+                else _context.WarehouseInventories.Update(warehouseInventory);
+
+                inputInventory.InventoryNumber -= 1;
+                if (warehouseInventory.InventoryNumber == 0) _context.WarehouseInputInventories.Remove(inputInventory);
+                else _context.WarehouseInputInventories.Update(inputInventory);
 
                 await _context.SaveChangesAsync();
                 return 0;
@@ -637,26 +684,28 @@ namespace Web.Api.Repositories
         {
             try
             {
+                var output = await _context.WarehouseOutputs.FirstOrDefaultAsync(e => e.Id == outputId && e.Warehouse.CompanyId == companyId);
+                if (output == null) return 1;
+
                 var inputProductCodes = await _context.WarehouseInputProductCodes
                                                 .Include(e => e.InputProduct)
-                                                .Where(e => e.ProductCode == productCode && e.InputProduct.Input.Warehouse.CompanyId == companyId)
+                                                .Where(e => e.ProductCode == productCode && e.InputProduct.Input.WarehouseId == output.WarehouseId && e.InputProduct.Input.Warehouse.CompanyId == companyId)
+                                                .OrderByDescending(e => e.InputProduct.Input.CreateDate)
                                                 .ToListAsync();
-                if (inputProductCodes == null || inputProductCodes.Count == 0) return 1;
-                if (inputProductCodes.Select(e => e.ProductId).Distinct().Count() > 1) return 2;
+                if (inputProductCodes == null || inputProductCodes.Count == 0) return 2;
+                if (inputProductCodes.Select(e => e.ProductId).Distinct().Count() > 1) return 3;
                 var productId = inputProductCodes.Select(e => e.ProductId).First();
 
                 var outProductCode = await _context.WarehouseOutputProductCodes.FirstOrDefaultAsync(e => e.ProductCode == productCode && e.OutProduct.OutputId == outputId && e.OutProduct.Output.Warehouse.CompanyId == companyId);
-                if (outProductCode != null) return 3;
-
-                var output = await _context.WarehouseOutputs.FirstOrDefaultAsync(e => e.Id == outputId && e.Warehouse.CompanyId == companyId);
-                if (output == null) return 4;
+                if (outProductCode != null) return 4;
 
                 var warehouseInventory = await _context.WarehouseInventories
                                             .FirstOrDefaultAsync(e => e.WarehouseId == output.WarehouseId && e.ProductId == productId);
                 if (warehouseInventory == null) return 5;
                 else if (warehouseInventory.InventoryNumber < 1) return 6;
 
-                var inputInventory = await _context.WarehouseInputInventories.OrderBy(e => e.Input.CreateDate)
+                var inputInventory = await _context.WarehouseInputInventories
+                                            .OrderBy(e => e.Input.CreateDate)
                                             .FirstOrDefaultAsync(e => e.ProductId == productId && e.InventoryNumber > 0);
                 if (inputInventory == null) return 7;
                 var productInputPrice = inputProductCodes.Where(e => e.ProductId == productId && e.InputId == inputInventory.InputId).Select(e => e.InputProduct.Price).First();
@@ -672,16 +721,22 @@ namespace Web.Api.Repositories
                         OutputId = outputId,
                         ProductId = productId,
                         Quantity = 1,
-                        Codes = new List<WarehouseOutputProductCode> { new WarehouseOutputProductCode { ProductCode = productCode } },
-                        Details = new List<WarehouseOutputProductDetail> { new WarehouseOutputProductDetail { InputId = inputInventory.InputId, Quantity = 1, ProductId = productId, Price = inputInventory.Product.Price } }
+                        Codes = new List<WarehouseOutputProductCode> { new WarehouseOutputProductCode { ProductCode = productCode, InputId = inputInventory.InputId } },
+                        Details = new List<WarehouseOutputProductDetail> { new WarehouseOutputProductDetail { InputId = inputInventory.InputId, Quantity = 1, ProductId = productId, Price = productInputPrice } }
                     };
                     _context.WarehouseOutputProducts.Add(outputProduct);
                 }
                 else
                 {
                     outputProduct.Quantity += 1;
-                    outputProduct.Codes.Add(new WarehouseOutputProductCode { ProductCode = productCode });
-                    outputProduct.Details.Add(new WarehouseOutputProductDetail { InputId = inputInventory.InputId, Quantity = 1, ProductId = inputInventory.ProductId, Price = productInputPrice });
+                    outputProduct.Codes.Add(new WarehouseOutputProductCode { ProductCode = productCode, InputId = inputInventory.InputId });
+                    var detail = outputProduct.Details.FirstOrDefault(e => e.InputId == inputInventory.InputId && e.ProductId == inputInventory.ProductId);
+                    if (detail == null)
+                    {
+                        detail = new WarehouseOutputProductDetail { InputId = inputInventory.InputId, Quantity = 1, ProductId = inputInventory.ProductId, Price = productInputPrice };
+                        outputProduct.Details.Add(detail);
+                    }
+                    else detail.Quantity += 1;
                     _context.WarehouseOutputProducts.Update(outputProduct);
                 }
 

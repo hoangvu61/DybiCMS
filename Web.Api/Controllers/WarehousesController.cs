@@ -797,10 +797,10 @@ namespace Web.Api.Controllers
             switch (resultData)
             {
                 case 0: return Ok(resultData);
-                case 1: return ValidationProblem($"[1] Không tồn tại mã [{request.Code}] trong lô nhập");
-                case 2: return ValidationProblem($"[2] Có nhiều hơn 1 sản phẩm có mã [{request.Code}]");
-                case 3: return ValidationProblem($"[3] Đã tồn tại mã [{request.Code}]");
-                case 4: return ValidationProblem($"[4] Không tồn tại phiếu xuất kho [{id}]");
+                case 1: return ValidationProblem($"[1] Không tồn tại phiếu xuất kho [{id}]");
+                case 2: return ValidationProblem($"[2] Không tồn tại mã [{request.Code}] trong lô nhập");
+                case 3: return ValidationProblem($"[3] Có nhiều hơn 1 sản phẩm có mã [{request.Code}]");
+                case 4: return ValidationProblem($"[4] Đã tồn tại mã [{request.Code}]");
                 case 5: return ValidationProblem("[5] Không tồn tại sản phẩm tồn kho");
                 case 6: return ValidationProblem("[6] Sản phẩm tồn kho đã hết");
                 case 7: return ValidationProblem("[7] Không tìm thấy sản phẩm tồn kho trong lô nhập");
@@ -869,7 +869,7 @@ namespace Web.Api.Controllers
 
         [HttpPost]
         [Route("outputs/{outputid}/products/{productid}/codes")]
-        public async Task<IActionResult> CreateOutputProduct([FromRoute] Guid outputid, [FromRoute] Guid productid, [FromBody] WarehouseProductCodeRequest request)
+        public async Task<IActionResult> CreateOutputProductCode([FromRoute] Guid outputid, [FromRoute] Guid productid, [FromBody] WarehouseProductCodeRequest request)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
@@ -877,22 +877,20 @@ namespace Web.Api.Controllers
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return Unauthorized();
 
-            var product = await _itemRepository.GetProduct(user.CompanyId, productid);
-            if (product == null) return ValidationProblem($"Sản phẩm [{productid}] không tồn tại");
-
-            var checkExistProductOutput = await _warehouseRepository.CheckExistProductOutputCode(user.CompanyId, productid, request.Code);
-            if (checkExistProductOutput) return ValidationProblem($"Mã [{request.Code}] đã tồn tại trong sản phẩm [{product.Item.ItemLanguages.Where(e => e.LanguageCode == "vi").Select(e => e.Title).FirstOrDefault()}]");
-
-            var obj = new WarehouseOutputProductCode
+            var resultData = await _warehouseRepository.CreateOutputProductCode(user.CompanyId, outputid, productid, request.Code);
+            switch (resultData)
             {
-                ProductId = productid,
-                OutputId = outputid,
-                ProductCode = request.Code
-            };
-
-            var productInput = await _warehouseRepository.CreateOutputProductCode(obj);
-
-            return Ok(productInput);
+                case 0: return Ok(resultData);
+                case 1: return ValidationProblem($"[1] Không tồn tại phiếu xuất kho [{outputid}]");
+                case 2: return ValidationProblem($"[2] Không tồn tại mã [{request.Code}] trong lô nhập");
+                case 3: return ValidationProblem($"[3] Đã tồn tại mã [{request.Code}]");
+                case 4: return ValidationProblem("[4] Không tồn tại sản phẩm tồn kho");
+                case 5: return ValidationProblem("[5] Sản phẩm tồn kho đã hết");
+                case 6: return ValidationProblem("[6] Không tìm thấy sản phẩm tồn kho trong lô nhập");
+                case 7: return ValidationProblem($"[7] Không tìm thấy sản phẩm mã [{productid}] trong phiếu xuất [{outputid}]");
+                case -1: return ValidationProblem("[-1] Lỗi khi lưu mã");
+            }
+            return Ok(resultData);
         }
 
         [HttpDelete]
