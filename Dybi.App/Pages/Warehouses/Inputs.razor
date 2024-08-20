@@ -27,7 +27,7 @@
                 <h3 class="card-title">Danh sách Nhập kho</h3>
             </div>
             <div class="card-body">
-                <InputSearch @ref="InputSearchControl" OnSearch="SearchInput"></InputSearch>
+                <InputSearch OnSearch="SearchInput"></InputSearch>
                 <table class="table table-sm table-striped table-bordered">
                     <thead>
                         <tr>
@@ -88,7 +88,6 @@
     private List<WarehouseInputDto> ListInputs;
     private Guid DeleteId { set; get; }
 
-    private InputSearch InputSearchControl { set; get; }
     private WarehouseIOSearch WarehouseInputSearch = new WarehouseIOSearch();
     public MetaData MetaData { get; set; } = new MetaData();
 

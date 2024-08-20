@@ -52,31 +52,31 @@
             </div>
         </div>
     </div>
-    <InputProductCodeDelete @ref="InputProductCodeDeleteDialog" CloseEventCallback="RemoveCode"></InputProductCodeDelete>
+    <ProductCodeDelete @ref="ProductCodeDeleteDialog" CloseEventCallback="RemoveCode"></ProductCodeDelete>
 }
 
 @code {
     protected bool ShowDialog { get; set; }
 
     private WarehouseProductInputDto Model { set; get; }
-    private WarehouseProductInputCodeRequest Request { set; get; }
+    private WarehouseProductCodeRequest Request { set; get; } = new WarehouseProductCodeRequest();
+    private WarehouseIOType IOType { set; get; }
     private List<string> Seris { set; get; }
     private bool IsChange { set; get; }
+    private Guid IOId { set; get; }
 
-    private InputProductCodeDelete InputProductCodeDeleteDialog { set; get; }
+    private ProductCodeDelete ProductCodeDeleteDialog { set; get; }
 
     [Parameter]
     public EventCallback<WarehouseProductInputDto> CloseEventCallback { set; get; }
 
-    public async Task Show(Guid inputId, WarehouseProductInputDto dto)
+    public async Task Show(Guid ioIdtId, WarehouseProductInputDto dto, WarehouseIOType ioType)
     {
         Model = dto;
-        Request = new WarehouseProductInputCodeRequest
-            {
-                InputId = inputId,
-                ProductId = Model.Id,
-            };
-        Seris = await WarehouseApiClient.GetWarehouseInputProductCodes(inputId, Model.Id);
+        IOId = ioIdtId;
+        IOType = ioType;
+        if (IOType == WarehouseIOType.Input) Seris = await WarehouseApiClient.GetWarehouseInputProductCodes(IOId, Model.Id);
+        else Seris = await WarehouseApiClient.GetWarehouseOutputProductCodes(IOId, Model.Id);
         ShowDialog = true;
         await JS.InvokeVoidAsync("setFocus", "#inputCode");
         StateHasChanged();
@@ -95,17 +95,20 @@
 
     private async Task OpenDeleteCode()
     {
-        await InputProductCodeDeleteDialog.Show(Request, Seris);
+        await ProductCodeDeleteDialog.Show(IOId, Model.Id, Seris, IOType);
     }
     private async Task RemoveCode()
     {
-        Seris = await WarehouseApiClient.GetWarehouseInputProductCodes(Request.InputId, Request.ProductId);
+        if (IOType == WarehouseIOType.Input) Seris = await WarehouseApiClient.GetWarehouseInputProductCodes(IOId, Model.Id);
+        else Seris = await WarehouseApiClient.GetWarehouseOutputProductCodes(IOId, Model.Id);
         StateHasChanged();
     }
 
     protected async Task HandleSubmit()
     {
-        var result = await WarehouseApiClient.CreateWarehouseInputProductCode(Request);
+        var result = string.Empty;
+        if (IOType == WarehouseIOType.Input) result = await WarehouseApiClient.CreateWarehouseInputProductCode(IOId, Model.Id, Request);
+        else result = await WarehouseApiClient.CreateWarehouseOutputProductCode(IOId, Model.Id, Request);
         if (string.IsNullOrEmpty(result))
         {
             Seris.Add(Request.Code);

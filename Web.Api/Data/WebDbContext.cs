@@ -22,7 +22,7 @@ namespace Web.Api.Data
             modelBuilder.Entity<CompanyLanguageConfig>()
                   .HasKey(m => new { m.CompanyId, m.LanguageKey, m.LanguageCode });
             modelBuilder.Entity<WebInfo>()
-                 .HasKey(m => new { m.CompanyId, m.LanguageCode });
+                  .HasKey(m => new { m.CompanyId, m.LanguageCode });
 
             modelBuilder.Entity<AttributeCategory>()
                   .HasKey(m => new { m.AttributeId, m.CompanyId, m.CategoryId });
@@ -86,7 +86,7 @@ namespace Web.Api.Data
             modelBuilder.Entity<WarehouseInputProduct>()
                 .HasKey(m => new { m.InputId, m.ProductId });
             modelBuilder.Entity<WarehouseInputProductCode>()
-                .HasKey(m => new { m.ProductCode, m.ProductId });
+                .HasKey(m => new { m.InputId, m.ProductId, m.ProductCode });
             modelBuilder.Entity<WarehouseInventory>()
                 .HasKey(m => new { m.WarehouseId, m.ProductId });
             modelBuilder.Entity<WarehouseInputInventory>()
@@ -104,7 +104,7 @@ namespace Web.Api.Data
             modelBuilder.Entity<WarehouseOutputProductDetail>()
               .HasKey(m => new { m.OutputId, m.InputId, m.ProductId});
             modelBuilder.Entity<WarehouseOutputProductCode>()
-                .HasKey(m => new { m.ProductCode, m.ProductId });
+                .HasKey(m => new { m.OutputId, m.ProductId, m.ProductCode});
 
             modelBuilder.Entity<ContactAttribute>()
                 .HasKey(m => new { m.ContactId, m.AttributeId });

@@ -14,12 +14,21 @@ namespace Web.Api.Entities
         [Description("Mã xuất kho")]
         public Guid OutputId { get; set; }
 
+        [Description("Mã nhập kho")]
+        public Guid InputId { get; set; }
+
         public Guid ProductId { get; set; }
 
-        [ForeignKey("OutputId,ProductId")]
-        public WarehouseOutputProduct Product { get; set; }
+        [ForeignKey("InputId")]
+        public WarehouseInput Input { get; set; }
 
-        [ForeignKey("ProductCode,ProductId")]
+        [ForeignKey("OutputId")]
+        public WarehouseOutput Output { get; set; }
+
+        [ForeignKey("OutputId,ProductId")]
+        public WarehouseOutputProduct OutProduct { get; set; }
+
+        [ForeignKey("InputId,ProductId,ProductCode")]
         public WarehouseInputProductCode ProductInputCode { get; set; }
     }
 }

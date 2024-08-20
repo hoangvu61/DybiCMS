@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Azure.Core;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
@@ -291,40 +292,44 @@ namespace Web.Api.Controllers
             switch (request.Type)
             {
                 case 1:
-                    var supplier = await _warehouseRepository.GetSupplier(request.FromId);
-                    if (supplier == null) return ValidationProblem($"Không tìm thấy NCC [{request.FromId}]");
+                    if (request.FromId == null) return ValidationProblem($"Mã NCC không thể NULL");
+                    var supplier = await _warehouseRepository.GetSupplier(request.FromId.Value);
+                    if (supplier == null) return ValidationProblem($"Không tìm thấy NCC [{request.FromId.Value}]");
                     obj.FromSupplier = new WarehouseInputFromSupplier();
-                    obj.FromSupplier.SourceId = request.FromId;
+                    obj.FromSupplier.SourceId = request.FromId.Value;
                     obj.FromSupplier.SupplierName = supplier.Name;
                     obj.FromSupplier.SupplierPhone = supplier.Phone;
                     obj.FromSupplier.SupplierEmail = supplier.Email;
                     obj.FromSupplier.SupplierAddress = supplier.Address;
                     break;
                 case 2:
-                    var factory = await _warehouseRepository.GetFactory(request.FromId);
-                    if (factory == null) return ValidationProblem($"Không tìm thấy Nơi sản xuất [{request.FromId}]");
+                    if (request.FromId == null) return ValidationProblem($"Mã nơi sản xuất không thể NULL");
+                    var factory = await _warehouseRepository.GetFactory(request.FromId.Value);
+                    if (factory == null) return ValidationProblem($"Không tìm thấy Nơi sản xuất [{request.FromId.Value}]");
                     obj.FromFactory = new WarehouseInputFromFactory();
-                    obj.FromFactory.FactoryId = request.FromId;
+                    obj.FromFactory.FactoryId = request.FromId.Value;
                     obj.FromFactory.FactoryName = factory.Name;
                     obj.FromFactory.FactoryPhone = factory.Phone;
                     obj.FromFactory.FactoryEmail = factory.Email;
                     obj.FromFactory.FactoryAddress = factory.Address;
                     break;
                 case 3:
-                    var warehouse = await _warehouseRepository.GetWarehouse(request.FromId);
-                    if (warehouse == null) return ValidationProblem($"Không tìm thấy Kho [{request.FromId}]");
+                    if (request.FromId == null) return ValidationProblem($"Mã kho không thể NULL");
+                    var warehouse = await _warehouseRepository.GetWarehouse(request.FromId.Value);
+                    if (warehouse == null) return ValidationProblem($"Không tìm thấy Kho [{request.FromId.Value}]");
                     obj.FromWarehouse = new WarehouseInputFromWarehouse();
-                    obj.FromWarehouse.WarehouseId = request.FromId;
+                    obj.FromWarehouse.WarehouseId = request.FromId.Value;
                     obj.FromWarehouse.WarehouseName = warehouse.Name;
                     obj.FromWarehouse.WarehousePhone = warehouse.Phone;
                     obj.FromWarehouse.WarehouseEmail = warehouse.Email;
                     obj.FromWarehouse.WarehouseAddress = warehouse.Address;
                     break;
                 case 4:
-                    var order = await _warehouseRepository.GetOutputOrder(user.CompanyId, request.FromId);
+                    if (request.FromId == null) return ValidationProblem($"Mã đơn hàng không thể NULL");
+                    var order = await _warehouseRepository.GetOutputOrder(user.CompanyId, request.FromId.Value);
                     if (order == null) return ValidationProblem($"Không tìm thấy Hóa đơn [{request.FromId}]");
                     obj.FromOrder = new WarehouseInputFromOrder();
-                    obj.FromOrder.OrderId = request.FromId;
+                    obj.FromOrder.OrderId = request.FromId.Value;
                     obj.TotalPrice = order.Products.Sum(p => p.Price * p.Quantity);
                     foreach (var outputProduct in order.Products)
                     {
@@ -375,6 +380,7 @@ namespace Web.Api.Controllers
             {
                 Id = e.ProductId,
                 Code = e.Product.Code,
+                CategoryName = e.Product.CategoryId.ToString(),
                 Price = e.Price,
                 Quantity = e.Quantity,
                 SeriCount = e.Codes.Count(),
@@ -392,6 +398,34 @@ namespace Web.Api.Controllers
             }
 
             return Ok(dtos);
+        }
+
+        [HttpGet]
+        [Route("inputs/{inputid}/products/{productid}")]
+        public async Task<IActionResult> GetInputProduct([FromRoute] Guid inputid, [FromRoute] Guid productid)
+        {
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Unauthorized();
+
+            var obj = await _warehouseRepository.GetInputProduct(user.CompanyId, inputid, productid);
+            var dto = new WarehouseProductInputDto()
+            {
+                Id = obj.ProductId,
+                Code = obj.Product.Code,
+                CategoryName = obj.Product.CategoryId.ToString(),
+                Price = obj.Price,
+                Quantity = obj.Quantity,
+                SeriCount = obj.Codes.Count(),
+            };
+
+            var productLanguage = await _itemRepository.GetItemLanguage(user.CompanyId, dto.Id, "vi");
+            dto.Title = productLanguage.Title;
+
+            var categoryLanguage = await _itemRepository.GetItemLanguage(user.CompanyId, obj.Product.CategoryId, "vi");
+            dto.CategoryName = categoryLanguage.Title;
+
+            return Ok(dto);
         }
 
         [HttpPost]
@@ -470,7 +504,7 @@ namespace Web.Api.Controllers
 
         [HttpPost]
         [Route("inputs/{inputid}/products/{productid}/codes")]
-        public async Task<IActionResult> CreateInputProduct([FromRoute] Guid inputid, [FromRoute] Guid productid, [FromBody] WarehouseProductInputCodeRequest request)
+        public async Task<IActionResult> CreateInputProduct([FromRoute] Guid inputid, [FromRoute] Guid productid, [FromBody] WarehouseProductCodeRequest request)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
@@ -596,10 +630,11 @@ namespace Web.Api.Controllers
             switch (request.Type)
             {
                 case 1:
-                    var order = await _orderRepository.GetOrder(user.CompanyId, request.ToId);
-                    if (order == null) return ValidationProblem($"Không tìm thấy Hóa đơn [{request.ToId}]");
+                    if (request.ToId == null) return ValidationProblem($"Mã đơn hàng không thể NULL");
+                    var order = await _orderRepository.GetOrder(user.CompanyId, request.ToId.Value);
+                    if (order == null) return ValidationProblem($"Không tìm thấy Hóa đơn [{request.ToId.Value}]");
                     obj.ToOrder = new WarehouseOutputToOrder();
-                    obj.ToOrder.OrderId = request.ToId;
+                    obj.ToOrder.OrderId = request.ToId.Value;
                     foreach (var outputProduct in order.Products)
                     {
                         obj.Products.Add(new WarehouseOutputProduct
@@ -610,30 +645,33 @@ namespace Web.Api.Controllers
                     }
                     break;
                 case 2:
-                    var factory = await _warehouseRepository.GetFactory(request.ToId);
-                    if (factory == null) return ValidationProblem($"Không tìm thấy Nơi sản xuất [{request.ToId}]");
+                    if (request.ToId == null) return ValidationProblem($"Mã nơi sản xuất không thể NULL");
+                    var factory = await _warehouseRepository.GetFactory(request.ToId.Value);
+                    if (factory == null) return ValidationProblem($"Không tìm thấy Nơi sản xuất [{request.ToId.Value}]");
                     obj.ToFactory = new WarehouseOutputToFactory();
-                    obj.ToFactory.FactoryId = request.ToId;
+                    obj.ToFactory.FactoryId = request.ToId.Value;
                     obj.ToFactory.FactoryName = factory.Name;
                     obj.ToFactory.FactoryPhone = factory.Phone;
                     obj.ToFactory.FactoryEmail = factory.Email;
                     obj.ToFactory.FactoryAddress = factory.Address;
                     break;
                 case 3:
-                    var warehouse = await _warehouseRepository.GetWarehouse(request.ToId);
-                    if (warehouse == null) return ValidationProblem($"Không tìm thấy Kho [{request.ToId}]");
+                    if (request.ToId == null) return ValidationProblem($"Mã kho không thể NULL");
+                    var warehouse = await _warehouseRepository.GetWarehouse(request.ToId.Value);
+                    if (warehouse == null) return ValidationProblem($"Không tìm thấy Kho [{request.ToId.Value}]");
                     obj.ToWarehouse = new WarehouseOutputToWarehouse();
-                    obj.ToWarehouse.WarehouseId = request.ToId;
+                    obj.ToWarehouse.WarehouseId = request.ToId.Value;
                     obj.ToWarehouse.WarehouseName = warehouse.Name;
                     obj.ToWarehouse.WarehousePhone = warehouse.Phone;
                     obj.ToWarehouse.WarehouseEmail = warehouse.Email;
                     obj.ToWarehouse.WarehouseAddress = warehouse.Address;
                     break;
                 case 4:
-                    var supplier = await _warehouseRepository.GetSupplier(request.ToId);
-                    if (supplier == null) return ValidationProblem($"Không tìm thấy NCC [{request.ToId}]");
+                    if (request.ToId == null) return ValidationProblem($"Mã NCC không thể NULL");
+                    var supplier = await _warehouseRepository.GetSupplier(request.ToId.Value);
+                    if (supplier == null) return ValidationProblem($"Không tìm thấy NCC [{request.ToId.Value}]");
                     obj.ToSupplier = new WarehouseOutputToSupplier();
-                    obj.ToSupplier.SourceId = request.ToId;
+                    obj.ToSupplier.SourceId = request.ToId.Value;
                     obj.ToSupplier.SupplierName = supplier.Name;
                     obj.ToSupplier.SupplierPhone = supplier.Phone;
                     obj.ToSupplier.SupplierEmail = supplier.Email;
@@ -687,12 +725,13 @@ namespace Web.Api.Controllers
             {
                 Id = e.ProductId,
                 Code = e.ProductInput.Product.Code,
+                CategoryName = e.ProductInput.Product.CategoryId.ToString(),
                 Price = e.Price,
                 Quantity = e.Quantity,
                 SeriCount = e.ProducOutput.Codes.Count(),
                 InputId = e.ProductInput.InputId,
                 InputCreateDate = e.ProductInput.Input.CreateDate
-            }).ToList();
+            }).OrderBy(e => e.InputCreateDate).ThenBy(e => e.Code).ToList();
 
             var productIds = list.Select(e => e.ProductId).Distinct().ToList();
             var productLanguages = await _itemRepository.GetItemLanguages(user.CompanyId, productIds);
@@ -744,6 +783,32 @@ namespace Web.Api.Controllers
             return Ok(resultData);
         }
 
+        [HttpPost]
+        [Route("outputs/{id}/products/codes")]
+        public async Task<IActionResult> CreateOutputProductByCode([FromRoute] Guid id, [FromBody] WarehouseProductCodeRequest request)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Unauthorized();
+
+            var resultData = await _warehouseRepository.CreateOutputProductCode(user.CompanyId, id, request.Code);
+            switch (resultData)
+            {
+                case 0: return Ok(resultData);
+                case 1: return ValidationProblem($"[1] Không tồn tại mã [{request.Code}] trong lô nhập");
+                case 2: return ValidationProblem($"[2] Có nhiều hơn 1 sản phẩm có mã [{request.Code}]");
+                case 3: return ValidationProblem($"[3] Đã tồn tại mã [{request.Code}]");
+                case 4: return ValidationProblem($"[4] Không tồn tại phiếu xuất kho [{id}]");
+                case 5: return ValidationProblem("[5] Không tồn tại sản phẩm tồn kho");
+                case 6: return ValidationProblem("[6] Sản phẩm tồn kho đã hết");
+                case 7: return ValidationProblem("[7] Không tìm thấy sản phẩm tồn kho trong lô nhập");
+                case -1: return ValidationProblem("[-1] Lỗi khi lưu mã");
+            }
+            return Ok(resultData);
+        }
+
         [HttpDelete]
         [Route("outputs/{outputid}/products/{productid}")]
         public async Task<IActionResult> DeleteOutputProduct([FromRoute] Guid outputid, [FromRoute] Guid productid)
@@ -760,8 +825,92 @@ namespace Web.Api.Controllers
             {
                 case 0: return Ok(resultData);
                 case 1: return ValidationProblem("[1] Không tồn tại phiếu nhập kho");
-                case 2: return ValidationProblem("[2] Không tồn tại sản phẩm trong hàng tồn kho");
                 case -1: return ValidationProblem("[-1] Lỗi khi lưu sản phẩm");
+            }
+            return Ok(resultData);
+        }
+
+        [HttpDelete]
+        [Route("outputs/{outputid}/products/codes/{code}")]
+        public async Task<IActionResult> DeleteOutputProductByCode([FromRoute] Guid outputid, [FromRoute] string code)
+        {
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Unauthorized();
+
+            code = WebUtility.UrlDecode(code);
+            var resultData = await _warehouseRepository.DeleteOutputProductCode(user.CompanyId, outputid, code);
+            switch (resultData)
+            {
+                case 0: return Ok(resultData);
+                case 1: return ValidationProblem($"[1] Không tồn tại mã [{code}] của sản phẩm trong phiếu xuất kho");
+                case 2: return ValidationProblem($"[2] Tồn tại nhiều hơn một sản phẩm có mã [{code}]");
+                case 3: return ValidationProblem($"[3] Không tìm thấy phiếu xuất kho [{outputid}]");
+                case 4: return ValidationProblem("[4] Không tìm thấy sản phẩm với phiếu xuất kho tương ứng");
+                case -1: return ValidationProblem("[-1] Lỗi khi lưu vào db");
+            }
+            return Ok(resultData);
+        }
+
+
+        [HttpGet]
+        [Route("outputs/{outputid}/products/{productid}/codes")]
+        public async Task<IActionResult> GetOutputProductCodes([FromRoute] Guid outputid, [FromRoute] Guid productid)
+        {
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Unauthorized();
+
+            var list = await _warehouseRepository.GetOutputProductCodes(user.CompanyId, outputid, productid);
+            var codes = list.Select(e => e.ProductCode).ToList();
+
+            return Ok(codes);
+        }
+
+        [HttpPost]
+        [Route("outputs/{outputid}/products/{productid}/codes")]
+        public async Task<IActionResult> CreateOutputProduct([FromRoute] Guid outputid, [FromRoute] Guid productid, [FromBody] WarehouseProductCodeRequest request)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Unauthorized();
+
+            var product = await _itemRepository.GetProduct(user.CompanyId, productid);
+            if (product == null) return ValidationProblem($"Sản phẩm [{productid}] không tồn tại");
+
+            var checkExistProductOutput = await _warehouseRepository.CheckExistProductOutputCode(user.CompanyId, productid, request.Code);
+            if (checkExistProductOutput) return ValidationProblem($"Mã [{request.Code}] đã tồn tại trong sản phẩm [{product.Item.ItemLanguages.Where(e => e.LanguageCode == "vi").Select(e => e.Title).FirstOrDefault()}]");
+
+            var obj = new WarehouseOutputProductCode
+            {
+                ProductId = productid,
+                OutputId = outputid,
+                ProductCode = request.Code
+            };
+
+            var productInput = await _warehouseRepository.CreateOutputProductCode(obj);
+
+            return Ok(productInput);
+        }
+
+        [HttpDelete]
+        [Route("outputs/{outputid}/products/{productid}/codes/{code}")]
+        public async Task<IActionResult> DeleteOutputProductCode([FromRoute] Guid outputid, [FromRoute] Guid productid, [FromRoute] string code)
+        {
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Unauthorized();
+
+            code = WebUtility.UrlDecode(code);
+            var resultData = await _warehouseRepository.DeleteOutputProductCode(user.CompanyId, outputid, productid, code);
+            switch (resultData)
+            {
+                case 0: return Ok(resultData);
+                case 1: return ValidationProblem("[1] Không tồn tại phiếu nhập kho");
+                case 2: return ValidationProblem("[2] Không tồn tại sản phẩm phiếu nhập kho");
+                case -1: return ValidationProblem("[-1] Lỗi khi lưu mã");
             }
             return Ok(resultData);
         }

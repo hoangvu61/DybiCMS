@@ -13,7 +13,7 @@
 @inject IToastService ToastService;
 @inject IWarehouseApiClient WarehouseApiClient;
 
-<h1>Quản lý Nhập kho</h1>
+<h1>Quản lý Xuất kho</h1>
 
 <section>
     @if (ListInputs == null)
@@ -27,16 +27,14 @@
                 <h3 class="card-title">Danh sách Xuất kho</h3>
             </div>
             <div class="card-body">
-                <InputSearch @ref="InputSearchControl" OnSearch="SearchInput"></InputSearch>
+                <OutputSearch OnSearch="SearchOutput"></OutputSearch>
                 <table class="table table-sm table-striped table-bordered">
                     <thead>
                         <tr>
-                            <th class="text-center">Mã</th>
-                            <th class="text-center">Ngày</th>
-                            <th class="text-center">Tổng sản phẩm</th>
-                            <th class="text-center">Tổng tiền</th>
                             <th class="text-center">Loại</th>
                             <th class="text-center">Nguồn</th>
+                            <th class="text-center">Ngày</th>
+                            <th class="text-center">Tổng sản phẩm</th>
                             <th class="text-center" style="width:105px">
                                 <button @onclick="() => CreateDialog.Show()" class="btn btn-primary btn-sm">Thêm</button>
                             </th>
@@ -46,14 +44,12 @@
                         @foreach (var item in ListInputs)
                         {
                             <tr>
-                                <td>@item.InputCode</td>
+                                <td>@item.TypeName</td>
+                                <td>@item.ToName</td>
                                 <td>@item.CreateDate.ToString("dd/MM/yyyy hh:mm")</td>
                                 <td style="text-align:right">@item.ProductCount.ToString("N0")</td>
-                                <td style="text-align:right">@item.TotalPrice.ToString("N0") <sup>đ</sup></td>
-                                <td>@item.TypeName</td>
-                                <td>@item.SourceName</td>
                                 <td style="text-align:right;width:100px">
-                                    <a href="/warehouses/inputs/@item.Id" class="btn btn-primary btn-sm">Xem</a>
+                                    <a href="/warehouses/outputs/@item.Id" class="btn btn-primary btn-sm">Xem</a>
                                     <button class="btn btn-danger btn-sm" @onclick="()=> OnDelete(item.Id)">Xóa</button>
                                 </td>
                             </tr>
@@ -71,25 +67,24 @@
         </div>
 
         <Confirmation ConfirmationMessage="Bạn có chắc chắn xóa?"
-                    ConfirmationTitle="Xóa phiếu nhập kho"
+                    ConfirmationTitle="Xóa phiếu xuất kho"
                     @ref="DeleteConfirmation"
                     ConfirmationChanged="OnConfirmDelete">
         </Confirmation>
 
-        <InputCreate @ref="CreateDialog"></InputCreate>
+        <OutputCreate @ref="CreateDialog"></OutputCreate>
     }
 </section>
 
 @code {
     protected Confirmation DeleteConfirmation { set; get; }
-    protected InputCreate CreateDialog { set; get; }
+    protected OutputCreate CreateDialog { set; get; }
 
     private const int PageSize = 12;
-    private List<WarehouseInputDto> ListInputs;
+    private List<WarehouseOutputDto> ListInputs;
     private Guid DeleteId { set; get; }
 
-    private InputSearch InputSearchControl { set; get; }
-    private WarehouseIOSearch WarehouseInputSearch = new WarehouseIOSearch();
+    private WarehouseIOSearch WarehouseOutputSearch = new WarehouseIOSearch();
     public MetaData MetaData { get; set; } = new MetaData();
 
     [CascadingParameter]
@@ -97,7 +92,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        WarehouseInputSearch.PageSize = PageSize;
+        WarehouseOutputSearch.PageSize = PageSize;
         await RefreshList(true);
     }
 
@@ -107,7 +102,7 @@
         {
             try
             {
-                var pagingResponse = await WarehouseApiClient.GetWarehouseInputs(WarehouseInputSearch);
+                var pagingResponse = await WarehouseApiClient.GetWarehouseOutputs(WarehouseOutputSearch);
                 ListInputs = pagingResponse.Items;
                 MetaData = pagingResponse.MetaData;
 
@@ -120,16 +115,16 @@
         }
     }
 
-    public async Task SearchInput(WarehouseIOSearch inputListSearch)
+    public async Task SearchOutput(WarehouseIOSearch inputListSearch)
     {
-        WarehouseInputSearch = inputListSearch;
-        WarehouseInputSearch.PageSize = PageSize;
+        WarehouseOutputSearch = inputListSearch;
+        WarehouseOutputSearch.PageSize = PageSize;
         await RefreshList(true);
     }
 
     private async Task SelectedPage(int page)
     {
-        WarehouseInputSearch.PageNumber = page;
+        WarehouseOutputSearch.PageNumber = page;
         await RefreshList(true);
     }
 
@@ -137,14 +132,13 @@
     {
         if (deleteConfirmed)
         {
-            var result = await WarehouseApiClient.DeleteInput(DeleteId);
+            var result = await WarehouseApiClient.DeleteOutput(DeleteId);
             if (string.IsNullOrEmpty(result))
             {
                 ToastService.ShowWarning($"Đã xóa {DeleteId}");
                 await RefreshList(true);
             }
             else ToastService.ShowError(result);
-            
         }
     }
     public void OnDelete(Guid deleteId)

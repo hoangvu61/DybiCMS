@@ -57,7 +57,9 @@ namespace Web.Api.Repositories
         Task<WarehouseOutputProductCode> GetOutputProductCode(Guid companyId, Guid outputId, Guid productId, string code);
         Task<bool> CheckExistProductOutputCode(Guid companyId, Guid productId, string code);
         Task<int> CreateOutputProductCode(WarehouseOutputProductCode productCode);
-        Task<int> DeleteOutputProductCode(WarehouseOutputProductCode productCode);
+        Task<int> CreateOutputProductCode(Guid companyId, Guid outputId, string productCode);
+        Task<int> DeleteOutputProductCode(Guid companyId, Guid outputId, string productCode);
+        Task<int> DeleteOutputProductCode(Guid companyId, Guid outputId, Guid productId, string productCode);
         #endregion
 
         #region factory

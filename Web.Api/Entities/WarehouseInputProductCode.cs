@@ -17,6 +17,8 @@ namespace Web.Api.Entities
         public Guid ProductId { get; set; }
 
         [ForeignKey("InputId,ProductId")]
-        public WarehouseInputProduct Product { get; set; }
+        public WarehouseInputProduct InputProduct { get; set; }
+
+        public WarehouseOutputProductCode? InputProductCode { get; set; }
     }
 }

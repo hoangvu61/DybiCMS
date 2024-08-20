@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Web.Models
 {
@@ -11,8 +12,11 @@ namespace Web.Models
         public Guid WarehouseId { get; set; }
 
         public int Type { get; set; }
-        public Guid ToId { get; set; }
-        
+
+        [AllowNull]
+        public Guid? ToId { get; set; }
+
+        [AllowNull]
         public string? Note { get; set; }
     }
 }

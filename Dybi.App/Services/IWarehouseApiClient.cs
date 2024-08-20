@@ -24,12 +24,28 @@ namespace Dybi.App.Services
         Task<string> DeleteInput(Guid id);
 
         Task<List<WarehouseProductInputDto>> GetWarehouseInputProducts(Guid id);
+        Task<WarehouseProductInputDto> GetWarehouseInputProduct(Guid inputId, Guid productId);
         Task<string> CreateWarehouseInputProduct(Guid inputId, WarehouseProductInputRequest request);
         Task<string> DeleteWarehouseInputProduct(Guid inputid, Guid productid);
 
         Task<List<string>> GetWarehouseInputProductCodes(Guid inputid, Guid productid);
-        Task<string> CreateWarehouseInputProductCode(WarehouseProductInputCodeRequest request);
+        Task<string> CreateWarehouseInputProductCode(Guid inputId, Guid productId, WarehouseProductCodeRequest request);
         Task<string> DeleteWarehouseInputProductCode(Guid inputid, Guid productid, string code);
+
+        Task<PagedList<WarehouseOutputDto>> GetWarehouseOutputs(WarehouseIOSearch search);
+        Task<WarehouseOutputDto> GetWarehouseOutput(string id);
+        Task<string> CreateWarehouseOutput(WarehouseOutputRequest request);
+        Task<string> DeleteOutput(Guid id);
+
+        Task<List<WarehouseProductOutputDto>> GetWarehouseOutputProducts(Guid id);
+        Task<string> CreateWarehouseOutputProduct(Guid outputId, WarehouseProductOutputRequest request);
+        Task<string> CreateOutputProductByCode(Guid outputId, string code);
+        Task<string> DeleteWarehouseOutputProduct(Guid outputId, Guid productid);
+        Task<string> DeleteOutputProductByCode(Guid outputId, string code);
+
+        Task<List<string>> GetWarehouseOutputProductCodes(Guid outputid, Guid productid);
+        Task<string> CreateWarehouseOutputProductCode(Guid outputid, Guid productId, WarehouseProductCodeRequest request);
+        Task<string> DeleteWarehouseOutputProductCode(Guid outputid, Guid productid, string code);
 
         Task<PagedList<WarehouseInventoryDto>> GetInventories(WarehouseInventorySearch search);
         Task<List<WarehouseInputInventoryDto>> GetInventories(Guid productid);

@@ -15,14 +15,18 @@ namespace Web.Models
         public string? InputCode { get; set; }
 
         public int Type { get; set; }
-        public Guid FromId { get; set; }
+
+        [AllowNull]
+        public Guid? FromId { get; set; }
 
         public decimal TotalPrice { get; set; }
-        
+
+        [AllowNull]
         public string? Note { get; set; }
 
         public decimal Payment { get; set; }
 
+        [AllowNull]
         public DateTime? DebitExpire { get; set; }
     }
 }

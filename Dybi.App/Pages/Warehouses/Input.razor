@@ -83,28 +83,31 @@
                             <th class="text-center">Danh mục</th>
                             <th class="text-center">Đơn giá</th>
                             <th class="text-center">Số lượng</th>
-                            <th class="text-center" style="width:105px">
+                            <th class="text-center">
                                 <button @onclick="() => ProductListDialog.Show()" class="btn btn-primary btn-sm">Thêm</button>
                             </th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var item in ListProducts)
+                        @if(ListProducts != null)
                         {
-                            <tr>
-                                <td>@item.Code</td>
-                                <td>@item.Title</td>
-                                <td>@item.CategoryName</td>
-                                <td style="text-align:right">@item.Price.ToString("N0") <sup>đ</sup></td>
-                                <td style="text-align:right">@item.Quantity.ToString("N0")</td>
-                                <td style="text-align:center;width:@(Global.GetConfig("PhuongPhapTinhGiaXuatKho") == "2"? "200px":"70px")">
-                                    @if (Global.GetConfig("PhuongPhapTinhGiaXuatKho") == "2")
-                                    {
-                                        <button class="btn btn-success btn-sm" style="margin-right:10px" @onclick="()=>InputProductCodeCreateDialog.Show(Model.Id, item)">Seri (@item.SeriCount.ToString("N0")/@item.Quantity.ToString("N0"))</button>
-                                    }
-                                    <button class="btn btn-danger btn-sm" @onclick="()=> OnDelete(item.Id)">Xóa</button>
-                                </td>
-                            </tr>
+                            foreach (var item in ListProducts)
+                            {
+                                <tr>
+                                    <td>@item.Code</td>
+                                    <td>@item.Title</td>
+                                    <td>@item.CategoryName</td>
+                                    <td style="text-align:right">@item.Price.ToString("N0") <sup>đ</sup></td>
+                                    <td style="text-align:right">@item.Quantity.ToString("N0")</td>
+                                    <td style="text-align:center;width:@(Global.GetConfig("PhuongPhapTinhGiaXuatKho") == "2"? "200px":"70px")">
+                                        @if (Global.GetConfig("PhuongPhapTinhGiaXuatKho") == "2")
+                                        {
+                                            <button class="btn btn-success btn-sm" style="margin-right:10px" @onclick="()=>ProductCodeCreateDialog.Show(Model.Id, item, Web.Models.Enums.WarehouseIOType.Input)">Seri (@item.SeriCount.ToString("N0")/@item.Quantity.ToString("N0"))</button>
+                                        }
+                                        <button class="btn btn-danger btn-sm" @onclick="()=> OnDelete(item.Id)">Xóa</button>
+                                    </td>
+                                </tr>
+                            }
                         }
                     </tbody>
                 </table>
@@ -119,7 +122,7 @@
 
         <ProductListPopup @ref="ProductListDialog" EventCallbak="SelectProduct" AllowAddProduct="true"></ProductListPopup>
         <InputProductCreate @ref="ProductInputCreateDialog" InputId="Model.Id" OnAddProduct="AddProduct"></InputProductCreate>
-        <InputProductCodeCreate @ref="InputProductCodeCreateDialog" CloseEventCallback="UpdateCode"></InputProductCodeCreate>
+        <ProductCodeCreate @ref="ProductCodeCreateDialog" CloseEventCallback="UpdateCode"></ProductCodeCreate>
     }
 </section>
 
@@ -135,7 +138,7 @@
 
     private ProductListPopup ProductListDialog { set; get; }
     private InputProductCreate ProductInputCreateDialog { set; get; }
-    private InputProductCodeCreate InputProductCodeCreateDialog { set; get; }
+    private ProductCodeCreate ProductCodeCreateDialog { set; get; }
 
     private Guid DeleteId { set; get; }
 

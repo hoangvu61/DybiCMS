@@ -1,0 +1,151 @@
+﻿@using Dybi.App.Services;
+@using Web.Models;
+@using System.IO;
+@using Web.Models.Enums;
+@using Web.Models.SeedWork;
+
+@inject IWarehouseApiClient WarehouseApiClient;
+
+<div class="form-group">
+    <div class="input-group input-group-sm mb-3">
+        <span class="input-group-text">Từ ngày</span>
+        <input type="date" value="@Model.FromDate?.ToString("dd/MM/yyyy")" @onchange="@(() => OnSearch.InvokeAsync(Model))" />
+        <span class="input-group-text">Đến ngày</span>
+        <input type="date" value="@Model.ToDate?.ToString("dd/MM/yyyy")" @onchange="@(() => OnSearch.InvokeAsync(Model))" />
+        <InputSelect class="form-select form-select-sm" ValueExpression="@(()=>OutputType)"
+                     Value="@OutputType"
+                     ValueChanged="@((int? value) => TypeChange(value))">
+            <option value="0">Loại xuất kho</option>
+            @foreach (var item in DataSource.WarehouseOutputTypes)
+            {
+                <option value="@item.Key">@item.Value</option>
+            }
+        </InputSelect>
+        @if (OutputType == 4)
+        {
+            <span class="input-group-text">Nhà cung cấp</span>
+            <InputSelect class="form-select form-select-sm" ValueExpression="@(()=>Model.SupplyerId)"
+                         Value="@Model.SupplyerId"
+                         ValueChanged="@((Guid? value) => SupplyerChange(value))">
+                @if (Supplyers != null)
+                {
+                    @foreach (var item in Supplyers)
+                    {
+                        <option value="@item.Id">@item.Name</option>
+                    }
+                }
+            </InputSelect>
+        }
+        else if (OutputType == 2)
+        {
+            <span class="input-group-text">Nơi sản xuất</span>
+            <InputSelect class="form-select form-select-sm" ValueExpression="@(()=>Model.FactoryId)"
+                         Value="@Model.FactoryId"
+                         ValueChanged="@((Guid? value) => FactoryChange(value))">
+                @if (Factories != null)
+                {
+                    @foreach (var item in Warehouses)
+                    {
+                        <option value="@item.Id">@item.Name</option>
+                    }
+                }
+            </InputSelect>
+        }
+        else if (OutputType == 3)
+        {
+            <span class="input-group-text">Từ kho</span>
+            <InputSelect class="form-select form-select-sm" ValueExpression="@(()=>Model.FromOrToWarehouseId)"
+                         Value="@Model.FromOrToWarehouseId"
+                         ValueChanged="@((Guid? value) => FromWarehouseChange(value))">
+                @if (Factories != null)
+                {
+                    @foreach (var item in Warehouses)
+                    {
+                        <option value="@item.Id">@item.Name</option>
+                    }
+                }
+            </InputSelect>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public EventCallback<WarehouseIOSearch> OnSearch { set; get; }
+
+    private WarehouseIOSearch Model = new WarehouseIOSearch();
+
+    private List<WarehouseSupplierDto> Supplyers { set; get; }
+    private List<WarehouseFactoryDto> Factories { set; get; }
+    private List<WarehouseDto> Warehouses { set; get; }
+
+    private int? OutputType { set; get; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        Supplyers = await WarehouseApiClient.GetSuppliers();
+        Supplyers = Supplyers.Where(e => e.IsActive).ToList();
+
+        Factories = await WarehouseApiClient.GetFactories();
+        Factories = Factories.Where(e => e.IsActive).ToList();
+
+        Warehouses = await WarehouseApiClient.GetWarehouses();
+        Warehouses = Warehouses.Where(e => e.IsActive).ToList();
+    }
+
+    private async Task TextChange()
+    {
+        if (Model.Code.Length > 3)
+            await OnSearch.InvokeAsync(Model);
+    }
+
+    private void TypeChange(int? inputType)
+    {
+        OutputType = inputType;
+        switch (OutputType)
+        {
+            case 4:
+                Model.SupplyerId = Supplyers.Select(e => e.Id).FirstOrDefault();
+                Model.FactoryId = null;
+                Model.FromOrToWarehouseId = null;
+                break;
+            case 2:
+                Model.SupplyerId = null;
+                Model.FactoryId = Factories.Select(e => e.Id).FirstOrDefault();
+                Model.FromOrToWarehouseId = null;
+                break;
+            case 3:
+                Model.SupplyerId = null;
+                Model.FactoryId = null;
+                Model.FromOrToWarehouseId = Warehouses.Select(e => e.Id).FirstOrDefault();
+                break;
+            default:
+                Model.SupplyerId = Model.FactoryId = Model.FromOrToWarehouseId = null;
+                break;
+        }
+    }
+
+    private async Task SupplyerChange(Guid? value)
+    {
+        Model.SupplyerId = value;
+        await OnSearch.InvokeAsync(Model);
+    }
+
+    private async Task FactoryChange(Guid? value)
+    {
+        Model.FactoryId = value;
+        await OnSearch.InvokeAsync(Model);
+    }
+
+    private async Task FromWarehouseChange(Guid? value)
+    {
+        Model.FromOrToWarehouseId = value;
+        await OnSearch.InvokeAsync(Model);
+    }
+
+    private async Task MainWarehouseChange(Guid? value)
+    {
+        Model.WarehouseId = value;
+        await OnSearch.InvokeAsync(Model);
+    }
+}

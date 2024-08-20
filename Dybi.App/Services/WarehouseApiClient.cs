@@ -130,6 +130,11 @@ namespace Dybi.App.Services
             var result = await _httpClient.GetFromJsonAsync<List<WarehouseProductInputDto>>($"/api/warehouses/inputs/{id}/products");
             return result;
         }
+        public async Task<WarehouseProductInputDto> GetWarehouseInputProduct(Guid inputId, Guid productId)
+        {
+            var result = await _httpClient.GetFromJsonAsync<WarehouseProductInputDto>($"/api/warehouses/inputs/{inputId}/products/{productId}");
+            return result;
+        }
         public async Task<string> CreateWarehouseInputProduct(Guid inputId, WarehouseProductInputRequest request)
         {
             var result = await _httpClient.PostAsJsonAsync($"/api/warehouses/inputs/{inputId}/products", request);
@@ -158,9 +163,9 @@ namespace Dybi.App.Services
             var result = await _httpClient.GetFromJsonAsync<List<string>>($"/api/warehouses/inputs/{inputid}/products/{productid}/codes");
             return result;
         }
-        public async Task<string> CreateWarehouseInputProductCode(WarehouseProductInputCodeRequest request)
+        public async Task<string> CreateWarehouseInputProductCode(Guid inputId, Guid productId, WarehouseProductCodeRequest request)
         {
-            var result = await _httpClient.PostAsJsonAsync($"/api/warehouses/inputs/{request.InputId}/products/{request.ProductId}/codes", request);
+            var result = await _httpClient.PostAsJsonAsync($"/api/warehouses/inputs/{inputId}/products/{productId}/codes", request);
             if (!result.IsSuccessStatusCode)
             {
                 var stringData = await result.Content.ReadAsStringAsync();
@@ -173,6 +178,142 @@ namespace Dybi.App.Services
         {
             var endcode = WebUtility.UrlEncode(code);
             var result = await _httpClient.DeleteAsync($"/api/warehouses/inputs/{inputid}/products/{productid}/codes/{endcode}");
+            if (!result.IsSuccessStatusCode)
+            {
+                var stringData = await result.Content.ReadAsStringAsync();
+                var resultData = JsonConvert.DeserializeObject<ResponseErrorDto>(stringData);
+                return resultData.Detail;
+            }
+            return string.Empty;
+        }
+
+
+        public async Task<PagedList<WarehouseOutputDto>> GetWarehouseOutputs(WarehouseIOSearch search)
+        {
+            var queryStringParam = new Dictionary<string, string>
+            {
+                ["pageNumber"] = search.PageNumber.ToString(),
+                ["pageSize"] = search.PageSize.ToString()
+            };
+
+            if (search.WarehouseId != null && search.WarehouseId != Guid.Empty)
+                queryStringParam.Add("WarehouseId", search.WarehouseId?.ToString() ?? string.Empty);
+            if (search.SupplyerId != null && search.SupplyerId != Guid.Empty)
+                queryStringParam.Add("SupplyerId", search.SupplyerId?.ToString() ?? string.Empty);
+            if (search.FactoryId != null && search.FactoryId != Guid.Empty)
+                queryStringParam.Add("FactoryId", search.FactoryId?.ToString() ?? string.Empty);
+            if (search.FromOrToWarehouseId != null && search.FromOrToWarehouseId != Guid.Empty)
+                queryStringParam.Add("FromWarehouseId", search.FromOrToWarehouseId?.ToString() ?? string.Empty);
+            if (search.FromDate != null)
+                queryStringParam.Add("FromDate", search.FromDate?.ToString() ?? string.Empty);
+            if (search.ToDate != null)
+                queryStringParam.Add("ToDate", search.ToDate?.ToString() ?? string.Empty);
+            if (!string.IsNullOrEmpty(search.Code))
+                queryStringParam.Add("Code", search.Code);
+
+            string url = QueryHelpers.AddQueryString("/api/warehouses/outputs", queryStringParam);
+            var result = await _httpClient.GetFromJsonAsync<PagedList<WarehouseOutputDto>>(url);
+            return result;
+        }
+        public async Task<WarehouseOutputDto> GetWarehouseOutput(string id)
+        {
+            string url = $"/api/warehouses/outputs/{id}";
+            var result = await _httpClient.GetFromJsonAsync<WarehouseOutputDto>(url);
+            return result;
+        }
+        public async Task<string> CreateWarehouseOutput(WarehouseOutputRequest request)
+        {
+            var result = await _httpClient.PostAsJsonAsync($"/api/warehouses/outputs", request);
+            if (!result.IsSuccessStatusCode)
+            {
+                var stringData = await result.Content.ReadAsStringAsync();
+                var resultData = JsonConvert.DeserializeObject<ResponseErrorDto>(stringData);
+                return resultData.Detail;
+            }
+            return string.Empty;
+        }
+        public async Task<string> DeleteOutput(Guid id)
+        {
+            var result = await _httpClient.DeleteAsync($"/api/warehouses/outputs/{id}");
+            if (!result.IsSuccessStatusCode)
+            {
+                var stringData = await result.Content.ReadAsStringAsync();
+                var resultData = JsonConvert.DeserializeObject<ResponseErrorDto>(stringData);
+                return resultData.Detail;
+            }
+            return string.Empty;
+        }
+
+        public async Task<List<WarehouseProductOutputDto>> GetWarehouseOutputProducts(Guid id)
+        {
+            var result = await _httpClient.GetFromJsonAsync<List<WarehouseProductOutputDto>>($"/api/warehouses/outputs/{id}/products");
+            return result;
+        }
+        public async Task<string> CreateWarehouseOutputProduct(Guid outputId, WarehouseProductOutputRequest request)
+        {
+            var result = await _httpClient.PostAsJsonAsync($"/api/warehouses/outputs/{outputId}/products", request);
+            if (!result.IsSuccessStatusCode)
+            {
+                var stringData = await result.Content.ReadAsStringAsync();
+                var resultData = JsonConvert.DeserializeObject<ResponseErrorDto>(stringData);
+                return resultData.Detail;
+            }
+            return string.Empty;
+        }
+        public async Task<string> CreateOutputProductByCode(Guid outputId, string code)
+        {
+            var result = await _httpClient.PostAsJsonAsync($"/api/warehouses/outputs/{outputId}/products/codes", new WarehouseProductCodeOutputRequest { ProductCode = code });
+            if (!result.IsSuccessStatusCode)
+            {
+                var stringData = await result.Content.ReadAsStringAsync();
+                var resultData = JsonConvert.DeserializeObject<ResponseErrorDto>(stringData);
+                return resultData.Detail;
+            }
+            return string.Empty;
+        }
+        public async Task<string> DeleteWarehouseOutputProduct(Guid outputId, Guid productid)
+        {
+            var result = await _httpClient.DeleteAsync($"/api/warehouses/outputs/{outputId}/products/{productid}");
+            if (!result.IsSuccessStatusCode)
+            {
+                var stringData = await result.Content.ReadAsStringAsync();
+                var resultData = JsonConvert.DeserializeObject<ResponseErrorDto>(stringData);
+                return resultData.Detail;
+            }
+            return string.Empty;
+        }
+        public async Task<string> DeleteOutputProductByCode(Guid outputId, string code)
+        {
+            var result = await _httpClient.DeleteAsync($"/api/warehouses/outputs/{outputId}/products/codes/{code}");
+            if (!result.IsSuccessStatusCode)
+            {
+                var stringData = await result.Content.ReadAsStringAsync();
+                var resultData = JsonConvert.DeserializeObject<ResponseErrorDto>(stringData);
+                return resultData.Detail;
+            }
+            return string.Empty;
+        }
+
+        public async Task<List<string>> GetWarehouseOutputProductCodes(Guid outputid, Guid productid)
+        {
+            var result = await _httpClient.GetFromJsonAsync<List<string>>($"/api/warehouses/outputs/{outputid}/products/{productid}/codes");
+            return result;
+        }
+        public async Task<string> CreateWarehouseOutputProductCode(Guid outputid, Guid productId, WarehouseProductCodeRequest request)
+        {
+            var result = await _httpClient.PostAsJsonAsync($"/api/warehouses/outputs/{outputid}/products/{productId}/codes", request);
+            if (!result.IsSuccessStatusCode)
+            {
+                var stringData = await result.Content.ReadAsStringAsync();
+                var resultData = JsonConvert.DeserializeObject<ResponseErrorDto>(stringData);
+                return resultData.Detail;
+            }
+            return string.Empty;
+        }
+        public async Task<string> DeleteWarehouseOutputProductCode(Guid outputid, Guid productid, string code)
+        {
+            var endcode = WebUtility.UrlEncode(code);
+            var result = await _httpClient.DeleteAsync($"/api/warehouses/outputs/{outputid}/products/{productid}/codes/{endcode}");
             if (!result.IsSuccessStatusCode)
             {
                 var stringData = await result.Content.ReadAsStringAsync();
