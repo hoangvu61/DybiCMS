@@ -262,7 +262,7 @@ else
 
     public async Task LoadData(string languageCode)
     {
-        Model = await WarehouseApiClient.GetProduct(Id);
+        Model = await WarehouseApiClient.GetProductById(Id);
 
         Tags = await WebsiteApiClient.GetTags();
         StateHasChanged();

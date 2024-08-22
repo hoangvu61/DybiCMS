@@ -1,0 +1,178 @@
+﻿@page "/debts/AccountsPayable"
+@attribute [Authorize]
+
+@using Dybi.App.Components
+@using Dybi.App.Pages.Components
+@using Dybi.App.Pages.Debts.Components
+@using Dybi.App.Pages.Warehouses.Components
+@using Microsoft.AspNetCore.Authorization;
+@using Dybi.App.Services;
+@using Web.Models;
+@using Web.Models.SeedWork;
+@using Microsoft.Extensions.Configuration
+
+@inject IToastService ToastService;
+@inject IDebtApiClient DebtApiClient;
+
+<h1>Quản lý Công nợ</h1>
+
+<div class="row">
+    <div class="col">
+        <section>
+            @if (ListDepts == null)
+            {
+                <LoadingIndicator></LoadingIndicator>
+            }
+            else
+            {
+                <div class="card card-outline card-info">
+                    <div class="card-header">
+                        <h3 class="card-title">Nợ phải trả</h3>
+                    </div>
+                    <div class="card-body">
+                        <DebtDebtorSearch @ref="DebtDebtorSearchControl" OnSearch="Search"></DebtDebtorSearch>
+                        <table class="table table-sm table-striped table-bordered">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">Nhà cung cấp</th>
+                                    <th class="text-center">Nợ</th>
+                                    <th class="text-center">Ngày</th>
+                                    <th class="text-center">Tổng nợ</th>
+                                    <th class="text-center" style="width:70px">
+                                        <button @onclick="() => DebtDebtorRepaymentDialog.Show()" class="btn btn-primary btn-sm">Trả nợ</button>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var dept in ListDepts)
+                                {
+                                    <tr>
+                                        <td>@dept.DebtorOrCreditor_Name</td>
+                                        <td style="text-align:right">@dept.Price.ToString("N0")</td>
+                                        <td class="text-center">@dept.CreateDate.ToString("dd/MM/yyyy hh:mm")</td>
+                                        <td style="text-align:right">@dept.TotalDebt.ToString("N0")</td>
+                                        @if (LastestDepts.Any(e => e.Id == dept.Id))
+                                        {
+                                            @if (dept.Type == 2)
+                                            {
+                                                <td class="text-center"><button class="btn btn-danger btn-sm" @onclick="()=> OnDelete(dept.Id)">Xóa</button></td>
+                                            }
+                                            else
+                                            {
+                                                <td><button @onclick="() => DebtDebtorRepaymentDialog.Show(dept)" class="btn btn-primary btn-sm">Trả nợ</button></td>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <td></td>
+                                        }
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="9">
+                                        <Pagination MetaData="MetaData" Spread="2" SelectedPage="SelectedPage"></Pagination>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+                <Confirmation ConfirmationMessage="Bạn có chắc chắn xóa?"
+                              ConfirmationTitle="Xóa dòng trả nợ"
+                              @ref="DeleteConfirmation"
+                              ConfirmationChanged="OnConfirmDelete">
+                </Confirmation>
+
+                <DebtDebtorRepayment @ref="DebtDebtorRepaymentDialog" CloseEventCallback="RefreshList"></DebtDebtorRepayment>
+            }
+        </section>
+    </div>
+</div>
+
+@code {
+    private const int PageSize = 12;
+    private List<DebtDto> ListDepts;
+    private List<DebtDto> LastestDepts;
+
+    private DebtDebtorSearch DebtDebtorSearchControl { set; get; }
+    private DebtSupplierSearch DebtSearch = new DebtSupplierSearch();
+    public MetaData MetaData { get; set; } = new MetaData();
+
+    protected DebtDebtorRepayment DebtDebtorRepaymentDialog { set; get; }
+    protected Confirmation DeleteConfirmation { set; get; }
+    private Guid DeleteId { set; get; }
+
+    [CascadingParameter]
+    private Error Error { set; get; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        DebtSearch.PageSize = PageSize;
+        await RefreshList();
+    }
+
+    public async Task RefreshList()
+    {
+        try
+        {
+            var pagingResponse = await DebtApiClient.GetSupplierDebts(DebtSearch);
+            ListDepts = pagingResponse.Items;
+            MetaData = pagingResponse.MetaData;
+
+            LastestDepts = ListDepts.GroupBy(r => r.DebtorOrCreditor_Id)
+                                .Select(g => g.OrderByDescending(r => r.CreateDate).FirstOrDefault())
+                                .ToList();
+
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Error.ProcessError(ex);
+        }
+    }
+
+    public async Task Search(DebtSupplierSearch debtSearch)
+    {
+        DebtSearch = debtSearch;
+        DebtSearch.PageSize = PageSize;
+        await RefreshList();
+    }
+
+    private async Task SelectedPage(int page)
+    {
+        DebtSearch.PageNumber = page;
+        await RefreshList();
+    }
+
+     public async Task OnConfirmDelete(bool deleteConfirmed)
+    {
+        if (deleteConfirmed)
+        {
+            try
+            {
+                var result = await DebtApiClient.DeleteSupplierDebt(DeleteId);
+                if (string.IsNullOrEmpty(result))
+                {
+                    ToastService.ShowWarning($"Đã xóa {DeleteId}");
+                    await RefreshList();
+                }
+                else ToastService.ShowError(result);
+
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                ToastService.ShowError(ex.Message);
+                Error.ProcessError(ex);
+            }
+        }
+    }
+
+    private async Task OnDelete(Guid deleteId)
+    {
+        DeleteId = deleteId;
+        DeleteConfirmation.Show();
+    }
+}

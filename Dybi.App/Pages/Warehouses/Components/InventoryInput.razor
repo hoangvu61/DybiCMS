@@ -39,7 +39,7 @@
                                         Từ: @item.InputSourceName
                                     </td>
                                     <td style="text-align:right;vertical-align:middle">@item.ProductPrice.ToString("N0")</td>
-                                    <td>
+                                    <td style="text-align:right;vertical-align:middle">
                                         Nhập: @item.TotalProduct.ToString("N0") <br />
                                         Tồn: <strong>@item.InventoryNumber.ToString("N0")</strong>
                                     </td>
@@ -57,20 +57,20 @@
     private Guid ProductId { set; get; }
     private string ProductName { set; get; }
 
-    private const int PageSize = 12;
     private List<WarehouseInputInventoryDto> ListInputs;
 
     [CascadingParameter]
     private Error Error { set; get; }
 
-    public async Task Load(Guid productId, string productName)
+    public async Task Load(Guid warehouseId, Guid productId, string productName)
     {
         ProductId = productId;
         ProductName = productName;
-        
+
         try
         {
             ListInputs = await WarehouseApiClient.GetInventories(ProductId);
+            ListInputs = ListInputs.Where(e => e.WarehouseId == warehouseId).ToList();
             StateHasChanged();
         }
         catch (Exception ex)

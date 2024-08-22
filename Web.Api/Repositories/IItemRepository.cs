@@ -67,6 +67,7 @@ namespace Web.Api.Repositories
         Task<PagedList<ItemProduct>> GetProducts(Guid companyId, ProductListSearch productSearch);
         Task<List<ItemProduct>> GetProducts(Guid companyId, List<Guid> itemIds);
         Task<ItemProduct> GetProduct(Guid companyId, Guid id);
+        Task<ItemLanguage> GetProduct(Guid companyId, string code, string language);
         Task<bool> CheckExistProductCode(Guid companyId, string code);
         Task<Item> CreateProduct(Item item, List<ItemAttributeDto> Attributes, List<Guid> relatedItems, List<ProductAddOnDto> addOnProducts);
         Task<bool> UpdateProduct(ProductDetailDto request);

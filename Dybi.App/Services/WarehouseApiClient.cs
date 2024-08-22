@@ -284,7 +284,8 @@ namespace Dybi.App.Services
         }
         public async Task<string> DeleteOutputProductByCode(Guid outputId, string code)
         {
-            var result = await _httpClient.DeleteAsync($"/api/warehouses/outputs/{outputId}/products/codes/{code}");
+            var endcode = WebUtility.UrlEncode(code);
+            var result = await _httpClient.DeleteAsync($"/api/warehouses/outputs/{outputId}/products/codes/{endcode}");
             if (!result.IsSuccessStatusCode)
             {
                 var stringData = await result.Content.ReadAsStringAsync();
@@ -454,15 +455,21 @@ namespace Dybi.App.Services
             if (paging.CategoryId != null && paging.CategoryId != Guid.Empty)
                 queryStringParam.Add("CategoryId", paging.CategoryId?.ToString() ?? string.Empty);
             if (!string.IsNullOrEmpty(paging.Key))
-                queryStringParam.Add("Key", paging.Key);
+                queryStringParam.Add("Key", WebUtility.UrlEncode(paging.Key));
 
             string url = QueryHelpers.AddQueryString("/api/warehouses/products", queryStringParam);
             var result = await _httpClient.GetFromJsonAsync<PagedList<WarehouseProductDto>>(url);
             return result;
         }
-        public async Task<ProductDetailDto> GetProduct(string id)
+        public async Task<ProductDetailDto> GetProductById(string id)
         {
             var result = await _httpClient.GetFromJsonAsync<ProductDetailDto>($"/api/contents/products/{id}/vi");
+            return result;
+        }
+        public async Task<ProductDetailDto> GetProductByCode(string code)
+        {
+            var endCode = WebUtility.UrlEncode(code);
+            var result = await _httpClient.GetFromJsonAsync<ProductDetailDto>($"/api/contents/products/codes/{endCode}/vi");
             return result;
         }
         public async Task<bool> CreateProduct(WarehouseProductDto request)

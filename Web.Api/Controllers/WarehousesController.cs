@@ -281,13 +281,6 @@ namespace Web.Api.Controllers
                 TotalPrice = request.TotalPrice,
                 Note = request.Note,
             };
-
-            if (request.TotalPrice < request.Payment)
-            {
-                obj.Debt = new WarehouseInputDebt();
-                obj.Debt.Debit = request.TotalPrice - request.Payment;
-                obj.Debt.DebitExpire = request.DebitExpire;
-            }    
             
             switch (request.Type)
             {
@@ -301,6 +294,14 @@ namespace Web.Api.Controllers
                     obj.FromSupplier.SupplierPhone = supplier.Phone;
                     obj.FromSupplier.SupplierEmail = supplier.Email;
                     obj.FromSupplier.SupplierAddress = supplier.Address;
+
+                    if (request.TotalPrice > request.Payment)
+                    {
+                        obj.Debt = new WarehouseInputDebt();
+                        obj.Debt.Debit = request.TotalPrice - request.Payment;
+                        obj.Debt.DebitExpire = request.DebitExpire;
+                    }
+
                     break;
                 case 2:
                     if (request.FromId == null) return ValidationProblem($"Mã nơi sản xuất không thể NULL");
@@ -356,13 +357,17 @@ namespace Web.Api.Controllers
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return Unauthorized();
 
-            var obj = await _warehouseRepository.GetInput(user.CompanyId, id);
-            if (obj == null) return ValidationProblem($"Phiếu nhập kho [{id}] không tồn tại");
-
-            var checkExistProduct = await _warehouseRepository.CheckExistProductInInput(user.CompanyId, id, Guid.Empty);
-            if (checkExistProduct) return ValidationProblem($"Phải xóa hết sản phẩm trước");
-
-            var resultData = await _warehouseRepository.DeleteInput(obj);
+            var resultData = await _warehouseRepository.DeleteInput(user.CompanyId, id);
+            switch (resultData)
+            {
+                case 0: return Ok(resultData);
+                case 1: return ValidationProblem($"[1] Phiếu nhập kho [{id}] không tồn tại");
+                case 2: return ValidationProblem($"[2] Phải xóa hết sản phẩm trước");
+                case 3: return ValidationProblem("[3] Số lượng hàng tồn ít hơn số lượng sản phẩm cần xóa");
+                case 4: return ValidationProblem("[4] Không tồn tại sản phẩm trong đợt nhập hàng");
+                case 5: return ValidationProblem("[5] Số lượng hàng tồn trong lô nhập ít hơn số lượng sản phẩm cần xóa");
+                case -1: return ValidationProblem("[-1] Lỗi khi lưu sản phẩm");
+            }
             return Ok(resultData);
         }
 
@@ -961,6 +966,8 @@ namespace Web.Api.Controllers
                 InventoryNumber = e.InventoryNumber,
                 InputType = DataSource.WarehouseInputTypes.First(s => s.Key == e.Input.Type).Value,
                 InputSourceName = e.Input.FromSupplier?.SupplierName ?? e.Input.FromFactory?.FactoryName ?? e.Input.FromOrder?.OrderId.ToString() ?? string.Empty,
+                WarehouseId = e.Input.WarehouseId,
+                WarehouseName = e.Input.Warehouse.Name
             }).ToList();
 
             return Ok(productDtos);

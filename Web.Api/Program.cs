@@ -66,9 +66,10 @@ using Microsoft.Extensions.FileProviders;
     builder.Services.AddTransient<IMenuRepository, MenuRepository>();
     builder.Services.AddTransient<ISEORepository, SEORepository>();
     builder.Services.AddTransient<IWebInfoRepository, WebInfoRepository>();
-    builder.Services.AddTransient<IWarehouseRepository, WarehouseRepository>();
+    builder.Services.AddTransient<IWarehouseRepository, WarehouseRepository>(); 
+    builder.Services.AddTransient<IDebtRepository, DebtRepository>();
 
-    var app = builder.Build();
+var app = builder.Build();
 
     // Configure the HTTP request pipeline.
     if (app.Environment.IsDevelopment())

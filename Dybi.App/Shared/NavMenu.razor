@@ -42,8 +42,25 @@
                     <NavLink class="nav-link" href="warehouses/outputs">
                         <span class="oi oi-account-logout" aria-hidden="true"></span> Xuất kho
                     </NavLink>
-                    <NavLink class="nav-link" href="warehouses/Inventories">
+                    <NavLink class="nav-link" href="warehouses/inventories">
                         <span class="oi oi-inbox" aria-hidden="true"></span> Tồn kho
+                    </NavLink>
+                    <NavLink class="nav-link" href="warehouses/findproduct">
+                        <span class="oi oi-magnifying-glass" aria-hidden="true"></span> Tìm hàng hóa
+                    </NavLink>
+                </div>
+            </div>
+        </div>
+
+        <div class="nav-item menu-group">
+            <div class="menu-group-title px-3" @onclick="@(() => Click("CongNo"))">Công nợ <span class="oi oi-chevron-@(Menu["CongNo"] ? "bottom" : "right")"></span></div>
+            <div style="display:@(Menu["CongNo"] ? "block" : "none")">
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="debts/accountspayable">
+                        <span class="oi oi-dollar" aria-hidden="true"></span> Nợ phải trả
+                    </NavLink>
+                    <NavLink class="nav-link" href="debts/accountsreceivable">
+                        <span class="oi oi-dollar" aria-hidden="true"></span> Nợ phải thu
                     </NavLink>
                 </div>
             </div>
@@ -100,6 +117,7 @@
         Menu = new Dictionary<string, bool>();
         Menu["BanHang"] = false;
         Menu["KhoHang"] = false;
+        Menu["CongNo"] = false;
         Menu["CaiDat"] = false;
     }
 

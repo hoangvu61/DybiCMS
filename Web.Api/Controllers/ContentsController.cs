@@ -1,6 +1,7 @@
 ﻿using Azure.Core;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -8,6 +9,7 @@ using System;
 using System.ComponentModel;
 using System.ComponentModel.Design;
 using System.Linq;
+using System.Net;
 using System.Security.Policy;
 using Web.Api.Entities;
 using Web.Api.Extensions;
@@ -1125,6 +1127,7 @@ namespace Web.Api.Controllers
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return Unauthorized();
 
+            search.Key = WebUtility.UrlDecode(search.Key);
             var products = await _itemRepository.GetProducts(user.CompanyId, search);
             var productDtos = products.Items.Select(e => new ProductDto()
             {
@@ -1184,6 +1187,38 @@ namespace Web.Api.Controllers
                 DiscountType = product.DiscountType,
                 Price = product.Price,
                 Tags = product.Item.Tags.Select(e => e.TagName).ToList()
+            };
+
+            return Ok(dto);
+        }
+        [HttpGet]
+        [Route("products/codes/{code}/{language}")]
+        public async Task<IActionResult> GetProduct(string code, string language)
+        {
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+
+            code = WebUtility.UrlDecode(code);
+            var itemLanguage = await _itemRepository.GetProduct(user.CompanyId, code, language);
+            if (itemLanguage == null || itemLanguage.Item.Product == null) return ValidationProblem("Không tìm thấy sản phẩm");
+            var dto = new ProductDetailDto()
+            {
+                Id = itemLanguage.ItemId,
+                LanguageCode = itemLanguage.LanguageCode,
+                Brief = itemLanguage.Brief,
+                Content = itemLanguage.Content,
+                Title = itemLanguage.Title,
+                CategoryId = itemLanguage.Item.Product.CategoryId,
+                View = itemLanguage.Item.View,
+                CreateDate = itemLanguage.Item.CreateDate,
+                IsPuslished = itemLanguage.Item.IsPublished,
+                Order = itemLanguage.Item.Order,
+                Image = new FileData { FileName = itemLanguage.Item.Image, Type = FileType.ProductImage, Folder = user.CompanyId.ToString() },
+                Code = itemLanguage.Item.Product.Code,
+                Discount = itemLanguage.Item.Product.Discount,
+                DiscountType = itemLanguage.Item.Product.DiscountType,
+                Price = itemLanguage.Item.Product.Price,
+                Tags = itemLanguage.Item.Product.Item.Tags.Select(e => e.TagName).ToList()
             };
 
             return Ok(dto);

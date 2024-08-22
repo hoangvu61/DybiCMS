@@ -1,5 +1,6 @@
 ﻿using Azure.Core;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Polly;
 using System;
 using System.ComponentModel.Design;
@@ -677,6 +678,12 @@ namespace Web.Api.Repositories
             {
                 var key = productSearch.Key.Trim();
                 query = query.Where(e => (e.Code != null && e.Code.Contains(key)) || e.Item.ItemLanguages.Any(l => l.Title.Contains(key)));
+
+                var productIds = await _context.WarehouseInputProductCodes.Where(e => e.ProductCode.Contains(key)).Select(e => e.ProductId).Distinct().ToArrayAsync();
+                if (productIds != null && productIds.Length > 0)
+                {
+                    query.Where(e => productIds.Contains(e.ItemId));
+                }    
             }
 
             if (productSearch.CategoryId != null && productSearch.CategoryId != Guid.Empty)
@@ -707,6 +714,17 @@ namespace Web.Api.Repositories
                    .Include(e => e.Item).ThenInclude(i => i.Tags)
                    .Include(e => e.Item).ThenInclude(i => i.ItemLanguages)
                    .Where(e => e.Item.CompanyId == companyId && e.ItemId == id);
+            return await query.FirstOrDefaultAsync();
+        }
+        public async Task<ItemLanguage> GetProduct(Guid companyId, string code, string language)
+        {
+            var productId = await _context.WarehouseInputProductCodes.Where(e => e.ProductCode == code).Select(e => e.ProductId).FirstOrDefaultAsync();
+
+            var query = _context.ItemLanguages
+                   .Include(e => e.Item).ThenInclude(e => e.Product)
+                   .Include(e => e.Item).ThenInclude(e => e.Tags)
+                   .Where(e => e.LanguageCode == language && e.Item.CompanyId == companyId && e.Item.Product != null && (e.ItemId == productId ||e.Item.Product.Code == code));
+
             return await query.FirstOrDefaultAsync();
         }
         public async Task<bool> CheckExistProductCode(Guid companyId, string code)

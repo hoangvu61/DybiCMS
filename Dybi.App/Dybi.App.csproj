@@ -102,6 +102,9 @@
       <Content Update="Pages\Warehouses\Components\InventorySearch.razor">
         <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       </Content>
+      <Content Update="Pages\Warehouses\FindProduct.razor">
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      </Content>
       <Content Update="Pages\Warehouses\Outputs.razor">
         <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       </Content>

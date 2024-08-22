@@ -57,7 +57,8 @@ namespace Dybi.App
             builder.Services.AddTransient<IOrderApiClient, OrderApiClient>();
             builder.Services.AddTransient<IWarehouseApiClient, WarehouseApiClient>();
             builder.Services.AddTransient<IWebsiteApiClient, WebsiteApiClient>();
-            builder.Services.AddTransient<IFileService, FileService>();
+            builder.Services.AddTransient<IFileService, FileService>(); 
+            builder.Services.AddTransient<IDebtApiClient, DebtApiClient>();
 
             builder.Services.AddBlazoredLocalStorage();
             builder.Services.AddAuthorizationCore();

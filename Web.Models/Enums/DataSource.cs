@@ -162,7 +162,7 @@ namespace Web.Models.Enums
 
         public static Dictionary<int, string> DebtType = new Dictionary<int, string>()
         {
-            { 0, "Nợ" },
+            { 1, "Nợ" },
             { 2, "Trả nợ" }
         };
     }

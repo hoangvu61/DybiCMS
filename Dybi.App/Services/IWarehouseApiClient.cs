@@ -78,7 +78,8 @@ namespace Dybi.App.Services
 
         #region San pham
         Task<PagedList<WarehouseProductDto>> GetProducts(ProductListSearch paging);
-        Task<ProductDetailDto> GetProduct(string id);
+        Task<ProductDetailDto> GetProductById(string id);
+        Task<ProductDetailDto> GetProductByCode(string code);
         Task<bool> CreateProduct(WarehouseProductDto request);
         Task<bool> UpdateProduct(ProductDetailDto request);
         Task<bool> UpdateProductCategory(Guid itemId, Guid categoryId);

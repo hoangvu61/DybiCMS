@@ -26,7 +26,7 @@ namespace Web.Api.Repositories
         Task<bool> CheckExistInputCode(Guid companyId, string inputCode);
         Task<bool> CheckExistProductInInput(Guid companyId, Guid inputId, Guid productId);
         Task<int> CreateInput(WarehouseInput input);
-        Task<WarehouseInput> DeleteInput(WarehouseInput warehouseInput);
+        Task<int> DeleteInput(Guid companyId, Guid inputId);
 
 
         Task<List<WarehouseInputProduct>> GetInputProducts(Guid companyId, Guid inputId);

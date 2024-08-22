@@ -50,7 +50,7 @@
                             <tbody>
                                 @foreach (var item in ListProducts)
                                 {
-                                    <tr style="cursor:pointer" @onclick="()=>InventoryInputControl.Load(item.ProductId, item.ProductName)">
+                                    <tr style="cursor:pointer" @onclick="()=>InventoryInputControl.Load(item.WarehouseId, item.ProductId, item.ProductName)">
                                         @if (WarehouseInventorySearch.WarehouseId == null || WarehouseInventorySearch.WarehouseId == Guid.Empty)
                                         {
                                             <td>@item.WarehouseName</td>

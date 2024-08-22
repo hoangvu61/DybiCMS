@@ -171,13 +171,32 @@ namespace Web.Api.Repositories
             await _context.SaveChangesAsync();
             return 0;
         }
-        public async Task<WarehouseInput> DeleteInput(WarehouseInput warehouseInput)
+        public async Task<int> DeleteInput(Guid companyId, Guid inputId)
         {
-            var inventories = await _context.WarehouseInputInventories.Where(e => e.InputId == warehouseInput.Id).ToListAsync();
+            var input = await _context.WarehouseInputs
+                                .Include(e => e.Warehouse)
+                                .Include(e => e.FromSupplier)
+                                .Include(e => e.FromFactory)
+                                .Include(e => e.FromWarehouse)
+                                .Include(e => e.FromOrder)
+                                .Include(e => e.Debt)
+                                .Include(e => e.Products)
+                                .Where(e => e.Warehouse.CompanyId == companyId && e.Id == inputId)
+                                .FirstOrDefaultAsync();
+            if (input == null) return 1;
+            if (input.Products.Count > 0) return 2;
+            if (input.Debt != null && input.FromSupplier != null)
+            {
+                var debts = await _context.DebtSuppliers.Where(e => e.SupplierId == input.FromSupplier.SourceId).ToListAsync();
+                _context.DebtSuppliers.RemoveRange(debts);
+            }
+
+            var inventories = await _context.WarehouseInputInventories.Where(e => e.InputId == input.Id).ToListAsync();
             if (inventories != null) _context.WarehouseInputInventories.RemoveRange(inventories);
-            _context.WarehouseInputs.Remove(warehouseInput);
+
+            _context.WarehouseInputs.Remove(input);
             await _context.SaveChangesAsync();
-            return warehouseInput;
+            return 0;
         }
 
 

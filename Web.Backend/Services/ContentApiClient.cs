@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.WebUtilities;
+using System.Net;
 using Web.Models;
 using Web.Models.SeedWork;
 
@@ -298,8 +299,8 @@ namespace Web.Backend.Services
 
             if (paging.CategoryId != null && paging.CategoryId != Guid.Empty)
                 queryStringParam.Add("CategoryId", paging.CategoryId?.ToString() ?? string.Empty);
-            if (!string.IsNullOrEmpty(paging.Key))
-                queryStringParam.Add("Key", paging.Key);
+            if (!string.IsNullOrEmpty(paging.Key)) 
+                queryStringParam.Add("Key", WebUtility.UrlEncode(paging.Key));
 
             string url = QueryHelpers.AddQueryString("/api/contents/products", queryStringParam);
             var result = await _httpClient.GetFromJsonAsync<PagedList<ProductDto>>(url);

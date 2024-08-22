@@ -14,7 +14,7 @@ namespace Web.Api.Entities
         public decimal TotalDebt { get; set; }
 
         public decimal Debt { get; set; }
-        public DateTime? CreateDate { get; set; }
+        public DateTime CreateDate { get; set; }
 
         [Description("1: Khách nợ; 2: Khách trả nợ")]
         [DefaultValue("0")]
