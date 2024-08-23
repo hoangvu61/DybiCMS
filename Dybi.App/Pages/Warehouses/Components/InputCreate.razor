@@ -26,7 +26,7 @@
                         @foreach (var item in DataSource.WarehouseInputTypes)
                         {
                             <div class="form-check">
-                                <input id="Type_@item.Key" class="form-check-input" type="radio" name="Type" checked="@(Model.Type == item.Key)" @onchange="@(() => Model.Type = item.Key)" />
+                                <input id="Type_@item.Key" class="form-check-input" type="radio" name="Type" checked="@(Model.Type == item.Key)" @onchange="@(() => TypeChange(item.Key))" />
                                 <label for="Type_@item.Key">@item.Value</label>
                             </div>
                         }
@@ -198,7 +198,7 @@
             Supplyers = await WarehouseApiClient.GetSuppliers();
             Supplyers = Supplyers.Where(e => e.IsActive).ToList();
         }
-        
+
         ShowDialog = true;
         StateHasChanged();
     }
@@ -222,6 +222,25 @@
         }
 
         ShowDialog = true;
+        StateHasChanged();
+    }
+
+    private void TypeChange(int type)
+    {
+        Model.Type = type;
+        switch (Model.Type)
+        {
+            case 1: 
+                // Nhập mua ngoài: nhập vào kho hàng hóa (156), công cụ, dụng cụ (153) hoặc nguyên vật liệu (152)
+                Warehouses = Warehouses.Where(e => e.Type == 156 || e.Type == 152 || e.Type == 153).ToList();
+                if (Warehouses.Count > 0) Model.WarehouseId = Warehouses[0].Id;
+                break;
+            case 2:
+                // Nhập kho sản xuất nội bộ: công cụ, dụng cụ (153) hoặc nguyên vật liệu (152)
+                Warehouses = Warehouses.Where(e => e.Type == 152 || e.Type == 153).ToList();
+                if (Warehouses.Count > 0) Model.WarehouseId = Warehouses[0].Id;
+                break;
+        }
         StateHasChanged();
     }
 

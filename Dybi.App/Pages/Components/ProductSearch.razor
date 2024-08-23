@@ -38,9 +38,13 @@
 
     protected async override Task OnInitializedAsync()
     {
-        await JS.InvokeVoidAsync("setFocus", "#productSearchCode");
         Categories = await WarehouseApiClient.GetCategories();
         Categories = SortTable(Categories, null, "", "---");
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await JS.InvokeVoidAsync("setFocus", "#productSearchCode");
     }
 
     private async Task TextChange()

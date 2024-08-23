@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Polly;
 using System.ComponentModel.Design;
+using System.Net;
 using Web.Api.Data;
 using Web.Api.Entities;
 using Web.Models;
@@ -64,7 +65,7 @@ namespace Web.Api.Repositories
         }
         public async Task<Warehouse?> GetWarehouse(Guid id)
         {
-            var query = _context.Warehouses.Where(e => e.Id == id);
+            var query = _context.Warehouses.Include(e => e.Inputs).Where(e => e.Id == id);
             return await query.FirstOrDefaultAsync();
         }
         public async Task<Warehouse> CreateWarehouse(Warehouse warehouse)
@@ -1010,6 +1011,7 @@ namespace Web.Api.Repositories
         #region inventory
         public async Task<PagedList<WarehouseInventory>> GetInventories(Guid companyId, WarehouseInventorySearch search)
         {
+            
             var query = _context.WarehouseInventories
                                 .Include(e => e.Warehouse)
                                 .Include(e => e.Product).ThenInclude(e => e.Item).ThenInclude(e => e.ItemLanguages)
@@ -1028,8 +1030,10 @@ namespace Web.Api.Repositories
 
             if (!string.IsNullOrEmpty(search.Key))
             {
-                var key = search.Key.Trim();
-                query = query.Where(e => (e.Product.Code != null && e.Product.Code.Contains(key)) || e.Product.Item.ItemLanguages.Any(l => l.Title.Contains(key)));
+                var key = WebUtility.UrlDecode(search.Key.Trim());
+                var productIds = await _context.WarehouseInputProductCodes.Where(e => e.ProductCode == key).Select(e => e.ProductId).ToListAsync();
+                if (productIds != null && productIds.Count > 0) query = query.Where(e => productIds.Contains(e.ProductId));
+                else query = query.Where(e => (e.Product.Code != null && e.Product.Code.Contains(key)) || e.Product.Item.ItemLanguages.Any(l => l.Title.Contains(key)));
             }
 
             if(search.IsAlertEmpty)

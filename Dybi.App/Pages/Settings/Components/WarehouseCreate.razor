@@ -1,6 +1,8 @@
 ﻿@using Dybi.App.Services;
 @using Web.Models;
 @using System.IO;
+@using Web.Models.Enums;
+
 @inject IToastService ToastService;
 @inject IWarehouseApiClient WarehouseApiClient;
 
@@ -18,6 +20,15 @@
                         </button>
                     </div>
                     <div class="modal-body">
+                        <div class="form-group">
+                            <label class="col-form-label">Loại:</label>
+                            <InputSelect class="form-control form-control-sm" @bind-Value="Model.Type">
+                                @foreach (var type in DataSource.WarehouseTypes)
+                                {
+                                    <option value="@type.Key">@type.Value</option>
+                                }
+                            </InputSelect>
+                        </div>
                         <div class="form-group">
                             <label class="col-form-label">Tên:</label>
                             <InputText class="form-control form-control-sm" @bind-Value="Model.Name"></InputText>

@@ -113,6 +113,7 @@ namespace Web.Api.Controllers
             var dtos = list.Select(e => new WarehouseDto()
             {
                 Id = e.Id,
+                Type = e.Type,
                 Address = e.Address,
                 Email = e.Email,
                 Name = e.Name,
@@ -131,6 +132,7 @@ namespace Web.Api.Controllers
             return Ok(new WarehouseDto()
             {
                 Id = obj.Id,
+                Type = obj.Type,
                 Address = obj.Address,
                 Email = obj.Email,
                 Name = obj.Name,
@@ -151,6 +153,7 @@ namespace Web.Api.Controllers
             var obj = await _warehouseRepository.CreateWarehouse(new Warehouse
             {
                 Id = request.Id,
+                Type = request.Type,
                 Address = request.Address?.Trim(),
                 Email = request.Email?.Trim(),
                 Name = request.Name,
@@ -169,8 +172,10 @@ namespace Web.Api.Controllers
                 return BadRequest(ModelState);
 
             var obj = await _warehouseRepository.GetWarehouse(id);
-            if (obj == null) return BadRequest($"Kho [{id}] không tồn tại");
+            if (obj == null) return ValidationProblem($"Kho [{id}] không tồn tại");
+            if (obj.Inputs.Count > 0 && obj.Type != request.Type) return ValidationProblem($"Kho [{id}] đã được nhập hàng không thể đổi loại");
 
+            obj.Type = request.Type;
             obj.Address = request.Address?.Trim();
             obj.Email = request.Email?.Trim();
             obj.Name = request.Name;
@@ -188,6 +193,7 @@ namespace Web.Api.Controllers
         {
             var obj = await _warehouseRepository.GetWarehouse(id);
             if (obj == null) return ValidationProblem($"Kho [{id}] không tồn tại");
+            if (obj.Inputs.Count > 0) return ValidationProblem($"Kho [{id}] đã được nhập hàng không thể xóa");
 
             var resultData= await _warehouseRepository.DeleteWarehouse(obj);
             return Ok(resultData);

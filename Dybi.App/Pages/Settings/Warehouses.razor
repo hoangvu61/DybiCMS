@@ -6,6 +6,7 @@
 @using Dybi.App.Components;
 @using Dybi.App.Services;
 @using Web.Models;
+@using Web.Models.Enums;
 @using Web.Models.SeedWork;
 
 @inject IToastService ToastService;
@@ -26,6 +27,7 @@
                 <table class="table table-sm table-striped table-bordered">
                     <thead>
                         <tr>
+                            <th class="text-center">Loại</th>
                             <th class="text-center">Tên</th>
                             <th class="text-center">Địa chỉ</th>
                             <th class="text-center">Số ĐT</th>
@@ -40,6 +42,7 @@
                         @foreach (var item in ListWarehouses)
                         {
                             <tr>
+                                <td>@DataSource.WarehouseTypes[item.Type]</td>
                                 <td>@item.Name</td>
                                 <td>@item.Address</td>
                                 <td>@item.Phone</td>

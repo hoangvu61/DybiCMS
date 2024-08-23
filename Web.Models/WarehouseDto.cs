@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Web.Models
@@ -6,6 +7,9 @@ namespace Web.Models
     public partial class WarehouseDto
     {
         public Guid Id { get; set; }
+
+        [Required]
+        public int Type { get; set; } = 156;
 
         [Required]
         [MaxLength(150)]

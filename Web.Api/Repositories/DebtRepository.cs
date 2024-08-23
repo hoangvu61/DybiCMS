@@ -126,7 +126,7 @@ namespace Web.Api.Repositories
         }
         public async Task<int> CreateCustomerDebt(DebtCustomer debt)
         {
-            var lastestDebt = await _context.DebtCustomers.Where(e => e.Customer == debt.CustomerId)
+            var lastestDebt = await _context.DebtCustomers.Where(e => e.CustomerId == debt.CustomerId)
                   .OrderByDescending(e => e.CreateDate)
                   .FirstOrDefaultAsync();
             if (lastestDebt == null) return 1;

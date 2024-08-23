@@ -116,6 +116,15 @@ namespace Web.Models.Enums
             { 3, "Chành xe" }
         };
 
+        public static Dictionary<int, string> WarehouseTypes = new Dictionary<int, string>()
+        {
+            { 152, "Kho nguyên vật liệu" },
+            { 155, "Kho thành phẩm" },
+            { 154, "Kho bán thành phẩm" },
+            { 153, "Kho công cụ, dụng cụ" },
+            { 156, "Kho hàng hóa" }
+        };
+
         public static Dictionary<int, string> WarehouseInputTypes = new Dictionary<int, string>()
         {
             { 1, "Nhập kho mua ngoài" },
