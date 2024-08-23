@@ -36,6 +36,7 @@
                     <div class="col" style="border-right:1px dotted #ccc">
                         <div><label class="form-label">Ngày xuất kho:</label> @Model.CreateDate.ToString("dd/MM/yyyy hh:mm")</div>
                         <div><label class="form-label">Kho xuất:</label> @Model.WarehouseName</div>
+                        <div><label class="form-label">Loại kho:</label> @Model.WarehouseType</div>
                         @if (Model.Type == 1)
                         {
                             <div><label class="form-label">Nhà cung cấp:</label> @Model.ToName</div>

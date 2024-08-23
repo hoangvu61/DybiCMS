@@ -219,6 +219,7 @@ namespace Web.Api.Controllers
                 CreateDate = e.CreateDate,
                 ProductCount = e.Products.Sum(p => p.Quantity),
                 WarehouseId = e.WarehouseId,
+                WarehouseType = DataSource.WarehouseTypes[e.Warehouse.Type],
                 WarehouseName = e.Warehouse.Name,
                 Type = e.Type,
                 TypeName = DataSource.WarehouseInputTypes.First(s => s.Key == e.Type).Value,
@@ -251,6 +252,7 @@ namespace Web.Api.Controllers
             dto.CreateDate = input.CreateDate;
             dto.ProductCount = input.Products.Sum(p => p.Quantity);
             dto.WarehouseId = input.WarehouseId;
+            dto.WarehouseType = DataSource.WarehouseTypes[input.Warehouse.Type];
             dto.WarehouseName = input.Warehouse.Name;
             dto.Type = input.Type;
             dto.TypeName = DataSource.WarehouseInputTypes.First(s => s.Key == input.Type).Value;
@@ -582,9 +584,10 @@ namespace Web.Api.Controllers
                 CreateDate = e.CreateDate,
                 ProductCount = e.Products.Sum(p => p.Quantity),
                 WarehouseId = e.WarehouseId,
+                WarehouseType = DataSource.WarehouseTypes[e.Warehouse.Type],
                 WarehouseName = e.Warehouse.Name,
                 Type = e.Type,
-                TypeName = DataSource.WarehouseInputTypes.First(s => s.Key == e.Type).Value,
+                TypeName = DataSource.WarehouseOutputTypes[e.Type],
                 ToName = e.ToSupplier?.SupplierName ?? e.ToFactory?.FactoryName ?? e.ToOrder?.OrderId.ToString() ?? string.Empty,
             }).ToList();
 
@@ -611,9 +614,10 @@ namespace Web.Api.Controllers
             dto.CreateDate = input.CreateDate;
             dto.ProductCount = input.Products.Sum(p => p.Quantity);
             dto.WarehouseId = input.WarehouseId;
+            dto.WarehouseType = DataSource.WarehouseTypes[input.Warehouse.Type];
             dto.WarehouseName = input.Warehouse.Name;
             dto.Type = input.Type;
-            dto.TypeName = DataSource.WarehouseInputTypes.First(s => s.Key == input.Type).Value;
+            dto.TypeName = DataSource.WarehouseOutputTypes[input.Type];
             dto.ToName = input.ToSupplier?.SupplierName ?? input.ToFactory?.FactoryName ?? input.ToOrder?.OrderId.ToString() ?? string.Empty;
 
             return Ok(dto);

@@ -31,8 +31,8 @@
                 <table class="table table-sm table-striped table-bordered">
                     <thead>
                         <tr>
-                            <th class="text-center">Loại</th>
-                            <th class="text-center">Nguồn</th>
+                            <th class="text-center">Đến</th>
+                            <th class="text-center">Từ</th>
                             <th class="text-center">Ngày</th>
                             <th class="text-center">Tổng sản phẩm</th>
                             <th class="text-center" style="width:105px">
@@ -44,11 +44,17 @@
                         @foreach (var item in ListInputs)
                         {
                             <tr>
-                                <td>@item.TypeName</td>
-                                <td>@item.ToName</td>
-                                <td>@item.CreateDate.ToString("dd/MM/yyyy hh:mm")</td>
-                                <td style="text-align:right">@item.ProductCount.ToString("N0")</td>
-                                <td style="text-align:right;width:100px">
+                                <td>
+                                    @item.TypeName<br />
+                                    Đến: @item.ToName
+                                </td>
+                                <td>
+                                    @item.WarehouseType<br />
+                                    @item.WarehouseName
+                                </td>
+                                <td style="text-align:center; vertical-align:middle">@item.CreateDate.ToString("dd/MM/yyyy hh:mm")</td>
+                                <td style="text-align:right; vertical-align:middle">@item.ProductCount.ToString("N0")</td>
+                                <td style="text-align:center">
                                     <a href="/warehouses/outputs/@item.Id" class="btn btn-primary btn-sm">Xem</a>
                                     <button class="btn btn-danger btn-sm" @onclick="()=> OnDelete(item.Id)">Xóa</button>
                                 </td>

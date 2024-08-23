@@ -5,6 +5,7 @@
         public Guid Id { get; set; }
 
         public Guid WarehouseId { get; set; }
+        public string WarehouseType { get; set; }
         public string WarehouseName { get; set; }
         public string ToName { get; set; }
         public DateTime CreateDate { get; set; }
