@@ -54,7 +54,7 @@
                                 </td>
                                 <td style="text-align:center; vertical-align:middle">@item.CreateDate.ToString("dd/MM/yyyy hh:mm")</td>
                                 <td style="text-align:right; vertical-align:middle">@item.ProductCount.ToString("N0")</td>
-                                <td style="text-align:center">
+                                <td style="text-align:center;vertical-align:middle">
                                     <a href="/warehouses/outputs/@item.Id" class="btn btn-primary btn-sm">Xem</a>
                                     <button class="btn btn-danger btn-sm" @onclick="()=> OnDelete(item.Id)">Xóa</button>
                                 </td>
