@@ -1,6 +1,4 @@
 ﻿using Web.Api.Entities;
-using Web.Models.SeedWork;
-using Web.Models;
 
 namespace Web.Api.Repositories
 {

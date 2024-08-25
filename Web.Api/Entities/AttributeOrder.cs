@@ -16,9 +16,9 @@ namespace Web.Api.Entities
         [ForeignKey("CompanyId")]
         public Company Company { get; set; }
 
+        [ForeignKey("CompanyId, AttributeId")]
         public Attribute Attribute { get; set; }
         
-
-        public int Order { get; set; }
+        public int Priority { get; set; }
     }
 }

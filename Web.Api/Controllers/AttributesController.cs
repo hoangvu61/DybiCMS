@@ -455,7 +455,7 @@ namespace Web.Api.Controllers
         #region order
         [HttpGet]
         [Route("orders")]
-        public async Task<IActionResult> GetAllOrders()
+        public async Task<IActionResult> GetAllAttributeOrders()
         {
             var userId = User.GetUserId();
             var user = await _userManager.FindByIdAsync(userId);
@@ -464,7 +464,7 @@ namespace Web.Api.Controllers
             var dtos = list.Select(e => new AttributeOrderContactDto()
             {
                 AttributeId = e.AttributeId,
-                Order = e.Order,
+                Order = e.Priority,
                 AttributeTitles = e.Attribute.AttributeLanguages.ToDictionary(d => d.LanguageCode, d => d.Name),
             });
 
@@ -484,7 +484,7 @@ namespace Web.Api.Controllers
             {
                 AttributeId = request.AttributeId,
                 CompanyId = user.CompanyId,
-                Order = request.Order
+                Priority = request.Order
             };
 
             await _attributeRepository.CreateAttributeOrder(obj);
@@ -505,7 +505,7 @@ namespace Web.Api.Controllers
             var obj = await _attributeRepository.GetAttributeOrder(user.CompanyId, attibuteid);
             if (obj == null) return NotFound($"{attibuteid} không tồn tại trong Đặt hàng");
 
-            obj.Order = order;
+            obj.Priority = order;
             await _attributeRepository.UpdateAttributeOrder(obj);
 
             return Ok();
@@ -522,6 +522,121 @@ namespace Web.Api.Controllers
             if (obj == null) return NotFound($"{attibuteid} không tồn tại trong Đặt hàng");
 
             await _attributeRepository.DeleteAttributeOrder(obj);
+            return Ok();
+        }
+
+
+        [HttpGet]
+        [Route("attributeorders")]
+        public async Task<IActionResult> GetAttributeOrderConfigs()
+        {
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Unauthorized(userId);
+
+            var list = await _attributeRepository.GetAttributeOrders(user.CompanyId);
+            var dtos = list.Select(e => new AttributeOrderConfigDto()
+            {
+                Id = e.AttributeId,
+                SourceId = e.Attribute.SourceId,
+                Type = e.Attribute.Type,
+                Title = e.Attribute.AttributeLanguages.Where(d => d.LanguageCode == "vi").Select(e => e.Name).FirstOrDefault(),
+                Priority = e.Priority
+            });
+            var sourceIds = dtos.Where(e => e.SourceId != null).Select(e => (Guid)e.SourceId).Distinct().ToList();
+            var sourceLanguages = await _attributeRepository.GetAttributeSourceLanguages(user.CompanyId, sourceIds);
+            foreach (var dto in dtos)
+            {
+                dto.SourceNames = sourceLanguages.Where(e => e.AttributeSourceId == dto.SourceId).ToDictionary(d => d.LanguageCode, d => d.Name);
+            }
+
+            return Ok(dtos);
+        }
+
+        [HttpGet]
+        [Route("attributeorders/{id}")]
+        public async Task<IActionResult> GetAttributeOrderConfig(string id)
+        {
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Unauthorized(userId);
+
+            var obj = await _attributeRepository.GetAttributeOrder(user.CompanyId, id);
+            if (obj == null) return NotFound($"{id} không tồn tại");
+            return Ok(new AttributeOrderConfigDetailDto()
+            {
+                Id = obj.AttributeId,
+                Priority = obj.Priority,
+                SourceId = obj.Attribute.SourceId,
+                Type = obj.Attribute.Type,
+                Title = obj.Attribute.AttributeLanguages.Where(d => d.LanguageCode == "vi").Select(e => e.Name).FirstOrDefault(),
+            });
+        }
+
+        [HttpPost]
+        [Route("attributeorders")]
+        public async Task<IActionResult> CreateAttributeOrderConfig([FromBody] AttributeOrderConfigDetailDto request)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+
+            var obj = new Entities.Attribute
+            {
+                Id = request.Id,
+                CompanyId = user.CompanyId,
+                SourceId = request.SourceId,
+                Type = request.Type,
+                AttributeLanguages = new List<AttributeLanguage>() { new AttributeLanguage
+                        {
+                            LanguageCode = "vi",
+                            Name = request.Title
+                        }
+                    },
+                AttributeOrder = new AttributeOrder { Priority = request.Priority }
+            };
+
+            await _attributeRepository.CreateAttribute(obj);
+
+            return CreatedAtAction(nameof(GetAttributeOrderConfig), new { id = obj.Id }, request);
+        }
+
+        [HttpPut]
+        [Route("attributeorders/{id}")]
+        public async Task<IActionResult> UpdateAttributeConfig(string id, [FromBody] AttributeOrderConfigDetailDto request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+
+            var obj = await _attributeRepository.GetAttributeOrder(user.CompanyId, id);
+            if (obj == null) return ValidationProblem($"{id} không tồn tại");
+
+            obj.Priority = request.Priority;
+            obj.Attribute.SourceId = request.SourceId;
+            obj.Attribute.Type = request.Type;
+            var lang = obj.Attribute.AttributeLanguages.FirstOrDefault(e => e.LanguageCode == "vi");
+            if (lang != null) lang.Name = request.Title;
+
+            var moduleResult = await _attributeRepository.UpdateAttributeOrder(obj);
+
+            return Ok(request);
+        }
+
+        [HttpDelete]
+        [Route("attributeorders/{id}")]
+        public async Task<IActionResult> DeleteAttributeOrderConfig([FromRoute] string id)
+        {
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+
+            var obj = await _attributeRepository.GetAttribute(user.CompanyId, id);
+            if (obj == null) return NotFound($"{id} không tồn tại");
+
+            await _attributeRepository.DeleteAttribute(obj);
             return Ok();
         }
         #endregion

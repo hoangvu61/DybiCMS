@@ -24,25 +24,29 @@ namespace Web.Api.Data
             modelBuilder.Entity<WebInfo>()
                   .HasKey(m => new { m.CompanyId, m.LanguageCode });
 
+            modelBuilder.Entity<Entities.Attribute>()
+                .HasKey(m => new { m.CompanyId, m.Id });
             modelBuilder.Entity<AttributeCategory>()
-                  .HasKey(m => new { m.AttributeId, m.CompanyId, m.CategoryId });
+                  .HasKey(m => new { m.CompanyId, m.AttributeId, m.CategoryId });
             modelBuilder.Entity<AttributeLanguage>()
                   .HasKey(m => new { m.AttributeId, m.CompanyId, m.LanguageCode });
             modelBuilder.Entity<AttributeSourceLanguage>()
                   .HasKey(m => new { m.AttributeSourceId, m.LanguageCode });
             modelBuilder.Entity<AttributeValueLanguage>()
                   .HasKey(m => new { m.AttributeValueId, m.LanguageCode });
-            modelBuilder.Entity<Entities.Attribute>()
-                .HasKey(m => new { m.Id, m.CompanyId });
+            modelBuilder.Entity<AttributeOrder>()
+               .HasKey(m => new { m.CompanyId, m.AttributeId  });
+            modelBuilder.Entity<AttributeContact>()
+                .HasKey(m => new { m.CompanyId, m.AttributeId });
 
-            modelBuilder.Entity<AttributeCategory>()
-                .HasOne(a => a.Attribute)
-                .WithMany(a => a.AttributeCategories)
-                .HasForeignKey(a => new { a.AttributeId, a.CompanyId });
-            modelBuilder.Entity<AttributeLanguage>()
-                .HasOne(a => a.Attribute)
-                .WithMany(a => a.AttributeLanguages)
-                .HasForeignKey(a => new { a.AttributeId, a.CompanyId });
+            //modelBuilder.Entity<AttributeCategory>()
+            //    .HasOne(a => a.Attribute)
+            //    .WithMany(a => a.AttributeCategories)
+            //    .HasForeignKey(a => new { a.AttributeId, a.CompanyId });
+            //modelBuilder.Entity<AttributeLanguage>()
+            //    .HasOne(a => a.Attribute)
+            //    .WithMany(a => a.AttributeLanguages)
+            //    .HasForeignKey(a => new { a.AttributeId, a.CompanyId });
 
             modelBuilder.Entity<TemplatePosition>()
                   .HasKey(m => new { m.TemplateName, m.PositionName, m.ComponentName });
@@ -76,11 +80,9 @@ namespace Web.Api.Data
             
             modelBuilder.Entity<OrderProduct>()
                 .HasKey(m => new { m.OrderId, m.ProductId });
-            modelBuilder.Entity<AttributeOrder>()
-                .HasKey(m => new { m.AttributeId, m.CompanyId });
-            modelBuilder.Entity<AttributeContact>()
-                .HasKey(m => new { m.AttributeId, m.CompanyId });
-                        
+            modelBuilder.Entity<OrderAttribute>()
+               .HasKey(m => new { m.OrderId, m.AttributeId, m.LanguageCode });
+
             modelBuilder.Entity<WarehouseConfig>()
                .HasKey(m => new { m.Key, m.CompanyId });
             modelBuilder.Entity<WarehouseInputProduct>()
@@ -175,6 +177,7 @@ namespace Web.Api.Data
         public DbSet<OrderDebt> OrderDebts { get; set; }
         public DbSet<OrderProduct> OrderProducts { get; set; }
         public DbSet<OrderDelivery> OrderDeliveries { get; set; }
+        public DbSet<OrderAttribute> OrderAttributes { get; set; }
 
         public DbSet<DebtCustomer> DebtCustomers { get; set; }
         public DbSet<DebtSupplier> DebtSuppliers { get; set; }

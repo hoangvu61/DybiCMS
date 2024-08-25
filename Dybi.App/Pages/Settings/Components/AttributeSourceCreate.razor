@@ -1,0 +1,90 @@
+﻿@using Dybi.App.Services
+@using Web.Models;
+@using System.IO;
+@using Web.Models.Enums;
+@using Web.Models.SeedWork;
+
+@inject IToastService ToastService;
+@inject IAttributeApiClient AttributeApiClient
+
+@if (ShowDialog)
+{
+    <div class="modal fade show d-block" id="assignModel" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <EditForm Model="Model" OnValidSubmit="HandleSubmit">
+                <DataAnnotationsValidator></DataAnnotationsValidator>
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Thêm nhóm thuộc tính</h5>
+                        <button type="button" class="close" data-dismiss="modal" @onclick="()=>Hide()" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            @foreach (var title in Model.Titles)
+                            {
+                                <div class="input-group input-group-sm mb-3">
+                                    <span class="input-group-text" id="inputGroup-sizing-sm">Tên</span>
+                                    <InputText class="form-control" @bind-Value="@title.Title"></InputText>
+                                </div>
+                                <ValidationMessage For="()=>title.Title"></ValidationMessage>
+                            }
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-sm" @onclick="()=>Hide()" data-dismiss="modal">Đóng</button>
+                        <button type="submit" class="btn btn-primary btn-sm">Thêm</button>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@code {
+    protected bool ShowDialog { get; set; }
+    protected bool ShowSource { get; set; }
+
+    private AttributeSourceDto Model { set; get; } = new AttributeSourceDto();
+
+    [Parameter]
+    public EventCallback<bool> CloseEventCallbak { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Model.Titles.Add(new TitleLanguageDto { LanguageCode = "vi", Title = "" });
+    }
+
+    public async Task Show()
+    {
+        Model.Id = Guid.NewGuid();
+        ShowDialog = true;
+        StateHasChanged();
+    }
+
+    private void Hide()
+    {
+        ShowDialog = false;
+        StateHasChanged();
+    }
+
+    protected async Task HandleSubmit()
+    {
+        if (Model.Titles.Any(e => string.IsNullOrEmpty(e.Title))) ToastService.ShowError("Tên nhóm thuộc tính không được để trống");
+        else
+        {
+            var result = await AttributeApiClient.CreateSource(Model);
+            if (result)
+            {
+                ShowDialog = false;
+                await CloseEventCallbak.InvokeAsync(true);
+                ToastService.ShowInfo("Thêm nhóm thuộc tính thành công");
+            }
+            else
+            {
+                ToastService.ShowError("Thêm nhóm thuộc tính không thành công");
+            }
+        }
+    }
+}

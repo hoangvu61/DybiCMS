@@ -19,6 +19,8 @@ namespace Web.Api.Repositories
         Task<bool> AddOrderProduct(OrderProduct order);
         Task<bool> UpdateOrderProduct(OrderProduct product);
         Task<bool> DeleteOrderProduct(OrderProduct order);
+        Task<int> ExportWarehouse(Order order);
+        Task<int> ImportWarehouse(Order order);
 
         Task<Customer> GetCustomer(Guid companyId, Guid customerId);
         Task<bool> UpdateCustomer(Customer customer);

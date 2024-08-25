@@ -107,6 +107,7 @@ namespace Web.Api.Repositories
         public async Task<bool> UpdateOrder(Order order)
         {
             _context.Orders.Update(order);
+
             await _context.SaveChangesAsync();
             return true;
         }
@@ -156,6 +157,112 @@ namespace Web.Api.Repositories
             _context.OrderProducts.Remove(order);
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<int> ExportWarehouse(Order order)
+        {
+            var phuongPhapTinhGiaXuatKho = await _context.WarehouseConfigs.Where(e => e.CompanyId == order.CompanyId && e.Key == "PhuongPhapTinhGiaXuatKho").Select(e => e.Value).FirstOrDefaultAsync();
+            if (phuongPhapTinhGiaXuatKho == null) return 1;
+            if (phuongPhapTinhGiaXuatKho == "2") return 2;
+
+            var warehouse = await _context.Warehouses.FirstOrDefaultAsync(e => e.Type == 156 && e.CompanyId == order.CompanyId);
+            if (warehouse == null) return 3;
+            var output = new WarehouseOutput
+            {
+                Id = Guid.NewGuid(),
+                WarehouseId = warehouse.Id,
+                Type = 1,
+                CreateDate = DateTime.Now,
+                ToOrder = new WarehouseOutputToOrder { OrderId = order.Id },
+                Products = order.Products.Select(e => new WarehouseOutputProduct { ProductId = e.ProductId, Quantity = e.Quantity }).ToList(),
+            };
+
+            foreach (var product in output.Products)
+            {
+                var warehouseInventory = await _context.WarehouseInventories.FirstOrDefaultAsync(e => e.WarehouseId == warehouse.Id && e.ProductId == product.ProductId);
+                if (warehouseInventory == null) return 4;
+                if (warehouseInventory.InventoryNumber > product.Quantity) return 5;
+
+                warehouseInventory.InventoryNumber -= product.Quantity;
+                _context.WarehouseInventories.Update(warehouseInventory);
+
+                var warehouseInputInventories = await _context.WarehouseInputInventories.Where(e => e.Input.WarehouseId == warehouse.Id && e.ProductId == product.ProductId).ToListAsync();
+                if (warehouseInputInventories == null) return 6;
+                if (warehouseInputInventories.Count == 0) return 7;
+                
+                var inputIds = warehouseInputInventories.Select(e => e.InputId).ToList();
+                var inputProducts = await _context.WarehouseInputProducts.Where(e => inputIds.Contains(e.InputId)).OrderBy(e => e.Input.CreateDate).ToListAsync();
+
+                foreach (var inputProduct in inputProducts)
+                {
+                    var detail = new WarehouseOutputProductDetail
+                    {
+                        InputId = inputProduct.InputId,
+                        Price = inputProduct.Price,
+                    };
+
+                    var warehouseInputInventory = warehouseInputInventories.First(e => e.InputId == inputProduct.InputId);
+                    if (warehouseInputInventory.InventoryNumber < product.Quantity)
+                    {
+                        detail.Quantity = warehouseInputInventory.InventoryNumber;
+
+                        _context.WarehouseInputInventories.Remove(warehouseInputInventory);
+                    }
+                    else
+                    {
+                        detail.Quantity = product.Quantity;
+                        warehouseInputInventory.InventoryNumber -= product.Quantity;
+                        _context.WarehouseInputInventories.Update(warehouseInputInventory);
+                        break;
+                    }
+
+                    product.Details.Add(detail);
+                }
+            }
+            _context.WarehouseOutputs.Add(output);
+            return 0;
+        }
+        public async Task<int> ImportWarehouse(Order order)
+        {
+            var warehouses = await _context.Warehouses.Where(e => e.CompanyId == order.Id).ToListAsync();
+            if (warehouses == null || warehouses.Count == 0) return 1;
+            var warehouse = warehouses.FirstOrDefault(e => e.Type == 156);
+            if (warehouse == null) warehouse = warehouses.First();
+            
+            var input = new WarehouseInput
+            {
+                Id = Guid.NewGuid(),
+                WarehouseId = warehouse.Id,
+                Type = 1,
+                CreateDate = DateTime.Now,
+                FromOrder = new WarehouseInputFromOrder { OrderId = order.Id },
+                Products = order.Products.Select(e => new WarehouseInputProduct { ProductId = e.ProductId, Quantity = e.Quantity }).ToList(),
+            };
+
+            foreach (var product in input.Products)
+            {
+                var warehouseInventory = await _context.WarehouseInventories.FirstOrDefaultAsync(e => e.WarehouseId == warehouse.Id && e.ProductId == product.ProductId);
+                if (warehouseInventory == null)
+                {
+                    warehouseInventory = new WarehouseInventory { ProductId = product.ProductId, WarehouseId = input.WarehouseId, InventoryNumber = 0 };
+                    _context.WarehouseInventories.Add(warehouseInventory);
+                }
+                else _context.WarehouseInventories.Update(warehouseInventory);
+
+                warehouseInventory.InventoryNumber += product.Quantity;
+
+                warehouseInventory = new WarehouseInventory
+                {
+                    WarehouseId = input.WarehouseId,
+                    ProductId = product.ProductId,
+                    InventoryNumber = product.Quantity,
+                };
+                _context.WarehouseInventories.Add(warehouseInventory);
+            }
+            _context.WarehouseInputs.Add(input);
+
+            await _context.SaveChangesAsync();
+            return 0;
         }
 
         public async Task<Customer> GetCustomer(Guid companyId, Guid customerId)

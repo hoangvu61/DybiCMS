@@ -37,5 +37,9 @@ namespace Dybi.App.Services
 
         Task<bool> DeleteOrderDelivery(Guid id);
         #endregion
+
+        #region settings
+
+        #endregion
     }
 }

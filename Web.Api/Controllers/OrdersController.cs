@@ -206,6 +206,8 @@ namespace Web.Api.Controllers
             order.SendDate = DateTime.Now;
             await _orderRepository.UpdateOrder(order);
 
+            var output = await _orderRepository.ExportWarehouse(order);
+
             return Ok();
         }
 
@@ -243,6 +245,8 @@ namespace Web.Api.Controllers
 
             order.CancelDate = DateTime.Now;
             await _orderRepository.UpdateOrder(order);
+
+            var output = await _orderRepository.ImportWarehouse(order);
 
             return Ok();
         }

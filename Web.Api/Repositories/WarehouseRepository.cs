@@ -436,7 +436,7 @@ namespace Web.Api.Repositories
                         warehouseInventory.InventoryNumber -= product.Quantity;
                         _context.WarehouseInventories.Update(warehouseInventory);
 
-                        var warehouseInputInventories = await _context.WarehouseInputInventories.Where(e => e.ProductId == product.ProductId && e.InventoryNumber > 0).ToListAsync();
+                        var warehouseInputInventories = await _context.WarehouseInputInventories.Where(e => e.Input.WarehouseId == output.Id && e.ProductId == product.ProductId && e.InventoryNumber > 0).ToListAsync();
                         if (warehouseInputInventories == null || warehouseInputInventories.Count == 0) return 4;
 
                         var inputIds = warehouseInputInventories.Select(e => e.InputId).ToList();
@@ -467,7 +467,7 @@ namespace Web.Api.Repositories
                                 break;
                             }
 
-                            _context.WarehouseOutputProductDetails.Add(detail);
+                            product.Details.Add(detail);
                         }
                     }
                 }

@@ -50,6 +50,11 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Content Remove="Pages\Settings\Components\AttributeConfigCreate.razor" />
+      <Content Remove="Pages\Settings\Components\AttributeConfigList.razor" />
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
         <PackageReference Include="Blazored.TextEditor" Version="1.1.0" />
         <PackageReference Include="Blazored.Toast" Version="4.2.1" />
@@ -67,6 +72,9 @@
 
     <ItemGroup>
       <Content Update="Pages\Index.razor">
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      </Content>
+      <Content Update="Pages\Settings\AttributeOrders.razor">
         <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       </Content>
       <Content Update="Pages\Settings\Categories.razor">

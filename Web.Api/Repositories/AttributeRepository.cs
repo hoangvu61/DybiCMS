@@ -57,6 +57,12 @@ namespace Web.Api.Repositories
             var attributeCategories = await _context.AttributeCategories.Where(e => e.AttributeId == attribute.Id && e.CompanyId == attribute.CompanyId).ToArrayAsync();
             _context.AttributeCategories.RemoveRange(attributeCategories);
 
+            var attributeOrder = await _context.AttributeOrders.FirstOrDefaultAsync(e => e.AttributeId == attribute.Id && e.CompanyId == attribute.CompanyId);
+            if(attributeOrder != null) _context.AttributeOrders.Remove(attributeOrder);
+
+            var attributeContact = await _context.AttributeContacts.FirstOrDefaultAsync(e => e.AttributeId == attribute.Id && e.CompanyId == attribute.CompanyId);
+            if (attributeContact != null) _context.AttributeContacts.Remove(attributeContact);
+
             var attributes = await _context.ItemAttributes.Where(e => e.AttributeId == attribute.Id && e.Item.CompanyId == attribute.CompanyId).ToArrayAsync();
             _context.ItemAttributes.RemoveRange(attributes);
 
@@ -236,12 +242,12 @@ namespace Web.Api.Repositories
                 .Include(e => e.Attribute)
                 .Include(e => e.Attribute.AttributeLanguages)
                 .Where(e => e.CompanyId == companyId);
-            return await query.OrderBy(e => e.Order).ToListAsync();
+            return await query.OrderBy(e => e.Priority).ToListAsync();
         }
         public async Task<AttributeOrder> GetAttributeOrder(Guid companyId, string attributeId)
         {
             var query = _context.AttributeOrders
-                .Include(e => e.Attribute)
+                .Include(e => e.Attribute).ThenInclude(e => e.AttributeLanguages)
                 .Where(e => e.AttributeId == attributeId && e.CompanyId == companyId);
             return await query.FirstOrDefaultAsync();
         }

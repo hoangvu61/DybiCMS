@@ -14,8 +14,6 @@ namespace Web.Api.Entities
         [Required]
         public Guid CompanyId { get; set; }
 
-        public Attribute Attribute { get; set; } 
-
         [Required]
         [MaxLength(5)]
         [Column(TypeName = "VARCHAR")]
@@ -24,5 +22,8 @@ namespace Web.Api.Entities
         [Required]
         [MaxLength(250)]
         public string Name { get; set; }
+
+        [ForeignKey("CompanyId, AttributeId")]
+        public Attribute Attribute { get; set; }
     }
 }

@@ -16,8 +16,7 @@ namespace Web.Api.Entities
         public Item Item { get; set; }
 
         public Guid CategoryId { get; set; }
-        [ForeignKey("CategoryId")]
-        public ItemCategory Category { get; set; }
+        
         
         public decimal Price { get; set; }
         public decimal Discount { get; set; }
@@ -30,8 +29,11 @@ namespace Web.Api.Entities
 
         [DefaultValue(1)] 
         public int SaleMin { get; set; }
-        
-        public WarehouseInventory Inventory { get; set; }
+
+
+        [ForeignKey("CategoryId")]
+        public ItemCategory Category { get; set; }
+        public WarehouseInventory? Inventory { get; set; }
         public virtual ICollection<WarehouseInputProduct> WarehouseInputs { get; set; }
     }
 }

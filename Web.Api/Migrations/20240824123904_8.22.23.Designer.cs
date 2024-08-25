@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Web.Api.Data;
 
@@ -11,9 +12,11 @@ using Web.Api.Data;
 namespace Web.Api.Migrations
 {
     [DbContext(typeof(WebDbContext))]
-    partial class WebDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240824123904_8.22.23")]
+    partial class _82223
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -127,12 +130,12 @@ namespace Web.Api.Migrations
 
             modelBuilder.Entity("Web.Api.Entities.Attribute", b =>
                 {
-                    b.Property<Guid>("CompanyId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("Id")
                         .HasMaxLength(50)
                         .HasColumnType("VARCHAR");
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("SourceId")
                         .HasColumnType("uniqueidentifier");
@@ -142,21 +145,23 @@ namespace Web.Api.Migrations
                         .HasMaxLength(10)
                         .HasColumnType("VARCHAR");
 
-                    b.HasKey("CompanyId", "Id");
+                    b.HasKey("Id", "CompanyId");
+
+                    b.HasIndex("CompanyId");
 
                     b.HasIndex("SourceId");
 
-                    b.ToTable("Attributes", (string)null);
+                    b.ToTable("Attributes");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.AttributeCategory", b =>
                 {
-                    b.Property<Guid>("CompanyId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("AttributeId")
                         .HasMaxLength(50)
                         .HasColumnType("VARCHAR");
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("CategoryId")
                         .HasColumnType("uniqueidentifier");
@@ -164,28 +169,35 @@ namespace Web.Api.Migrations
                     b.Property<int>("Order")
                         .HasColumnType("int");
 
-                    b.HasKey("CompanyId", "AttributeId", "CategoryId");
+                    b.HasKey("AttributeId", "CompanyId", "CategoryId");
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("AttributeCategories", (string)null);
+                    b.ToTable("AttributeCategories");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.AttributeContact", b =>
                 {
-                    b.Property<Guid>("CompanyId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("AttributeId")
                         .HasMaxLength(50)
                         .HasColumnType("VARCHAR");
 
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AttributeCompanyId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<int>("Order")
                         .HasColumnType("int");
 
-                    b.HasKey("CompanyId", "AttributeId");
+                    b.HasKey("AttributeId", "CompanyId");
 
-                    b.ToTable("AttributeContacts", (string)null);
+                    b.HasIndex("CompanyId");
+
+                    b.HasIndex("AttributeId", "AttributeCompanyId");
+
+                    b.ToTable("AttributeContacts");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.AttributeLanguage", b =>
@@ -208,26 +220,7 @@ namespace Web.Api.Migrations
 
                     b.HasKey("AttributeId", "CompanyId", "LanguageCode");
 
-                    b.HasIndex("CompanyId", "AttributeId");
-
-                    b.ToTable("AttributeLanguages", (string)null);
-                });
-
-            modelBuilder.Entity("Web.Api.Entities.AttributeOrder", b =>
-                {
-                    b.Property<Guid>("CompanyId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("AttributeId")
-                        .HasMaxLength(50)
-                        .HasColumnType("VARCHAR");
-
-                    b.Property<int>("Priority")
-                        .HasColumnType("int");
-
-                    b.HasKey("CompanyId", "AttributeId");
-
-                    b.ToTable("AttributeOrders", (string)null);
+                    b.ToTable("AttributeLanguages");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.AttributeSource", b =>
@@ -243,7 +236,7 @@ namespace Web.Api.Migrations
 
                     b.HasIndex("CompanyId");
 
-                    b.ToTable("AttributeSources", (string)null);
+                    b.ToTable("AttributeSources");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.AttributeSourceLanguage", b =>
@@ -262,7 +255,7 @@ namespace Web.Api.Migrations
 
                     b.HasKey("AttributeSourceId", "LanguageCode");
 
-                    b.ToTable("AttributeSourceLanguages", (string)null);
+                    b.ToTable("AttributeSourceLanguages");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.AttributeValue", b =>
@@ -278,7 +271,7 @@ namespace Web.Api.Migrations
 
                     b.HasIndex("SourceId");
 
-                    b.ToTable("AttributeValues", (string)null);
+                    b.ToTable("AttributeValues");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.AttributeValueLanguage", b =>
@@ -298,7 +291,7 @@ namespace Web.Api.Migrations
 
                     b.HasKey("AttributeValueId", "LanguageCode");
 
-                    b.ToTable("AttributeValueLanguages", (string)null);
+                    b.ToTable("AttributeValueLanguages");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.Company", b =>
@@ -328,7 +321,7 @@ namespace Web.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Companies", (string)null);
+                    b.ToTable("Companies");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.CompanyBranch", b =>
@@ -369,7 +362,7 @@ namespace Web.Api.Migrations
 
                     b.HasIndex("CompanyId");
 
-                    b.ToTable("CompanyBranches", (string)null);
+                    b.ToTable("CompanyBranches");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.CompanyConfig", b =>
@@ -388,7 +381,7 @@ namespace Web.Api.Migrations
 
                     b.HasKey("CompanyId", "Key");
 
-                    b.ToTable("CompanyConfigs", (string)null);
+                    b.ToTable("CompanyConfigs");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.CompanyDetail", b =>
@@ -443,7 +436,7 @@ namespace Web.Api.Migrations
 
                     b.HasKey("CompanyId", "LanguageCode");
 
-                    b.ToTable("CompanyDetails", (string)null);
+                    b.ToTable("CompanyDetails");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.CompanyDomain", b =>
@@ -464,7 +457,7 @@ namespace Web.Api.Migrations
 
                     b.HasIndex("CompanyId");
 
-                    b.ToTable("CompanyDomains", (string)null);
+                    b.ToTable("CompanyDomains");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.CompanyLanguage", b =>
@@ -478,7 +471,7 @@ namespace Web.Api.Migrations
 
                     b.HasKey("CompanyId", "LanguageCode");
 
-                    b.ToTable("CompanyLanguages", (string)null);
+                    b.ToTable("CompanyLanguages");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.CompanyLanguageConfig", b =>
@@ -501,7 +494,7 @@ namespace Web.Api.Migrations
 
                     b.HasKey("CompanyId", "LanguageKey", "LanguageCode");
 
-                    b.ToTable("CompanyLanguageConfigs", (string)null);
+                    b.ToTable("CompanyLanguageConfigs");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.Config", b =>
@@ -525,7 +518,7 @@ namespace Web.Api.Migrations
 
                     b.HasKey("Key");
 
-                    b.ToTable("Configs", (string)null);
+                    b.ToTable("Configs");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.Contact", b =>
@@ -556,7 +549,7 @@ namespace Web.Api.Migrations
 
                     b.HasIndex("CompanyId");
 
-                    b.ToTable("Contacts", (string)null);
+                    b.ToTable("Contacts");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.ContactAttribute", b =>
@@ -579,7 +572,7 @@ namespace Web.Api.Migrations
 
                     b.HasIndex("Id");
 
-                    b.ToTable("ContactAttributes", (string)null);
+                    b.ToTable("ContactAttributes");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.Customer", b =>
@@ -609,7 +602,7 @@ namespace Web.Api.Migrations
 
                     b.HasIndex("CompanyId");
 
-                    b.ToTable("Customers", (string)null);
+                    b.ToTable("Customers");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.DebtCustomer", b =>
@@ -637,7 +630,7 @@ namespace Web.Api.Migrations
 
                     b.HasIndex("CustomerId");
 
-                    b.ToTable("DebtCustomers", (string)null);
+                    b.ToTable("DebtCustomers");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.DebtSupplier", b =>
@@ -665,7 +658,7 @@ namespace Web.Api.Migrations
 
                     b.HasIndex("SupplierId");
 
-                    b.ToTable("DebtSuppliers", (string)null);
+                    b.ToTable("DebtSuppliers");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.Item", b =>
@@ -697,7 +690,7 @@ namespace Web.Api.Migrations
 
                     b.HasIndex("CompanyId");
 
-                    b.ToTable("Items", (string)null);
+                    b.ToTable("Items");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.ItemArticle", b =>
@@ -723,7 +716,7 @@ namespace Web.Api.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("ItemArticles", (string)null);
+                    b.ToTable("ItemArticles");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.ItemAttribute", b =>
@@ -745,7 +738,7 @@ namespace Web.Api.Migrations
 
                     b.HasKey("ItemId", "AttributeId", "LanguageCode");
 
-                    b.ToTable("ItemAttributes", (string)null);
+                    b.ToTable("ItemAttributes");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.ItemCategory", b =>
@@ -765,7 +758,7 @@ namespace Web.Api.Migrations
 
                     b.HasIndex("ParentId");
 
-                    b.ToTable("ItemCategories", (string)null);
+                    b.ToTable("ItemCategories");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.ItemCategoryComponent", b =>
@@ -785,7 +778,7 @@ namespace Web.Api.Migrations
 
                     b.HasKey("CategoryId");
 
-                    b.ToTable("ItemCategoryComponent", (string)null);
+                    b.ToTable("ItemCategoryComponent");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.ItemEvent", b =>
@@ -803,7 +796,7 @@ namespace Web.Api.Migrations
 
                     b.HasKey("ItemId");
 
-                    b.ToTable("ItemEvents", (string)null);
+                    b.ToTable("ItemEvents");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.ItemImage", b =>
@@ -817,7 +810,7 @@ namespace Web.Api.Migrations
 
                     b.HasKey("ItemId", "Image");
 
-                    b.ToTable("ItemImages", (string)null);
+                    b.ToTable("ItemImages");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.ItemLanguage", b =>
@@ -843,7 +836,7 @@ namespace Web.Api.Migrations
 
                     b.HasKey("ItemId", "LanguageCode");
 
-                    b.ToTable("ItemLanguages", (string)null);
+                    b.ToTable("ItemLanguages");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.ItemMedia", b =>
@@ -875,7 +868,7 @@ namespace Web.Api.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("ItemMedias", (string)null);
+                    b.ToTable("ItemMedias");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.ItemProduct", b =>
@@ -906,7 +899,7 @@ namespace Web.Api.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("ItemProducts", (string)null);
+                    b.ToTable("ItemProducts");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.ItemProductAddOn", b =>
@@ -927,7 +920,7 @@ namespace Web.Api.Migrations
 
                     b.HasIndex("ProductAddOnId");
 
-                    b.ToTable("ItemProductAddOns", (string)null);
+                    b.ToTable("ItemProductAddOns");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.ItemProductGroupon", b =>
@@ -952,7 +945,7 @@ namespace Web.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ItemProductGroupons", (string)null);
+                    b.ToTable("ItemProductGroupons");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.ItemRelated", b =>
@@ -965,7 +958,7 @@ namespace Web.Api.Migrations
 
                     b.HasKey("ItemId", "RelatedId");
 
-                    b.ToTable("ItemRelateds", (string)null);
+                    b.ToTable("ItemRelateds");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.ItemReview", b =>
@@ -996,7 +989,7 @@ namespace Web.Api.Migrations
 
                     b.HasKey("ItemId");
 
-                    b.ToTable("ItemReviews", (string)null);
+                    b.ToTable("ItemReviews");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.ItemTag", b =>
@@ -1013,7 +1006,7 @@ namespace Web.Api.Migrations
 
                     b.HasKey("ItemId", "Slug");
 
-                    b.ToTable("ItemTags", (string)null);
+                    b.ToTable("ItemTags");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.Language", b =>
@@ -1029,7 +1022,7 @@ namespace Web.Api.Migrations
 
                     b.HasKey("Code");
 
-                    b.ToTable("Languages", (string)null);
+                    b.ToTable("Languages");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.Menu", b =>
@@ -1052,7 +1045,7 @@ namespace Web.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Menus", (string)null);
+                    b.ToTable("Menus");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.Module", b =>
@@ -1068,7 +1061,7 @@ namespace Web.Api.Migrations
 
                     b.HasKey("ModuleName");
 
-                    b.ToTable("Modules", (string)null);
+                    b.ToTable("Modules");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.ModuleConfig", b =>
@@ -1107,7 +1100,7 @@ namespace Web.Api.Migrations
 
                     b.HasIndex("CompanyId");
 
-                    b.ToTable("ModuleConfigs", (string)null);
+                    b.ToTable("ModuleConfigs");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.ModuleConfigDetail", b =>
@@ -1126,7 +1119,7 @@ namespace Web.Api.Migrations
 
                     b.HasKey("ModuleId", "LanguageCode");
 
-                    b.ToTable("ModuleConfigDetails", (string)null);
+                    b.ToTable("ModuleConfigDetails");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.ModuleConfigParam", b =>
@@ -1144,7 +1137,7 @@ namespace Web.Api.Migrations
 
                     b.HasKey("ModuleId", "ParamName");
 
-                    b.ToTable("ModuleConfigParams", (string)null);
+                    b.ToTable("ModuleConfigParams");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.ModuleParam", b =>
@@ -1173,7 +1166,7 @@ namespace Web.Api.Migrations
 
                     b.HasKey("ModuleName", "ParamName");
 
-                    b.ToTable("ModuleParams", (string)null);
+                    b.ToTable("ModuleParams");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.ModuleSkin", b =>
@@ -1211,7 +1204,7 @@ namespace Web.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ModuleSkins", (string)null);
+                    b.ToTable("ModuleSkins");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.Order", b =>
@@ -1265,34 +1258,7 @@ namespace Web.Api.Migrations
 
                     b.HasIndex("CustomerId");
 
-                    b.ToTable("Orders", (string)null);
-                });
-
-            modelBuilder.Entity("Web.Api.Entities.OrderAttribute", b =>
-                {
-                    b.Property<Guid>("OrderId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("AttributeId")
-                        .HasMaxLength(50)
-                        .HasColumnType("VARCHAR");
-
-                    b.Property<string>("LanguageCode")
-                        .HasMaxLength(5)
-                        .HasColumnType("VARCHAR");
-
-                    b.Property<Guid>("CompanyId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Value")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("OrderId", "AttributeId", "LanguageCode");
-
-                    b.HasIndex("CompanyId", "AttributeId");
-
-                    b.ToTable("OrderAttributes", (string)null);
+                    b.ToTable("Orders");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.OrderDebt", b =>
@@ -1308,7 +1274,7 @@ namespace Web.Api.Migrations
 
                     b.HasKey("OrderId");
 
-                    b.ToTable("OrderDebts", (string)null);
+                    b.ToTable("OrderDebts");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.OrderDelivery", b =>
@@ -1334,7 +1300,7 @@ namespace Web.Api.Migrations
 
                     b.HasKey("OrderId");
 
-                    b.ToTable("OrderDeliveries", (string)null);
+                    b.ToTable("OrderDeliveries");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.OrderProduct", b =>
@@ -1358,7 +1324,7 @@ namespace Web.Api.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("OrderProducts", (string)null);
+                    b.ToTable("OrderProducts");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.Role", b =>
@@ -1443,7 +1409,7 @@ namespace Web.Api.Migrations
 
                     b.HasIndex("ItemId");
 
-                    b.ToTable("SEOs", (string)null);
+                    b.ToTable("SEOs");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.Template", b =>
@@ -1464,7 +1430,7 @@ namespace Web.Api.Migrations
 
                     b.HasKey("TemplateName");
 
-                    b.ToTable("Templates", (string)null);
+                    b.ToTable("Templates");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.TemplateComponent", b =>
@@ -1484,7 +1450,7 @@ namespace Web.Api.Migrations
 
                     b.HasKey("TemplateName", "ComponentName");
 
-                    b.ToTable("TemplateComponents", (string)null);
+                    b.ToTable("TemplateComponents");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.TemplateLanguage", b =>
@@ -1499,7 +1465,7 @@ namespace Web.Api.Migrations
 
                     b.HasKey("TemplateName", "LanguageKey");
 
-                    b.ToTable("TemplateLanguageKeys", (string)null);
+                    b.ToTable("TemplateLanguageKeys");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.TemplatePosition", b =>
@@ -1523,7 +1489,7 @@ namespace Web.Api.Migrations
 
                     b.HasKey("TemplateName", "PositionName", "ComponentName");
 
-                    b.ToTable("TemplatePositions", (string)null);
+                    b.ToTable("TemplatePositions");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.TemplateSkin", b =>
@@ -1550,7 +1516,7 @@ namespace Web.Api.Migrations
 
                     b.HasIndex("ModuleName");
 
-                    b.ToTable("TemplateSkins", (string)null);
+                    b.ToTable("TemplateSkins");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.ThirdParty", b =>
@@ -1588,7 +1554,7 @@ namespace Web.Api.Migrations
 
                     b.HasIndex("CompanyId");
 
-                    b.ToTable("ThirdParties", (string)null);
+                    b.ToTable("ThirdParties");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.User", b =>
@@ -1708,7 +1674,7 @@ namespace Web.Api.Migrations
 
                     b.HasIndex("CompanyId");
 
-                    b.ToTable("Warehouses", (string)null);
+                    b.ToTable("Warehouses");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.WarehouseConfig", b =>
@@ -1727,7 +1693,7 @@ namespace Web.Api.Migrations
 
                     b.HasIndex("CompanyId");
 
-                    b.ToTable("WarehouseConfigs", (string)null);
+                    b.ToTable("WarehouseConfigs");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.WarehouseFactory", b =>
@@ -1767,7 +1733,7 @@ namespace Web.Api.Migrations
 
                     b.HasIndex("CompanyId");
 
-                    b.ToTable("WarehouseFactorys", (string)null);
+                    b.ToTable("WarehouseFactorys");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.WarehouseInput", b =>
@@ -1809,7 +1775,7 @@ namespace Web.Api.Migrations
 
                     b.HasIndex("WarehouseSupplierId");
 
-                    b.ToTable("WarehouseInputs", (string)null);
+                    b.ToTable("WarehouseInputs");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.WarehouseInputDebt", b =>
@@ -1825,7 +1791,7 @@ namespace Web.Api.Migrations
 
                     b.HasKey("InputId");
 
-                    b.ToTable("WarehouseInputDebts", (string)null);
+                    b.ToTable("WarehouseInputDebts");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.WarehouseInputFromFactory", b =>
@@ -1857,7 +1823,7 @@ namespace Web.Api.Migrations
 
                     b.HasIndex("FactoryId");
 
-                    b.ToTable("WarehouseInputFromFactories", (string)null);
+                    b.ToTable("WarehouseInputFromFactories");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.WarehouseInputFromOrder", b =>
@@ -1872,7 +1838,7 @@ namespace Web.Api.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("WarehouseInputFromOrders", (string)null);
+                    b.ToTable("WarehouseInputFromOrders");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.WarehouseInputFromSupplier", b =>
@@ -1904,7 +1870,7 @@ namespace Web.Api.Migrations
 
                     b.HasIndex("SourceId");
 
-                    b.ToTable("WarehouseInputFromSuppliers", (string)null);
+                    b.ToTable("WarehouseInputFromSuppliers");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.WarehouseInputFromWarehouse", b =>
@@ -1936,7 +1902,7 @@ namespace Web.Api.Migrations
 
                     b.HasIndex("WarehouseId");
 
-                    b.ToTable("WarehouseInputFromWarehouses", (string)null);
+                    b.ToTable("WarehouseInputFromWarehouses");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.WarehouseInputInventory", b =>
@@ -1954,7 +1920,7 @@ namespace Web.Api.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("WarehouseInputInventories", (string)null);
+                    b.ToTable("WarehouseInputInventories");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.WarehouseInputProduct", b =>
@@ -1975,7 +1941,7 @@ namespace Web.Api.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("WarehouseInputProducts", (string)null);
+                    b.ToTable("WarehouseInputProducts");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.WarehouseInputProductCode", b =>
@@ -1992,7 +1958,7 @@ namespace Web.Api.Migrations
 
                     b.HasKey("InputId", "ProductId", "ProductCode");
 
-                    b.ToTable("WarehouseInputProductCodes", (string)null);
+                    b.ToTable("WarehouseInputProductCodes");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.WarehouseInventory", b =>
@@ -2011,7 +1977,7 @@ namespace Web.Api.Migrations
                     b.HasIndex("ProductId")
                         .IsUnique();
 
-                    b.ToTable("WarehouseInventories", (string)null);
+                    b.ToTable("WarehouseInventories");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.WarehouseOutput", b =>
@@ -2041,7 +2007,7 @@ namespace Web.Api.Migrations
 
                     b.HasIndex("WarehouseId");
 
-                    b.ToTable("WarehouseOutputs", (string)null);
+                    b.ToTable("WarehouseOutputs");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.WarehouseOutputProduct", b =>
@@ -2059,7 +2025,7 @@ namespace Web.Api.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("WarehouseOutputProducts", (string)null);
+                    b.ToTable("WarehouseOutputProducts");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.WarehouseOutputProductCode", b =>
@@ -2082,7 +2048,7 @@ namespace Web.Api.Migrations
                     b.HasIndex("InputId", "ProductId", "ProductCode")
                         .IsUnique();
 
-                    b.ToTable("WarehouseOutputProductCodes", (string)null);
+                    b.ToTable("WarehouseOutputProductCodes");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.WarehouseOutputProductDetail", b =>
@@ -2108,7 +2074,7 @@ namespace Web.Api.Migrations
 
                     b.HasIndex("OutputId", "ProductId");
 
-                    b.ToTable("WarehouseOutputProductDetails", (string)null);
+                    b.ToTable("WarehouseOutputProductDetails");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.WarehouseOutputToFactory", b =>
@@ -2143,7 +2109,7 @@ namespace Web.Api.Migrations
                     b.HasIndex("OutputId")
                         .IsUnique();
 
-                    b.ToTable("WarehouseOutputToFactories", (string)null);
+                    b.ToTable("WarehouseOutputToFactories");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.WarehouseOutputToOrder", b =>
@@ -2161,7 +2127,7 @@ namespace Web.Api.Migrations
                     b.HasIndex("OutputId")
                         .IsUnique();
 
-                    b.ToTable("WarehouseOutputToOrders", (string)null);
+                    b.ToTable("WarehouseOutputToOrders");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.WarehouseOutputToSupplier", b =>
@@ -2196,7 +2162,7 @@ namespace Web.Api.Migrations
 
                     b.HasIndex("SourceId");
 
-                    b.ToTable("WarehouseOutputToSuppliers", (string)null);
+                    b.ToTable("WarehouseOutputToSuppliers");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.WarehouseOutputToWarehouse", b =>
@@ -2231,7 +2197,7 @@ namespace Web.Api.Migrations
 
                     b.HasIndex("WarehouseId");
 
-                    b.ToTable("WarehouseOutputToWarehouses", (string)null);
+                    b.ToTable("WarehouseOutputToWarehouses");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.WarehouseSupplier", b =>
@@ -2271,7 +2237,7 @@ namespace Web.Api.Migrations
 
                     b.HasIndex("CompanyId");
 
-                    b.ToTable("WarehouseSuppliers", (string)null);
+                    b.ToTable("WarehouseSuppliers");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.WebConfig", b =>
@@ -2327,7 +2293,7 @@ namespace Web.Api.Migrations
 
                     b.HasIndex("TemplateName");
 
-                    b.ToTable("WebConfigs", (string)null);
+                    b.ToTable("WebConfigs");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.WebInfo", b =>
@@ -2354,7 +2320,7 @@ namespace Web.Api.Migrations
 
                     b.HasKey("CompanyId", "LanguageCode");
 
-                    b.ToTable("WebInfos", (string)null);
+                    b.ToTable("WebInfos");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
@@ -2435,7 +2401,7 @@ namespace Web.Api.Migrations
 
                     b.HasOne("Web.Api.Entities.Attribute", "Attribute")
                         .WithMany("AttributeCategories")
-                        .HasForeignKey("CompanyId", "AttributeId")
+                        .HasForeignKey("AttributeId", "CompanyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -2453,8 +2419,8 @@ namespace Web.Api.Migrations
                         .IsRequired();
 
                     b.HasOne("Web.Api.Entities.Attribute", "Attribute")
-                        .WithOne("AttributeContact")
-                        .HasForeignKey("Web.Api.Entities.AttributeContact", "CompanyId", "AttributeId")
+                        .WithMany()
+                        .HasForeignKey("AttributeId", "AttributeCompanyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -2467,30 +2433,11 @@ namespace Web.Api.Migrations
                 {
                     b.HasOne("Web.Api.Entities.Attribute", "Attribute")
                         .WithMany("AttributeLanguages")
-                        .HasForeignKey("CompanyId", "AttributeId")
+                        .HasForeignKey("AttributeId", "CompanyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Attribute");
-                });
-
-            modelBuilder.Entity("Web.Api.Entities.AttributeOrder", b =>
-                {
-                    b.HasOne("Web.Api.Entities.Company", "Company")
-                        .WithMany()
-                        .HasForeignKey("CompanyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Web.Api.Entities.Attribute", "Attribute")
-                        .WithOne("AttributeOrder")
-                        .HasForeignKey("Web.Api.Entities.AttributeOrder", "CompanyId", "AttributeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Attribute");
-
-                    b.Navigation("Company");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.AttributeSource", b =>
@@ -2933,33 +2880,6 @@ namespace Web.Api.Migrations
                     b.Navigation("Company");
 
                     b.Navigation("Customer");
-                });
-
-            modelBuilder.Entity("Web.Api.Entities.OrderAttribute", b =>
-                {
-                    b.HasOne("Web.Api.Entities.Company", "Company")
-                        .WithMany()
-                        .HasForeignKey("CompanyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Web.Api.Entities.Order", "Order")
-                        .WithMany()
-                        .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Web.Api.Entities.Attribute", "AttributeOrder")
-                        .WithMany()
-                        .HasForeignKey("CompanyId", "AttributeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("AttributeOrder");
-
-                    b.Navigation("Company");
-
-                    b.Navigation("Order");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.OrderDebt", b =>
@@ -3518,11 +3438,7 @@ namespace Web.Api.Migrations
                 {
                     b.Navigation("AttributeCategories");
 
-                    b.Navigation("AttributeContact");
-
                     b.Navigation("AttributeLanguages");
-
-                    b.Navigation("AttributeOrder");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.AttributeSource", b =>

@@ -1,0 +1,154 @@
+﻿@page "/settings/attributeorders"
+@attribute [Authorize]
+
+@using Dybi.App.Components
+@using Dybi.App.Pages.Settings.Components
+@using Dybi.App.Services
+@using Microsoft.AspNetCore.Authorization;
+@using Web.Models;
+@using Web.Models.Enums;
+@using Web.Models.SeedWork;
+
+@inject IToastService ToastService;
+@inject IAttributeApiClient AttributeApiClient
+
+<h1>Quản lý thuộc tính đơn hàng</h1>
+
+<section>
+    @if (ListAttributes == null)
+    {
+        <LoadingIndicator></LoadingIndicator>
+    }
+    else
+    {
+        <div class="card card-outline card-info">
+            <div class="card-header">
+                <h3 class="card-title">Danh sách thuộc tính</h3>
+            </div>
+            <div class="card-body">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Mã</th>
+                            <th>Tên</th>
+                            <th>Loại</th>
+                            <th>Nhóm</th>
+                            <th>Thứ tự</th>
+                            <th style="text-align:right">
+                                <button class="btn btn-primary btn-sm" @onclick="()=> CreateAttributeDialog.Show()">Thêm</button>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in ListAttributes)
+                        {
+                            <tr>
+                                <td>@item.Id</td>
+                                <td>@item.Title</td>
+                                <td>@DataSource.AttributeTypes[item.Type]</td>
+                                <td>@item.SourceNames?.Where(e => e.Key == "vi").Select(e => e.Value).FirstOrDefault()</td>
+                                <td style="text-align: center;width:100px">
+                                    <div class="input-group input-group-sm mb-3">
+                                        <button class="btn btn-outline-secondary" @onclick="@((e) => {item.Priority--; OrderAtributeOrderChanged(item.Id, item.Priority);})">&lt;</button>
+                                        <span class="form-control">@item.Priority</span>
+                                        <button class="btn btn-outline-secondary" @onclick="@((e) => {item.Priority++; OrderAtributeOrderChanged(item.Id, item.Priority);})">&gt;</button>
+                                    </div>
+                                </td>
+                                <td style="text-align:right">
+                                    <button class="btn btn-success btn-sm" @onclick="()=> UpdateAttributeDialog.Show(item.Id)">Sửa</button>
+                                    <button class="btn btn-danger btn-sm" @onclick="()=> OnDelete(item.Id)">Xóa</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card card-outline card-primary">
+            <div class="card-header">
+                <h3 class="card-title">Danh sách nhóm thuộc tính</h3>
+            </div>
+            <div class="card-body">
+                <AttributeSourceList></AttributeSourceList>
+            </div>
+        </div>
+        <Confirmation ConfirmationMessage="Bạn có chắc chắn xóa?"
+                    ConfirmationTitle="Xóa thuộc tính"
+                    @ref="DeleteConfirmation"
+                    ConfirmationChanged="OnConfirmDelete">
+        </Confirmation>
+
+        <AttributeOrderCreate @ref="CreateAttributeDialog" CloseEventCallbak="RefreshList"></AttributeOrderCreate>
+        <AttributeOrderUpdate @ref="UpdateAttributeDialog" CloseEventCallbak="RefreshList"></AttributeOrderUpdate>
+    }
+</section>
+
+@code {
+    protected Confirmation DeleteConfirmation { set; get; }
+    protected AttributeOrderCreate CreateAttributeDialog { set; get; }
+    protected AttributeOrderUpdate UpdateAttributeDialog { set; get; }
+
+    private List<AttributeOrderConfigDto> ListAttributes;
+    private string DeleteId { set; get; }
+
+    [CascadingParameter]
+    private Error Error { set; get; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetAttributes();
+    }
+
+    private async Task GetAttributes()
+    {
+        try
+        {
+            ListAttributes = await AttributeApiClient.GetAttributeList();
+        }
+        catch (Exception ex)
+        {
+            Error.ProcessError(ex);
+        }
+
+    }
+
+    public async void OrderAtributeOrderChanged(string attributeId, int order)
+    {
+        var result = await AttributeApiClient.UpdateAttributeOrderOrder(attributeId, order);
+        if (result)
+        {
+            ToastService.ShowInfo($"Đã cập nhật thứ tự thành [{order}] thành công");
+            await RefreshList(true);
+        }
+        else ToastService.ShowError("Cập nhật không thành công");
+    }
+
+    public void OnDelete(string deleteId)
+    {
+        DeleteId = deleteId;
+        DeleteConfirmation.Show();
+    }
+
+    public async Task OnConfirmDelete(bool deleteConfirmed)
+    {
+        if (deleteConfirmed)
+        {
+            var result = await AttributeApiClient.DeleteAttribute(DeleteId);
+            if (result)
+            {
+                ToastService.ShowWarning($"Xóa thuộc tính thành công");
+                await RefreshList(true);
+            }
+            else ToastService.ShowError("Xóa thuộc tính không thành công");
+        }
+    }
+
+    public async Task RefreshList(bool result)
+    {
+        if (result)
+        {
+            await GetAttributes();
+            StateHasChanged();
+        }
+    }
+}
