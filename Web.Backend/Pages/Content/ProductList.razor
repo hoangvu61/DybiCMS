@@ -43,7 +43,7 @@
                                 <th style="text-align:center">Hình</th>
                                 <th style="text-align:right">Giá</th>
                                 <th style="text-align:center">lượt xem</th>
-                                <th style="text-align:center">Thứ tự</th>
+                                <th style="text-align:center;width:75px">Thứ tự</th>
                                 <th style="text-align:center">Sử dụng</th>
                                 <th style="text-align:right">
                                     <a href="/ProductCreate" class="btn btn-primary btn-sm">Thêm</a>
@@ -112,12 +112,8 @@
                                     <td style="text-align:center">
                                         @item.View
                                     </td>
-                                    <td style="text-align: center;width:100px">
-                                        <div class="input-group input-group-sm mb-3">
-                                            <button class="btn btn-outline-secondary" @onclick="@((e) => {item.Order--; OrderChanged(item.Id, item.Order);})">&lt;</button>
-                                            <span class="form-control">@item.Order</span>
-                                            <button class="btn btn-outline-secondary" @onclick="@((e) => {item.Order++; OrderChanged(item.Id, item.Order);})">&gt;</button>
-                                        </div>
+                                    <td style="text-align: center">
+                                        <input class="form-control form-control-sm" type="number" @bind="item.Order" @bind:event="oninput" @onkeyup="@(() => OrderChanged(item))" @onchange="@(() => OrderChanged(item))" />
                                     </td>
                                     <td class="form-switch" style="text-align: center; padding-left: 30px;">
                                         <input type="checkbox" checked="@item.IsPublished" class="form-check-input" role="switch" @onchange="@((e) => {item.IsPublished= bool.Parse(e.Value.ToString()); ApplyChanged(item.Id);})"></input>
@@ -226,18 +222,20 @@
         DeleteConfirmation.Show();
     }
 
-    public async void ApplyChanged(Guid id)
+    public async Task ApplyChanged(Guid id)
     {
         var result = await ContentApiClient.UpdatePublish(id);
         if (result) ToastService.ShowInfo("Cập nhật thành công");
         else ToastService.ShowError("Cập nhật không thành công");
     }
-    public async void OrderChanged(Guid id, int order)
+    public async Task OrderChanged(ProductDto dto)
     {
-        var result = await ContentApiClient.UpdateOrder(id, order);
+        await Task.Delay(1000);
+        var result = await ContentApiClient.UpdateOrder(dto.Id, dto.Order);
         if (result)
         {
-            ToastService.ShowInfo($"Đã cập nhật thứ tự thành [{order}] thành công");
+            await Task.Delay(2000);
+            ToastService.ShowInfo($"Đã cập nhật thứ tự [{dto.Titles["vi"]}] thành [{dto.Order}]");
             await RefreshList(true);
         }
         else ToastService.ShowError("Cập nhật không thành công");

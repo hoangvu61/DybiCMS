@@ -189,7 +189,7 @@
         if (result)
         {
             ShowDialog = false;
-            await LoadData(Model.LanguageCode);
+            await CloseEventCallbak.InvokeAsync();
             ToastService.ShowInfo("Lưu liên kết thành công");
         }
         else

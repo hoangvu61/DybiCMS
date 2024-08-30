@@ -1,0 +1,92 @@
+﻿@using Microsoft.AspNetCore.Authorization;
+@using Dybi.App.Services;
+@using Web.Models;
+@using Dybi.App.Components;
+@using Web.Models.Enums
+
+@inject IToastService ToastService;
+@inject IOrderApiClient OrderApiClient;
+@attribute [Authorize]
+
+@if (ShowDialog)
+{
+    <div class="modal fade show d-block" id="modal-orderdelivery" tabindex="-1" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <EditForm Model="Model" OnValidSubmit="HandleSubmit">
+                    <DataAnnotationsValidator></DataAnnotationsValidator>
+                    <div class="modal-header">
+                        <h4 class="modal-title">Chỉnh sửa đơn vị vận chuyển</h4>
+                        <button type="button" class="close" @onclick="() => {ShowDialog = false;}" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group input-group input-group-sm">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Tên khách hàng:</span>
+                            </div>
+                            <InputText class="form-control form-control-sm" @bind-Value="Model.CustomerName"></InputText>
+                        </div>
+                        <ValidationMessage For="()=> Model.CustomerName"></ValidationMessage>
+                        <div class="form-group input-group input-group-sm">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Số điện thoại:</span>
+                            </div>
+                            <InputText class="form-control form-control-sm" @bind-Value="Model.CustomerPhone"></InputText>
+                        </div>
+                        <ValidationMessage For="()=> Model.CustomerPhone"></ValidationMessage>
+                        <div class="form-group">
+                            <label>Địa chỉ:</label>
+                            <InputText @bind-Value="Model.CustomerAddress" class="form-control form-control-sm"></InputText>
+                        </div>
+                        <ValidationMessage For="()=> Model.CustomerAddress"></ValidationMessage>
+                    </div>
+                    <div class="modal-footer justify-content-between">
+                        <button type="button" class="btn btn-default btn-xs" @onclick="() => {ShowDialog = false;}">Close</button>
+                        <button type="submit" class="btn btn-success btn-xs" data-dismiss="modal">Lưu</button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+}
+
+@code{
+    private bool ShowDialog { get; set; }
+
+    private OrderCustomerDto Model { get; set; }
+
+    [Parameter]
+    public EventCallback CloseEventCallback { get; set; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        Model = new OrderCustomerDto();
+    }
+
+    public async Task Show(OrderDetailDto order)
+    {
+        ShowDialog = true;
+        Model.Id = order.CustomerId;
+        Model.CustomerName = order.CustomerName;
+        Model.CustomerPhone = order.CustomerPhone;
+        Model.CustomerAddress = order.CustomerAddress;
+        StateHasChanged();
+    }
+
+    protected async Task HandleSubmit()
+    {
+        var result = await OrderApiClient.UpdateCustomer(Model);
+        if (result)
+        {
+            ToastService.ShowInfo("Lưu thành công");
+            ShowDialog = false;
+            await CloseEventCallback.InvokeAsync(true);
+        }
+        else
+        {
+            ToastService.ShowError("Lưu không thành công");
+        }
+    }
+}

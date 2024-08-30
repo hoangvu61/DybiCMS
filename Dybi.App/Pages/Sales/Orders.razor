@@ -1,0 +1,422 @@
+﻿@page "/Sales/Orders"
+@attribute [Authorize]
+
+@using Dybi.App.Pages.Sales.Components
+@using Microsoft.AspNetCore.Authorization;
+@using Dybi.App.Components;
+@using Dybi.App.Services;
+@using Web.Models;
+@using Web.Models.SeedWork;
+@using Microsoft.Extensions.Configuration
+
+@inject IConfiguration Configuration
+@inject IToastService ToastService;
+@inject IOrderApiClient OrderApiClient;
+
+<h1>Quản lý đơn hàng</h1>
+
+<section class="my-5">
+    <div class="mb-4">
+        <button type="button" class="btn btn-info position-relative btn-sm" style="margin-right:15px" @onclick="@(() => Click("Moi"))">
+            Mới
+            @if (NewMetaData.TotalCount > 0)
+            {
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                    @NewMetaData.TotalCount
+                </span>
+            }
+        </button>
+        <button type="button" class="btn btn-secondary position-relative btn-sm" style="margin-right:15px" @onclick="@(() => Click("XacNhan"))">
+            Đã xác nhận
+            @if (ConfirmMetaData.TotalCount > 0)
+            {
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                    @ConfirmMetaData.TotalCount
+                </span>
+            }
+        </button>
+        <button type="button" class="btn btn-primary position-relative btn-sm" style="margin-right:15px" @onclick="@(() => Click("Gui"))">
+            Đã gửi
+            @if (SendMetaData.TotalCount > 0)
+            {
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                    @SendMetaData.TotalCount
+                </span>
+            }
+        </button>
+        <button type="button" class="btn btn-success position-relative btn-sm" style="margin-right:15px" @onclick="@(() => Click("Nhan"))">
+            Đã nhận
+            @if (ReceiveMetaData.TotalCount > 0)
+            {
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                    @ReceiveMetaData.TotalCount
+                </span>
+            }
+        </button>
+        <button type="button" class="btn btn-danger position-relative btn-sm" style="margin-right:15px" @onclick="@(() => Click("Tra"))">
+            Đã hủy
+            @if (CancelMetaData.TotalCount > 0)
+            {
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                    @CancelMetaData.TotalCount
+                </span>
+            }
+        </button>
+    </div>
+
+    <table class="table table-sm table-striped table-bordered" style="display:@(Toggle["Moi"] ? "block" : "none")">
+        <thead>
+            <tr>
+                <th style="width:175px">Mã đơn</th>
+                <th>Khách hàng</th>
+                <th style="text-align:right">Tổng tiền</th>
+                <th style="text-align:center">Ngày tạo</th>
+                <th style="text-align:center;width:55px"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in NewOrders)
+            {
+                <tr>
+                    <td>@order.Id</td>
+                    <td>
+                        <div>@order.CustomerName - @order.CustomerPhone</div>
+                        <div>@order.CustomerAddress</div>
+                    </td>
+                    <td style="text-align:right">@order.TotalPrice.ToString("N0")</td>
+                    <td style="text-align:center;text-align:center">@order.Date.ToString("dd/MM/yyyy")</td>
+                    <td>
+                        <button class="btn btn-info btn-sm" @onclick="() => OrderDetailDialog.Show(order.Id)">Xem</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="7">
+                    <Pagination MetaData="NewMetaData" Spread="2" SelectedPage="SelectedPageNew"></Pagination>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+    <table class="table table-sm table-striped table-bordered" style="display:@(Toggle["XacNhan"] ? "block" : "none")">
+        <thead>
+            <tr>
+                <th style="width:175px">Mã đơn</th>
+                <th>Khách hàng</th>
+                <th style="text-align:right">Tổng tiền</th>
+                <th style="text-align:center">Ngày tạo</th>
+                <th style="text-align:center;width:55px"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in ConfirmOrders)
+            {
+                <tr>
+                    <td>@order.Id</td>
+                    <td>
+                        <div>@order.CustomerName - @order.CustomerPhone</div>
+                        <div>@order.CustomerAddress</div>
+                    </td>
+                    <td style="text-align:right">@order.TotalPrice.ToString("N0")</td>
+                    <td style="text-align:center">@order.Date.ToString("dd/MM/yyyy")</td>
+                    <td>
+                        <button class="btn btn-info btn-sm" @onclick="() => OrderDetailDialog.Show(order.Id)">Xem</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="7">
+                    <Pagination MetaData="ConfirmMetaData" Spread="2" SelectedPage="SelectedPageConfirm"></Pagination>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+    <table class="table table-sm table-striped table-bordered" style="display:@(Toggle["Gui"] ? "block" : "none")">
+        <thead>
+            <tr>
+                <th style="width:175px">Mã đơn</th>
+                <th>Khách hàng</th>
+                <th style="text-align:right">Tổng tiền</th>
+                <th style="text-align:center">Ngày tạo</th>
+                <th style="text-align:center;width:55px"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in SendOrders)
+            {
+                <tr>
+                    <td>@order.Id</td>
+                    <td>
+                        <div>@order.CustomerName - @order.CustomerPhone</div>
+                        <div>@order.CustomerAddress</div>
+                    </td>
+                    <td style="text-align:right">@order.TotalPrice.ToString("N0")</td>
+                    <td style="text-align:center">@order.Date.ToString("dd/MM/yyyy")</td>
+                    <td>
+                        <button class="btn btn-info btn-sm" @onclick="() => OrderDetailDialog.Show(order.Id)">Xem</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="7">
+                    <Pagination MetaData="SendMetaData" Spread="2" SelectedPage="SelectedPageSend"></Pagination>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+    <table class="table table-sm table-striped table-bordered" style="display:@(Toggle["Nhan"] ? "block" : "none")">
+        <thead>
+            <tr>
+                <th style="width:175px">Mã đơn</th>
+                <th>Khách hàng</th>
+                <th style="text-align:right">Tổng tiền</th>
+                <th style="text-align:center">Ngày tạo</th>
+                <th style="text-align:center;width:55px"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in ReceiveOrders)
+            {
+                <tr>
+                    <td>@order.Id</td>
+                    <td>
+                        <div>@order.CustomerName - @order.CustomerPhone</div>
+                        <div>@order.CustomerAddress</div>
+                    </td>
+                    <td style="text-align:right">@order.TotalPrice.ToString("N0")</td>
+                    <td style="text-align:center">@order.Date.ToString("dd/MM/yyyy")</td>
+                    <td>
+                        <button class="btn btn-info btn-sm" @onclick="() => OrderDetailDialog.Show(order.Id)">Xem</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="7">
+                    <Pagination MetaData="ReceiveMetaData" Spread="2" SelectedPage="SelectedPageReceive"></Pagination>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+    <table class="table table-sm table-striped table-bordered" style="display:@(Toggle["Tra"] ? "block" : "none")">
+        <thead>
+            <tr>
+                <th style="width:175px">Mã đơn</th>
+                <th>Khách hàng</th>
+                <th style="text-align:right">Tổng tiền</th>
+                <th style="text-align:center">Ngày tạo</th>
+                <th style="text-align:center;width:55px"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in CancelOrders)
+            {
+                <tr>
+                    <td>@order.Id</td>
+                    <td>
+                        <div>@order.CustomerName - @order.CustomerPhone</div>
+                        <div>@order.CustomerAddress</div>
+                    </td>
+                    <td style="text-align:right">@order.TotalPrice.ToString("N0")</td>
+                    <td style="text-align:center">@order.Date.ToString("dd/MM/yyyy")</td>
+                    <td>
+                        <button class="btn btn-info btn-sm" @onclick="() => OrderDetailDialog.Show(order.Id)">Xem</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="7">
+                    <Pagination MetaData="CancelMetaData" Spread="2" SelectedPage="SelectedPageCancel"></Pagination>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <Confirmation ConfirmationMessage="Bạn có chắc chắn xóa?"
+                  ConfirmationTitle="Xóa đơn hàng"
+                  @ref="DeleteConfirmation"
+                  ConfirmationChanged="OnConfirmDelete">
+    </Confirmation>
+
+    <OrderDetail @ref="OrderDetailDialog" EventCallback="GetOrers"></OrderDetail>
+</section>
+@code {
+    private Dictionary<string, bool> Toggle;
+
+    protected Confirmation DeleteConfirmation { set; get; }
+    protected OrderDetail OrderDetailDialog { set; get; }
+
+    private List<OrderDto> NewOrders = new List<OrderDto>();
+    private List<OrderDto> ConfirmOrders = new List<OrderDto>();
+    private List<OrderDto> SendOrders = new List<OrderDto>();
+    private List<OrderDto> ReceiveOrders = new List<OrderDto>();
+    private List<OrderDto> CancelOrders = new List<OrderDto>();
+
+    private Guid DeleteId { set; get; }
+
+    private PagingParameters NewOrderPaging { set; get; } = new PagingParameters(20);
+    private PagingParameters ConfirmOrderPaging { set; get; } = new PagingParameters(20);
+    private PagingParameters SendOrderPaging { set; get; } = new PagingParameters(20);
+    private PagingParameters ReceiveOrderPaging { set; get; } = new PagingParameters(20);
+    private PagingParameters CancelOrderPaging { set; get; } = new PagingParameters(20);
+    public MetaData NewMetaData { get; set; } = new MetaData();
+    public MetaData ConfirmMetaData { get; set; } = new MetaData();
+    public MetaData SendMetaData { get; set; } = new MetaData();
+    public MetaData ReceiveMetaData { get; set; } = new MetaData();
+    public MetaData CancelMetaData { get; set; } = new MetaData();
+
+    [CascadingParameter]
+    private Error Error { set; get; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Toggle = new Dictionary<string, bool>();
+        Toggle["Moi"] = false;
+        Toggle["XacNhan"] = false;
+        Toggle["Gui"] = false;
+        Toggle["Nhan"] = false;
+        Toggle["Tra"] = false;
+
+        await GetOrers();
+    }
+
+    protected void Click(string key)
+    {
+        var flag = Toggle[key];
+        foreach (var item in Toggle)
+        {
+            Toggle[item.Key] = false;
+        }
+        Toggle[key] = true;
+    }
+
+    private async Task GetOrers()
+    {
+        await GetNews();
+        await GetConfirms();
+        await GetSends();
+        await GetReceives();
+        await GetCancels();
+    }
+
+    private async Task GetNews()
+    {
+        try
+        {
+            var pagingResponse = await OrderApiClient.GetNewOrders(NewOrderPaging);
+            NewOrders = pagingResponse.Items;
+            NewMetaData = pagingResponse.MetaData;
+        }
+        catch (Exception ex)
+        {
+            Error.ProcessError(ex);
+        }
+    }
+    private async Task GetConfirms()
+    {
+        try
+        {
+            var pagingResponse = await OrderApiClient.GetConfirmOrders(ConfirmOrderPaging);
+            ConfirmOrders = pagingResponse.Items;
+            ConfirmMetaData = pagingResponse.MetaData;
+        }
+        catch (Exception ex)
+        {
+            Error.ProcessError(ex);
+        }
+    }
+    private async Task GetSends()
+    {
+        try
+        {
+            var pagingResponse = await OrderApiClient.GetSendOrders(SendOrderPaging);
+            SendOrders = pagingResponse.Items;
+            SendMetaData = pagingResponse.MetaData;
+        }
+        catch (Exception ex)
+        {
+            Error.ProcessError(ex);
+        }
+    }
+    private async Task GetReceives()
+    {
+        try
+        {
+            var pagingResponse = await OrderApiClient.GetReceiveOrders(ReceiveOrderPaging);
+            ReceiveOrders = pagingResponse.Items;
+            ReceiveMetaData = pagingResponse.MetaData;
+        }
+        catch (Exception ex)
+        {
+            Error.ProcessError(ex);
+        }
+    }
+    private async Task GetCancels()
+    {
+        try
+        {
+            var pagingResponse = await OrderApiClient.GetCancelOrders(CancelOrderPaging);
+            CancelOrders = pagingResponse.Items;
+            CancelMetaData = pagingResponse.MetaData;
+        }
+        catch (Exception ex)
+        {
+            Error.ProcessError(ex);
+        }
+    }
+
+    private async Task SelectedPageNew(int page)
+    {
+        NewOrderPaging.PageNumber = page;
+        await GetNews();
+    }
+    private async Task SelectedPageConfirm(int page)
+    {
+        ConfirmOrderPaging.PageNumber = page;
+        await GetConfirms();
+    }
+    private async Task SelectedPageSend(int page)
+    {
+        SendOrderPaging.PageNumber = page;
+        await GetSends();
+    }
+    private async Task SelectedPageReceive(int page)
+    {
+        ReceiveOrderPaging.PageNumber = page;
+        await GetReceives();
+    }
+    private async Task SelectedPageCancel(int page)
+    {
+        CancelOrderPaging.PageNumber = page;
+        await GetCancels();
+    }
+
+    public async Task OnConfirmDelete(bool deleteConfirmed)
+    {
+        if (deleteConfirmed)
+        {
+            var result = await OrderApiClient.DeleteOrder(DeleteId);
+            if (result)
+            {
+                ToastService.ShowWarning($"Đã xóa {DeleteId}");
+                if (NewOrders.Any(e => e.Id == DeleteId)) await GetNews();
+                else if (ConfirmOrders.Any(e => e.Id == DeleteId)) await GetConfirms();
+            }
+            else ToastService.ShowError("Xóa không thành công");
+
+        }
+    }
+    public void OnDelete(Guid deleteId)
+    {
+        DeleteId = deleteId;
+        DeleteConfirmation.Show();
+    }
+}

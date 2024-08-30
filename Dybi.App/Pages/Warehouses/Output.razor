@@ -137,7 +137,7 @@
                     ConfirmationChanged="OnConfirmDelete">
         </Confirmation>
 
-        <ProductListPopup @ref="ProductListDialog" EventCallbak="SelectProduct" AllowAddProduct="true"></ProductListPopup>
+        <WarehouseProductListPopup @ref="ProductListDialog" EventCallbak="SelectProduct" AllowAddProduct="true"></WarehouseProductListPopup>
         <OutputProductCreate @ref="ProductOutputCreateDialog" InputId="Model.Id" OnAddProduct="AddProduct"></OutputProductCreate>
         <ProductCodeCreate @ref="ProductCodeCreateDialog" CloseEventCallback="UpdateCode"></ProductCodeCreate>
     }
@@ -153,7 +153,7 @@
     public MetaData MetaData { get; set; } = new MetaData();
     private List<WarehouseProductOutputDto> ListProducts;
 
-    private ProductListPopup ProductListDialog { set; get; }
+    private WarehouseProductListPopup ProductListDialog { set; get; }
     private OutputProductCreate ProductOutputCreateDialog { set; get; }
     private ProductCodeCreate ProductCodeCreateDialog { set; get; }
 

@@ -1,4 +1,6 @@
-﻿using Web.Models;
+﻿using Microsoft.AspNetCore.WebUtilities;
+using System.Net;
+using Web.Models;
 using Web.Models.SeedWork;
 
 namespace Dybi.App.Services
@@ -83,6 +85,25 @@ namespace Dybi.App.Services
             var result = await _httpClient.DeleteAsync($"/api/contents/{itemId}/related/{relatedId}");
             return result.IsSuccessStatusCode;
         }
+
+        public async Task<PagedList<ProductDto>> GetProducts(ProductListSearch paging)
+        {
+            var queryStringParam = new Dictionary<string, string>
+            {
+                ["pageNumber"] = paging.PageNumber.ToString(),
+                ["pageSize"] = paging.PageSize.ToString()
+            };
+
+            if (paging.CategoryId != null && paging.CategoryId != Guid.Empty)
+                queryStringParam.Add("CategoryId", paging.CategoryId?.ToString() ?? string.Empty);
+            if (!string.IsNullOrEmpty(paging.Key))
+                queryStringParam.Add("Key", WebUtility.UrlEncode(paging.Key));
+
+            string url = QueryHelpers.AddQueryString("/api/contents/products", queryStringParam);
+            var result = await _httpClient.GetFromJsonAsync<PagedList<ProductDto>>(url);
+            return result;
+        }
+
         public async Task<List<ProductDto>> GetProductRelateds(Guid itemId)
         {
             var result = await _httpClient.GetFromJsonAsync<List<ProductDto>>($"/api/contents/products/{itemId}/related");

@@ -74,6 +74,9 @@
       <Content Update="Pages\Index.razor">
         <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       </Content>
+      <Content Update="Pages\Sales\Orders.razor">
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      </Content>
       <Content Update="Pages\Settings\AttributeOrders.razor">
         <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       </Content>
@@ -136,10 +139,6 @@
         <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
         <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       </Content>
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Pages\Sales\" />
     </ItemGroup>
 
 </Project>

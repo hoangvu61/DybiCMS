@@ -6,86 +6,101 @@
 @using Web.Models;
 @using Web.Models.SeedWork;
 @using Microsoft.Extensions.Configuration
-
 @inject IConfiguration Configuration
 @inject IToastService ToastService;
-@inject IWarehouseApiClient WarehouseApiClient;
+@inject IWebsiteApiClient WebsiteApiClient;
 
 @if (ShowBox)
 {
     <div class="modal fade show d-block" id="assignModel" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-lg" role="document">
-            @if (Products == null)
-            {
-                <LoadingIndicator></LoadingIndicator>
-            }
-            else
-            {
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Chọn sản phẩm</h5>
-                        <button type="button" class="close" data-dismiss="modal" @onclick="()=>Hide()" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
+        @if (Products == null)
+        {
+            <LoadingIndicator></LoadingIndicator>
+        }
+        else
+        {
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Chọn sản phẩm</h5>
+                    <button type="button" class="close" data-dismiss="modal" @onclick="()=>Hide()" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
                         <ProductSearch @ref="ProductSearchControl" OnSearch="SearchProduct"></ProductSearch>
-                        <table class="table table-sm">
-                            <thead>
+                    </div>
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Mã</th>
+                                <th>Tên</th>
+                                <th style="text-align:center">Hình</th>
+                                <th>Danh mục</th>
+                                <th style="text-align:right">Giá</th>
+                                <th style="text-align:right"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Products)
+                            {
                                 <tr>
-                                    <th>Mã</th>
-                                    <th>Tên</th>
-                                    <th style="text-align:center">Hình</th>
-                                    <th>Danh mục</th>
-                                    <th style="text-align:right">
-                                        @if (AllowAddProduct)
+                                    <td>@item.Code</td>
+                                    <td> 
+                                        @item.Titles.Where(e => e.Key == "vi").Select(e => e.Value).FirstOrDefault()
+                                    </td>
+                                    <td style="text-align:center"><img src="@(BackendApiUrl + "/" + item.Image.FullPath + "?DummyId=" + DateTime.Now.Ticks)" asp-append-version="true" width="50px" /></td>
+                                    <td>
+                                        @item.CategoryNames.Where(e => e.Key == "vi").Select(e => e.Value).FirstOrDefault()
+                                    </td>
+                                    <td style="text-align:right">
+                                        @string.Format("{0:#.00}", item.Price)
+                                        @if (item.DiscountType == null)
                                         {
-                                            <button class="btn btn-success btn-sm" @onclick="() => CreateDialog.Show()">Thêm</button>
+                                            if (item.DiscountType == 1)
+                                            {
+                                                var price = (item.Discount * item.Price) / 100;
+                                                <span> (@price)</span>
+                                            }
+                                            else if (item.DiscountType == 2)
+                                            {
+                                                var price = item.Price - item.Discount;
+                                                <span> (@price)</span>
+                                            }
+                                            else if (item.DiscountType == 3)
+                                            {
+                                                <span> (@item.Discount)</span>
+                                            }
                                         }
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var item in Products)
-                                {
-                                    <tr>
-                                        <td>@item.Code</td>
-                                        <td>@item.Title</td>
-                                        <td style="text-align:center"><img src="@(BackendApiUrl + "/" + item.Image.FullPath + "?DummyId=" + DateTime.Now.Ticks)" asp-append-version="true" width="50px" /></td>
-                                        <td>@item.CategoryName</td>
-                                        <td style="text-align:right;width:75px">
-                                            <button class="btn btn-primary btn-sm" @onclick="() => Add(item)">Thêm</button>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                            <tfoot>
-                                <tr>
-                                    <td colspan="5">
-                                        <Pagination MetaData="MetaData" Spread="2" SelectedPage="SelectedPage"></Pagination>
+                                    </td>
+                                    <td style="text-align:right;width:75px">
+                                        <button class="btn btn-primary btn-sm" @onclick="() => Add(item)">Thêm</button>
                                     </td>
                                 </tr>
-                            </tfoot>
-                        </table>
-                    </div>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="5">
+                                    <Pagination MetaData="MetaData" Spread="2" SelectedPage="SelectedPage"></Pagination>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
                 </div>
-            }
+            </div>
+        }
         </div>
     </div>
-    <ProductCreate @ref="CreateDialog" CloseEventCallbak="Add"></ProductCreate>
 }
-
 @code {
     protected bool ShowBox { get; set; }
-    private List<WarehouseProductDto> Products;
+    private List<ProductDto> Products;
 
     [Parameter]
-    public EventCallback<WarehouseProductDto> EventCallbak { get; set; }
+    public EventCallback<ProductDto> EventCallbak { get; set; }
 
-    [Parameter]
-    public bool AllowAddProduct { get; set; }
-
-    protected ProductCreate CreateDialog { set; get; }
     private ProductSearch ProductSearchControl { set; get; }
     private ProductListSearch ProductListSearch = new ProductListSearch();
     public MetaData MetaData { get; set; } = new MetaData();
@@ -95,9 +110,7 @@
     [CascadingParameter]
     private Error Error { set; get; }
 
-    private string LanguageCode { set; get; }
-
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         BackendApiUrl = Configuration["BackendApiUrl"];
 
@@ -110,7 +123,7 @@
         {
             try
             {
-                var pagingResponse = await WarehouseApiClient.GetProducts(ProductListSearch);
+                var pagingResponse = await WebsiteApiClient.GetProducts(ProductListSearch);
                 Products = pagingResponse.Items;
                 MetaData = pagingResponse.MetaData;
             }
@@ -133,7 +146,7 @@
         await RefreshList(true);
     }
 
-    public async Task Add(WarehouseProductDto product)
+    public async Task Add(ProductDto product)
     {
         Hide();
         await EventCallbak.InvokeAsync(product);

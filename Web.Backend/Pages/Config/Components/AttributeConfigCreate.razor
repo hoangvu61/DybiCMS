@@ -25,11 +25,18 @@
                         <div class="form-group">
                             <div class="input-group input-group-sm mb-3">
                                 <span class="input-group-text">Cấu hình thuộc tính cho:</span>
-                                <div class="form-check form-check-inline">
-                                    <input name="background" type="radio" class="form-check-input" @onchange="@(() => {ConfigType = 0;})" checked="@(ConfigType == 0)" /> Danh mục;
-                                    <input name="background" type="radio" class="form-check-input" @onchange="@(() => {ConfigType = 1;})" checked="@(ConfigType == 1)" /> Liên hệ;
-                                    <input name="background" type="radio" class="form-check-input" @onchange="@(() => {ConfigType = 2;})" checked="@(ConfigType == 2)" /> Đơn hàng;
+                                <div class="input-group-text">
+                                    <input name="background" type="radio" class="form-check-input" style="margin:0px" @onchange="@(() => {ConfigType = 0;})" checked="@(ConfigType == 0)" />
                                 </div>
+                                <span class="input-group-text">Danh mục</span>
+                                <div class="input-group-text">
+                                    <input name="background" type="radio" class="form-check-input" style="margin:0px" @onchange="@(() => {ConfigType = 1;})" checked="@(ConfigType == 1)" />
+                                </div>
+                                <span class="input-group-text">Liên hệ</span>
+                                <div class="input-group-text">
+                                    <input name="background" type="radio" class="form-check-input" style="margin:0px" @onchange="@(() => {ConfigType = 2;})" checked="@(ConfigType == 2)" />
+                                </div>
+                                <span class="input-group-text">Đơn hàng</span>
                             </div>
                         </div>
                         @if (ConfigType == 0)

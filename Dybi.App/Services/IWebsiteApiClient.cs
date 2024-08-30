@@ -21,5 +21,7 @@ namespace Dybi.App.Services
         Task<bool> CreateImage(Guid itemId, List<FileData> images);
 
         Task<bool> DeleteImage(Guid itemId, string image);
+
+        Task<PagedList<ProductDto>> GetProducts(ProductListSearch paging);
     }
 }
