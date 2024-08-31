@@ -2,7 +2,7 @@
 @using Dybi.App.Features;
 
 <nav aria-label="Page navigation example">
-    <ul class="pagination pagination-sm m-0 float-right">
+    <ul class="pagination pagination-xs m-0 float-right">
         @foreach (var link in _links)
         {
             <li @onclick="() => OnSelectedPage(link)" class="page-item @(link.Enabled ? null : "disabled") @(link.Active ? "active" : null)" style="cursor:pointer">

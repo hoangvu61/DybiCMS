@@ -1,0 +1,109 @@
+﻿@using Dybi.App.Services
+@using Microsoft.AspNetCore.Authorization;
+@using Web.Models;
+@using Web.Models.Enums
+
+@inject IToastService ToastService;
+@inject IOrderApiClient OrderApiClient;
+@attribute [Authorize]
+
+@if (ShowDialog)
+{
+    <div class="modal fade show d-block" id="modal-orderdelivery" tabindex="-1" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <EditForm Model="Model" OnValidSubmit="HandleSubmit">
+                    <DataAnnotationsValidator></DataAnnotationsValidator>
+                    <div class="modal-header">
+                        <h4 class="modal-title">Chỉnh sửa đơn vị vận chuyển</h4>
+                        <button type="button" class="close" @onclick="() => {ShowDialog = false;}" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group input-group input-group-xs mb-2">
+                            <span class="input-group-text">Đơn vị giao hàng:</span>
+                            <InputSelect class="form-select" @bind-Value="@Model.DeliveryId">
+                                @foreach (var dilivery in DataSource.Deliveries)
+                                {
+                                    <option value="@dilivery.Key">@dilivery.Value</option>
+                                }
+                            </InputSelect>
+                        </div>
+                        <ValidationMessage For="()=>Model.DeliveryId"></ValidationMessage>
+                        <div class="form-group input-group input-group-xs mb-2">
+                            <span class="input-group-text">Mã vận chuyển:</span>
+                            <InputText class="form-control" @bind-Value="Model.DeliveryCode"></InputText>
+                        </div>
+                        <ValidationMessage For="()=> Model.DeliveryCode"></ValidationMessage>
+                        <div class="form-group input-group input-group-xs mb-2">
+                            <span class="input-group-text">Phí vận chuyển:</span>
+                            <InputNumber class="form-control" @bind-Value="Model.DeliveryFee"></InputNumber>
+                            <span class="input-group-text">COD:</span>
+                            <div class="input-group-text">
+                                <InputCheckbox class="form-check-input mt-0" @bind-Value="Model.COD"></InputCheckbox>
+                            </div>
+                        </div>
+                        <ValidationMessage For="()=> Model.DeliveryFee"></ValidationMessage>
+                        <div class="form-group">
+                            <label>Ghi chú:</label>
+                            <InputTextArea @bind-Value="Model.DeliveryNote" class="form-control form-control-sm"></InputTextArea>
+                        </div>
+                        <ValidationMessage For="()=> Model.DeliveryNote"></ValidationMessage>
+                    </div>
+                    <div class="modal-footer justify-content-between">
+                        <button type="button" class="btn btn-default btn-xs" @onclick="() => {ShowDialog = false;}">Close</button>
+                        <button type="submit" class="btn btn-success btn-xs" data-dismiss="modal">Lưu</button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+}
+
+@code{
+    private bool ShowDialog { get; set; }
+
+    private OrderDeliveryRequest Model { get; set; }
+
+    private Guid OrderId { set; get; }
+
+    [Parameter]
+    public EventCallback CloseEventCallback { get; set; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        Model = new OrderDeliveryRequest();
+        OrderId = Guid.Empty;
+    }
+
+    public async Task Show(Guid orderId, OrderDeliveryDto dilivery)
+    {
+        ShowDialog = true;
+        OrderId = orderId;
+        if (dilivery != null)
+        {
+            Model.COD = dilivery.COD;
+            Model.DeliveryNote = dilivery.DeliveryNote;
+            Model.DeliveryFee = dilivery.DeliveryFee;
+            Model.DeliveryCode = dilivery.DeliveryCode;
+            Model.DeliveryId = dilivery.DeliveryId;
+        }
+        StateHasChanged();
+    }
+
+    protected async Task HandleSubmit()
+    {
+        var result = await OrderApiClient.UpdateOrderDelivery(OrderId, Model);
+        if (result)
+        {
+            ToastService.ShowInfo("Lưu thành công");
+            ShowDialog = false;
+            await CloseEventCallback.InvokeAsync(true);
+        }
+        else
+        {
+            ToastService.ShowError("Lưu không thành công");
+        }
+    }
+}

@@ -16,144 +16,133 @@
         <div class="modal-dialog modal-dialog-scrollable modal-xl" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Chi tiết đơn hàng</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Đơn hàng: <strong>@Model.Id</strong></h5>
                     <button type="button" class="close" data-dismiss="modal" @onclick="()=>Hide()" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <div class="card card-outline card-info">
-                        <div class="card-header">
-                            <h3 class="card-title">Đơn hàng: <strong>@Model.Id</strong></h3>
+                    <div class="row">
+                        <div class="col">
+                            <div class="alert alert-primary">
+                                <div><lable>Ngày tạo: </lable> @Model.CreateDate.ToString(Configuration["DateTimeFormat"])</div>
+                                @if (Model.ConfirmDate != null)
+                                {
+                                    <div><lable>Ngày xác nhận: </lable> @Model.ConfirmDate.Value.ToString(Configuration["DateTimeFormat"])</div>
+                                }
+                                @if (Model.SendDate != null)
+                                {
+                                    <div><lable>Ngày gửi: </lable> @Model.SendDate.Value.ToString(Configuration["DateTimeFormat"])</div>
+                                }
+                                @if (Model.ReceiveDate != null)
+                                {
+                                    <div><lable>Ngày nhận: </lable> @Model.ReceiveDate.Value.ToString(Configuration["DateTimeFormat"])</div>
+                                }
+                                @if (Model.CancelDate != null)
+                                {
+                                    <div><lable>Ngày trả: </lable> @Model.CancelDate.Value.ToString(Configuration["DateTimeFormat"])</div>
+                                }
+                                <div>
+                                    <lable>Ghi chú: </lable> @Model.Note
+                                </div>
+                            </div>
+
+                            <div class="alert alert-info">
+                                <div><lable>Khách hàng: </lable> @Model.CustomerName</div>
+                                <div><lable>Điện thoại: </lable> @Model.CustomerPhone</div>
+                                <div><lable>Địa chỉ: </lable> @Model.CustomerAddress</div>
+                                <hr />
+                                <button type="button" class="btn btn-success btn-xs" @onclick="() => UpdateOrderCustomerControl.Show(Model)">Sửa thông tin người nhận</button>
+                            </div>
                         </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col">
-                                    <div class="info-box bg-light">
-                                        <div class="info-box-content">
-                                            <span class="info-box-text text-center text-muted" style="text-align:left !important"><lable>Ngày tạo: </lable> @Model.CreateDate.ToString(Configuration["DateTimeFormat"])</span>
-                                            @if (Model.ConfirmDate != null)
-                                            {
-                                                <span class="info-box-text text-center text-muted" style="text-align:left !important"><lable>Ngày xác nhận: </lable> @Model.ConfirmDate.Value.ToString(Configuration["DateTimeFormat"])</span>
-                                            }
-                                            @if (Model.SendDate != null)
-                                            {
-                                                <span class="info-box-text text-center text-muted" style="text-align:left !important"><lable>Ngày gửi: </lable> @Model.SendDate.Value.ToString(Configuration["DateTimeFormat"])</span>
-                                            }
-                                            @if (Model.ReceiveDate != null)
-                                            {
-                                                <span class="info-box-text text-center text-muted" style="text-align:left !important"><lable>Ngày nhận: </lable> @Model.ReceiveDate.Value.ToString(Configuration["DateTimeFormat"])</span>
-                                            }
-                                            @if (Model.CancelDate != null)
-                                            {
-                                                <span class="info-box-text text-center text-muted" style="text-align:left !important"><lable>Ngày trả: </lable> @Model.CancelDate.Value.ToString(Configuration["DateTimeFormat"])</span>
-                                            }
-                                            Ghi chú: @Model.Note
+                        <div class="col">
+                            <div class="alert alert-success">
+                                @if (Delivery != null && Delivery.OrderId != Guid.Empty)
+                                {
+                                    <div><lable>Đơn vị giao hàng: </lable> @Delivery.DeliveryName</div>
+                                    <div><lable>Mã đơn hàng: </lable> @Delivery.DeliveryCode</div>
+                                    <div><lable>Phí giao hàng: </lable> @Delivery.DeliveryFee.ToString("N0")</div>
+                                    <div><lable>Thu hộ (COD): </lable> @(Delivery.COD ? "Có" : "Không")</div>
+                                    <div><lable>Ghi chú: </lable> @Delivery.DeliveryNote</div>
+                                    <hr />
+                                    <div class="row">
+                                        <div class="col text-center">
+                                            <button type="button" class="btn btn-danger btn-xs" @onclick="OpenDeleteOrderDiliveryConfirm">Bỏ đơn vị vận chuyển</button>
                                         </div>
                                     </div>
-
-                                    <div class="info-box bg-light">
-                                        <div class="info-box-content">
-                                            <span class="info-box-text text-center text-muted" style="text-align:left !important"><lable>Khách hàng: </lable> @Model.CustomerName</span>
-                                            <span class="info-box-text text-center text-muted" style="text-align:left !important"><lable>Điện thoại: </lable> @Model.CustomerPhone</span>
-                                            <span class="info-box-text text-center text-muted" style="text-align:left !important"><lable>Địa chỉ: </lable> @Model.CustomerAddress</span>
-                                            <hr />
-                                            <button type="button" class="btn btn-success btn-xs" @onclick="() => UpdateOrderCustomerControl.Show(Model)">Sửa thông tin người nhận</button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col">
-
-                                    <div class="info-box bg-light">
-                                        <div class="info-box-content">
-                                            @if (Delivery != null && Delivery.OrderId != Guid.Empty)
-                                            {
-                                                <span class="info-box-text text-center text-muted" style="text-align:left !important"><lable>Đơn vị giao hàng: </lable> @Delivery.DeliveryName</span>
-                                                <span class="info-box-text text-center text-muted" style="text-align:left !important"><lable>Mã đơn hàng: </lable> @Delivery.DeliveryCode</span>
-                                                <span class="info-box-text text-center text-muted" style="text-align:left !important"><lable>Phí giao hàng: </lable> @Delivery.DeliveryFee.ToString("N0")</span>
-                                                <span class="info-box-text text-center text-muted" style="text-align:left !important"><lable>Thu hộ (COD): </lable> @(Delivery.COD ? "Có" : "Không")</span>
-                                                <span class="info-box-text text-center text-muted" style="text-align:left !important"><lable>Ghi chú: </lable> @Delivery.DeliveryNote</span>
-                                                <hr />
-                                                <div class="row">
-                                                    <div class="col text-center">
-                                                        <button type="button" class="btn btn-danger btn-xs" @onclick="OpenDeleteOrderDiliveryConfirm">Bỏ đơn vị vận chuyển</button>
-                                                    </div>
-                                                </div>
-                                            }
-                                        </div>
-                                    </div>
-                                </div>
+                                }
+                                else
+                                {
+                                    <button type="button" class="btn btn-primary btn-xs" data-toggle="modal" @onclick="() => EditDeliveryControl.Show(Model.Id, Delivery)">Thêm đơn vị vận chuyển</button>
+                                }
                             </div>
                         </div>
                     </div>
-                    <div class="card card-outline card-info">
-                        <div class="card-body">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th colspan="2">Sản phẩm</th>
-                                        <th>Đơn giá</th>
-                                        <th>Số lượng</th>
-                                        <th>Thành tiền</th>
-                                        @if (Model.ConfirmDate == null)
-                                        {
-                                            <th style="text-align:right"><button class="btn btn-primary btn-xs" type="button" @onclick="() => ListProductControl.Show()">Thêm</button></th>
-                                        }
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach(var product in Products)
-                                    {
-                                    <tr>
-                                        <td>
-                                            @product.Name
-                                                <br /> @product.Properties
-                                        </td>
-                                        <td style="text-align:center"><img src="@(BackendApiUrl + "/" + product.Image.FullPath)" asp-append-version="true" width="50px" /></td>
-                                            <td style="text-align:right">@product.Price.ToString("N0")</td>
-                                            <td style="text-align:right">@product.Quantity</td>
-                                            <td style="text-align:right">@product.TotalCost.ToString("N0")</td>
-                                            @if (Model.ConfirmDate == null)
-                                        {
-                                            <td style="text-align:right">
-                                                <button class="btn btn-success btn-xs" @onclick="()=> UpdateOrderProduct.Show(Model.Id, product)">Sửa</button>
-                                                <button class="btn btn-danger btn-xs" @onclick="() => OpenDeleteOrderProductConfirm(product.ProductId)">Xóa</button>
-                                            </td>
-                                        }
-                                    </tr>
-                                    }
-                                </tbody>
-                                <tfoot>
-                                    <tr>
-                                        <td colspan="3">Tổng:</td>
-                                        <td style="text-align:right">@Products.Sum(e => e.Quantity)</td>
-                                        <td style="text-align:right">@Products.Sum(e => e.TotalCost).ToString("N0")</td>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                        </div>
-                    </div>
+                    <table class="table table-sm table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                <th colspan="2">Sản phẩm</th>
+                                <th>Đơn giá</th>
+                                <th>Số lượng</th>
+                                <th>Thành tiền</th>
+                                @if (Model.ConfirmDate == null)
+                                {
+                                    <th style="width:70px;text-align:center"><button class="btn btn-primary btn-xs" type="button" @onclick="() => ListProductControl.Show()">Thêm</button></th>
+                                }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach(var product in Products)
+                            {
+                            <tr>
+                                <td>
+                                    @product.Name
+                                        <br /> @product.Properties
+                                </td>
+                                <td style="text-align:center"><img src="@(BackendApiUrl + "/" + product.Image.FullPath)" asp-append-version="true" width="50px" /></td>
+                                <td style="text-align:right">@product.Price.ToString("N0")</td>
+                                <td style="text-align:right">@product.Quantity</td>
+                                <td style="text-align:right">@product.TotalCost.ToString("N0")</td>
+                                @if (Model.ConfirmDate == null)
+                                {
+                                    <td style="text-align:center">
+                                        <button class="btn btn-success btn-xs" @onclick="()=> UpdateOrderProduct.Show(Model.Id, product)">Sửa</button>
+                                        <button class="btn btn-danger btn-xs" @onclick="() => OpenDeleteOrderProductConfirm(product.ProductId)">Xóa</button>
+                                    </td>
+                                }
+                            </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3">Tổng:</td>
+                                <td style="text-align:right;color:red">@Products.Sum(e => e.Quantity)</td>
+                                <td style="text-align:right;color:red;font-weight:600">@Products.Sum(e => e.TotalCost).ToString("N0")</td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
                 </div>
                 <div class="modal-footer">
                     @if (Model.ConfirmDate == null)
                     {
-                        <button type="submit" class="btn btn-success btn-xs" @onclick="() => OnConfirm(Model.Id)" style="margin-right:10px">Xác nhận</button>
+                        <button type="submit" class="btn btn-success btn-xs" @onclick="() => OnConfirm(Model.Id)">Xác nhận</button>
                         <button type="button" class="btn btn-danger btn-xs" @onclick="OpenDeleteOrderConfirm">Xóa</button>
                     }
                     else if (Model.SendDate == null)
                     {
-                        <button type="submit" class="btn btn-success btn-xs" @onclick="() => OnSend(Model.Id)" style="margin-right:10px">Gửi</button>
+                        <button type="submit" class="btn btn-success btn-xs" @onclick="() => OnSend(Model.Id)">Gửi</button>
                         <button type="button" class="btn btn-danger btn-xs" @onclick="OpenDeleteOrderConfirm">Xóa</button>
                     }
                     else
                     {
                         @if (Model.ReceiveDate == null)
                         {
-                            <button type="submit" class="btn btn-success btn-xs" @onclick="() => OnReceive(Model.Id)" style="margin-right:10px">Nhận</button>
+                            <button type="submit" class="btn btn-success btn-xs" @onclick="() => OnReceive(Model.Id)">Nhận</button>
                         }
                         @if (Model.CancelDate == null)
                         {
-                            <button type="submit" class="btn btn-success btn-xs" @onclick="() => OnCancel(Model.Id)" style="margin-right:10px">Trả</button>
+                            <button type="submit" class="btn btn-success btn-xs" @onclick="() => OnCancel(Model.Id)">Trả</button>
                         }
                     }
                 </div>
@@ -165,6 +154,7 @@
     <ProductListPopup @ref="ListProductControl" EventCallbak="SelectProduct"></ProductListPopup>
     <OrderProductUpdate @ref="UpdateOrderProduct" CloseEventCallback="LoadData"></OrderProductUpdate>
     <OrderCustomerUpdate @ref="UpdateOrderCustomerControl" CloseEventCallback="LoadData"></OrderCustomerUpdate>
+    <OrderDeliveryEdit @ref="EditDeliveryControl" CloseEventCallback="LoadData"></OrderDeliveryEdit>
 }
 
 @code {
@@ -185,6 +175,7 @@
     private ProductListPopup ListProductControl { get; set; }
     private OrderProductUpdate UpdateOrderProduct { set; get; }
     private OrderCustomerUpdate UpdateOrderCustomerControl { set; get; }
+    private OrderDeliveryEdit EditDeliveryControl { get; set; }
 
     protected async override Task OnInitializedAsync()
     {

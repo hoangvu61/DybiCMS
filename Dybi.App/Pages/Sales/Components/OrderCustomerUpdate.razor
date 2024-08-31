@@ -16,24 +16,20 @@
                 <EditForm Model="Model" OnValidSubmit="HandleSubmit">
                     <DataAnnotationsValidator></DataAnnotationsValidator>
                     <div class="modal-header">
-                        <h4 class="modal-title">Chỉnh sửa đơn vị vận chuyển</h4>
+                        <h4 class="modal-title">Sửa thông tin khách hàng</h4>
                         <button type="button" class="close" @onclick="() => {ShowDialog = false;}" aria-label="Close">
                             <span aria-hidden="true">×</span>
                         </button>
                     </div>
                     <div class="modal-body">
-                        <div class="form-group input-group input-group-sm">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text">Tên khách hàng:</span>
-                            </div>
-                            <InputText class="form-control form-control-sm" @bind-Value="Model.CustomerName"></InputText>
+                        <div class="form-group input-group input-group-xs mb-2">
+                            <span class="input-group-text">Tên khách hàng:</span>
+                            <InputText class="form-control" @bind-Value="Model.CustomerName"></InputText>
                         </div>
                         <ValidationMessage For="()=> Model.CustomerName"></ValidationMessage>
-                        <div class="form-group input-group input-group-sm">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text">Số điện thoại:</span>
-                            </div>
-                            <InputText class="form-control form-control-sm" @bind-Value="Model.CustomerPhone"></InputText>
+                        <div class="form-group input-group input-group-xs mb-2">
+                            <span class="input-group-text">Số điện thoại:</span>
+                            <InputText class="form-control" @bind-Value="Model.CustomerPhone"></InputText>
                         </div>
                         <ValidationMessage For="()=> Model.CustomerPhone"></ValidationMessage>
                         <div class="form-group">

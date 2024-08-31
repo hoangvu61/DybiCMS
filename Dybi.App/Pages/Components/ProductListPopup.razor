@@ -31,7 +31,7 @@
                     <div class="row">
                         <ProductSearch @ref="ProductSearchControl" OnSearch="SearchProduct"></ProductSearch>
                     </div>
-                    <table class="table table-sm">
+                    <table class="table table-sm table-striped table-bordered">
                         <thead>
                             <tr>
                                 <th>Mã</th>
@@ -74,8 +74,8 @@
                                             }
                                         }
                                     </td>
-                                    <td style="text-align:right;width:75px">
-                                        <button class="btn btn-primary btn-sm" @onclick="() => Add(item)">Thêm</button>
+                                    <td style="width:40px">
+                                        <button class="btn btn-primary btn-xs" @onclick="() => Add(item)">Thêm</button>
                                     </td>
                                 </tr>
                             }

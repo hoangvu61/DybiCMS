@@ -74,6 +74,9 @@
       <Content Update="Pages\Index.razor">
         <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       </Content>
+      <Content Update="Pages\Sales\Components\OrderDeliveryEdit.razor">
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      </Content>
       <Content Update="Pages\Sales\Orders.razor">
         <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       </Content>

@@ -8,11 +8,11 @@
 @inject IJSRuntime JS
 
 <div class="form-group">
-    <div class="input-group input-group-sm mb-3">
+    <div class="input-group input-group-xs mb-3">
         <span class="input-group-text">Tên hoặc mã sản phẩm</span>
-        <input id="productSearchCode" class="form-control form-control-sm" @bind="Model.Key" @bind:event="oninput" @onkeyup="TextChange" @onchange="TextChange" />
+        <input id="productSearchCode" class="form-control" @bind="Model.Key" @bind:event="oninput" @onkeyup="TextChange" @onchange="TextChange" />
         <span class="input-group-text">Danh mục</span>
-        <InputSelect class="form-select form-select-sm" ValueExpression="@(()=>Model.CategoryId)"
+        <InputSelect class="form-select" ValueExpression="@(()=>Model.CategoryId)"
                      Value="@Model.CategoryId"
                      ValueChanged="@((Guid? value) => CategoryChange(value))">
             <option value="@Guid.Empty">Chọn danh mục</option>
@@ -24,6 +24,7 @@
                 }
             }
         </InputSelect>
+        <button class="btn btn-outline-secondary" type="button" @onclick="Search">Tìm</button>
     </div>
 </div>
 
@@ -56,6 +57,11 @@
     private async Task CategoryChange(Guid? value)
     {
         Model.CategoryId = value;
+        await OnSearch.InvokeAsync(Model);
+    }
+
+    private async Task Search()
+    {
         await OnSearch.InvokeAsync(Model);
     }
 

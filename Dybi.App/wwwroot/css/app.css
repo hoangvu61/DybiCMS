@@ -2,7 +2,13 @@
 
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size:0.9rem
 }
+
+table th{vertical-align: middle;text-align:center }
+table td {vertical-align: middle }
+
+label{font-weight:600}
 
 h1:focus {
     outline: none;

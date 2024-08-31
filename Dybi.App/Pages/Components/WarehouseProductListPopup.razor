@@ -30,17 +30,17 @@
                     </div>
                     <div class="modal-body">
                         <ProductSearch @ref="ProductSearchControl" OnSearch="SearchProduct"></ProductSearch>
-                        <table class="table table-sm">
+                        <table class="table table-sm table-striped table-bordered">
                             <thead>
                                 <tr>
                                     <th>Mã</th>
                                     <th>Tên</th>
                                     <th style="text-align:center">Hình</th>
                                     <th>Danh mục</th>
-                                    <th style="text-align:right">
+                                    <th>
                                         @if (AllowAddProduct)
                                         {
-                                            <button class="btn btn-success btn-sm" @onclick="() => CreateDialog.Show()">Thêm</button>
+                                            <button class="btn btn-success btn-xs" @onclick="() => CreateDialog.Show()">Thêm</button>
                                         }
                                     </th>
                                 </tr>
@@ -54,7 +54,7 @@
                                         <td style="text-align:center"><img src="@(BackendApiUrl + "/" + item.Image.FullPath + "?DummyId=" + DateTime.Now.Ticks)" asp-append-version="true" width="50px" /></td>
                                         <td>@item.CategoryName</td>
                                         <td style="text-align:right;width:75px">
-                                            <button class="btn btn-primary btn-sm" @onclick="() => Add(item)">Thêm</button>
+                                            <button class="btn btn-primary btn-xs" @onclick="() => Add(item)">Thêm</button>
                                         </td>
                                     </tr>
                                 }
