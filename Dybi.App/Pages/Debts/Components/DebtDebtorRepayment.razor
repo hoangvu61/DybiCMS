@@ -23,10 +23,10 @@
                 </div>
                 <EditForm Model="Model" OnValidSubmit="HandleSubmit">
                     <div class="modal-body">
-                        <div class="form-group mb-3">
-                            <div class="input-group input-group-sm">
-                                <label class="input-group-text">Nhà cung cấp:</label>
-                                <InputSelect class="form-control form-control-sm" @bind-Value="Model.DebtorOrCreditor_Id">
+                        <div class="form-group mb-2">
+                            <div class="input-group input-group-xs">
+                                <span class="input-group-text">Nhà cung cấp:</span>
+                                <InputSelect class="form-select" @bind-Value="Model.DebtorOrCreditor_Id">
                                     <option value="">Chọn nhà cung cấp</option>
                                     @foreach (var supplier in Suppliers)
                                     {
@@ -35,15 +35,15 @@
                                 </InputSelect>
                             </div>
                         </div>
-                        <div class="input-group input-group-sm mb-3">
+                        <div class="input-group input-group-xs mb-2">
                             <span class="input-group-text">Trả</span>
-                            <InputNumber id="inputRepayment" class="form-control form-control-sm" @bind-Value="Model.Repayment" />
+                            <InputNumber id="inputRepayment" class="form-control" @bind-Value="Model.Repayment" />
                             <span class="input-group-text"><sup>đ</sup></span>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary btn-sm" @onclick="()=>Hide(false)" data-dismiss="modal">Đóng</button>
-                        <button type="submit" class="btn btn-primary btn-sm">Thêm</button>
+                        <button type="button" class="btn btn-secondary btn-xs" @onclick="()=>Hide(false)" data-dismiss="modal">Đóng</button>
+                        <button type="submit" class="btn btn-primary btn-xs">Thêm</button>
                     </div>
                 </EditForm>
             </div>

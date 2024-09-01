@@ -47,23 +47,23 @@ else
                                 </div>
                             </div>
                             <div class="form-group mb-2">
-                                <div class="input-group input-group-sm" style="font-weight:bold">
+                                <div class="input-group input-group-xs" style="font-weight:bold">
                                     <span class="input-group-text">Tiêu đề</span>
-                                    <InputText class="form-control form-control-sm" @bind-Value="Model.Title"></InputText>
+                                    <InputText class="form-control" @bind-Value="Model.Title"></InputText>
                                 </div>
                                 <ValidationMessage For="()=> Model.Title"></ValidationMessage>
                             </div>
                             <div class="form-group mb-2">
-                                <div class="input-group input-group-sm" style="font-weight:bold">
+                                <div class="input-group input-group-xs" style="font-weight:bold">
                                     <span class="input-group-text">Mã sản phẩm</span>
-                                    <InputText class="form-control form-control-sm" @bind-Value="Model.Code"></InputText>
+                                    <InputText class="form-control" @bind-Value="Model.Code"></InputText>
                                 </div>
                                 <ValidationMessage For="()=> Model.Code"></ValidationMessage>
                             </div>
                             <div class="form-group mb-2">
-                                <div class="input-group input-group-sm">
+                                <div class="input-group input-group-xs">
                                     <span class="input-group-text">Danh mục</span>
-                                    <InputSelect class="form-control form-control-sm" ValueExpression="@(()=>Model.CategoryId)"
+                                    <InputSelect class="form-select" ValueExpression="@(()=>Model.CategoryId)"
                                                 Value="@Model.CategoryId"
                                                 ValueChanged="@((Guid value) => OnCategoryChanged(value))">
                                         @foreach (var category in Categories)
@@ -76,8 +76,8 @@ else
                                 <ValidationMessage For="()=>Model.CategoryId"></ValidationMessage>
                             </div>
                             <div class="form-group mb-2">
-                                <div class="input-group input-group-sm">
-                                    <span class="input-group-text" id="inputGroup-sizing-sm">Giá</span>
+                                <div class="input-group input-group-xs">
+                                    <span class="input-group-text">Giá</span>
                                     <InputNumber class="form-control" @bind-Value="Model.Price" @bind-Value:format="N0"></InputNumber>
                                 </div>
                             </div>
@@ -92,31 +92,31 @@ else
                                 </div>
                                 @if (Model.DiscountType > 0)
                                 {
-                                    <div class="input-group input-group-sm mb-3">
+                                    <div class="input-group input-group-xs mb-3">
                                         @if (Model.DiscountType == 1 || Model.DiscountType == 2)
                                         {
-                                            <span class="input-group-text" id="inputGroup-sizing-sm">Giảm</span>
+                                            <span class="input-group-text">Giảm</span>
                                         }
                                         else if (Model.DiscountType == 3)
                                         {
-                                            <span class="input-group-text" id="inputGroup-sizing-sm">Giá bán</span>
+                                            <span class="input-group-text">Giá bán</span>
                                         }
                                         <InputNumber class="form-control" @bind-Value="Model.Discount" @bind-Value:format="N0"></InputNumber>
                                         <ValidationMessage For="()=>Model.Discount"></ValidationMessage>
                                         @if (Model.DiscountType == 1)
                                         {
-                                            <span class="input-group-text" id="inputGroup-sizing-sm">(%) Còn @((Model.Price - (Model.Discount * Model.Price / 100)).ToString("N0"))</span>
+                                            <span class="input-group-text">(%) Còn @((Model.Price - (Model.Discount * Model.Price / 100)).ToString("N0"))</span>
                                         }
                                         else if (Model.DiscountType == 2)
                                         {
-                                            <span class="input-group-text" id="inputGroup-sizing-sm">Còn @((Model.Price - Model.Discount).ToString("N0"))</span>
+                                            <span class="input-group-text">Còn @((Model.Price - Model.Discount).ToString("N0"))</span>
                                         }
                                     </div>
                                 }
                             </div>
                             <div class="form-group mb-2">
-                                <div class="input-group input-group-sm mb-1">
-                                    <span class="input-group-text" id="inputGroup-sizing-sm">Thứ tự</span>
+                                <div class="input-group input-group-xs mb-1">
+                                    <span class="input-group-text">Thứ tự</span>
                                     <InputNumber class="form-control" @bind-Value="Model.Order"></InputNumber>
                                 </div>
                                 <div class="row">
@@ -133,8 +133,8 @@ else
                                             @tag <img src="remove.png" @onclick="() => Model.Tags.Remove(tag)" />
                                         </span>
                                     }
-                                    <div class="input-group input-group-sm" style="margin:0 !important">
-                                        <span class="input-group-text" id="inputGroup-sizing-sm">Thêm Tag:</span>
+                                    <div class="input-group input-group-xs" style="margin:0 !important">
+                                        <span class="input-group-text">Thêm Tag:</span>
                                         <input class="form-control" list="tags" value="@Tag" @onchange="@(e => Tag = e.Value.ToString())" />
                                         @if (Tags != null)
                                         {

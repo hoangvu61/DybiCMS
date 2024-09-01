@@ -16,7 +16,7 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Trả nợ cho nhà cung cấp</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Thu nợ khách hàng</h5>
                     <button type="button" class="close" data-dismiss="modal" @onclick="()=>Hide(false)" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -31,15 +31,15 @@
                             <div><label class="form-label">Tổng nợ phải thu:</label> <strong style="color:blue">@Dept.TotalDebt.ToString("N0")</strong></div>
                             <hr />
                         }
-                        <div class="input-group input-group-sm mb-3">
+                        <div class="input-group input-group-xs mb-2">
                             <span class="input-group-text">Trả</span>
-                            <InputNumber id="inputRepayment" class="form-control form-control-sm" @bind-Value="Model.Repayment" />
+                            <InputNumber id="inputRepayment" class="form-control" @bind-Value="Model.Repayment" />
                             <span class="input-group-text"><sup>đ</sup></span>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary btn-sm" @onclick="()=>Hide(false)" data-dismiss="modal">Đóng</button>
-                        <button type="submit" class="btn btn-primary btn-sm">Thêm</button>
+                        <button type="button" class="btn btn-secondary btn-xs" @onclick="()=>Hide(false)" data-dismiss="modal">Đóng</button>
+                        <button type="submit" class="btn btn-primary btn-xs">Thêm</button>
                     </div>
                 </EditForm>
             </div>

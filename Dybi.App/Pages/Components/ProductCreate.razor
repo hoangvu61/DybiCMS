@@ -20,23 +20,23 @@
                     </div>
                     <div class="modal-body">
                         <div class="form-group mb-3">
-                            <div class="input-group input-group-sm">
+                            <div class="input-group input-group-xs">
                                 <label class="input-group-text">Mã sản phẩm:</label>
-                                <InputText id="productCreateCode" class="form-control form-control-sm" @bind-Value="Model.Code"></InputText>
+                                <InputText id="productCreateCode" class="form-control" @bind-Value="Model.Code"></InputText>
                             </div>
                             <ValidationMessage For="()=> Model.Code"></ValidationMessage>
                         </div>
                         <div class="form-group mb-3">
-                            <div class="input-group input-group-sm">
+                            <div class="input-group input-group-xs">
                                 <label class="input-group-text">Tên</label>
-                                <InputText class="form-control form-control-sm" @bind-Value="Model.Title"></InputText>
+                                <InputText class="form-control" @bind-Value="Model.Title"></InputText>
                             </div>
                             <ValidationMessage For="()=> Model.Title"></ValidationMessage>
                         </div>
                         <div class="form-group mb-3">
-                            <div class="input-group input-group-sm">
+                            <div class="input-group input-group-xs">
                                 <label class="input-group-text">Danh mục</label>
-                                <InputSelect class="form-control form-control-sm" @bind-Value="Model.CategoryId">
+                                <InputSelect class="form-select" @bind-Value="Model.CategoryId">
                                     <option value="">Chọn danh mục</option>
                                     @foreach (var category in ListCategories)
                                     {
@@ -49,8 +49,8 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary btn-sm" @onclick="()=>Hide()" data-dismiss="modal">Đóng</button>
-                        <button type="submit" class="btn btn-primary btn-sm">Thêm</button>
+                        <button type="button" class="btn btn-secondary btn-xs" @onclick="()=>Hide()" data-dismiss="modal">Đóng</button>
+                        <button type="submit" class="btn btn-primary btn-xs">Thêm</button>
                     </div>
                 </div>
             </EditForm>

@@ -32,13 +32,13 @@
                         }
                     </div>
                     <div class="col">
-                        <div class="input-group input-group-sm mb-3">
+                        <div class="input-group input-group-xs mb-2">
                             <label class="input-group-text">Mã nhập kho:</label>
-                            <InputText id="inputCode" class="form-control form-control-sm" tabindex="1" @bind-Value="Model.InputCode" />
+                            <InputText id="inputCode" class="form-control" tabindex="1" @bind-Value="Model.InputCode" />
                         </div>
-                        <div class="input-group input-group-sm mb-3">
+                        <div class="input-group input-group-xs mb-2">
                             <label class="input-group-text">Nhập vào kho:</label>
-                            <InputSelect tabindex="2" class="form-select form-select-sm" @bind-Value="Model.WarehouseId">
+                            <InputSelect tabindex="2" class="form-select" @bind-Value="Model.WarehouseId">
                                 @if (Warehouses != null)
                                 {
                                     foreach (var item in Warehouses)
@@ -47,13 +47,13 @@
                                     }
                                 }
                             </InputSelect>
-                            <button type="button" class="btn btn-light btn-sm" @onclick="() => { WarehouseCreateDialog.Show(); Hide(); }"><span class="oi oi-plus"></span></button>
+                            <button type="button" class="btn btn-light" @onclick="() => { WarehouseCreateDialog.Show(); Hide(); }"><span class="oi oi-plus"></span></button>
                         </div>
                         <div class="form-group">
                             @if (Model.Type == 1)
                             {
                                 if (Supplyers != null && Supplyers.Count == 1) Model.FromId = Supplyers[0].Id;
-                                <div class="input-group input-group-sm mb-3">
+                                <div class="input-group input-group-sm mb-2">
                                     <span class="input-group-text">Nhà cung cấp</span>
                                     <InputSelect tabindex="3" class="form-select form-select-sm" @bind-Value="Model.FromId">
                                         @if (Supplyers != null && Supplyers.Count > 0)
@@ -66,17 +66,17 @@
                                     </InputSelect>
                                     <button type="button" class="btn btn-light btn-sm" @onclick="() => { SupplierCreateDialog.Show(); Hide(); }"><span class="oi oi-plus"></span></button>
                                 </div>
-                                <div class="input-group input-group-sm mb-3">
+                                <div class="input-group input-group-xs mb-2">
                                     <span class="input-group-text">Tổng tiền</span>
-                                    <input tabindex="4" class="form-control form-control-sm" type="number" @bind="Model.TotalPrice" @bind:event="oninput" @onkeyup="StateHasChanged" @onchange="StateHasChanged" />
+                                    <input tabindex="4" class="form-control" type="number" @bind="Model.TotalPrice" @bind:event="oninput" @onkeyup="StateHasChanged" @onchange="StateHasChanged" />
                                     @if (Model.TotalPrice > 0)
                                     {
-                                        <button type="button" class="btn btn-light btn-sm" @onclick="()=>{ DebtDialog.Show(Model.TotalPrice); Hide(); }"><span class="oi oi-plus"></span> Trả trước</button>
+                                        <button type="button" class="btn btn-light" @onclick="()=>{ DebtDialog.Show(Model.TotalPrice); Hide(); }"><span class="oi oi-plus"></span> Trả trước</button>
                                     }
                                 </div>
                                 @if (Model.Payment > 0)
                                 {
-                                    <div class="input-group input-group-sm mb-3">
+                                    <div class="input-group input-group-xs">
                                         <span class="input-group-text">Trả trước: @($"{(Model.Payment):N0}") <sup>đ</sup></span>
                                         <span class="input-group-text">Nợ: @($"{(Model.TotalPrice - Model.Payment):N0}") <sup>đ</sup></span>
                                     </div>
@@ -85,7 +85,7 @@
                             else if (Model.Type == 2)
                             {
                                 if (Factories != null && Factories.Count == 1) Model.FromId = Factories[0].Id;
-                                <div class="input-group input-group-sm mb-3">
+                                <div class="input-group input-group-xs mb-2">
                                     <span class="input-group-text">Nơi sản xuất</span>
                                     <InputSelect tabindex="3" class="form-select form-select-sm" @bind-Value="Model.FromId">
                                         @if (Factories != null && Factories.Count > 0)
@@ -96,15 +96,15 @@
                                             }
                                         }
                                     </InputSelect>
-                                    <button type="button" class="btn btn-light btn-sm" @onclick="() => { FactoryCreateDialog.Show(); Hide(); }"><span class="oi oi-plus"></span></button>
+                                    <button type="button" class="btn btn-light" @onclick="() => { FactoryCreateDialog.Show(); Hide(); }"><span class="oi oi-plus"></span></button>
                                 </div>
                             }
                             else if (Model.Type == 3)
                             {
                                 if (Warehouses != null && Warehouses.Count == 1) Model.FromId = Warehouses[0].Id;
-                                <div class="input-group input-group-sm mb-3">
+                                <div class="input-group input-group-xs mb-2">
                                     <span class="input-group-text">Từ kho</span>
-                                    <InputSelect tabindex="3" class="form-select form-select-sm" @bind-Value="Model.FromId">
+                                    <InputSelect tabindex="3" class="form-select" @bind-Value="Model.FromId">
                                         @if (Warehouses != null && Warehouses.Count > 0)
                                         {
                                             foreach (var item in Warehouses)
@@ -113,21 +113,21 @@
                                             }
                                         }
                                     </InputSelect>
-                                    <button type="button" class="btn btn-light btn-sm" @onclick="() => { WarehouseCreateDialog.Show(); Hide(); }"><span class="oi oi-plus"></span></button>
+                                    <button type="button" class="btn btn-light" @onclick="() => { WarehouseCreateDialog.Show(); Hide(); }"><span class="oi oi-plus"></span></button>
                                 </div>
                             }
                             else if (Model.Type == 4)
                             {
                                 Model.FromId = null;
-                                <div class="input-group input-group-sm mb-3">
+                                <div class="input-group input-group-xs mb-2">
                                     <span class="input-group-text">Mã đơn hàng trả lại</span>
-                                    <input id="inputOrderId" tabindex="1" class="form-control form-control-sm" @bind="Model.FromId" @bind:event="oninput" />
+                                    <input id="inputOrderId" tabindex="1" class="form-control" @bind="Model.FromId" @bind:event="oninput" />
                                 </div>
                             }
                         </div>
                     </div>
                     <div class="col-12">
-                        <div class="input-group input-group-sm mb-3">
+                        <div class="input-group mb-2">
                             <label class="input-group-text">Ghi chú:</label>
                             <InputTextArea id="inputCode" class="form-control form-control-sm" tabindex="1" @bind-Value="Model.Note" />
                         </div>
@@ -135,8 +135,8 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary btn-sm" @onclick="()=>Hide()" data-dismiss="modal">Đóng</button>
-                <button type="button" class="btn btn-primary btn-sm" @onclick="()=>CreateInput()">Thêm</button>
+                <button type="button" class="btn btn-secondary btn-xs" @onclick="()=>Hide()" data-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary btn-xs" @onclick="()=>CreateInput()">Thêm</button>
             </div>
         </div>
     </div>

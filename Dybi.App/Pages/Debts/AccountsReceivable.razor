@@ -34,11 +34,11 @@
                         <table class="table table-sm table-striped table-bordered">
                             <thead>
                                 <tr>
-                                    <th class="text-center">Khách hàng</th>
-                                    <th class="text-center">Nợ</th>
-                                    <th class="text-center">Ngày</th>
-                                    <th class="text-center">Tổng nợ</th>
-                                    <th class="text-center" style="width:70px"></th>
+                                    <th>Khách hàng</th>
+                                    <th>Nợ</th>
+                                    <th>Ngày</th>
+                                    <th>Tổng nợ</th>
+                                    <th class="text-center" style="width:40px"></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -53,11 +53,11 @@
                                         {
                                             @if (dept.Type == 2)
                                             {
-                                                <td class="text-center"><button class="btn btn-danger btn-sm" @onclick="()=> OnDelete(dept.Id)">Xóa</button></td>
+                                                <td class="text-center"><button class="btn btn-danger btn-xs" @onclick="()=> OnDelete(dept.Id)">Xóa</button></td>
                                             }
                                             else
                                             {
-                                                <td><button @onclick="() => DebtCreditorRepaymentDialog.Show(dept)" class="btn btn-primary btn-sm">Trả nợ</button></td>
+                                                <td><button @onclick="() => DebtCreditorRepaymentDialog.Show(dept)" class="btn btn-primary btn-xs">Trả nợ</button></td>
                                             }
                                         }
                                         else

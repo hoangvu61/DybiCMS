@@ -23,18 +23,18 @@
                 <div class="modal-body">
                     <div><label class="form-label">Mã sản phẩm:</label> @Product.Code</div>
                     <div><label class="form-label">Danh mục:</label> @Product.CategoryName</div>
-                    <div class="input-group input-group-sm mb-3">
+                    <div class="input-group input-group-xs mb-3">
                         <span class="input-group-text">Giá nhập</span>
-                        <InputNumber class="form-control form-control-sm" type="number" @bind-Value="Model.Price" />
+                        <InputNumber class="form-control" type="number" @bind-Value="Model.Price" />
                     </div>
-                    <div class="input-group input-group-sm mb-3">
+                    <div class="input-group input-group-xs mb-3">
                         <span class="input-group-text">Số lượng</span>
-                        <InputNumber class="form-control form-control-sm" type="number" @bind-Value="Model.Quantity" />
+                        <InputNumber class="form-control" type="number" @bind-Value="Model.Quantity" />
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary btn-sm" @onclick="()=>Hide()" data-dismiss="modal">Đóng</button>
-                    <button type="button" class="btn btn-primary btn-sm" @onclick="()=>AddProduct()">Nhập kho</button>
+                    <button type="button" class="btn btn-secondary btn-xs" @onclick="()=>Hide()" data-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-primary btn-xs" @onclick="()=>AddProduct()">Nhập kho</button>
                 </div>
             </div>
         </div>

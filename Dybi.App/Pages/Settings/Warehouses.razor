@@ -27,14 +27,14 @@
                 <table class="table table-sm table-striped table-bordered">
                     <thead>
                         <tr>
-                            <th class="text-center">Loại</th>
-                            <th class="text-center">Tên</th>
-                            <th class="text-center">Địa chỉ</th>
-                            <th class="text-center">Số ĐT</th>
-                            <th class="text-center">Email</th>
-                            <th class="text-center">Sử dụng</th>
-                            <th class="text-center" style="width:100px">
-                                <button class="btn btn-primary btn-sm" @onclick="()=> OpenCreatePopup()">Thêm</button>
+                            <th>Loại</th>
+                            <th>Tên</th>
+                            <th>Địa chỉ</th>
+                            <th>Số ĐT</th>
+                            <th>Email</th>
+                            <th>Sử dụng</th>
+                            <th style="width:75px">
+                                <button class="btn btn-primary btn-xs" @onclick="()=> OpenCreatePopup()">Thêm</button>
                             </th>
                         </tr>
                     </thead>
@@ -50,9 +50,9 @@
                                 <td class="form-switch" style="text-align: center; padding-left: 30px;">
                                     <input type="checkbox" checked="@item.IsActive" class="form-check-input" role="switch" @onchange="@((e) => {item.IsActive = bool.Parse(e.Value.ToString()); CheckboxChanged(item);})"></input>
                                 </td>
-                                <td style="text-align:right">
-                                    <button class="btn btn-success btn-sm" @onclick="()=> OpenUpdatePopup(item.Id)">Sửa</button>
-                                    <button class="btn btn-danger btn-sm" @onclick="()=> OnDelete(item.Id)">Xóa</button>
+                                <td>
+                                    <button class="btn btn-success btn-xs" @onclick="()=> OpenUpdatePopup(item.Id)">Sửa</button>
+                                    <button class="btn btn-danger btn-xs" @onclick="()=> OnDelete(item.Id)">Xóa</button>
                                 </td>
                             </tr>
                         }

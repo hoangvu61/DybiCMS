@@ -26,7 +26,7 @@
                             @foreach (var title in Model.Titles)
                             {
                                 <div class="input-group input-group-sm mb-3">
-                                    <span class="input-group-text" id="inputGroup-sizing-sm">Tên (@title.LanguageCode)</span>
+                                    <span class="input-group-text">Tên (@title.LanguageCode)</span>
                                     <InputText class="form-control" @bind-Value="@title.Title"></InputText>
                                     <ValidationMessage For="()=>title.Title"></ValidationMessage>
                                 </div>

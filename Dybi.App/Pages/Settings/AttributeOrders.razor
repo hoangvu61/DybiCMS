@@ -34,8 +34,8 @@
                             <th>Loại</th>
                             <th>Nhóm</th>
                             <th>Thứ tự</th>
-                            <th style="text-align:right">
-                                <button class="btn btn-primary btn-sm" @onclick="()=> CreateAttributeDialog.Show()">Thêm</button>
+                            <th style="width:75px">
+                                <button class="btn btn-primary btn-xs" @onclick="()=> CreateAttributeDialog.Show()">Thêm</button>
                             </th>
                         </tr>
                     </thead>
@@ -48,15 +48,15 @@
                                 <td>@DataSource.AttributeTypes[item.Type]</td>
                                 <td>@item.SourceNames?.Where(e => e.Key == "vi").Select(e => e.Value).FirstOrDefault()</td>
                                 <td style="text-align: center;width:100px">
-                                    <div class="input-group input-group-sm mb-3">
+                                    <div class="input-group input-group-xs mb-3">
                                         <button class="btn btn-outline-secondary" @onclick="@((e) => {item.Priority--; OrderAtributeOrderChanged(item.Id, item.Priority);})">&lt;</button>
                                         <span class="form-control">@item.Priority</span>
                                         <button class="btn btn-outline-secondary" @onclick="@((e) => {item.Priority++; OrderAtributeOrderChanged(item.Id, item.Priority);})">&gt;</button>
                                     </div>
                                 </td>
-                                <td style="text-align:right">
-                                    <button class="btn btn-success btn-sm" @onclick="()=> UpdateAttributeDialog.Show(item.Id)">Sửa</button>
-                                    <button class="btn btn-danger btn-sm" @onclick="()=> OnDelete(item.Id)">Xóa</button>
+                                <td>
+                                    <button class="btn btn-success btn-xs" @onclick="()=> UpdateAttributeDialog.Show(item.Id)">Sửa</button>
+                                    <button class="btn btn-danger btn-xs" @onclick="()=> OnDelete(item.Id)">Xóa</button>
                                 </td>
                             </tr>
                         }

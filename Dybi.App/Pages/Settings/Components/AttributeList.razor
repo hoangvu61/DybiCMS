@@ -26,34 +26,34 @@
                 <div class="form-group">
                     @if (att.Type == "Number")
                     {
-                        <div class="input-group input-group-sm mb-3">
-                            <span class="input-group-text" id="inputGroup-sizing-sm">@att.Title</span>
+                        <div class="input-group input-group-xs mb-2">
+                            <span class="input-group-text">@att.Title</span>
                             <input type="number" class="form-control form-control-sm" value="@att.Value" @onchange="@(e => att.Value = e.Value.ToString())"></input>
-                            <button class="btn btn-secondary btn-sm" type="button" @onclick="() => Onchange(att)">Lưu</button>
+                            <button class="btn btn-secondary" type="button" @onclick="() => Onchange(att)">Lưu</button>
                         </div>
                     }
                     else if (att.Type == "Date")
                     {
-                        <div class="input-group input-group-sm mb-3">
-                            <span class="input-group-text" id="inputGroup-sizing-sm">@att.Title</span>
-                            <input type="date" class="form-control form-control-sm" value="@att.Value" @onchange="@(e => att.Value = e.Value.ToString())"></input>
-                            <button class="btn btn-secondary btn-sm" type="button" @onclick="() => Onchange(att)">Lưu</button>
+                        <div class="input-group input-group-xs mb-2">
+                            <span class="input-group-text">@att.Title</span>
+                            <input type="date" class="form-control" value="@att.Value" @onchange="@(e => att.Value = e.Value.ToString())"></input>
+                            <button class="btn btn-secondary" type="button" @onclick="() => Onchange(att)">Lưu</button>
                         </div>
                     }
                     else if (att.Type == "Color")
                     {
-                        <div class="input-group input-group-sm mb-3">
-                            <span class="input-group-text" id="inputGroup-sizing-sm">@att.Title</span>
-                            <input type="color" class="form-control form-control-sm" value="@att.Value" @onchange="@(e => att.Value = e.Value.ToString())"></input>
-                            <button class="btn btn-secondary btn-sm" type="button" @onclick="() => Onchange(att)">Lưu</button>
+                        <div class="input-group input-group-xs mb-2">
+                            <span class="input-group-text">@att.Title</span>
+                            <input type="color" class="form-control" value="@att.Value" @onchange="@(e => att.Value = e.Value.ToString())"></input>
+                            <button class="btn btn-secondary" type="button" @onclick="() => Onchange(att)">Lưu</button>
                         </div>
                     }
                     else if (att.Type == "Image")
                     {
-                        <div class="input-group input-group-sm mb-3">
-                            <span class="input-group-text" id="inputGroup-sizing-sm">@att.Title</span>
+                        <div class="input-group input-group-xs mb-2">
+                            <span class="input-group-text">@att.Title</span>
                             <InputFile id="InputFileWebIcon" type="file" OnChange="@((args) => ImageChange(args, att))" accept="image/png, image/jpeg, image/gif, image/webp"></InputFile>
-                            <button class="btn btn-secondary btn-sm"type="button" style="position:absolute;right:0" @onclick="@(() => Onchange(att))">Lưu</button>
+                            <button class="btn btn-secondary" type="button" style="position:absolute;right:0" @onclick="@(() => Onchange(att))">Lưu</button>
                             @if (!string.IsNullOrEmpty(att.Value))
                             {
                                 <img src="@(BackendApiUrl + "/" + att.Value + "?DummyId=" + DateTime.Now.Ticks)" asp-append-version="true" width="100%" />
@@ -75,7 +75,7 @@
                         {
                             <div class="form-check">
                                 <input class="form-check-input" name="@att.Id" type="checkbox" value="@value.Id" checked="@productAttributeIds.Contains(value.Id)" @onchange="@((e) => Oncheck(e, productAttributeIds, value.Id, att))">
-                                <label class="form-check-label">@value.Title</label>
+                                <span>@value.Title</span>
                             </div>
                         }
                     }
@@ -86,24 +86,24 @@
                         {
                             <div class="form-check">
                                 <input class="form-check-input" name="@att.Id" type="radio" value="@value.Id" checked="@(att.Value == value.Id.ToString())" @onchange="@(() => {att.Value = value.Id.ToString();Onchange(att);})" />
-                                <label class="form-check-label">@value.Title</label>
+                                <span>@value.Title</span>
                             </div>
                         }
                     }
                     else if (att.Type == "Textarea")
                     {
-                        <div class="input-group input-group-sm mb-3">
-                            <span class="input-group-text" id="inputGroup-sizing-sm">@att.Title</span>
-                            <textarea type="text" class="form-control form-control-sm" value="@att.Value" @onchange="@(e => att.Value = e.Value.ToString())"></textarea>
-                            <button class="btn btn-secondary btn-sm" type="button" @onclick="() => Onchange(att)">Lưu</button>
+                        <div class="input-group input-group-xs mb-2">
+                            <span class="input-group-text">@att.Title</span>
+                            <textarea type="text" class="form-control" value="@att.Value" @onchange="@(e => att.Value = e.Value.ToString())"></textarea>
+                            <button class="btn btn-secondary" type="button" @onclick="() => Onchange(att)">Lưu</button>
                         </div>
                     }
                     else
                     {
-                        <div class="input-group input-group-sm mb-3">
-                            <span class="input-group-text" id="inputGroup-sizing-sm">@att.Title</span>
-                            <input type="text" class="form-control form-control-sm" value="@att.Value" @onchange="@(e => att.Value = e.Value.ToString())"></input>
-                            <button class="btn btn-secondary btn-sm" type="button" @onclick="() => Onchange(att)">Lưu</button>
+                        <div class="input-group input-group-xs mb-2">
+                            <span class="input-group-text">@att.Title</span>
+                            <input type="text" class="form-control" value="@att.Value" @onchange="@(e => att.Value = e.Value.ToString())"></input>
+                            <button class="btn btn-secondary" type="button" @onclick="() => Onchange(att)">Lưu</button>
                         </div>
                     }
                 </div>

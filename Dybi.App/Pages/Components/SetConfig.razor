@@ -36,8 +36,8 @@
                             <div class="form-group configsetup">
                                 @if (config.Type == "Number")
                                 {
-                                    <div class="input-group input-group-sm mb-3">
-                                        <span class="input-group-text" id="inputGroup-sizing-sm">@config.Describe</span>
+                                    <div class="input-group input-group-xs mb-3">
+                                        <span class="input-group-text">@config.Describe</span>
                                         <input type="number" class="form-control" value="@config.Value" @onchange="@(e => config.Value = e.Value.ToString())"></input>
                                         <button class="btn btn-secondary" type="button" @onclick="() => Onchange(config)">Lưu</button>
                                     </div>
@@ -57,7 +57,7 @@
                                     {
                                         <div class="form-check">
                                             <input class="form-check-input" name="@config.Key" type="checkbox" value="@item.Key" checked="@configValues.Contains(item.Key.ToString())" @onchange="@((e) => Oncheck(e, configValues, item.Key.ToString(), config))">
-                                            <label class="form-check-label">@item.Value</label>
+                                            <span>@item.Value</span>
                                         </div>
                                     }
                                 }
@@ -68,14 +68,14 @@
                                     {
                                         <div class="form-check">
                                             <input class="form-check-input" name="@config.Key" type="radio" value="@item.Key" checked="@(config.Value == item.Key.ToString())" @onchange="@(() => {config.Value = item.Key.ToString();Onchange(config);})" />
-                                            <label class="form-check-label">@item.Value</label>
+                                            <span>@item.Value</span>
                                         </div>
                                     }
                                 }
                                 else
                                 {
-                                    <div class="input-group input-group-sm mb-3">
-                                        <span class="input-group-text" id="inputGroup-sizing-sm">@config.Describe</span>
+                                    <div class="input-group input-group-xs mb-3">
+                                        <span class="input-group-text">@config.Describe</span>
                                         <input class="form-control" value="@config.Value" @onchange="@(e => config.Value = e.Value.ToString())"></input>
                                         <button class="btn btn-secondary" type="button" @onclick="() => Onchange(config)">Lưu</button>
                                     </div>

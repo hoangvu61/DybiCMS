@@ -7,14 +7,14 @@
 @inject IWarehouseApiClient WarehouseApiClient;
 
 <div class="form-group">
-    <div class="input-group input-group-sm mb-3">
+    <div class="input-group input-group-xs mb-3">
         <span class="input-group-text">Từ ngày</span>
-        <input type="date" value="@Model.FromDate?.ToString("dd/MM/yyyy")" @onchange="@(() => OnSearch.InvokeAsync(Model))" />
+        <input class="form-control" type="date" value="@Model.FromDate?.ToString("dd/MM/yyyy")" @onchange="@(() => OnSearch.InvokeAsync(Model))" />
         <span class="input-group-text">Đến ngày</span>
-        <input type="date" value="@Model.ToDate?.ToString("dd/MM/yyyy")" @onchange="@(() => OnSearch.InvokeAsync(Model))" />
+        <input class="form-control" type="date" value="@Model.ToDate?.ToString("dd/MM/yyyy")" @onchange="@(() => OnSearch.InvokeAsync(Model))" />
         <span class="input-group-text">Mã nhập kho</span>
-        <input class="form-control form-control-sm" @bind="Model.Code" @bind:event="oninput" @onkeyup="TextChange" @onchange="TextChange" />
-        <InputSelect class="form-select form-select-sm" ValueExpression="@(()=>InputType)"
+        <input class="form-control" @bind="Model.Code" @bind:event="oninput" @onkeyup="TextChange" @onchange="TextChange" />
+        <InputSelect class="form-select" ValueExpression="@(()=>InputType)"
                      Value="@InputType"
                      ValueChanged="@((int? value) => TypeChange(value))">
             <option value="0">Loại nhập kho</option>
@@ -26,7 +26,7 @@
         @if (InputType == 1)
         {
             <span class="input-group-text">Nhà cung cấp</span>
-            <InputSelect class="form-select form-select-sm" ValueExpression="@(()=>Model.SupplyerId)"
+            <InputSelect class="form-select" ValueExpression="@(()=>Model.SupplyerId)"
                          Value="@Model.SupplyerId"
                          ValueChanged="@((Guid? value) => SupplyerChange(value))">
                 @if (Supplyers != null)
@@ -39,7 +39,7 @@
             </InputSelect>
         } else if (InputType == 2) {
             <span class="input-group-text">Nơi sản xuất</span>
-            <InputSelect class="form-select form-select-sm" ValueExpression="@(()=>Model.FactoryId)"
+            <InputSelect class="form-select" ValueExpression="@(()=>Model.FactoryId)"
                          Value="@Model.FactoryId"
                          ValueChanged="@((Guid? value) => FactoryChange(value))">
                 @if (Factories != null)
@@ -53,7 +53,7 @@
         }
         else if (InputType == 3) {
             <span class="input-group-text">Từ kho</span>
-            <InputSelect class="form-select form-select-sm" ValueExpression="@(()=>Model.FromOrToWarehouseId)"
+            <InputSelect class="form-select" ValueExpression="@(()=>Model.FromOrToWarehouseId)"
                          Value="@Model.FromOrToWarehouseId"
                          ValueChanged="@((Guid? value) => FromWarehouseChange(value))">
                 @if (Factories != null)

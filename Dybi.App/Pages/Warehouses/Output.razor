@@ -69,8 +69,7 @@
                 @if (Global.GetConfig("PhuongPhapTinhGiaXuatKho") == "2")
                 {
                     <EditForm Model="Model" OnValidSubmit="SeriChanged">
-                        <div class="input-group input-group-sm mb-3">
-                            
+                        <div class="input-group input-group-xs mb-3">
                                 <InputRadioGroup @bind-Value="SeriAction">
                                     <div class="input-group-text">
                                         <InputRadio Value="1" class="form-check-input mt-0" /> Thêm
@@ -81,22 +80,22 @@
                                 </InputRadioGroup>
                             
                             <span class="input-group-text">Mã sản phẩm xuất đi</span>
-                            <InputText tabindex="1" id="inputSeri" class="form-control form-control-sm" @bind-Value="Seri" />
-                            <button type="submit" class="btn btn-primary btn-sm">Lưu</button>
+                            <InputText tabindex="1" id="inputSeri" class="form-control" @bind-Value="Seri" />
+                            <button type="submit" class="btn btn-primary">Lưu</button>
                         </div>
                     </EditForm>
                 }
                 <table class="table table-sm table-striped table-bordered">
                     <thead>
                         <tr>
-                            <th class="text-center">Mã SP</th>
-                            <th class="text-center">Tên SP</th>
-                            <th class="text-center">Danh mục</th>
-                            <th class="text-center">Số lượng</th>
-                            <th class="text-center">Mã lô nhập</th>
-                            <th class="text-center">Giá nhập</th>
-                            <th class="text-center">Ngày nhập</th>
-                            <th class="text-center" style="width:70px">
+                            <th>Mã SP</th>
+                            <th>Tên SP</th>
+                            <th>Danh mục</th>
+                            <th>Số lượng</th>
+                            <th>Mã lô nhập</th>
+                            <th>Giá nhập</th>
+                            <th>Ngày nhập</th>
+                            <th style="width:40px">
                                 <button @onclick="() => ProductListDialog.Show()" class="btn btn-primary btn-sm">Thêm</button>
                             </th>
                         </tr>
@@ -122,7 +121,7 @@
                                 <td style="text-align:right">@item.Price.ToString("N0")<sup>đ</sup></td>
                                 <td class="text-center">@item.InputCreateDate.ToString("dd/MM/yyyy hh:mm")</td>
                                 <td style="text-align:center">
-                                    <button class="btn btn-danger btn-sm" @onclick="()=> OnDelete(item.Id)">Xóa</button>
+                                    <button class="btn btn-danger btn-xs" @onclick="()=> OnDelete(item.Id)">Xóa</button>
                                 </td>
                             </tr>
                         }

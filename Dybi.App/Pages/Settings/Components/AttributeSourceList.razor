@@ -20,8 +20,8 @@ else
                 <th>Tên nhóm</th>
                 <th>Mã</th>
                 <th>Giá trị</th>
-                <th style="text-align:right" >
-                    <button class="btn btn-primary btn-sm" @onclick="()=> CreateAttributeSourceDialog.Show()">Thêm</button>
+                <th>
+                    <button class="btn btn-primary btn-xs" @onclick="()=> CreateAttributeSourceDialog.Show()">Thêm</button>
                 </th>
             </tr>
         </thead>
@@ -33,9 +33,9 @@ else
                         @source.Titles.Where(e => e.LanguageCode == "vi").Select(e => e.Title).FirstOrDefault()
                     </td>
                     <td style="text-align:right">
-                        <button class="btn btn-primary btn-sm" @onclick='()=> CreateAttributeValueDialog.Show(source.Id, source.Titles.Where(e => e.LanguageCode == "vi").Select(e=> e.Title).FirstOrDefault())'>Thêm giá trị</button>
-                        <button class="btn btn-success btn-sm" @onclick="()=> UpdateAttributeSourceDialog.Show(source.Id)">Sửa</button>
-                        <button class="btn btn-danger btn-sm" @onclick="()=> OnDeleteSource(source.Id)">Xóa</button>
+                        <button class="btn btn-primary btn-xs" @onclick='()=> CreateAttributeValueDialog.Show(source.Id, source.Titles.Where(e => e.LanguageCode == "vi").Select(e=> e.Title).FirstOrDefault())'>Thêm giá trị</button>
+                        <button class="btn btn-success btn-xs" @onclick="()=> UpdateAttributeSourceDialog.Show(source.Id)">Sửa</button>
+                        <button class="btn btn-danger btn-xs" @onclick="()=> OnDeleteSource(source.Id)">Xóa</button>
                     </td>
                 </tr>
                 foreach (var value in Values.Where(d => d.SourceId == source.Id))
@@ -47,8 +47,8 @@ else
                             @value.Titles.Where(e => e.LanguageCode == "vi").Select(e => e.Title).FirstOrDefault()
                         </td>
                         <td style="text-align:right">
-                            <button class="btn btn-success btn-sm" @onclick='()=> UpdateAttributeValueDialog.Show(value.Id, source.Titles.Where(e => e.LanguageCode == "vi").Select(e => e.Title).FirstOrDefault())'>Sửa</button>
-                            <button class="btn btn-danger btn-sm" @onclick="()=> OnDeleteValue(value.Id)">Xóa</button>
+                            <button class="btn btn-success btn-xs" @onclick='()=> UpdateAttributeValueDialog.Show(value.Id, source.Titles.Where(e => e.LanguageCode == "vi").Select(e => e.Title).FirstOrDefault())'>Sửa</button>
+                            <button class="btn btn-danger btn-xs" @onclick="()=> OnDeleteValue(value.Id)">Xóa</button>
                         </td>
                     </tr>
                 }

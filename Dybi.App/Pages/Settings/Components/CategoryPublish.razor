@@ -24,9 +24,9 @@
                     </div>
                     <div class="modal-body">
                         <div class="form-group">
-                            <div class="input-group input-group-sm mb-3">
+                            <div class="input-group input-group-xs mb-2">
                                 <span class="input-group-text">Trang dách sách</span>
-                                <InputSelect class="form-control form-control-sm" @bind-Value="Model.ComponentList">
+                                <InputSelect class="form-select" @bind-Value="Model.ComponentList">
                                     @if (Components != null)
                                     {
                                         @foreach (var item in Components)
@@ -39,9 +39,9 @@
                             <ValidationMessage For="()=>Model.ComponentList"></ValidationMessage>
                         </div>
                         <div class="form-group">
-                            <div class="input-group input-group-sm mb-3">
+                            <div class="input-group input-group-xs mb-2">
                                 <span class="input-group-text">Trang chi tiết</span>
-                                <InputSelect class="form-control form-control-sm" @bind-Value="Model.ComponentDetail">
+                                <InputSelect class="form-select" @bind-Value="Model.ComponentDetail">
                                     @if (Components != null)
                                     {
                                         @foreach (var item in Components)
@@ -55,8 +55,8 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary btn-sm" @onclick="()=>Hide()" data-dismiss="modal">Đóng</button>
-                        <button type="submit" class="btn btn-primary btn-sm">Lưu</button>
+                        <button type="button" class="btn btn-secondary btn-xs" @onclick="()=>Hide()" data-dismiss="modal">Đóng</button>
+                        <button type="submit" class="btn btn-primary btn-xs">Lưu</button>
                     </div>
                 </div>
             </EditForm>

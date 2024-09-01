@@ -7,9 +7,9 @@
 @inject IWarehouseApiClient WarehouseApiClient;
 
 <div class="form-group">
-    <div class="input-group input-group-sm mb-3">
+    <div class="input-group input-group-xs mb-3">
         <span class="input-group-text">Chọn kho</span>
-        <InputSelect class="form-select form-select-sm" ValueExpression="@(()=>Model.WarehouseId)"
+        <InputSelect class="form-select" ValueExpression="@(()=>Model.WarehouseId)"
                      Value="@Model.WarehouseId"
                      ValueChanged="@((Guid? value) => WarehouseChange(value))">
             <option value="@Guid.Empty">Chọn kho</option>
@@ -22,9 +22,9 @@
             }
         </InputSelect>
         <span class="input-group-text">Tên hoặc mã sản phẩm</span>
-        <input class="form-control form-control-sm" @bind="Model.Key" @bind:event="oninput" @onkeyup="TextChange" @onchange="TextChange" />
+        <input class="form-control" @bind="Model.Key" @bind:event="oninput" @onkeyup="TextChange" @onchange="TextChange" />
         <span class="input-group-text">Danh mục</span>
-        <InputSelect class="form-select form-select-sm" ValueExpression="@(()=>Model.CategoryId)"
+        <InputSelect class="form-select" ValueExpression="@(()=>Model.CategoryId)"
                      Value="@Model.CategoryId"
                      ValueChanged="@((Guid? value) => CategoryChange(value))">
             <option value="@Guid.Empty">Chọn danh mục</option>

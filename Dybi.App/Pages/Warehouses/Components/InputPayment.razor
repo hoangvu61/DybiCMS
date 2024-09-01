@@ -19,13 +19,13 @@
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <div class="input-group input-group-sm mb-3">
+                        <div class="input-group input-group-xs mb-3">
                             <span class="input-group-text">Tổng tiền</span>
-                            <InputNumber class="form-control form-control-sm" type="number" @bind-Value="TotalPrice" disabled="disabled" />
+                            <InputNumber class="form-control" type="number" @bind-Value="TotalPrice" disabled="disabled" />
                         </div>
-                        <div class="input-group input-group-sm mb-3">
+                        <div class="input-group input-group-xs mb-3">
                             <span class="input-group-text">Trả trước</span>
-                            <input class="form-control form-control-sm" type="number" @bind="Payment" @bind:event="oninput" @onkeyup="StateHasChanged" @onchange="StateHasChanged" />
+                            <input class="form-control" type="number" @bind="Payment" @bind:event="oninput" @onkeyup="StateHasChanged" @onchange="StateHasChanged" />
                             @if (Payment > 0 && TotalPrice > Payment)
                             {
                                 <span class="input-group-text" style="color:red"> (Nợ: @($"{(TotalPrice - Payment):N0}")) <sup>đ</sup></span>
@@ -34,8 +34,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary btn-sm" @onclick="()=>Hide()" data-dismiss="modal">Đóng</button>
-                    <button type="button" class="btn btn-primary btn-sm" @onclick="()=>Hide()">Lưu</button>
+                    <button type="button" class="btn btn-secondary btn-xs" @onclick="()=>Hide()" data-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-primary btn-xs" @onclick="()=>Hide()">Lưu</button>
                 </div>
             </div>
         </div>

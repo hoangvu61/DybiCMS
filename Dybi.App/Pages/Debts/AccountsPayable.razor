@@ -34,12 +34,12 @@
                         <table class="table table-sm table-striped table-bordered">
                             <thead>
                                 <tr>
-                                    <th class="text-center">Nhà cung cấp</th>
-                                    <th class="text-center">Nợ</th>
-                                    <th class="text-center">Ngày</th>
-                                    <th class="text-center">Tổng nợ</th>
-                                    <th class="text-center" style="width:70px">
-                                        <button @onclick="() => DebtDebtorRepaymentDialog.Show()" class="btn btn-primary btn-sm">Trả nợ</button>
+                                    <th>Nhà cung cấp</th>
+                                    <th>Nợ</th>
+                                    <th>Ngày</th>
+                                    <th>Tổng nợ</th>
+                                    <th style="width:40px">
+                                        <button @onclick="() => DebtDebtorRepaymentDialog.Show()" class="btn btn-primary btn-xs">Trả nợ</button>
                                     </th>
                                 </tr>
                             </thead>
@@ -55,11 +55,11 @@
                                         {
                                             @if (dept.Type == 2)
                                             {
-                                                <td class="text-center"><button class="btn btn-danger btn-sm" @onclick="()=> OnDelete(dept.Id)">Xóa</button></td>
+                                                <td class="text-center"><button class="btn btn-danger btn-xs" @onclick="()=> OnDelete(dept.Id)">Xóa</button></td>
                                             }
                                             else
                                             {
-                                                <td><button @onclick="() => DebtDebtorRepaymentDialog.Show(dept)" class="btn btn-primary btn-sm">Trả nợ</button></td>
+                                                <td><button @onclick="() => DebtDebtorRepaymentDialog.Show(dept)" class="btn btn-primary btn-xs">Trả nợ</button></td>
                                             }
                                         }
                                         else

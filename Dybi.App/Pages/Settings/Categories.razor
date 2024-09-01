@@ -28,11 +28,11 @@
                 <table class="table table-sm table-striped table-bordered">
                     <thead>
                         <tr>
-                            <th class="text-center">Tên</th>
-                            <th class="text-center">Mô tả</th>
-                            <th class="text-center">Lên Website</th>
-                            <th class="text-center" style="width:100px">
-                                <button class="btn btn-primary btn-sm" @onclick="() => CreateDialog.Show()">Thêm</button>
+                            <th>Tên</th>
+                            <th>Mô tả</th>
+                            <th>Lên Website</th>
+                            <th style="width:75px">
+                                <button class="btn btn-primary btn-xs" @onclick="() => CreateDialog.Show()">Thêm</button>
                             </th>
                         </tr>
                     </thead>
@@ -45,9 +45,9 @@
                                 <td class="form-switch" style="text-align: center; padding-left: 30px;">
                                     <input type="checkbox" checked="@item.IsPuslished" class="form-check-input" role="switch" @onchange="@((e) => {item.IsPuslished = bool.Parse(e.Value.ToString()); CheckboxChanged(item);})"></input>
                                 </td>
-                                <td style="text-align:right">
-                                    <button class="btn btn-success btn-sm" @onclick="() => UpdateDialog.Show(item)">Sửa</button>
-                                    <button class="btn btn-danger btn-sm" @onclick="() => OnDelete(item.Id)">Xóa</button>
+                                <td>
+                                    <button class="btn btn-success btn-xs" @onclick="() => UpdateDialog.Show(item)">Sửa</button>
+                                    <button class="btn btn-danger btn-xs" @onclick="() => OnDelete(item.Id)">Xóa</button>
                                 </td>
                             </tr>
                         }

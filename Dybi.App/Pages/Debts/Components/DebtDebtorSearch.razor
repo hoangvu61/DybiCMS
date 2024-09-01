@@ -7,12 +7,12 @@
 @inject IWarehouseApiClient WarehouseApiClient;
 
 <div class="form-group">
-    <div class="input-group input-group-sm mb-3">
+    <div class="input-group input-group-xs mb-3">
         <span class="input-group-text">Từ ngày</span>
         <input type="date" value="@Model.FromDate?.ToString("dd/MM/yyyy")" @onchange="@(() => OnSearch.InvokeAsync(Model))" />
         <span class="input-group-text">Đến ngày</span>
         <input type="date" value="@Model.ToDate?.ToString("dd/MM/yyyy")" @onchange="@(() => OnSearch.InvokeAsync(Model))" />
-        <InputSelect class="form-select form-select-sm" ValueExpression="@(()=>Model.DebtorOrCreditor_Id)"
+        <InputSelect class="form-select" ValueExpression="@(()=>Model.DebtorOrCreditor_Id)"
                      Value="@Model.DebtorOrCreditor_Id"
                      ValueChanged="@((Guid? value) => SupplierChange(value))">
             <option value="@Guid.Empty">Chọn nhà cung cấp</option>
@@ -24,13 +24,14 @@
                 }
             }
         </InputSelect>
-        <InputSelect class="form-select form-select-sm" ValueExpression="@(()=>Model.Type)"
+        <InputSelect class="form-select" ValueExpression="@(()=>Model.Type)"
                      Value="@Model.Type"
                      ValueChanged="@((int value) => TypeChange(value))">
             <option value="0">Chọn loại</option>
             <option value="1">Nợ</option>
             <option value="2">Trả nợ</option>
         </InputSelect>
+        <button class="btn btn-outline-secondary" type="button" @onclick="Search">Tìm</button>
     </div>
 </div>
 
@@ -56,6 +57,11 @@
     private async Task TypeChange(int value)
     {
         Model.Type = value;
+        await OnSearch.InvokeAsync(Model);
+    }
+
+    private async Task Search()
+    {
         await OnSearch.InvokeAsync(Model);
     }
 }

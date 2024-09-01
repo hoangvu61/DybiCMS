@@ -19,9 +19,9 @@
                     </div>
                     <div class="modal-body">
                         <div class="form-group">
-                            <div class="input-group input-group-sm mb-3">
+                            <div class="input-group input-group-xs mb-2">
                                 <span class="input-group-text">Danh mục cha</span>
-                                <InputSelect class="form-control form-control-sm" @bind-Value="Model.ParentId">
+                                <InputSelect class="form-control" @bind-Value="Model.ParentId">
                                     <option value="">Chọn danh mục cha</option>
                                     @foreach (var category in ListCategories)
                                     {
@@ -32,19 +32,23 @@
                             <ValidationMessage For="()=>Model.ParentId"></ValidationMessage>
                         </div>
                         <div class="form-group">
-                            <label class="col-form-label">Tên:</label>
-                            <InputText class="form-control form-control-sm" @bind-Value="Model.Title"></InputText>
+                            <div class="input-group input-group-xs mb-2">
+                                <span class="input-group-text">Tên:</span>
+                                <InputText class="form-control" @bind-Value="Model.Title"></InputText>
+                            </div>
                             <ValidationMessage For="()=> Model.Title"></ValidationMessage>
                         </div>
                         <div class="form-group">
-                            <label class="col-form-label">Mô tả:</label>
-                            <InputTextArea class="form-control form-control-sm" @bind-Value="Model.Describe"></InputTextArea>
+                            <div class="input-group input-group-sm mb-2">
+                            <span class="input-group-text">Mô tả:</span>
+                            <InputTextArea class="form-control" @bind-Value="Model.Describe"></InputTextArea>
+                            </div>
                             <ValidationMessage For="()=> Model.Describe"></ValidationMessage>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary btn-sm" @onclick="()=>Hide()" data-dismiss="modal">Đóng</button>
-                        <button type="submit" class="btn btn-primary btn-sm">Thêm</button>
+                        <button type="button" class="btn btn-secondary btn-xs" @onclick="()=>Hide()" data-dismiss="modal">Đóng</button>
+                        <button type="submit" class="btn btn-primary btn-xs">Thêm</button>
                     </div>
                 </div>
             </EditForm>

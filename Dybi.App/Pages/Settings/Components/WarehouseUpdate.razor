@@ -22,44 +22,51 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <div class="form-group">
-                            <label class="col-form-label">Loại:</label>
-                            <InputSelect class="form-control form-control-sm" @bind-Value="Model.Type">
+                        <div class="input-group input-group-xs">
+                            <span class="input-group-text">Loại:</span>
+                            <InputSelect class="form-select" @bind-Value="Model.Type">
                                 @foreach (var type in DataSource.WarehouseTypes)
                                 {
                                     <option value="@type.Key">@type.Value</option>
                                 }
                             </InputSelect>
                         </div>
-                        <div class="form-group">
-                            <label class="col-form-label">Tên:</label>
-                            <InputText class="form-control form-control-sm" @bind-Value="Model.Name"></InputText>
-                            <ValidationMessage For="()=> Model.Name"></ValidationMessage>
+
+                        <div class="input-group input-group-xs mt-2">
+                            <span class="input-group-text">Tên:</span>
+                            <InputText class="form-control" @bind-Value="Model.Name"></InputText>
                         </div>
-                        <div class="form-group">
-                            <label class="col-form-label">Địa chỉ:</label>
-                            <InputText class="form-control form-control-sm" @bind-Value="Model.Address"></InputText>
-                            <ValidationMessage For="()=> Model.Address"></ValidationMessage>
+                        <ValidationMessage For="()=> Model.Name"></ValidationMessage>
+
+                        <div class="input-group input-group-xs mt-2">
+                            <span class="input-group-text">Địa chỉ:</span>
+                            <InputText class="form-control" @bind-Value="Model.Address"></InputText>
                         </div>
-                        <div class="form-group">
-                            <label class="col-form-label">Số điện thoại:</label>
-                            <InputText class="form-control form-control-sm" @bind-Value="Model.Phone"></InputText>
-                            <ValidationMessage For="()=> Model.Phone"></ValidationMessage>
+                        <ValidationMessage For="()=> Model.Address"></ValidationMessage>
+
+                        <div class="input-group input-group-xs mt-2">
+                            <span class="input-group-text">Số điện thoại:</span>
+                            <InputText class="form-control" @bind-Value="Model.Phone"></InputText>
                         </div>
-                        <div class="form-group">
-                            <label class="col-form-label">Email:</label>
-                            <InputText class="form-control form-control-sm" @bind-Value="Model.Email"></InputText>
-                            <ValidationMessage For="()=> Model.Email"></ValidationMessage>
+                        <ValidationMessage For="()=> Model.Phone"></ValidationMessage>
+
+                        <div class="input-group input-group-xs mt-2">
+                            <span class="input-group-text">Email:</span>
+                            <InputText class="form-control" @bind-Value="Model.Email"></InputText>
                         </div>
-                        <div class="form-check form-switch">
-                            <InputCheckbox @bind-Value="Model.IsActive" class="form-check-input" role="switch"></InputCheckbox>
-                            <label class="form-check-label">Sử dụng</label>
-                            <ValidationMessage For="()=> Model.IsActive"></ValidationMessage>
+                        <ValidationMessage For="()=> Model.Email"></ValidationMessage>
+
+                        <div class="input-group input-group-xs mt-2">
+                            <div class="form-check form-switch">
+                                <InputCheckbox @bind-Value="Model.IsActive" class="form-check-input" role="switch"></InputCheckbox>
+                                <label class="form-check-label">Sử dụng</label>
+                            </div>
                         </div>
+                        <ValidationMessage For="()=> Model.IsActive"></ValidationMessage>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary btn-sm" @onclick="()=>Hide()" data-dismiss="modal">Đóng</button>
-                        <button type="submit" class="btn btn-primary btn-sm">Lưu</button>
+                        <button type="button" class="btn btn-secondary btn-xs" @onclick="()=>Hide()" data-dismiss="modal">Đóng</button>
+                        <button type="submit" class="btn btn-primary btn-xs">Lưu</button>
                     </div>
                 </div>
             </EditForm>

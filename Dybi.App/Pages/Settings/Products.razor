@@ -31,11 +31,11 @@
                 <table class="table table-sm table-striped table-bordered">
                     <thead>
                         <tr>
-                            <th class="text-center">Mã</th>
-                            <th class="text-center">Tên</th>
-                            <th class="text-center">Danh mục</th>
-                            <th class="text-center" style="width:105px">
-                                <button @onclick="() => CreateDialog.Show()" class="btn btn-primary btn-sm">Thêm</button>
+                            <th>Mã</th>
+                            <th>Tên</th>
+                            <th>Danh mục</th>
+                            <th class="text-center" style="width:75px">
+                                <button @onclick="() => CreateDialog.Show()" class="btn btn-primary btn-xs">Thêm</button>
                             </th>
                         </tr>
                     </thead>
@@ -46,9 +46,9 @@
                                 <td>@item.Code</td>
                                 <td>@item.Title</td>
                                 <td>@item.CategoryName</td>
-                                <td style="text-align:right;width:100px">
-                                    <a href="/settings/products/@item.Id" class="btn btn-primary btn-sm">Xem</a>
-                                    <button class="btn btn-danger btn-sm" @onclick="()=> OnDelete(item.Id)">Xóa</button>
+                                <td>
+                                    <a href="/settings/products/@item.Id" class="btn btn-primary btn-xs">Xem</a>
+                                    <button class="btn btn-danger btn-xs" @onclick="()=> OnDelete(item.Id)">Xóa</button>
                                 </td>
                             </tr>
                         }

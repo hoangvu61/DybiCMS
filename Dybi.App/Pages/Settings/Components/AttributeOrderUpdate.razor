@@ -24,22 +24,22 @@
                     </div>
                     <div class="modal-body">
                         <div class="form-group">
-                            <div class="input-group input-group-sm mb-3">
+                            <div class="input-group input-group-xs mb-2">
                                 <span class="input-group-text">Mã thuộc tính</span>
-                                <InputText class="form-control form-control-sm" @bind-Value="@Model.Id" readonly="readonly"></InputText>
+                                <InputText class="form-control" @bind-Value="@Model.Id" readonly="readonly"></InputText>
                             </div>
                         </div>
                         <div class="form-group">
-                            <div class="input-group input-group-sm mb-3">
+                            <div class="input-group input-group-xs mb-2">
                                 <span class="input-group-text">Tên thuộc tính</span>
-                                <InputText class="form-control form-control-sm" @bind-Value="Model.Title"></InputText>
+                                <InputText class="form-control" @bind-Value="Model.Title"></InputText>
                             </div>
                             <ValidationMessage For="()=>Model.Title"></ValidationMessage>
                         </div>
                         <div class="form-group">
-                            <div class="input-group input-group-sm mb-3">
+                            <div class="input-group input-group-xs mb-2">
                                 <span class="input-group-text">Kiểu thuộc tính:</span>
-                                <InputSelect class="form-control form-control-sm" ValueExpression="@(()=>Model.Type)"
+                                <InputSelect class="form-control" ValueExpression="@(()=>Model.Type)"
                                          Value="@Model.Type"
                                          ValueChanged="@((string value) => OnTypeChanged(value))">
                                     <option value="">Chọn trang</option>
@@ -54,9 +54,9 @@
                         @if (ShowSource && Sources != null)
                         {
                             <div class="form-group">
-                                <div class="input-group input-group-sm mb-3">
+                                <div class="input-group input-group-xs mb-2">
                                     <span class="input-group-text">Nhóm thuộc tính:</span>
-                                    <InputSelect class="form-control form-control-sm" @bind-Value="@Model.SourceId">
+                                    <InputSelect class="form-control" @bind-Value="@Model.SourceId">
                                         @foreach (var item in Sources)
                                         {
                                             <option value="@item.Id">@item.Titles.Where(e => e.LanguageCode == "vi").Select(e => e.Title).FirstOrDefault()</option>
@@ -67,16 +67,16 @@
                             </div>
                         }
                         <div class="form-group">
-                            <div class="input-group input-group-sm mb-3">
+                            <div class="input-group input-group-xs mb-2">
                                 <span class="input-group-text">Thứ tự</span>
-                                <InputNumber class="form-control form-control-sm" @bind-Value="Model.Priority"></InputNumber>
+                                <InputNumber class="form-control" @bind-Value="Model.Priority"></InputNumber>
                             </div>
                             <ValidationMessage For="()=> Model.Priority"></ValidationMessage>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary btn-sm" @onclick="()=>Hide()" data-dismiss="modal">Đóng</button>
-                        <button type="submit" class="btn btn-primary btn-sm">Lưu</button>
+                        <button type="button" class="btn btn-secondary btn-xs" @onclick="()=>Hide()" data-dismiss="modal">Đóng</button>
+                        <button type="submit" class="btn btn-primary btn-xs">Lưu</button>
                     </div>
                 </div>
             </EditForm>

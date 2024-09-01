@@ -31,12 +31,12 @@
                 <table class="table table-sm table-striped table-bordered">
                     <thead>
                         <tr>
-                            <th class="text-center">Đến</th>
-                            <th class="text-center">Từ</th>
-                            <th class="text-center">Ngày</th>
-                            <th class="text-center">Tổng sản phẩm</th>
-                            <th class="text-center" style="width:105px">
-                                <button @onclick="() => CreateDialog.Show()" class="btn btn-primary btn-sm">Thêm</button>
+                            <th>Đến</th>
+                            <th>Từ</th>
+                            <th>Ngày</th>
+                            <th>Tổng sản phẩm</th>
+                            <th style="width:75px">
+                                <button @onclick="() => CreateDialog.Show()" class="btn btn-primary btn-xs">Thêm</button>
                             </th>
                         </tr>
                     </thead>
@@ -52,11 +52,11 @@
                                     @item.WarehouseType<br />
                                     @item.WarehouseName
                                 </td>
-                                <td style="text-align:center; vertical-align:middle">@item.CreateDate.ToString("dd/MM/yyyy hh:mm")</td>
-                                <td style="text-align:right; vertical-align:middle">@item.ProductCount.ToString("N0")</td>
-                                <td style="text-align:center;vertical-align:middle">
-                                    <a href="/warehouses/outputs/@item.Id" class="btn btn-primary btn-sm">Xem</a>
-                                    <button class="btn btn-danger btn-sm" @onclick="()=> OnDelete(item.Id)">Xóa</button>
+                                <td style="text-align:center">@item.CreateDate.ToString("dd/MM/yyyy hh:mm")</td>
+                                <td style="text-align:right">@item.ProductCount.ToString("N0")</td>
+                                <td style="text-align:center">
+                                    <a href="/warehouses/outputs/@item.Id" class="btn btn-primary btn-xs">Xem</a>
+                                    <button class="btn btn-danger btn-xs" @onclick="()=> OnDelete(item.Id)">Xóa</button>
                                 </td>
                             </tr>
                         }

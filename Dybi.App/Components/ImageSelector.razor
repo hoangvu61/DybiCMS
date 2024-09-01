@@ -62,15 +62,15 @@
                                                 <td>@file.FileName.Substring(file.FileName.LastIndexOf('_') + 1, file.FileName.Length - (file.FileName.LastIndexOf('_') + 1))</td>
                                                 <td class="text-end">@string.Format("{0:#,0.##}", @size)</td>
 
-                                                <td class="text-end"><button type="button" class="btn btn-sm btn-link" disabled="@isUploading" @onclick="(() => RemoveFromQueue(file.FileId))"><span class="oi oi-trash" aria-hidden="true"></span></button></td>
+                                                <td class="text-end"><button type="button" class="btn btn-xs btn-link" disabled="@isUploading" @onclick="(() => RemoveFromQueue(file.FileId))"><span class="oi oi-trash" aria-hidden="true"></span></button></td>
                                             </tr>
                                         }
                                     </tbody>
                                 </table>
 
                                 <div class="btn-group w-100" role="group" aria-label="Basic mixed styles example">
-                                    <button type="button" disabled="@isUploading" class="btn btn-sm btn-success" @onclick="UploadFileQueue">Tải lên</button>
-                                    <button type="button" disabled="@isUploading" class="btn btn-sm btn-info" @onclick="ClearFileQueue">Xóa hết</button>
+                                    <button type="button" disabled="@isUploading" class="btn btn-xs btn-success" @onclick="UploadFileQueue">Tải lên</button>
+                                    <button type="button" disabled="@isUploading" class="btn btn-xs btn-info" @onclick="ClearFileQueue">Xóa hết</button>
                                 </div>
 
                             </div>

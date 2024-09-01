@@ -30,10 +30,10 @@
                     </div>
                     <div class="alert alert-secondary" role="alert">
                         <EditForm Model="Request" OnValidSubmit="HandleSubmit">
-                            <div class="input-group input-group-sm mb-3">
+                            <div class="input-group input-group-xs mb-3">
                                 <span class="input-group-text">Mã</span>
-                                <InputText id="inputCode" class="form-control form-control-sm" @bind-Value="Request.Code" />
-                                <button type="submit" class="btn btn-primary btn-sm">Lưu</button>
+                                <InputText id="inputCode" class="form-control" @bind-Value="Request.Code" />
+                                <button type="submit" class="btn btn-primary">Lưu</button>
                             </div>
                             @foreach (var seri in Seris)
                             {
@@ -47,7 +47,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary btn-sm" @onclick="()=>Hide()" data-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-secondary btn-xs" @onclick="()=>Hide()" data-dismiss="modal">Đóng</button>
                 </div>
             </div>
         </div>
