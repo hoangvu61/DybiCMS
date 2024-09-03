@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 using Web.Api.Entities;
 using Web.Api.Extensions;
 using Web.Api.Repositories;
@@ -169,6 +170,82 @@ namespace Web.Api.Controllers
                 Note = order.Note,
             };
             return Ok(orderDto);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateOrder([FromBody] OrderRequest request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Unauthorized();
+
+            if (request.Products == null || request.Products.Count == 0) return ValidationProblem("Không có sản phẩm");
+            if (request.CustomerId == Guid.Empty) return ValidationProblem("Không có khách hàng");
+
+            var order = new Order
+            {
+                CompanyId = user.CompanyId,
+                CreateDate = DateTime.Now,
+                Note = request.Note,
+                CustomerId = request.CustomerId,
+                CustomerName = request.CustomerName,
+                CustomerPhone = request.CustomerPhone,
+                CustomerAddress= request.CustomerAddress,
+                Products = new List<OrderProduct>()
+            };
+
+            foreach(var product in request.Products)
+            {
+                order.Products.Add(new OrderProduct
+                {
+                    ProductId = product.ProductId,
+                    Price = product.Price,
+                    Properties = product.Properties,
+                    Quantity = product.Quantity
+                });
+            }
+
+            if (request.Attributes != null)
+            {
+                order.Attributes = new List<OrderAttribute>();
+                foreach (var attribute in request.Attributes)
+                {
+                    order.Attributes.Add(new OrderAttribute
+                    {
+                        AttributeId = attribute.Key,
+                        Value = attribute.Value,
+                        LanguageCode = "vi",
+                    });
+                }
+            }
+
+            if (request.Delivery != null)
+            {
+                order.Delivery = new OrderDelivery
+                {
+                    DeliveryId = request.Delivery.DeliveryId,
+                    DeliveryFee = request.Delivery.DeliveryFee,
+                    DeliveryCode = request.Delivery.DeliveryCode,
+                    COD = request.Delivery.COD,
+                    DeliveryNote = request.Delivery.DeliveryNote
+                };
+            }
+
+            if (request.Debt != null)
+            {
+                order.Debt = new OrderDebt
+                {
+                    Debit = request.Debt.Debit,
+                    DebitExpire = request.Debt.DebitExpire,
+                };
+            }
+
+            await _orderRepository.CreateOrder(order);
+
+            return Ok();
         }
 
         [HttpPut]
@@ -429,7 +506,34 @@ namespace Web.Api.Controllers
         }
         #endregion
 
-        [HttpPut]
+        #region customer
+        [HttpPut]//OrderCustomerDto
+        [Route("customers")]
+        public async Task<IActionResult> GetCustomers([FromQuery] CustomerSearch search)
+        {
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Unauthorized();
+
+            if (!string.IsNullOrEmpty(search.Key)) search.Key = WebUtility.UrlDecode(search.Key);
+            var customers = await _orderRepository.GetCustomers(user.CompanyId, search);
+            var dtos = customers.Items.Select(e => new CustomerDto()
+            {
+                Id = e.Id,
+                CustomerName = e.CustomerName,
+                CustomerPhone = e.CustomerPhone,
+                CustomerAddress = e.CustomerAddress,
+                OrderCount = e.Orders.Count(),
+                LastOrder = e.Orders.Max(o => o.CreateDate),
+                TotalAmount = e.Orders.Sum(o => o.Products.Sum(e => e.Quantity * e.Price))             
+            }).ToList();
+
+            return Ok(new PagedList<CustomerDto>(dtos,
+                       customers.MetaData.TotalCount,
+                       customers.MetaData.CurrentPage,
+                       customers.MetaData.PageSize));
+        }
+
         [Route("customers/{id}")]
         public async Task<IActionResult> UpdateOrderCustomer([FromRoute] Guid id, OrderCustomerDto dto)
         {
@@ -438,6 +542,7 @@ namespace Web.Api.Controllers
 
             var userId = User.GetUserId();
             var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Unauthorized();
 
             var customer = await _orderRepository.GetCustomer(user.CompanyId, dto.Id);
             if (customer == null) return NotFound($"{id} không tồn tại");
@@ -449,5 +554,6 @@ namespace Web.Api.Controllers
 
             return Ok();
         }
+        #endregion
     }
 }

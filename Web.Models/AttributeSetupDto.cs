@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Web.Models.SeedWork;
+﻿using Web.Models.SeedWork;
 
 namespace Web.Models
 {

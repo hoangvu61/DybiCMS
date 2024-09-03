@@ -51,7 +51,8 @@ namespace Web.Api.Entities
         public Customer Customer { get; set; }
 
         public virtual ICollection<OrderProduct> Products { get; set; }
-
+        public virtual ICollection<OrderAttribute> Attributes { get; set; }
+        
         public virtual OrderDelivery? Delivery { get; set; }
         public virtual OrderDebt? Debt { get; set; }
     }

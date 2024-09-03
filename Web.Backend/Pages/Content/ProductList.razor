@@ -151,6 +151,7 @@
     private const int PageSize = 20;
     private List<ProductDto> Products;
     private Guid DeleteId { set; get; }
+    private bool ChangeOrderFlag { set; get; }
     private List<string> Languages { get; set; }
 
     private ProductSearch ProductSearchControl { set; get; }
@@ -213,7 +214,7 @@
                 await RefreshList(true);
             }
             else ToastService.ShowError("Xóa không thành công");
-            
+
         }
     }
     public void OnDelete(Guid deleteId)
@@ -228,16 +229,23 @@
         if (result) ToastService.ShowInfo("Cập nhật thành công");
         else ToastService.ShowError("Cập nhật không thành công");
     }
+
+
     public async Task OrderChanged(ProductDto dto)
     {
+        ChangeOrderFlag = false;
         await Task.Delay(1000);
-        var result = await ContentApiClient.UpdateOrder(dto.Id, dto.Order);
-        if (result)
+        ChangeOrderFlag = true;
+        await Task.Delay(2000);
+        if (ChangeOrderFlag)
         {
-            await Task.Delay(2000);
-            ToastService.ShowInfo($"Đã cập nhật thứ tự [{dto.Titles["vi"]}] thành [{dto.Order}]");
-            await RefreshList(true);
+            var result = await ContentApiClient.UpdateOrder(dto.Id, dto.Order);
+            if (result)
+            {
+                ToastService.ShowInfo($"Đã cập nhật thứ tự [{dto.Titles["vi"]}] thành [{dto.Order}]");
+                await RefreshList(true);
+            }
+            else ToastService.ShowError("Cập nhật không thành công");
         }
-        else ToastService.ShowError("Cập nhật không thành công");
     }
 }

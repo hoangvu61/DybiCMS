@@ -1127,7 +1127,7 @@ namespace Web.Api.Controllers
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return Unauthorized();
 
-            search.Key = WebUtility.UrlDecode(search.Key);
+            if (!string.IsNullOrEmpty(search.Key)) search.Key = WebUtility.UrlDecode(search.Key);
             var products = await _itemRepository.GetProducts(user.CompanyId, search);
             var productDtos = products.Items.Select(e => new ProductDto()
             {

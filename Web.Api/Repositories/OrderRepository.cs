@@ -1,7 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.Design;
+using System.Net;
 using Web.Api.Data;
 using Web.Api.Entities;
+using Web.Models;
 using Web.Models.SeedWork;
 
 namespace Web.Api.Repositories
@@ -102,6 +104,14 @@ namespace Web.Api.Repositories
                 .Where(e => e.CompanyId == CompanyId && e.Id == OrderId);
             var result = await query.FirstOrDefaultAsync();
             return result;
+        }
+
+        public async Task<int> CreateOrder(Order order)
+        {
+            _context.Orders.Add(order);
+
+            await _context.SaveChangesAsync();
+            return 0;
         }
 
         public async Task<bool> UpdateOrder(Order order)
@@ -263,6 +273,27 @@ namespace Web.Api.Repositories
 
             await _context.SaveChangesAsync();
             return 0;
+        }
+
+        public async Task<PagedList<Customer>> GetCustomers(Guid companyId, CustomerSearch search)
+        {
+            var query = _context.Customers.Include(e => e.Orders).ThenInclude(e => e.Products).Where(e => e.CompanyId == companyId);
+
+            if (!string.IsNullOrEmpty(search.Key))
+            {
+                var key = search.Key.Trim();
+                query = query.Where(e => (e.CustomerPhone != null && e.CustomerPhone.Contains(key)) 
+                                            || (e.CustomerName != null && e.CustomerName.Contains(key))
+                                            || (e.CustomerAddress != null && e.CustomerAddress.Contains(key)));
+            }
+
+            var count = await query.CountAsync();
+
+            var data = await query.OrderByDescending(e => e.CustomerName)
+                .Skip((search.PageNumber - 1) * search.PageSize)
+                .Take(search.PageSize)
+                .ToListAsync();
+            return new PagedList<Customer>(data, count, search.PageNumber, search.PageSize);
         }
 
         public async Task<Customer> GetCustomer(Guid companyId, Guid customerId)
