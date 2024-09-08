@@ -12,10 +12,10 @@
 <div class="card card-outline card-info">
     <div class="card-body">
         <div class="form-group">
-            <label for="InputFileWebIcon">Web icon:</label>
-            <div class="input-group">
+            <div class="input-group input-group-sm">
+                <label class="input-group-text" for="InputFileWebIcon">Web icon:</label>
                 <InputFile id="InputFileWebIcon" type="file" OnChange="WebIconChange" accept="image/png, image/jpeg, image/gif"></InputFile>
-                <button class="btn-success btn-sm" style="position:absolute;right:0" @onclick="WebIconSave">Lưu</button>
+                <button class="btn btn-success" style="position:absolute;right:0" @onclick="WebIconSave">Lưu</button>
             </div>
             @if (WebIcon != null && !string.IsNullOrEmpty(WebIcon.FileName))
             {
@@ -23,10 +23,10 @@
             }
         </div>
         <div class="form-group">
-        <label for="InputFileLogo">Logo:</label>
-            <div class="input-group">
+            <div class="input-group input-group-sm">
+                <label class="input-group-text" for="InputFileLogo">Logo:</label>
                 <InputFile id="InputFileLogo" type="file" OnChange="LogoChange" accept="image/png, image/jpeg, image/gif"></InputFile>
-                <button class="btn-success btn-sm" style="position:absolute;right:0" @onclick="LogoSave">Lưu</button>
+                <button class="btn btn-success" style="position:absolute;right:0" @onclick="LogoSave">Lưu</button>
             </div>
             @if (Logo != null && !string.IsNullOrEmpty(Logo.FileName))
             {
@@ -34,10 +34,10 @@
             }
         </div>
         <div class="form-group">
-            <label for="InputFileLogo">Image:</label>
-            <div class="input-group">
+            <div class="input-group input-group-sm">
+                <label class="input-group-text" for="InputFileLogo">Image:</label>
                 <InputFile id="InputFileLogo" type="file" OnChange="ImageChange" accept="image/png, image/jpeg, image/gif"></InputFile>
-                <button class="btn-success btn-sm" style="position:absolute;right:0" @onclick="ImageSave">Lưu</button>
+                <button class="btn btn-success" style="position:absolute;right:0" @onclick="ImageSave">Lưu</button>
             </div>
             @if (Image != null && !string.IsNullOrEmpty(Image.FileName))
             {

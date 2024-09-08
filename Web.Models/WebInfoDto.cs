@@ -11,6 +11,7 @@ namespace Web.Models
         public string LanguageCode { get; set; }
         public string Type { get; set; }
         public string TaxCode { get; set; }
+        public string TaxCodePlace { get; set; }
         public DateTime? PublishDate { get; set; }
         public string FullName { get; set; }
         public string DisplayName { get; set; }

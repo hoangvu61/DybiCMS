@@ -1,8 +1,9 @@
-﻿@page "/warehouses/inputs"
+﻿@page "/sales/customers"
 @attribute [Authorize]
 
 @using Dybi.App.Components
 @using Dybi.App.Pages.Components
+@using Dybi.App.Pages.Sales.Components
 @using Dybi.App.Pages.Warehouses.Components
 @using Microsoft.AspNetCore.Authorization;
 @using Dybi.App.Services;
@@ -11,9 +12,9 @@
 @using Microsoft.Extensions.Configuration
 
 @inject IToastService ToastService;
-@inject IWarehouseApiClient WarehouseApiClient;
+@inject IOrderApiClient OrderApiClient;
 
-<h1>Quản lý Nhập kho</h1>
+<h1>Quản lý khách hàng</h1>
 
 <section>
     @if (ListInputs == null)
@@ -24,44 +25,31 @@
     {
         <div class="card card-outline card-info">
             <div class="card-header">
-                <h3 class="card-title">Danh sách Nhập kho</h3>
+                <h3 class="card-title">Danh sách Khách hàng</h3>
             </div>
             <div class="card-body">
-                <InputSearch OnSearch="SearchInput"></InputSearch>
+                <CustomersSearch OnSearch="Search"></CustomersSearch>
                 <table class="table table-sm table-striped table-bordered">
                     <thead>
                         <tr>
-                            <th>Mã</th>
-                            <th>Ngày</th>
-                            <th>Tổng sản phẩm</th>
-                            <th>Tổng tiền</th>
-                            <th>Từ</th>
-                            <th>Vào kho</th>
-                            <th class="text-center" style="width:75px">
-                                <button @onclick="() => CreateDialog.Show()" class="btn btn-primary btn-xs">Thêm</button>
-                            </th>
+                            <th>Khách hàng</th>
+                            <th>Số điện thoại</th>
+                            <th>Địa chỉ</th>
+                            <th>Mua lần cuối</th>
+                            <th>Số đơn hàng</th>
+                            <th>Tổng tiền mua hàng</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach (var item in ListInputs)
                         {
                             <tr>
-                                <td style=" vertical-align:middle">@item.InputCode</td>
-                                <td style="text-align:center; vertical-align:middle">@item.CreateDate.ToString("dd/MM/yyyy hh:mm")</td>
-                                <td style="text-align:right; vertical-align:middle">@item.ProductCount.ToString("N0")</td>
-                                <td style="text-align:right; vertical-align:middle">@item.TotalPrice.ToString("N0") <sup>đ</sup></td>
-                                <td>
-                                    @item.TypeName<br />
-                                    Từ: @item.SourceName
-                                </td>
-                                <td>
-                                    @item.WarehouseType<br />
-                                    @item.WarehouseName
-                                </td>
-                                <td style="text-align:center;vertical-align:middle">
-                                    <a href="/warehouses/inputs/@item.Id" class="btn btn-primary btn-xs">Xem</a>
-                                    <button class="btn btn-danger btn-xs" @onclick="()=> OnDelete(item.Id)">Xóa</button>
-                                </td>
+                                <td>@item.CustomerName</td>
+                                <td>@item.CustomerPhone</td>
+                                <td>@item.CustomerAddress</td>
+                                <td style="text-align:center">@item.LastOrder.ToString("dd/MM/yyyy hh:mm")</td>
+                                <td style="text-align:right">@item.OrderCount.ToString("N0")</td>
+                                <td style="text-align:right">@item.TotalAmount.ToString("N0")<sup>đ</sup></td>
                             </tr>
                         }
                     </tbody>
@@ -76,12 +64,6 @@
             </div>
         </div>
 
-        <Confirmation ConfirmationMessage="Bạn có chắc chắn xóa?"
-                    ConfirmationTitle="Xóa phiếu nhập kho"
-                    @ref="DeleteConfirmation"
-                    ConfirmationChanged="OnConfirmDelete">
-        </Confirmation>
-
         <InputCreate @ref="CreateDialog"></InputCreate>
     }
 </section>
@@ -90,11 +72,12 @@
     protected Confirmation DeleteConfirmation { set; get; }
     protected InputCreate CreateDialog { set; get; }
 
-    private const int PageSize = 12;
-    private List<WarehouseInputDto> ListInputs;
+    private const int PageSize = 20;
+    private List<CustomerDto> ListInputs;
     private Guid DeleteId { set; get; }
 
-    private WarehouseIOSearch WarehouseInputSearch = new WarehouseIOSearch();
+    private CustomersSearch CustomerSearchControl { set; get; }
+    private CustomerSearch CustomerSearch = new CustomerSearch();
     public MetaData MetaData { get; set; } = new MetaData();
 
     [CascadingParameter]
@@ -102,7 +85,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        WarehouseInputSearch.PageSize = PageSize;
+        CustomerSearch.PageSize = PageSize;
         await RefreshList(true);
     }
 
@@ -112,7 +95,7 @@
         {
             try
             {
-                var pagingResponse = await WarehouseApiClient.GetWarehouseInputs(WarehouseInputSearch);
+                var pagingResponse = await OrderApiClient.GetCusomers(CustomerSearch);
                 ListInputs = pagingResponse.Items;
                 MetaData = pagingResponse.MetaData;
 
@@ -125,35 +108,16 @@
         }
     }
 
-    public async Task SearchInput(WarehouseIOSearch inputListSearch)
+    public async Task Search(CustomerSearch customerSearch)
     {
-        WarehouseInputSearch = inputListSearch;
-        WarehouseInputSearch.PageSize = PageSize;
+        CustomerSearch = customerSearch;
+        CustomerSearch.PageSize = PageSize;
         await RefreshList(true);
     }
 
     private async Task SelectedPage(int page)
     {
-        WarehouseInputSearch.PageNumber = page;
+        CustomerSearch.PageNumber = page;
         await RefreshList(true);
-    }
-
-    public async Task OnConfirmDelete(bool deleteConfirmed)
-    {
-        if (deleteConfirmed)
-        {
-            var result = await WarehouseApiClient.DeleteInput(DeleteId);
-            if (string.IsNullOrEmpty(result))
-            {
-                ToastService.ShowWarning($"Đã xóa {DeleteId}");
-                await RefreshList(true);
-            }
-            else ToastService.ShowError(result);
-        }
-    }
-    public void OnDelete(Guid deleteId)
-    {
-        DeleteId = deleteId;
-        DeleteConfirmation.Show();
     }
 }

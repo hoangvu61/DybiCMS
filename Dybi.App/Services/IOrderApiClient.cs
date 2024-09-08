@@ -17,6 +17,8 @@ namespace Dybi.App.Services
         Task<bool> ReceiveOrder(Guid id);
         Task<bool> CancelOrder(Guid id);
         Task<bool> DeleteOrder(Guid id);
+
+        Task<string> CreateOrder(OrderRequest request);
         #endregion
 
         #region product
@@ -27,6 +29,7 @@ namespace Dybi.App.Services
         #endregion
 
         #region customer
+        Task<PagedList<CustomerDto>> GetCusomers(CustomerSearch search);
         Task<bool> UpdateCustomer(OrderCustomerDto request);
         #endregion
 

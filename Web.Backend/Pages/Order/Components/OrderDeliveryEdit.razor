@@ -22,41 +22,41 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <div class="form-group input-group input-group-sm">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text">Đơn vị giao hàng:</span>
-                            </div>
-                            <InputSelect class="form-control form-control-sm" @bind-Value="@Model.DeliveryId">
-                                @foreach (var dilivery in DataSource.Deliveries)
-                                {
-                                    <option value="@dilivery.Key">@dilivery.Value</option>
-                                }
-                            </InputSelect>
-                        </div>
-                        <ValidationMessage For="()=>Model.DeliveryId"></ValidationMessage>
-                        <div class="form-group input-group input-group-sm">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text">Mã vận chuyển:</span>
-                            </div>
-                            <InputText class="form-control form-control-sm" @bind-Value="Model.DeliveryCode"></InputText>
-                        </div>
-                        <ValidationMessage For="()=> Model.DeliveryCode"></ValidationMessage>
-                        <div class="form-group input-group input-group-sm">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text">Phí vận chuyển:</span>
-                            </div>
-                            <InputNumber class="form-control form-control-sm" @bind-Value="Model.DeliveryFee"></InputNumber>
-                            <div class="input-group-prepend">
-                                <span class="input-group-text">COD:</span>
-                            </div>
-                            <InputCheckbox @bind-Value="Model.COD"></InputCheckbox>
-                        </div>
-                        <ValidationMessage For="()=> Model.DeliveryFee"></ValidationMessage>
                         <div class="form-group">
-                            <label>Ghi chú:</label>
-                            <InputTextArea @bind-Value="Model.DeliveryNote" class="form-control form-control-sm"></InputTextArea>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text">Đơn vị giao hàng</span>
+                                <InputSelect class="form-select" @bind-Value="@Model.DeliveryId">
+                                    @foreach (var dilivery in DataSource.Deliveries)
+                                    {
+                                        <option value="@dilivery.Key">@dilivery.Value</option>
+                                    }
+                                </InputSelect>
+                            </div>
+                            <ValidationMessage For="()=>Model.DeliveryId"></ValidationMessage>
                         </div>
-                        <ValidationMessage For="()=> Model.DeliveryNote"></ValidationMessage>
+                        <div class="form-group">
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text">Mã vận chuyển</span>
+                                <InputText class="form-control" @bind-Value="Model.DeliveryCode"></InputText>
+                            </div>
+                            <ValidationMessage For="()=> Model.DeliveryCode"></ValidationMessage>
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text">Phí vận chuyển</span>
+                                <InputNumber class="form-control" @bind-Value="Model.DeliveryFee"></InputNumber>
+                                <span class="input-group-text">COD</span>
+                                <InputCheckbox class="form-check-input" @bind-Value="Model.COD"></InputCheckbox>
+                            </div>
+                            <ValidationMessage For="()=> Model.DeliveryFee"></ValidationMessage>
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text">Ghi chú</span>
+                                <InputTextArea @bind-Value="Model.DeliveryNote" class="form-control"></InputTextArea>
+                            </div>
+                            <ValidationMessage For="()=> Model.DeliveryNote"></ValidationMessage>
+                        </div>
                     </div>
                     <div class="modal-footer justify-content-between">
                         <button type="button" class="btn btn-default btn-xs" @onclick="() => {ShowDialog = false;}">Close</button>
@@ -101,6 +101,7 @@
 
     protected async Task HandleSubmit()
     {
+        if (Model.DeliveryCode == null) Model.DeliveryCode = string.Empty;
         var result = await OrderApiClient.UpdateOrderDelivery(OrderId, Model);
         if (result)
         {

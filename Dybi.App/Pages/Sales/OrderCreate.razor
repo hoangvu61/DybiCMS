@@ -1,0 +1,441 @@
+﻿@page "/sales/ordercreate"
+@attribute [Authorize]
+
+@using Dybi.App.Pages.Components
+@using Microsoft.AspNetCore.Authorization
+@using Web.Models;
+@using System.IO;
+@using Web.Models.Enums
+@using Dybi.App.Services;
+@using Dybi.App.Pages.Warehouses.Components
+@using Dybi.App.Pages.Settings.Components
+@using Web.Models.SeedWork
+
+@inject NavigationManager NavigationManager;
+@inject IToastService ToastService;
+@inject IConfiguration Configuration;
+@inject IOrderApiClient OrderApiClient;
+@inject IAttributeApiClient AttributeApiClient
+
+<h1>Quản lý đơn hàng</h1>
+
+<section class="order-create-section">
+    <div class="card card-outline card-info mt-3">
+        <div class="card-header">
+            <h3 class="card-title">Tạo đơn hàng</h3>
+            <div style="float:right">
+                <button type="button" class="btn btn-success btn-sm" @onclick="()=>CreateOrder()">Lưu</button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="callout callout-danger" style="text-align:center">
+                <div class="form-check form-check-inline" style="text-align:center">
+                    <div class="form-check form-check-inline">
+                        <input name="IsDelivery" type="radio" class="form-check-input" @onchange="() => {Model.IsDelivery = false;}" checked="@(Model.IsDelivery == false)" /> Mua tại cửa hàng
+                    </div>
+                </div>
+                <div class="form-check form-check-inline" style="text-align:center">
+                    <div class="form-check form-check-inline">
+                        <input name="IsDelivery" type="radio" class="form-check-input" @onchange="() => {Model.IsDelivery = true;}" checked="@(Model.IsDelivery == true)" /> Giao hàng tận nơi
+                    </div>
+                </div>
+            </div>
+            <hr class="mb-2"/>
+            <div class="row mb-2">
+                <div class="col">
+                    <div class="input-group input-group-xs">
+                        <label class="input-group-text">Số điện thoại:</label>
+                        <input id="customerPhone" tabindex="1" class="form-control" @bind="Model.CustomerPhone" @oninput="OnInputChange" />
+                        @if (Customers != null && Customers.Any())
+                        {
+                            <ul class="auto-list-group">
+                                @foreach (var customer in Customers)
+                                {
+                                    <li class="auto-list-group-item" @onclick="() => SelectCustomer(customer.Id)">
+                                        @customer.CustomerPhone - @customer.CustomerName - @customer.CustomerAddress
+                                    </li>
+                                }
+                            </ul>
+                        }
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="input-group input-group-xs">
+                        <label class="input-group-text">Tên khách hàng:</label>
+                        <InputText class="form-control" tabindex="2" @bind-Value="Model.CustomerName" />
+                    </div>
+                </div>
+            </div>
+            @if (Model.IsDelivery)
+            {
+                <div class="row mb-2">
+                    <div class="input-group input-group-xs">
+                        <label class="input-group-text">Địa chỉ:</label>
+                        <InputText class="form-control" tabindex="3" @bind-Value="Model.CustomerAddress" />
+                    </div>
+                </div>
+            }
+
+            <hr class="mb-2" />
+
+            <div class="row">
+                @if (Model.Attributes != null)
+                {
+                <div class="col-6">
+                    @foreach (var att in Model.Attributes)
+                    {
+                        <div class="form-group">
+                            @if (att.Type == "Number")
+                            {
+                                <div class="input-group input-group-xs mb-2">
+                                    <span class="input-group-text">@att.Title</span>
+                                    <InputNumber class="form-control" @bind-Value="@att.Value" />
+                                </div>
+                            }
+                            else if (att.Type == "Date")
+                            {
+                                <div class="input-group input-group-xs mb-2">
+                                    <span class="input-group-text">@att.Title</span>
+                                    <InputDate class="form-control" @bind-Value="@att.Value" />
+                                </div>
+                            }
+                            else if (att.Type == "Color")
+                            {
+                                <div class="input-group input-group-xs mb-2">
+                                    <span class="input-group-text">@att.Title</span>
+                                    <InputText type="color" class="form-control" @bind-Value="@att.Value" />
+                                </div>
+                            }
+                            else if (att.Type == "Image")
+                            {
+                                <div class="input-group input-group-xs mb-2">
+                                    <span class="input-group-text">@att.Title</span>
+                                    <InputFile id="InputFileWebIcon" type="file" OnChange="@((args) => ImageChange(args, att))" accept="image/png, image/jpeg, image/gif, image/webp"></InputFile>
+                                </div>
+                            }
+                            else if (att.Type == "Boolean")
+                            {
+                                <div class="row form-switch" style="padding:0">
+                                    <div class="col"><label class="form-check-label">@att.Title</label></div>
+                                    <div class="col" style="text-align:right;padding:0">
+                                        <input type="checkbox" checked="@(att.Value.ToLower() == "true")" class="form-check-input" role="switch" @onchange="@((e) => {att.Value = e.Value.ToString();})"></input>
+                                    </div>
+                                </div>
+                            }
+                            else if (att.Type == "Check" && att.Values != null && att.Values.Count > 0)
+                            {
+                                var productAttributeIds = att.Value.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(e => e.Trim()).ToList();
+                                <label>@att.Title</label>
+                                @foreach (var value in att.Values)
+                                {
+                                    <div class="form-check">
+                                        <input class="form-check-input" name="@att.Id" type="checkbox" value="@value.Id" checked="@productAttributeIds.Contains(value.Id)" @onchange="@((e) => Oncheck(e, productAttributeIds, value.Id, att))">
+                                        <span>@value.Title</span>
+                                    </div>
+                                }
+                            }
+                            else if (att.Type == "Option" && att.Values != null && att.Values.Count > 0)
+                            {
+                                <label>@att.Title</label>
+                                @foreach (var value in att.Values)
+                                {
+                                    <div class="form-check">
+                                        <input class="form-check-input" name="@att.Id" type="radio" value="@value.Id" checked="@(att.Value == value.Id.ToString())" @onchange="@(() => {att.Value = value.Id.ToString();})" />
+                                        <span>@value.Title</span>
+                                    </div>
+                                }
+                            }
+                            else if (att.Type == "Textarea")
+                            {
+                                <div class="input-group input-group-xs mb-2">
+                                    <span class="input-group-text">@att.Title</span>
+                                    <InputTextArea type="text" class="form-control form-control-sm" @bind-Value="@att.Value"></InputTextArea>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="input-group input-group-xs mb-2">
+                                    <span class="input-group-text">@att.Title</span>
+                                    <InputText class="form-control" @bind-Value="@att.Value" />
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+                }
+                @if (Model.IsDelivery)
+                {
+                    <div class="col-6">
+                        <div class="form-group mb-2">
+                            <div class="form-group input-group input-group-xs">
+                                <span class="input-group-text">Đơn vị giao hàng</span>
+                                <InputSelect class="form-select" @bind-Value="@Model.Delivery.DeliveryId">
+                                    @foreach (var dilivery in DataSource.Deliveries)
+                                    {
+                                        <option value="@dilivery.Key">@dilivery.Value</option>
+                                    }
+                                </InputSelect>
+                            </div>
+                        </div>
+                        <div class="form-group mb-2">
+                            <div class="input-group input-group-xs">
+                                <span class="input-group-text">Mã vận chuyển</span>
+                                <InputText class="form-control" @bind-Value="Model.Delivery.DeliveryCode"></InputText>
+                            </div>
+                        </div>
+                        <div class="form-group mb-2">
+                            <div class="input-group input-group-xs">
+                                <span class="input-group-text">Phí vận chuyển</span>
+                                <InputNumber class="form-control" @bind-Value="Model.Delivery.DeliveryFee"></InputNumber>
+                                <span class="input-group-text">COD</span>
+                                <div class="input-group-text">
+                                    <InputCheckbox class="form-check-input" @bind-Value="Model.Delivery.COD"></InputCheckbox>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group mb-2">
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text">Ghi chú giao hàng</span>
+                                <InputTextArea @bind-Value="Model.Delivery.DeliveryNote" class="form-control"></InputTextArea>
+                            </div>
+                        </div>
+                        
+                    </div>
+                }
+                <div class="@((Model.IsDelivery && Model.Attributes != null) || (!Model.IsDelivery && Model.Attributes == null)? "col-12" : "col-6" )">
+                    <div class="input-group input-group-sm">
+                        <label class="input-group-text">Ghi chú</label>
+                        <InputTextArea id="inputCode" class="form-control" tabindex="1" @bind-Value="Model.Note" />
+                    </div>
+                </div>
+            </div>
+
+            <table class="table table-sm table-striped table-bordered mt-2">
+                <thead>
+                    <tr>
+                        <th colspan="2">Sản phẩm</th>
+                        <th>Đơn giá</th>
+                        <th>Số lượng</th>
+                        <th>Thành tiền</th>
+                        <th style="width:45px"><button class="btn btn-primary btn-xs" type="button" @onclick="() => ListProductControl.Show()">Thêm</button></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var product in Model.Products)
+                    {
+                        <tr>
+                            <td>
+                                @product.Name
+                                <br /> @product.Properties
+                            </td>
+                            <td style="text-align:center"><img src="@(BackendApiUrl + "/" + product.Image.FullPath)" asp-append-version="true" width="50px" /></td>
+                            <td>
+                                <InputNumber class="form-control input-xs" @bind-Value="product.Price"></InputNumber>
+                            </td>
+                            <td>
+                                <InputNumber class="form-control input-xs" @bind-Value="product.Quantity"></InputNumber>
+                            </td>
+                            <td style="text-align:right">@product.TotalCost.ToString("N0")</td>
+                            <td class="text-center">
+                                <button class="btn btn-danger btn-xs" @onclick="() => RemoveProduct(product)">Xóa</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td style="text-align:right" colspan="3">Tổng tiền hàng:</td>
+                        <td style="text-align:right">@Model.Products.Sum(e => e.Quantity).ToString("N0")</td>
+                        <td style="text-align:right">@Model.Products.Sum(e => e.TotalCost).ToString("N0")</td>
+                        <td></td>
+                    </tr>
+                    @if (Model.Delivery != null && Model.Delivery.DeliveryFee > 0)
+                    {
+                        <tr>
+                            <td style="text-align:right" colspan="3">Phí vận chuyển:</td>
+                            <td style="text-align:right" colspan="2">@Model.Delivery.DeliveryFee.ToString("N0")</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td style="text-align:right" colspan="3">Tổng phải trả:</td>
+                            <td style="text-align:right;color:blue;font-weight:600" colspan="2">@((Model.Products.Sum(e => e.TotalCost) + Model.Delivery.DeliveryFee).ToString("N0"))</td>
+                            <td></td>
+                        </tr>
+                    }
+                    <tr>
+                        <td style="text-align:right" colspan="3">Khách trả:</td>
+                        <td></td>
+                        <td>
+                            <input type="number" class="form-control input-xs" @bind="CustomerPay" @bind:event="oninput" @onkeyup="PaymentChange" @onchange="PaymentChange" />
+                        </td>
+                        <td></td>
+                    </tr>
+                    @if (Model.Debt != null && Model.Debt.Debit > 0)
+                    {
+                        <tr>
+                            <td style="text-align:right" colspan="3">Khách nợ:</td>
+                            <td style="text-align:right;color:red;font-weight:600" colspan="2">@Model.Debt.Debit.ToString("N0")</td>
+                            <td></td>
+                        </tr>                            
+                    }
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</section>
+
+<ProductListPopup @ref="ListProductControl" EventCallbak="SelectProduct"></ProductListPopup>
+
+@code {
+    private string BackendApiUrl { get; set; }
+    private decimal CustomerPay { get; set; }
+
+    private OrderRequest Model { set; get; } = new OrderRequest();
+    private List<CustomerDto> Customers { set; get; }
+
+    private ProductListPopup ListProductControl { get; set; }
+
+    private CustomerSearch CustomerSearch { set; get; } = new CustomerSearch();
+
+    protected async override Task OnInitializedAsync()
+    {
+        BackendApiUrl = Configuration["BackendApiUrl"];
+        Model.Products = new List<OrderProductDto>();
+        Model.Delivery = new OrderDeliveryRequest();
+
+        var attributes = await AttributeApiClient.GetAttributeList();
+        if (attributes != null && attributes.Count > 0)
+        {
+            var sourceValues = await AttributeApiClient.GetValueList();
+            Model.Attributes = new List<AttributeSetupDto>();
+            foreach (var attribute in attributes)
+            {
+                var attributeSetup = new AttributeSetupDto
+                {
+                    Id = attribute.Id,
+                    Title = attribute.Title,
+                    SourceId = attribute.SourceId,
+                    Type = attribute.Type,
+                };
+
+                if (attributeSetup.SourceId != null && attributeSetup.SourceId != Guid.Empty)
+                    attributeSetup.Values = sourceValues.Where(e => e.SourceId == attributeSetup.SourceId)
+                                                .Select(e => new TitleStringDto
+                                                    {
+                                                        Id = e.Id,
+                                                        Title = e.Titles.Where(e => e.LanguageCode == "vi").Select(e => e.Title).FirstOrDefault()
+                                                    })
+                                                .ToList();
+
+                Model.Attributes.Add(attributeSetup);
+            }
+        }
+    }
+
+    private async Task OnInputChange(ChangeEventArgs e)
+    {
+        Model.CustomerPhone = e.Value?.ToString();
+
+        // Simulate search (fetch from API or filter local data)
+        if (Model.CustomerPhone.Length > 3)
+        {
+            CustomerSearch.Key = Model.CustomerPhone;
+            var data = await OrderApiClient.GetCusomers(CustomerSearch);
+            if (data != null && data.Items != null)
+            {
+                Customers = data.Items;
+            }
+        }
+    }
+
+    private void SelectCustomer(Guid customerId)
+    {
+        var customer = Customers.FirstOrDefault(e => e.Id == customerId);
+        if(customer != null)
+        {
+            Model.CustomerId = customer.Id;
+            Model.CustomerPhone = customer.CustomerPhone;
+            Model.CustomerName = customer.CustomerName;
+            Model.CustomerAddress = customer.CustomerAddress;
+        }
+        Customers.Clear();
+    }
+
+    private async Task PaymentChange()
+    {
+        if (CustomerPay > 0)
+        {
+            if (Model.Debt == null) Model.Debt = new OrderDebtDto();
+            Model.Debt.Debit = Model.Products.Sum(e => e.TotalCost) + Model.Delivery.DeliveryFee - CustomerPay;
+        }
+    }
+
+    protected async Task SelectProduct(ProductDto product)
+    {
+        Model.Products.Add(new OrderProductDto
+            {
+                Image = product.Image,
+                Name = product.Titles.Where(e => e.Key == "vi").Select(e => e.Value).FirstOrDefault(),
+                Price = product.Price,
+                Quantity = 1,
+                ProductId = product.Id
+            });
+        ToastService.ShowInfo($"Đã thêm sản phẩm {product.Titles.Where(e => e.Key == "vi").Select(e => e.Value).FirstOrDefault()}");
+
+        CustomerPay = Model.Products.Sum(e => e.TotalCost) + Model.Delivery.DeliveryFee;
+    }
+
+    protected async Task RemoveProduct(OrderProductDto product)
+    {
+        Model.Products.Remove(product);
+        ToastService.ShowWarning($"Đã xóa sản phẩm {product.Name}");
+
+        CustomerPay = Model.Products.Sum(e => e.TotalCost) + Model.Delivery.DeliveryFee;
+    }
+
+    private async Task Oncheck(ChangeEventArgs e, List<string> productAttributeIds, string attributeId, AttributeSetupDto dto)
+    {
+        if (bool.Parse(e.Value.ToString())) productAttributeIds.Add(attributeId);
+        else productAttributeIds.Remove(attributeId);
+        dto.Value = string.Join(',', productAttributeIds);
+    }
+
+    private async void ImageChange(InputFileChangeEventArgs e, AttributeSetupDto attribute)
+    {
+        var files = e.GetMultipleFiles(); // get the files selected by the users
+        if (files.Count > 0)
+        {
+            //var resizedFile = await file.RequestImageFileAsync(file.ContentType, 640, 480); // resize the image file
+            var buf = new byte[files[0].Size]; // allocate a buffer to fill with the file's data
+            using (var stream = files[0].OpenReadStream(files[0].Size))
+            {
+                await stream.ReadAsync(buf); // copy the stream to the buffer
+            }
+
+            attribute.Image = new FileData() { Type = FileType.Attibute };
+            attribute.Image.Base64data = Convert.ToBase64String(buf);
+            attribute.Image.ContentType = files[0].ContentType;
+            attribute.Image.FileName = files[0].Name;
+        }
+    }
+
+    protected async Task CreateOrder()
+    {
+        if (!Model.IsDelivery) Model.Delivery.DeliveryFee = 0;
+        else if (Model.Delivery.DeliveryCode == null) Model.Delivery.DeliveryCode = string.Empty;
+
+        if (string.IsNullOrEmpty(Model.CustomerPhone) || string.IsNullOrEmpty(Model.CustomerName)) ToastService.ShowWarning("Vui lòng nhập thông tin khách hàng");
+        else if (Model.Products.Count == 0) ToastService.ShowWarning("Vui lòng chọn ít nhất 1 sản phẩm");
+        else if (string.IsNullOrEmpty(Model.CustomerAddress)) ToastService.ShowWarning("Vui lòng nhập địa chỉ giao hàng");
+        else
+        {
+            var result = await OrderApiClient.CreateOrder(Model);
+            if (string.IsNullOrEmpty(result))
+            {
+                ToastService.ShowInfo("Tạo đơn hàng thành công");
+                NavigationManager.NavigateTo("sales/orders");
+            }
+            else ToastService.ShowError(result);
+        }
+    }
+}

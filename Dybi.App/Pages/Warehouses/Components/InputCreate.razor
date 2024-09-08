@@ -161,6 +161,7 @@
     private List<WarehouseSupplierDto> Supplyers { set; get; }
     private List<WarehouseFactoryDto> Factories { set; get; }
     private List<WarehouseDto> Warehouses { set; get; }
+    private List<WarehouseDto> AllWarehouses { set; get; }
 
     protected async override Task OnInitializedAsync()
     {
@@ -170,8 +171,8 @@
         Factories = await WarehouseApiClient.GetFactories();
         Factories = Factories.Where(e => e.IsActive).ToList();
 
-        Warehouses = await WarehouseApiClient.GetWarehouses();
-        Warehouses = Warehouses.Where(e => e.IsActive).ToList();
+        AllWarehouses = await WarehouseApiClient.GetWarehouses();
+        Warehouses = AllWarehouses.Where(e => e.IsActive).ToList();
         if (Warehouses.Count > 0) Model.WarehouseId = Warehouses.First().Id;
     }
 
@@ -217,8 +218,8 @@
     {
         if (isLoad)
         {
-            Warehouses = await WarehouseApiClient.GetWarehouses();
-            Warehouses = Warehouses.Where(e => e.IsActive).ToList();
+            AllWarehouses = await WarehouseApiClient.GetWarehouses();
+            Warehouses = AllWarehouses.Where(e => e.IsActive).ToList();
         }
 
         ShowDialog = true;
@@ -232,12 +233,16 @@
         {
             case 1: 
                 // Nhập mua ngoài: nhập vào kho hàng hóa (156), công cụ, dụng cụ (153) hoặc nguyên vật liệu (152)
-                Warehouses = Warehouses.Where(e => e.Type == 156 || e.Type == 152 || e.Type == 153).ToList();
+                Warehouses = AllWarehouses.Where(e => e.IsActive && (e.Type == 156 || e.Type == 152 || e.Type == 153)).ToList();
                 if (Warehouses.Count > 0) Model.WarehouseId = Warehouses[0].Id;
                 break;
             case 2:
-                // Nhập kho sản xuất nội bộ: công cụ, dụng cụ (153) hoặc nguyên vật liệu (152)
-                Warehouses = Warehouses.Where(e => e.Type == 152 || e.Type == 153).ToList();
+                // Nhập kho sản xuất nội bộ: công cụ, dụng cụ (153), nguyên vật liệu (152)
+                Warehouses = AllWarehouses.Where(e => e.IsActive && (e.Type == 152 || e.Type == 153 || e.Type == 154)).ToList();
+                if (Warehouses.Count > 0) Model.WarehouseId = Warehouses[0].Id;
+                break;
+            default:
+                Warehouses = AllWarehouses.Where(e => e.IsActive).ToList();
                 if (Warehouses.Count > 0) Model.WarehouseId = Warehouses[0].Id;
                 break;
         }

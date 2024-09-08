@@ -196,12 +196,12 @@
 
     protected async override Task OnInitializedAsync()
     {
+        BackendApiUrl = Configuration["BackendApiUrl"];
         Model = new OrderDetailDto();
     }
 
     public async Task LoadData()
     {
-        BackendApiUrl = Configuration["BackendApiUrl"];
         Model = await OrderApiClient.GetOrder(Model.Id);
         Delivery = await OrderApiClient.GetOrderDelivery(Model.Id);
         Products = await OrderApiClient.GetOrderProducts(Model.Id);

@@ -9,7 +9,10 @@ namespace Web.Models
 
         [AllowNull]
         public string? DeliveryName { get; set; }
-        public string DeliveryCode { get; set; }
+
+        [AllowNull]
+        public string? DeliveryCode { get; set; }
+
         public decimal DeliveryFee { get; set; }
         public bool COD { get; set; }
 

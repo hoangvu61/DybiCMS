@@ -25,6 +25,7 @@ namespace Web.Api.Repositories
             var company = await _context.Companies.FindAsync(id);
             company.Type = request.Type;
             company.TaxCode = request.TaxCode;
+            company.TaxCodePlace = request.TaxCodePlace;
             company.PublishDate = request.PublishDate;
             _context.Companies.Update(company);
 
@@ -134,6 +135,7 @@ namespace Web.Api.Repositories
                     LanguageCode = languageCode,
                     Type = e.Type,
                     TaxCode = e.TaxCode,
+                    TaxCodePlace = e.TaxCodePlace,
                     PublishDate = e.PublishDate,
                     Logo = e.Image,
                     WebIcon = e.WebConfig.WebIcon,
@@ -200,6 +202,7 @@ namespace Web.Api.Repositories
                     Type = o.Company.Type,
                     CreateDate = o.Company.CreateDate,
                     TaxCode = o.Company.TaxCode,
+                    TaxCodePlace = o.Company.TaxCodePlace,
                     FullName = o.Detail.FullName,
                     Phone = o.Address.Phone,
                     TemplateName = o.WebConfig.TemplateName,

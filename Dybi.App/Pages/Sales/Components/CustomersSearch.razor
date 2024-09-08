@@ -1,0 +1,33 @@
+﻿@using Dybi.App.Services;
+@using Web.Models;
+@using System.IO;
+@using Web.Models.Enums;
+@using Web.Models.SeedWork;
+
+@inject IOrderApiClient OrderApiClient;
+
+<div class="form-group">
+    <div class="input-group input-group-xs mb-3">
+        <span class="input-group-text">Tên hoặc Số điện thoại khách hàng</span>
+        <input class="form-control" @bind="Model.Key" @bind:event="oninput" @onkeyup="TextChange" @onchange="TextChange" />
+        <button class="btn btn-outline-secondary" type="button" @onclick="Search">Tìm</button>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public EventCallback<CustomerSearch> OnSearch { set; get; }
+
+    private CustomerSearch Model = new CustomerSearch();
+
+    private async Task TextChange()
+    {
+        if (Model.Key.Length > 3)
+            await OnSearch.InvokeAsync(Model);
+    }
+
+    private async Task Search()
+    {
+        await OnSearch.InvokeAsync(Model);
+    }
+}

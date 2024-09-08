@@ -14,11 +14,12 @@ namespace Web.Models
         public string? CustomerAddress { get; set; }
 
         public string? Note { get; set; }
+        public bool IsDelivery { get; set; }
 
-        public OrderDeliveryRequest? Delivery { get; set; }
+        public OrderDeliveryRequest Delivery { get; set; }
         public OrderDebtDto? Debt { get; set; }
         public List<OrderProductDto> Products { get; set; }
         
-        public Dictionary<string, string>? Attributes { get; set; }
+        public List<AttributeSetupDto>? Attributes { get; set; }
     }
 }

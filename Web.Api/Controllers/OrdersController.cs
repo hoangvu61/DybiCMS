@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using System.Net;
 using Web.Api.Entities;
 using Web.Api.Extensions;
@@ -38,9 +39,9 @@ namespace Web.Api.Controllers
             var orderDtos = orders.Items.Select(o => new OrderDto()
             {
                 Id = o.Id,
-                CustomerName = o.Customer.CustomerName,
-                CustomerPhone = o.Customer.CustomerPhone,
-                CustomerAddress = o.Customer.CustomerAddress,
+                CustomerName = o.CustomerName,
+                CustomerPhone = o.CustomerPhone,
+                CustomerAddress = o.CustomerAddress,
                 CountProducts = o.Products.Count,
                 TotalPrice = o.Products.Sum(p => p.Price),
                 Date = o.CreateDate
@@ -62,9 +63,9 @@ namespace Web.Api.Controllers
             var orderDtos = orders.Items.Select(o => new OrderDto()
             {
                 Id = o.Id,
-                CustomerName = o.Customer.CustomerName,
-                CustomerPhone = o.Customer.CustomerPhone,
-                CustomerAddress = o.Customer.CustomerAddress,
+                CustomerName = o.CustomerName,
+                CustomerPhone = o.CustomerPhone,
+                CustomerAddress = o.CustomerAddress,
                 CountProducts = o.Products.Count,
                 TotalPrice = o.Products.Sum(p => p.Price),
                 Date = o.ConfirmDate.Value
@@ -86,9 +87,9 @@ namespace Web.Api.Controllers
             var orderDtos = orders.Items.Select(o => new OrderDto()
             {
                 Id = o.Id,
-                CustomerName = o.Customer.CustomerName,
-                CustomerPhone = o.Customer.CustomerPhone,
-                CustomerAddress = o.Customer.CustomerAddress,
+                CustomerName = o.CustomerName,
+                CustomerPhone = o.CustomerPhone,
+                CustomerAddress = o.CustomerAddress,
                 CountProducts = o.Products.Count,
                 TotalPrice = o.Products.Sum(p => p.Price),
                 Date = o.SendDate.Value
@@ -110,9 +111,9 @@ namespace Web.Api.Controllers
             var orderDtos = orders.Items.Select(o => new OrderDto()
             {
                 Id = o.Id,
-                CustomerName = o.Customer.CustomerName,
-                CustomerPhone = o.Customer.CustomerPhone,
-                CustomerAddress = o.Customer.CustomerAddress,
+                CustomerName = o.CustomerName,
+                CustomerPhone = o.CustomerPhone,
+                CustomerAddress = o.CustomerAddress,
                 CountProducts = o.Products.Count,
                 TotalPrice = o.Products.Sum(p => p.Price),
                 Date = o.ReceiveDate.Value
@@ -134,9 +135,9 @@ namespace Web.Api.Controllers
             var orderDtos = orders.Items.Select(o => new OrderDto()
             {
                 Id = o.Id,
-                CustomerName = o.Customer.CustomerName,
-                CustomerPhone = o.Customer.CustomerPhone,
-                CustomerAddress = o.Customer.CustomerAddress,
+                CustomerName = o.CustomerName,
+                CustomerPhone = o.CustomerPhone,
+                CustomerAddress = o.CustomerAddress,
                 CountProducts = o.Products.Count,
                 TotalPrice = o.Products.Sum(p => p.Price),
                 Date = o.CancelDate.Value
@@ -159,9 +160,9 @@ namespace Web.Api.Controllers
             {
                 Id = order.Id,
                 CustomerId = order.CustomerId,
-                CustomerName = order.Customer.CustomerName,
-                CustomerPhone = order.Customer.CustomerPhone,
-                CustomerAddress = order.Customer.CustomerAddress,
+                CustomerName = order.CustomerName,
+                CustomerPhone = order.CustomerPhone,
+                CustomerAddress = order.CustomerAddress,
                 CreateDate = order.CreateDate,
                 ConfirmDate = order.ConfirmDate,
                 CancelDate = order.CancelDate,
@@ -183,19 +184,33 @@ namespace Web.Api.Controllers
             if (user == null) return Unauthorized();
 
             if (request.Products == null || request.Products.Count == 0) return ValidationProblem("Không có sản phẩm");
-            if (request.CustomerId == Guid.Empty) return ValidationProblem("Không có khách hàng");
+            if (string.IsNullOrEmpty(request.CustomerPhone) && string.IsNullOrEmpty(request.CustomerName)) return ValidationProblem("Không có khách hàng");
 
             var order = new Order
             {
                 CompanyId = user.CompanyId,
                 CreateDate = DateTime.Now,
                 Note = request.Note,
-                CustomerId = request.CustomerId,
                 CustomerName = request.CustomerName,
                 CustomerPhone = request.CustomerPhone,
                 CustomerAddress= request.CustomerAddress,
                 Products = new List<OrderProduct>()
             };
+
+            if (!request.IsDelivery) order.ConfirmDate = order.SendDate = order.ReceiveDate = DateTime.Now;
+
+            if (request.CustomerId != Guid.Empty) order.CustomerId = request.CustomerId;
+            else
+            {
+                order.Customer = new Customer
+                {
+                    Id = Guid.NewGuid(),
+                    CompanyId = user.CompanyId,
+                    CustomerName = request.CustomerName,
+                    CustomerPhone = request.CustomerPhone,
+                    CustomerAddress = request.CustomerAddress,
+                };
+            }
 
             foreach(var product in request.Products)
             {
@@ -215,14 +230,15 @@ namespace Web.Api.Controllers
                 {
                     order.Attributes.Add(new OrderAttribute
                     {
-                        AttributeId = attribute.Key,
+                        CompanyId = user.CompanyId,
+                        AttributeId = attribute.Id,
                         Value = attribute.Value,
                         LanguageCode = "vi",
                     });
                 }
             }
 
-            if (request.Delivery != null)
+            if (request.Delivery != null && (!string.IsNullOrEmpty(request.Delivery.DeliveryCode) || request.Delivery.DeliveryFee > 0))
             {
                 order.Delivery = new OrderDelivery
                 {
@@ -234,7 +250,7 @@ namespace Web.Api.Controllers
                 };
             }
 
-            if (request.Debt != null)
+            if (request.Debt != null && request.Debt.Debit > 0)
             {
                 order.Debt = new OrderDebt
                 {
@@ -243,9 +259,19 @@ namespace Web.Api.Controllers
                 };
             }
 
-            await _orderRepository.CreateOrder(order);
-
-            return Ok();
+            try
+            {
+                var result = await _orderRepository.CreateOrder(order);
+                if (result == 0) return Ok();
+                else
+                {
+                    return ValidationProblem($"[{result}]");
+                }    
+            }
+            catch (Exception ex)
+            {
+                return ValidationProblem($"[-1] {ex.Message}");
+            }
         }
 
         [HttpPut]
@@ -425,6 +451,10 @@ namespace Web.Api.Controllers
             var userId = User.GetUserId();
             var user = await _userManager.FindByIdAsync(userId);
 
+            var order = await _orderRepository.GetOrder(user.CompanyId, id);
+            if (order == null) return NotFound($"{id} không tồn tại");
+            if (order.Products.Count == 1) return NotFound($"Không thể xóa hết tất cả sản phẩm");
+
             var product = await _orderRepository.GetOrderProduct(user.CompanyId, id, productid);
             if (product == null) return NotFound($"{id} không tồn tại");
 
@@ -507,7 +537,7 @@ namespace Web.Api.Controllers
         #endregion
 
         #region customer
-        [HttpPut]//OrderCustomerDto
+        [HttpGet]
         [Route("customers")]
         public async Task<IActionResult> GetCustomers([FromQuery] CustomerSearch search)
         {
@@ -534,6 +564,7 @@ namespace Web.Api.Controllers
                        customers.MetaData.PageSize));
         }
 
+        [HttpPut]
         [Route("customers/{id}")]
         public async Task<IActionResult> UpdateOrderCustomer([FromRoute] Guid id, OrderCustomerDto dto)
         {

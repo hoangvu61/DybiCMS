@@ -22,10 +22,13 @@
             <div class="menu-group-title px-3" @onclick="@(() => Click("BanHang"))">Bán hàng <span class="oi oi-chevron-@(Menu["BanHang"] ? "bottom" : "right")"></span></div>
             <div style="display:@(Menu["BanHang"] ? "block" : "none")">
                 <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="sales/ordercreate">
+                        <span class="oi oi-plus" aria-hidden="true"></span> Tạo đơn hàng
+                    </NavLink>
                     <NavLink class="nav-link" href="sales/orders">
                         <span class="oi oi-cart" aria-hidden="true"></span> Danh sách đơn hàng
                     </NavLink>
-                    <NavLink class="nav-link" href="sales/orders">
+                    <NavLink class="nav-link" href="sales/customers">
                         <span class="oi oi-people" aria-hidden="true"></span> Khách hàng
                     </NavLink>
                 </div>

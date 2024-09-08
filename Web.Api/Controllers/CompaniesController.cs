@@ -2,14 +2,17 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel.Design;
+using System.Net.Http.Headers;
+using System.Net;
 using Web.Api.Entities;
 using Web.Api.Extensions;
 using Web.Api.Repositories;
 using Web.Models;
 using Web.Models.Enums;
 using Web.Models.SeedWork;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using System.Security.Cryptography;
+using System.Text;
+using Library;
 
 namespace Web.Api.Controllers
 {
@@ -556,6 +559,178 @@ namespace Web.Api.Controllers
                 Phone = obj.Phone,
                 Email = obj.Email
             });
+        }
+        #endregion
+
+        #region tra cuu mst
+        [AllowAnonymous]
+        [HttpGet]
+        [Route("taxes/{taxcode}")]
+        public async Task<IActionResult> GetCompanyByTax(string taxcode)
+        {
+            var map = CreatePasswordDigrest("m0nkey62", "290893326");
+
+            var url = "https://esb.gdt.gov.vn:443/t2b/gip_prod/request";
+            HttpClient client = new HttpClient();
+            client.BaseAddress = new Uri(url);
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/xml"));
+            var body = @"<soapenv:Envelope xmlns:gip=""http://gip.request.com/"" xmlns:soapenv=""http://schemas.xmlsoap.org/soap/envelope/"">
+            " + @"<soapenv:Header>
+            " + @" <wsse:Security soapenv:mustUnderstand=""1"" xmlns:wsse=""http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"" xmlns:wsu=""http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"">
+            " + @" <wsse:UsernameToken wsu:Id=""UsernameToken-218B1070E7DEF4C28216430981626917"">
+            " + @" <wsse:Username>" + map["strUsername"] + @"</wsse:Username>
+            " + @"				<wsse:Password Type=""http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordDigest"">" + map["strPassword"] + @"</wsse:Password>
+            " + @"				<wsse:Nonce EncodingType=""http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary"">" + map["strNonce"] + @"</wsse:Nonce>
+            " + @"				<wsu:Created>" + map["strCreated"] + @"</wsu:Created>
+            " + @"			</wsse:UsernameToken>
+            " + @"		</wsse:Security>
+            " + @"	</soapenv:Header>
+            " + @"	<soapenv:Body>
+            " + @"		<gip:xuLyTruyVanMsg>
+            " + @"			<in_msg><![CDATA[<DATA>
+            " + @"	<HEADER>
+            " + @"		<VERSION>1.0</VERSION>
+            " + @"		<SENDER_CODE>" + map["strUsername"] + @"</SENDER_CODE>
+            " + @"		<SENDER_NAME>" + map["strUsername"] + @"</SENDER_NAME>
+            " + @"		<RECEIVER_CODE>GIP</RECEIVER_CODE>
+            " + @"		<RECEIVER_NAME>Hệ Thống GIP</RECEIVER_NAME>
+            " + @"		<TRAN_CODE>" + RandomNumber(5) + @"</TRAN_CODE>
+            " + @"		<MSG_ID>" + RandomNumber(22) + @"</MSG_ID>
+            " + @"		<MSG_REFID/>
+            " + @"		<ID_LINK/>
+            " + @"		<SEND_DATE>" + DateTime.Now.ToString("dd-MM-yyyy HH:mm:ss") + @"</SEND_DATE>
+            " + @"		<ORIGINAL_CODE/>
+            " + @"		<ORIGINAL_NAME/>
+            " + @"		<ORIGINAL_DATE/>
+            " + @"		<ERROR_CODE/>
+            " + @"		<ERROR_DESC/>
+            " + @"		<SPARE1/>
+            " + @"		<SPARE2/>
+            " + @"		<SPARE3/>
+            " + @"	</HEADER>
+            " + @"	<BODY>
+            " + @"		<ROW>
+            " + @"			<TRUYVAN>
+            " + @"				<MST>" + taxcode + @"</MST>
+            " + @"			</TRUYVAN>
+            " + @"			<TYPE>00003</TYPE>
+            " + @"			<NAME>Truy vấn theo MST</NAME>
+            " + @"		</ROW>
+            " + @"	</BODY>
+            " + @"	<SECURITY/>
+            " + @"</DATA>]]></in_msg>
+            " + @"		</gip:xuLyTruyVanMsg>
+            " + @"	</soapenv:Body>
+            " + @"</soapenv:Envelope>";
+
+            var content = new StringContent(body);
+            var responseMessage = client.PostAsync(url, content).Result;
+            if (responseMessage.StatusCode == HttpStatusCode.OK)
+            {
+                var responseContent = responseMessage.Content;
+                var readStream = responseContent.ReadAsStreamAsync().Result;
+                var streamReader = new StreamReader(readStream);
+                var result = streamReader.ReadToEnd();
+                var xmlResult = new XMLHelper(result);
+                var data = xmlResult.GetValue("return");
+                var xmlData = new XMLHelper(data);
+
+
+                var nnt = new NNTModel();
+                nnt.TRANG_THAI = xmlData.GetValue("TRANG_THAI");
+                nnt.MST = xmlData.GetValue("MST");
+                nnt.TEN_NNT = xmlData.GetValue("TEN_NNT");
+                nnt.LOAI_NNT = xmlData.GetValue("LOAI_NNT");
+                nnt.NGAYCAP_MST = xmlData.GetValue("NGAYCAP_MST");
+                nnt.SO = xmlData.GetValue("SO");
+                nnt.CQT_QL = xmlData.GetValue("CQT_QL");
+                nnt.CAP_CHUONG = xmlData.GetValue("CAP_CHUONG");
+                nnt.CHUONG = xmlData.GetValue("CHUONG");
+                nnt.CHAN_DATE = xmlData.GetValue("CHAN_DATE");
+                nnt.MOTA_DIACHI = xmlData.GetValue("MOTA_DIACHI");
+                nnt.MA_TINH = xmlData.GetValue("MA_TINH");
+                nnt.MA_HUYEN = xmlData.GetValue("MA_HUYEN");
+
+                nnt.Loai = DataSource.LoaiNNTs[nnt.LOAI_NNT];
+                nnt.TrangThai = DataSource.TrangThaiNNTs[nnt.TRANG_THAI];
+
+                //var districts = provinceBLL.GetAllDistrict().ToList().Select(e =>
+                //{
+                //    e.TEN = e.TEN.Replace("Chi cục thuế ", "")
+                //                                .Replace("Chi cục Thuế ", "")
+                //                                .Replace("Cục thuế ", "").Trim();
+                //    return e;
+                //}).ToList();
+
+                //if (!string.IsNullOrEmpty(nnt.MOTA_DIACHI)) nnt.MOTA_DIACHI = nnt.MOTA_DIACHI.Replace(" (hết hiệu lực)", "");
+                //if (nnt.MA_TINH == "79TTT" && nnt.MA_HUYEN == null) nnt.MA_HUYEN = "762HH";
+
+                //nnt.Tinh = districts.Where(e => e.MA_DBHC_KB == nnt.MA_TINH).Select(e => e.TEN).FirstOrDefault();
+                //nnt.Huyen = districts.Where(e => e.MA_DBHC_KB == nnt.MA_HUYEN).Select(e => e.TEN).FirstOrDefault();
+                //nnt.DiaChi = nnt.MOTA_DIACHI + ", " + nnt.Huyen + ", " + nnt.Tinh;
+                //nnt.DiaChi = nnt.DiaChi.Replace(" ,", ",");
+                return Ok(nnt);
+            }
+            return NoContent();
+        }
+
+        private Dictionary<string, string> CreatePasswordDigrest(string username, string password)
+        {
+            var mapInfo = new Dictionary<string, string>();
+            // From the spec: Password_Digest = Base64(SHA-1(nonce + created + password))
+            try
+            {
+                var nonceBytes = new byte[16];
+                var rng = new RNGCryptoServiceProvider();
+                rng.GetBytes(nonceBytes);
+
+                // Make the created date
+                string createdDate = DateTime.Now.ToString("yyyy-MM-dd'T'HH:mm:ss.fff'Z'");
+                var createdDateBytes = Encoding.ASCII.GetBytes(createdDate);
+
+                // Make the password
+                var passwordBytes = Encoding.ASCII.GetBytes(password);
+
+                // SHA-1 hash the bunch of it.
+                byte[] digestedPassword;
+                using (var stream = new MemoryStream())
+                {
+                    using (var writer = new BinaryWriter(stream))
+                    {
+                        writer.Write(nonceBytes);
+                        writer.Write(createdDateBytes);
+                        writer.Write(passwordBytes);
+                    }
+
+                    SHA1 sha1 = SHA1Managed.Create();
+                    digestedPassword = sha1.ComputeHash(stream.ToArray());
+                }
+
+                // Encode the password and nonce for sending
+                string passwordB64 = Convert.ToBase64String(digestedPassword);
+                string nonceB64 = Convert.ToBase64String(nonceBytes);
+
+                // ----------return------------
+                mapInfo.Add("strUsername", username);
+                mapInfo.Add("strPassword", passwordB64);
+                mapInfo.Add("strNonce", nonceB64);
+                mapInfo.Add("strCreated", createdDate);
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
+
+            return mapInfo;
+        }
+
+        private string RandomNumber(int size)
+        {
+            Random random = new Random();
+            StringBuilder s = new StringBuilder();
+            for (int i = 0; i < size; i++)
+                s.Append(random.Next(10).ToString());
+            return s.ToString();
         }
         #endregion
     }

@@ -28,7 +28,7 @@
                     {
                         <div class="input-group input-group-xs mb-2">
                             <span class="input-group-text">@att.Title</span>
-                            <input type="number" class="form-control form-control-sm" value="@att.Value" @onchange="@(e => att.Value = e.Value.ToString())"></input>
+                            <input type="number" class="form-control" value="@att.Value" @onchange="@(e => att.Value = e.Value.ToString())"></input>
                             <button class="btn btn-secondary" type="button" @onclick="() => Onchange(att)">Lưu</button>
                         </div>
                     }

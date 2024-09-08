@@ -45,7 +45,7 @@
                                 <div class="input-group-prepend"> 
                                     <span class="input-group-text">Loại hình:</span>
                                 </div>
-                                    <InputSelect class="form-control form-control-sm" @bind-Value="@ModelRequest.Type">
+                                    <InputSelect class="form-select" @bind-Value="@ModelRequest.Type">
                                     @foreach (var type in DataSource.CompanyTypes)
                                     {
                                         <option value="@type.Id">@type.Name (@type.ParentId.@type.Id)</option>
@@ -53,78 +53,87 @@
                                 </InputSelect>
                                 <ValidationMessage For="()=>ModelRequest.Type"></ValidationMessage>
                             </div>
-                                <div class="form-group input-group input-group-sm">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text">Mã số doanh nghiệp</span>
+                                <div class="form-group">
+                                    <div class="input-group input-group-sm">
+                                        <label class="input-group-text">Mã số doanh nghiệp</label>
+                                        <InputText @bind-Value="ModelRequest.TaxCode" class="form-control"></InputText>
+                                        <label class="input-group-text">Cấp bởi</label>
+                                        <InputText @bind-Value="ModelRequest.TaxCodePlace" class="form-control"></InputText>
+                                        <label class="input-group-text">Ngày cấp</label>
+                                        <InputDate @bind-Value="ModelRequest.PublishDate" class="form-control"></InputDate>
                                     </div>
-                                    <InputText @bind-Value="ModelRequest.TaxCode" class="form-control form-control-sm"></InputText>
                                     <ValidationMessage For="()=> ModelRequest.TaxCode"></ValidationMessage>
+                                    <ValidationMessage For="()=> ModelRequest.TaxCodePlace"></ValidationMessage>
+                                    <ValidationMessage For="()=> ModelRequest.PublishDate"></ValidationMessage>
                                 </div>
-                                <div class="form-group input-group input-group-sm">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text">Ngày thành lập</span>
-                                        </div>
-                                    <InputDate @bind-Value="ModelRequest.PublishDate" class="form-control form-control-sm"></InputDate>
-                                        <ValidationMessage For="()=> ModelRequest.PublishDate"></ValidationMessage>
-                                    </div>
-                                <div class="form-group input-group input-group-sm">
-                                    <div class="input-group-prepend">
+                                <div class="form-group">
+                                    <div class="input-group input-group-sm">
                                         <span class="input-group-text">Tên đầy đủ</span>
+                                        <InputText @bind-Value="ModelRequest.FullName" class="form-control"></InputText>
                                     </div>
-                                    <InputText @bind-Value="ModelRequest.FullName" class="form-control form-control-sm"></InputText>
                                     <ValidationMessage For="()=> ModelRequest.FullName"></ValidationMessage>
                                 </div>
-                                <div class="form-group input-group input-group-sm">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text">Biệt danh</span>
-                                        </div>
-                                    <InputText @bind-Value="ModelRequest.NickName" class="form-control form-control-sm"></InputText>
-                                        <ValidationMessage For="()=> ModelRequest.NickName"></ValidationMessage>
+                                <div class="form-group">
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text">Biệt danh</span>
+                                        <InputText @bind-Value="ModelRequest.NickName" class="form-control"></InputText>
                                     </div>
-                                <div class="form-group input-group input-group-sm">
-                                    <div class="input-group-prepend">
+                                    <ValidationMessage For="()=> ModelRequest.NickName"></ValidationMessage>
+                                </div>
+                                <div class="form-group">
+                                    <div class="input-group input-group-sm">
                                         <span class="input-group-text">Tên hiển thị</span>
+                                        <InputText @bind-Value="ModelRequest.DisplayName" class="form-control"></InputText>
                                     </div>
-                                    <InputText @bind-Value="ModelRequest.DisplayName" class="form-control form-control-sm"></InputText>
                                     <ValidationMessage For="()=> ModelRequest.DisplayName"></ValidationMessage>
                                 </div>
-                                <div class="form-group input-group input-group-sm">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text">Ngành nghề</span>
-                                        </div>
-                                    <InputText @bind-Value="ModelRequest.JobTitle" class="form-control form-control-sm"></InputText>
-                                        <ValidationMessage For="()=> ModelRequest.JobTitle"></ValidationMessage>
+                                <div class="form-group">
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text">Ngành nghề</span>
+                                        <InputText @bind-Value="ModelRequest.JobTitle" class="form-control"></InputText>
                                     </div>
-                                <div class="form-group input-group input-group-sm">
-                                    <div class="input-group-prepend">
+                                    <ValidationMessage For="()=> ModelRequest.JobTitle"></ValidationMessage>
+                                </div>
+                                <div class="form-group">
+                                    <div class="input-group input-group-sm">
                                         <span class="input-group-text">Slogan</span>
+                                        <InputText @bind-Value="ModelRequest.Slogan" class="form-control"></InputText>
                                     </div>
-                                    <InputText @bind-Value="ModelRequest.Slogan" class="form-control form-control-sm"></InputText>
                                     <ValidationMessage For="()=> ModelRequest.Slogan"></ValidationMessage>
                                 </div>
                                 <div class="form-group">
-                                    <label>Tầm nhìn:</label>
-                                    <InputTextArea @bind-Value="ModelRequest.Vision" class="form-control form-control-sm"></InputTextArea>
-                                        <ValidationMessage For="()=> ModelRequest.Vision"></ValidationMessage>
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text">Tầm nhìn</span>
+                                        <InputTextArea @bind-Value="ModelRequest.Vision" class="form-control"></InputTextArea>
+                                    </div>
+                                    <ValidationMessage For="()=> ModelRequest.Vision"></ValidationMessage>
                                 </div>
                                 <div class="form-group">
-                                    <label>Sứ mệnh:</label>
-                                    <InputTextArea @bind-Value="ModelRequest.Mission" class="form-control form-control-sm"></InputTextArea>
-                                        <ValidationMessage For="()=> ModelRequest.Mission"></ValidationMessage>
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text">Sứ mệnh</span>
+                                        <InputTextArea @bind-Value="ModelRequest.Mission" class="form-control"></InputTextArea>
+                                    </div>
+                                    <ValidationMessage For="()=> ModelRequest.Mission"></ValidationMessage>
                                 </div>
                                 <div class="form-group">
-                                    <label>Giá trị cốt lõi:</label>
-                                    <InputTextArea @bind-Value="ModelRequest.CoreValues" class="form-control form-control-sm"></InputTextArea>
-                                        <ValidationMessage For="()=> ModelRequest.CoreValues"></ValidationMessage>
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text">Giá trị cốt lõi</span>
+                                        <InputTextArea @bind-Value="ModelRequest.CoreValues" class="form-control"></InputTextArea>
+                                    </div>
+                                    <ValidationMessage For="()=> ModelRequest.CoreValues"></ValidationMessage>
                                 </div>
                                 <div class="form-group">
-                                    <label>Phương châm:</label>
-                                    <InputTextArea @bind-Value="ModelRequest.Motto" class="form-control form-control-sm"></InputTextArea>
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text">Phương châm</span>
+                                        <InputTextArea @bind-Value="ModelRequest.Motto" class="form-control"></InputTextArea>
+                                    </div>
                                     <ValidationMessage For="()=> ModelRequest.Motto"></ValidationMessage>
                                 </div>
                                 <div class="form-group">
-                                    <label>Mô tả ngắn:</label>
-                                    <InputTextArea @bind-Value="ModelRequest.Brief" class="form-control form-control-sm"></InputTextArea>
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text">Mô tả ngắn</span>
+                                        <InputTextArea @bind-Value="ModelRequest.Brief" class="form-control"></InputTextArea>
+                                    </div>
                                     <ValidationMessage For="()=> ModelRequest.Brief"></ValidationMessage>
                                 </div>
                                 <div class="form-group">
@@ -185,7 +194,7 @@
                     @if (Model.Id != Guid.Empty)
                     {
                         <WebConfigImage CompanyId="@Model.Id" WebIconName="@Model.WebIcon" LogoName="@Model.Logo" ImageName="@Model.Image"></WebConfigImage>
-                            <WebBackground CompanyId="@Model.Id" Header="@Model.Header" FontColor="@Model.FontColor" FontSize="@Model.FontSize" Background="@Model.Background"></WebBackground>
+                        <WebBackground CompanyId="@Model.Id" Header="@Model.Header" FontColor="@Model.FontColor" FontSize="@Model.FontSize" Background="@Model.Background"></WebBackground>
                         <Webconfig CanRightClick="@Model.CanRightClick" CanSelectCopy="@Model.CanSelectCopy" Hierarchy="@Model.Hierarchy"></Webconfig>
                     }
                 
@@ -230,6 +239,7 @@
                 LanguageCode = Model.LanguageCode,
                 Slogan = Model.Slogan,
                 TaxCode = Model.TaxCode,
+                TaxCodePlace = Model.TaxCodePlace,
                 PublishDate = Model.PublishDate,
                 NickName = Model.NickName,
                 Vision = Model.Vision,
@@ -255,6 +265,7 @@
                 LanguageCode = Model.LanguageCode,
                 Slogan = Model.Slogan,
                 TaxCode = Model.TaxCode,
+                TaxCodePlace = Model.TaxCodePlace,
                 PublishDate = Model.PublishDate,
                 NickName = Model.NickName,
                 Vision = Model.Vision,

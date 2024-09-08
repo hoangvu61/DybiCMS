@@ -25,6 +25,10 @@ namespace Web.Api.Entities
         [Column(TypeName = "VARCHAR")]
         public string? TaxCode { get; set; }
 
+        [MaxLength(200)]
+        [AllowNull]
+        public string? TaxCodePlace { get; set; }
+
         [Required]
         public DateTime CreateDate { get; set; }
 

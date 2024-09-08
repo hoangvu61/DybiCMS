@@ -25,7 +25,7 @@ else
 {
     <h1 class="m-0">@Model.Title</h1>
 
-    <section class="content">
+    <section class="product-section content">
         <SEOItem @ref="SEOItemControl" LanguageCode="@Model.LanguageCode" ItemId="@Model.Id"></SEOItem>
 
         <EditForm Model="Model" OnValidSubmit="HandleSubmit">
@@ -135,17 +135,18 @@ else
                                     }
                                     <div class="input-group input-group-xs" style="margin:0 !important">
                                         <span class="input-group-text">Thêm Tag:</span>
-                                        <input class="form-control" list="tags" value="@Tag" @onchange="@(e => Tag = e.Value.ToString())" />
-                                        @if (Tags != null)
+                                        <input class="form-control" value="@Tag" @onchange="OnTagChange" />
+                                        @if (FilterTags != null && FilterTags.Any())
                                         {
-                                            <datalist id="tags">
-                                                @foreach (var tag in Tags)
+                                            <ul class="auto-list-group">
+                                                @foreach (var tag in FilterTags)
                                                 {
-                                                    <option value="@tag"></option>
+                                                    <li class="auto-list-group-item" @onclick="() => SelectTag(tag)">
+                                                        @tag
+                                                    </li>
                                                 }
-                                            </datalist>
+                                            </ul>
                                         }
-                                        <button class="btn btn-outline-secondary" type="button" @onclick="() =>{ if(!Model.Tags.Contains(Tag)) Model.Tags.Add(Tag); Tag = string.Empty; }">+</button>
                                     </div>
                                 </div>
                             </div>
@@ -232,6 +233,7 @@ else
     private ProductDetailDto Model { get; set; }
     private List<WarehouseCategoryDto> Categories { set; get; }
     private List<string> Tags { set; get; } 
+    private List<string> FilterTags { set; get; }
 
     private HTMLEdit EditHTML { get; set; }
     private ImageSelector ImageManagerControl { get; set; }
@@ -288,6 +290,23 @@ else
             await ProductAttributeListControl.Load();
         }
         else ToastService.ShowError("Thay đổi danh mục không thành công");
+    }
+
+    private async Task OnTagChange(ChangeEventArgs e)
+    {
+        var key = e.Value?.ToString();
+
+        // Simulate search (fetch from API or filter local data)
+        if (key.Length > 1)
+        {
+            FilterTags = Tags.Where(e => e.ToLower().Contains(key.ToLower())).ToList();
+        }
+    }
+
+    private void SelectTag(string tag)
+    {
+        Model.Tags.Add(tag);
+        FilterTags.Clear();
     }
 
     protected async Task ShowHTMLClick()

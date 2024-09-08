@@ -71,6 +71,12 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Content Update="Pages\Sales\Customers.razor">
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      </Content>
+      <Content Update="Pages\Sales\OrderCreate.razor">
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      </Content>
       <Content Update="Pages\Index.razor">
         <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       </Content>

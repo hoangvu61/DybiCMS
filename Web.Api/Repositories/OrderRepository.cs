@@ -127,6 +127,9 @@ namespace Web.Api.Repositories
             var products = await _context.OrderProducts.Where(e => e.OrderId == order.Id).ToArrayAsync();
             _context.OrderProducts.RemoveRange(products);
 
+            var attributes = await _context.OrderAttributes.Where(e => e.OrderId == order.Id).ToArrayAsync();
+            _context.OrderAttributes.RemoveRange(attributes);
+
             _context.Orders.Remove(order);
             await _context.SaveChangesAsync();
             return true;

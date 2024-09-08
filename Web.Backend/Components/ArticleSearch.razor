@@ -6,32 +6,28 @@
 
 @inject IContentApiClient ContentApiClient;
 
-        <div class="row">
-            <div class="col">
-            <InputText class="form-control form-control-sm" @bind-Value="Model.Title" placeholder="Tìm tiêu đề"></InputText>
-            </div>
-
-            <div class="col">
-            <InputSelect class="form-control form-control-sm" @bind-Value="Model.CategoryId">
-                <option value="@Guid.Empty">Chọn danh mục</option>
-                @if (Categories != null)
+<div class="form-group">
+    <div class="input-group input-group-sm mb-3">
+        <span class="input-group-text">Tìm tiêu đề</span>
+        <input class="form-control" @bind="Model.Title" @bind:event="oninput" @onkeyup="TextChange" @onchange="TextChange" />
+        <span class="input-group-text">Danh mục</span>
+        <InputSelect class="form-control" ValueExpression="@(()=>Model.CategoryId)"
+                     Value="@Model.CategoryId"
+                     ValueChanged="@((Guid? value) => CategoryChange(value))">
+            <option value="@Guid.Empty">Chọn danh mục</option>
+            @if (Categories != null)
+            {
+                @foreach (var item in Categories)
                 {
-                    @foreach (var item in Categories)
-                    {
-                    <option value="@item.Id">@item.Type @item.Titles.FirstOrDefault(e => e.Key == "vi").Value</option>
-                    }
+                <option value="@item.Id">@item.Type @item.Titles.FirstOrDefault(e => e.Key == "vi").Value</option>
                 }
-            </InputSelect>
-            </div>
-
-            <div class="col">
-            <InputText class="form-control form-control-sm" @bind-Value="Model.Tag" placeholder="Tìm tag"></InputText>
-            </div>
-
-            <div class="col button-top">
-        <button type="button" class="btn btn-primary btn-sm" @onclick="SearchForm">Tìm</button>
-            </div>
-        </div>
+            }
+        </InputSelect>
+        <span class="input-group-text">Tag</span>
+        <InputText class="form-control" @bind-Value="Model.Tag" placeholder="Tìm tag"></InputText>
+        <button type="button" class="btn btn-primary" @onclick="SearchForm">Tìm</button>
+    </div>
+</div>
 
 @code {
     [Parameter]
@@ -45,6 +41,18 @@
     {
         var categories = await ContentApiClient.GetCategories("ART");
         Categories = SortTable(categories, null, "", "---");
+    }
+
+    private async Task TextChange()
+    {
+        if (Model.Title != null && Model.Title.Length > 3)
+            await OnSearch.InvokeAsync(Model);
+    }
+
+    private async Task CategoryChange(Guid? value)
+    {
+        Model.CategoryId = value;
+        await OnSearch.InvokeAsync(Model);
     }
 
     private async Task SearchForm()

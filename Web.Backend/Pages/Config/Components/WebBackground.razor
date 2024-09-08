@@ -10,54 +10,60 @@
 
 @if(Model != null)
 {
-<div class="card card-outline card-info">
-    <EditForm Model="Model" OnValidSubmit="HandleSubmit">
-        <DataAnnotationsValidator></DataAnnotationsValidator>
-        <div class="card-body">
-            <div class="form-group">
-                <label>Header:</label>
-                <InputTextArea @bind-Value="Model.Header" class="form-control form-control-sm"></InputTextArea>
-                <ValidationMessage For="()=> Model.Header"></ValidationMessage>
-            </div>
-            <div class="form-group">
-                <label>Cỡ chữ:</label>
-                <InputNumber @bind-Value="Model.FontSize" class="form-control form-control-sm"></InputNumber>
-                    <ValidationMessage For="()=> Model.FontSize"></ValidationMessage>
-            </div>
-            <div class="form-group">
-                <label>Màu chữ:</label>
-                <InputText type="color" @bind-Value="Model.FontColor" class="form-control form-control-sm"></InputText>
-                <ValidationMessage For="()=> Model.FontColor"></ValidationMessage>
-            </div>
-            <div class="from-group">
-                    <label>Nền:</label>
-                    <div class="form-check form-check-inline">
-                        <input name="background" type="radio" class="form-check-input" @onchange="@(() => {BackgroundType = 0;})" checked="@(BackgroundType == 0)" /> Không nền &nbsp;
-                        <input name="background" type="radio" class="form-check-input" @onchange="@(() => {BackgroundType = 1;})" checked="@(BackgroundType == 1)" /> Màu &nbsp;
-                        <input name="background" type="radio" class="form-check-input" @onchange="@(() => {BackgroundType = 2;})" checked="@(BackgroundType == 2)" /> Hình &nbsp;
+    <div class="card card-outline card-info">
+        <EditForm Model="Model" OnValidSubmit="HandleSubmit">
+            <DataAnnotationsValidator></DataAnnotationsValidator>
+            <div class="card-body">
+                <div class="form-group">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text">Header</span>
+                        <InputTextArea @bind-Value="Model.Header" class="form-control"></InputTextArea>
                     </div>
-            </div>
-            <div class="from-group">
-                @if (BackgroundType == 1)
-                {
-                    <InputText type="color" @bind-Value="Model.Background" class="form-control"></InputText>
-                    <ValidationMessage For="()=> Model.Background"></ValidationMessage>
-                }
-                else if (BackgroundType == 2)
-                {
-                    <InputFile type="file" OnChange="OnInputFileChange" accept="image/png, image/jpeg, image/gif"></InputFile>
-                    @if (!string.IsNullOrEmpty(BackgroundFile.FileName))
+                    <ValidationMessage For="()=> Model.Header"></ValidationMessage>
+                </div>
+                <div class="form-group">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text">Cỡ chữ</span>
+                        <InputNumber @bind-Value="Model.FontSize" class="form-control"></InputNumber>
+                    </div>
+                    <ValidationMessage For="()=> Model.FontSize"></ValidationMessage>
+                </div>
+                <div class="form-group">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text">Màu chữ</span>
+                        <InputText type="color" @bind-Value="Model.FontColor" class="form-control"></InputText>
+                    </div>
+                    <ValidationMessage For="()=> Model.FontColor"></ValidationMessage>
+                </div>
+                <div class="from-group">
+                        <label>Nền:</label>
+                        <div class="form-check form-check-inline">
+                            <input name="background" type="radio" class="form-check-input" @onchange="@(() => {BackgroundType = 0;})" checked="@(BackgroundType == 0)" /> Không nền &nbsp;
+                            <input name="background" type="radio" class="form-check-input" @onchange="@(() => {BackgroundType = 1;})" checked="@(BackgroundType == 1)" /> Màu &nbsp;
+                            <input name="background" type="radio" class="form-check-input" @onchange="@(() => {BackgroundType = 2;})" checked="@(BackgroundType == 2)" /> Hình &nbsp;
+                        </div>
+                </div>
+                <div class="from-group">
+                    @if (BackgroundType == 1)
                     {
-                        <img src="@(BackendApiUrl + "/" + BackgroundFile.FullPath + "?DummyId=" + DateTime.Now.Ticks)" asp-append-version="true" width="100%" />
+                        <InputText type="color" @bind-Value="Model.Background" class="form-control"></InputText>
+                        <ValidationMessage For="()=> Model.Background"></ValidationMessage>
                     }
-                }
+                    else if (BackgroundType == 2)
+                    {
+                        <InputFile type="file" OnChange="OnInputFileChange" accept="image/png, image/jpeg, image/gif"></InputFile>
+                        @if (!string.IsNullOrEmpty(BackgroundFile.FileName))
+                        {
+                            <img src="@(BackendApiUrl + "/" + BackgroundFile.FullPath + "?DummyId=" + DateTime.Now.Ticks)" asp-append-version="true" width="100%" />
+                        }
+                    }
+                </div>
             </div>
-        </div>
-        <div class="card-footer" style="text-align:right">
-            <button type="submit" class="btn btn-success btn-xs">Lưu</button>
-        </div>
-    </EditForm>
-</div>
+            <div class="card-footer" style="text-align:right">
+                <button type="submit" class="btn btn-success btn-xs">Lưu</button>
+            </div>
+        </EditForm>
+    </div>
 }
 
 @code {

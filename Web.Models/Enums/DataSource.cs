@@ -4,6 +4,38 @@ namespace Web.Models.Enums
 {
     public class DataSource
     {
+        public static Dictionary<string, string> TrangThaiNNTs = new Dictionary<string, string>
+        {
+            { "00", "NNT đang hoạt động" },
+            { "01", "NNT ngưng hoạt động và đã hoàn thành thủ tục chấm dứt hiệu lực MST"},
+            { "02", "NNT chuyển cơ quan thuế quản lý"},
+            { "03", "NNT ngưng hoạt động nhưng chưa hoàn thành thủ tục chấm dứt hiệu lực MST"},
+            { "04", "NNT đang hoạt động (chưa đầy đủ thủ tục cấp MST)" },
+            { "05", "NNT tạm ngưng KD có thời hạn" },
+            { "06", "NNT không hoạt động tại địa chỉ đã đăng ký" },
+        };
+
+        public static Dictionary<string, string> LoaiNNTs = new Dictionary<string, string>()
+        {
+            { "0100", "01/ĐK-TCT (TChức, DNghiệp, CTy)" },
+            { "0110", "02/ĐK-TCT (TC, DN, CT TThuộc)"},
+            { "0300", "03/ĐK-TCT (Cá nhân, nhóm cá nhân KD)"},
+            { "0310", "03/ĐK-TCT (Dùng cấp mã 13 số)"},
+            { "0400", "04/ĐK-TCT (Nhà thầu nước ngoài)"},
+            { "0410", "04.1/ĐK-TCT (ĐV nộp hộ thuế NT NN)"},
+            { "0420", "04.2/ĐK-TCT (NT, NTP không nột TT)"},
+            { "0430", "04.3/ĐK-TCT (BĐH DA T.hiện HĐNT)"},
+            { "0440", "04.4/ĐK-TCT (Mã số thuế ủy nhiệm thu)"},
+            { "0450", "04.5/ĐK-TCT (Mã số thuế 13 số của 04.1)"},
+            { "0500", "06/ĐK-TCT (Tổ chức ngoại giao)"},
+            { "0700", "04-ĐK-TCT (KK-Nộp các loại thuế khác)"},
+            { "0900", "05/ĐK-TCT (CN làm công ăn lương)"},
+            { "1000", "01/ĐK-TCT (TK thiếu thông tin cấp 1)"},
+            { "1001", "02/ĐK-TCT (TK thiếu thông tin cấp 2)"},
+            { "9100", "01/ĐKT-DKDN (Tổ chức SX, KDHH, DV)"},
+            { "9110", "02/ĐK-DKDN (Đơn vị trực thuộc)"},
+        };
+
         public static List<CompanyType> CompanyTypes = new List<CompanyType>()
         {
             new CompanyType ("Organization", "Tổ chức", string.Empty),
@@ -110,10 +142,11 @@ namespace Web.Models.Enums
 
         public static Dictionary<int, string> Deliveries = new Dictionary<int, string>()
         {
-            { 0, "Giao hàng tiết kiệm" },
-            { 1, "Viettel Post" },
-            { 2, "Giao hàng nhanh" },
-            { 3, "Chành xe" }
+            { 0, "Tự đi giao khách" },
+            { 1, "Giao hàng tiết kiệm" },
+            { 2, "Viettel Post" },
+            { 3, "Giao hàng nhanh" },
+            { 4, "Chành xe" }
         };
 
         public static Dictionary<int, string> WarehouseTypes = new Dictionary<int, string>()

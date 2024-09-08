@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.WebUtilities;
+using Newtonsoft.Json;
+using System.Net;
 using Web.Models;
 using Web.Models.SeedWork;
 
@@ -99,6 +101,19 @@ namespace Dybi.App.Services
             var result = await _httpClient.DeleteAsync($"/api/orders/{id}");
             return result.IsSuccessStatusCode;
         }
+
+        public async Task<string> CreateOrder(OrderRequest request)
+        {
+            var result = await _httpClient.PostAsJsonAsync($"/api/orders", request);
+            if (!result.IsSuccessStatusCode)
+            {
+                var stringData = await result.Content.ReadAsStringAsync();
+                var resultData = JsonConvert.DeserializeObject<ResponseErrorDto>(stringData);
+                //if (resultData.Detail == null) 
+                return resultData.Detail;
+            }
+            return string.Empty;
+        }
         #endregion
 
         #region product
@@ -126,6 +141,19 @@ namespace Dybi.App.Services
         #endregion
 
         #region customer
+        public async Task<PagedList<CustomerDto>> GetCusomers(CustomerSearch search)
+        {
+            var queryStringParam = new Dictionary<string, string>
+            {
+                ["pageNumber"] = search.PageNumber.ToString(),
+                ["pageSize"] = search.PageSize.ToString()
+            };
+            if (!string.IsNullOrEmpty(search.Key)) queryStringParam["Key"] = WebUtility.UrlEncode(search.Key);
+
+            string url = QueryHelpers.AddQueryString($"/api/orders/customers", queryStringParam);
+            var result = await _httpClient.GetFromJsonAsync<PagedList<CustomerDto>>(url);
+            return result;
+        }
         public async Task<bool> UpdateCustomer(OrderCustomerDto request)
         {
             var result = await _httpClient.PutAsJsonAsync($"/api/orders/customers/{request.Id}", request);

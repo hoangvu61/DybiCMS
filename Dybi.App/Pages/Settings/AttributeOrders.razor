@@ -48,7 +48,7 @@
                                 <td>@DataSource.AttributeTypes[item.Type]</td>
                                 <td>@item.SourceNames?.Where(e => e.Key == "vi").Select(e => e.Value).FirstOrDefault()</td>
                                 <td style="text-align: center;width:100px">
-                                    <div class="input-group input-group-xs mb-3">
+                                    <div class="input-group input-group-xs">
                                         <button class="btn btn-outline-secondary" @onclick="@((e) => {item.Priority--; OrderAtributeOrderChanged(item.Id, item.Priority);})">&lt;</button>
                                         <span class="form-control">@item.Priority</span>
                                         <button class="btn btn-outline-secondary" @onclick="@((e) => {item.Priority++; OrderAtributeOrderChanged(item.Id, item.Priority);})">&gt;</button>

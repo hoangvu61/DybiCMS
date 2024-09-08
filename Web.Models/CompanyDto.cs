@@ -6,6 +6,7 @@ namespace Web.Models
         public Guid Id { get; set; }
         public string Type { get; set; }
         public string TaxCode { get; set; }
+        public string TaxCodePlace { get; set; }
         public string Domain { get; set; }
         public int DomainCount { get; set; }
         public string Language { get; set; }

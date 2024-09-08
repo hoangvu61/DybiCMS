@@ -36,7 +36,7 @@
             <!-- small box -->
             <div class="small-box bg-danger">
                 <div class="inner">
-                    <h3>@NewOrder</h3>
+                    <h3>@Inventory</h3>
                     <p>Hàng tồn sắp hết</p>
                 </div>
                 <div class="icon">
@@ -48,7 +48,7 @@
         <div class="col">
             <!-- small box -->
             <div class="small-box bg-primary" style="height:100%">
-                <a class="button" href="/">
+                <a class="button" href="sales/ordercreate">
                     <i class="oi oi-plus"></i>
                     <span class="small-box-footer">Tạo đơn hàng</span>
                 </a>
@@ -60,14 +60,15 @@
 
 @code {
     private PagingParameters NewOrderPaging = new PagingParameters();
+    private WarehouseInventorySearch WarehouseInventorySearch = new WarehouseInventorySearch();
 
     protected int NewOrder { get; set; }
+    protected int Inventory { get; set; }
 
     protected SetConfig SetConfigDialog { set; get; }
 
     protected async override Task OnInitializedAsync()
     {
-        NewOrderPaging.PageSize = 0;
         try
         {
             var pagingOrderResponse = await OrderApiClient.GetNewOrders(NewOrderPaging);
@@ -78,6 +79,10 @@
             if (ex.Message != null && ex.Message.Contains("Unauthorized"))
                 NavigationManager.NavigateTo("Logout");
         }
+
+        WarehouseInventorySearch.IsAlertEmpty = true;
+        var inventoryResponse = await WarehouseApiClient.GetInventories(WarehouseInventorySearch);
+        Inventory = inventoryResponse.MetaData.TotalCount;
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {

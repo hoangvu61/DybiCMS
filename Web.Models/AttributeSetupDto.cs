@@ -9,10 +9,10 @@ namespace Web.Models
         public Guid? SourceId { get; set; }
         public string Type { get; set; }
 
-        public string Value { get; set; }
+        public string? Value { get; set; }
         public string Title { get; set; }
 
-        public FileData Image { get; set; }
-        public List<TitleStringDto> Values { get; set; }
+        public FileData? Image { get; set; }
+        public List<TitleStringDto>? Values { get; set; }
     }
 }

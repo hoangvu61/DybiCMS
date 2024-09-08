@@ -141,6 +141,7 @@
     private List<WarehouseSupplierDto> Supplyers { set; get; }
     private List<WarehouseFactoryDto> Factories { set; get; }
     private List<WarehouseDto> Warehouses { set; get; }
+    private List<WarehouseDto> AllWarehouses { set; get; }
 
     protected async override Task OnInitializedAsync()
     {
@@ -150,8 +151,8 @@
         Factories = await WarehouseApiClient.GetFactories();
         Factories = Factories.Where(e => e.IsActive).ToList();
 
-        Warehouses = await WarehouseApiClient.GetWarehouses();
-        Warehouses = Warehouses.Where(e => e.IsActive).ToList();
+        AllWarehouses = await WarehouseApiClient.GetWarehouses();
+        Warehouses = AllWarehouses.Where(e => e.IsActive).ToList();
         if (Warehouses.Count > 0) Model.WarehouseId = Warehouses.First().Id;
     }
 
@@ -197,8 +198,8 @@
     {
         if (isLoad)
         {
-            Warehouses = await WarehouseApiClient.GetWarehouses();
-            Warehouses = Warehouses.Where(e => e.IsActive).ToList();
+            AllWarehouses = await WarehouseApiClient.GetWarehouses();
+            Warehouses = AllWarehouses.Where(e => e.IsActive).ToList();
         }
 
         ShowDialog = true;
@@ -212,17 +213,21 @@
         {
             case 1:
                 // Xuất kho để bán hàng: xuất từ kho hàng hóa (156)
-                Warehouses = Warehouses.Where(e => e.Type == 156).ToList();
+                Warehouses = AllWarehouses.Where(e => e.IsActive && e.Type == 156).ToList();
                 if (Warehouses.Count > 0) Model.WarehouseId = Warehouses[0].Id;
                 break;
             case 2:
                 // Xuất kho để sản xuất: xuất từ nguyên vật liệu (152)
-                Warehouses = Warehouses.Where(e => e.Type == 152).ToList();
+                Warehouses = AllWarehouses.Where(e => e.IsActive && e.Type == 152).ToList();
                 if (Warehouses.Count > 0) Model.WarehouseId = Warehouses[0].Id;
                 break;
             case 4:
                 // Xuất kho để trả lại hàng cho nhà cung cấp: xuất từ kho hàng hóa (156), công cụ, dụng cụ (153) hoặc nguyên vật liệu (152)
-                Warehouses = Warehouses.Where(e => e.Type == 156 || e.Type == 152 || e.Type == 153).ToList();
+                Warehouses = AllWarehouses.Where(e => e.IsActive && (e.Type == 156 || e.Type == 152 || e.Type == 153)).ToList();
+                if (Warehouses.Count > 0) Model.WarehouseId = Warehouses[0].Id;
+                break;
+            default:
+                Warehouses = AllWarehouses.Where(e => e.IsActive).ToList();
                 if (Warehouses.Count > 0) Model.WarehouseId = Warehouses[0].Id;
                 break;
         }
