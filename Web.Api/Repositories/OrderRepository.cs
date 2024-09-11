@@ -313,7 +313,7 @@ namespace Web.Api.Repositories
             return true;
         }
 
-        #region
+        #region Delivery
         public async Task<OrderDelivery> GetOrderDelivery(Guid orderId)
         {
             var result = await _context.OrderDeliveries.FirstOrDefaultAsync(e => e.OrderId == orderId);
@@ -331,12 +331,382 @@ namespace Web.Api.Repositories
             await _context.SaveChangesAsync();
             return true;
         }
-
         public async Task<bool> DeleteOrderDelivery(OrderDelivery delivery)
         {
             _context.OrderDeliveries.Remove(delivery);
             await _context.SaveChangesAsync();
             return true;
+        }
+        #endregion
+
+        #region report
+        public async Task<decimal> GetRevenue(Guid companyId)
+        {
+            var kyKeToan = await _context.WarehouseConfigs.Where(e => e.CompanyId == companyId && e.Key == "KyKeToan").Select(e => e.Value).FirstOrDefaultAsync();
+            if (kyKeToan == null) return 0;
+            else
+            {
+                var fromDate = DateTime.Now;
+                switch (kyKeToan)
+                {
+                    case "1":
+                        fromDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+                        break;
+                    case "2":
+                        var quy = DateTime.Now.Month / 3;
+                        var mid = DateTime.Now.Month % 3;
+                        if (mid == 0) quy = quy + 1;
+                        var thangDauQuy = quy * 3 - 2;
+                        fromDate = new DateTime(DateTime.Now.Year, thangDauQuy, 1);
+                        break;
+                    case "3":
+                        fromDate = new DateTime(DateTime.Now.Year, 1, 1);
+                        break;
+                }    
+                var result = await _context.Orders.Where(e => e.CompanyId == companyId && e.ReceiveDate != null && fromDate <= e.ReceiveDate).Select(e => e.Products.Sum(e => e.Price * e.Quantity)).ToListAsync();
+                return result.Sum();
+            } 
+        }
+        public async Task<decimal> GetTotalRevenue(Guid companyId)
+        {
+            var result = await _context.Orders.Where(e => e.CompanyId == companyId && e.ReceiveDate != null).Select(e => e.Products.Sum(e => e.Price * e.Quantity)).ToListAsync();
+            return result.Sum();
+        }
+        public async Task<decimal> GetRevenue(Guid companyId, DateTime fromDate, DateTime toDate)
+        {
+            var result = await _context.Orders.Where(e => e.CompanyId == companyId && e.ReceiveDate != null && fromDate <= e.ReceiveDate && e.ReceiveDate <= toDate).Select(e => e.Products.Sum(e => e.Price * e.Quantity)).ToListAsync();
+            return result.Sum();
+        }
+        public async Task<List<MoneyAccountingDto>> GetStageRevenue(Guid companyId)
+        {
+            var data = new List<MoneyAccountingDto>();
+
+            var kyKeToan = await _context.WarehouseConfigs.Where(e => e.CompanyId == companyId && e.Key == "KyKeToan").Select(e => e.Value).FirstOrDefaultAsync();
+            if (kyKeToan == null) return data;
+            else
+            {
+                var company = await _context.Companies.FirstAsync(e => e.Id == companyId);
+                var startDate = company.PublishDate == null ? company.CreateDate : company.PublishDate.Value;
+                var fromYear = DateTime.Now.Year;
+                switch (kyKeToan)
+                {
+                    case "1":
+                        fromYear = startDate.Year;
+                        while (fromYear <= DateTime.Now.Year)
+                        {
+                            var fromMonth = fromYear == startDate.Year ? startDate.Month : 1;
+                            var toMonth = fromYear == DateTime.Now.Year ? DateTime.Now.Month : 12;
+
+                            for (var i = fromMonth; i <= toMonth; i++)
+                            {
+                                var stageAmount = new MoneyAccountingDto
+                                {
+                                    Id = data.Count + 1,
+                                    Title = $"Tháng {i} Năm {fromYear}",
+                                    Date = $"{i}/{fromYear}"
+                                };
+                                var fromDate = new DateTime(fromYear, i, 1);
+                                var toDate = fromDate.AddMonths(1).AddMilliseconds(-1);
+                                var orderPrices = await _context.Orders.Where(e => e.CompanyId == companyId && e.ReceiveDate != null && fromDate <= e.ReceiveDate && e.ReceiveDate <= toDate).Select(e => e.Products.Sum(e => e.Price * e.Quantity)).ToListAsync();
+                                stageAmount.TotalAmount = orderPrices.Sum();
+                                data.Add(stageAmount);
+                            }
+                            fromYear++;
+                        }  
+                        break;
+                    case "2":
+                        fromYear = startDate.Year;
+                        while (fromYear <= DateTime.Now.Year)
+                        {
+                            var fromMonth = fromYear == startDate.Year ? startDate.Month : 1;
+                            var toMonth = fromYear == DateTime.Now.Year ? DateTime.Now.Month : 12;
+
+                            for (var i = fromMonth; i <= toMonth; i += 3)
+                            {
+                                var stageAmount = new MoneyAccountingDto
+                                {
+                                    Id = data.Count + 1,
+                                    Title = $"Quí {i / 3 + 1} Năm {fromYear}",
+                                    Date = $"Quí {i / 3 + 1}/{fromYear}"
+                                };
+                                var fromDate = new DateTime(fromYear, i, 1);
+                                var toDate = fromDate.AddMonths(3).AddMilliseconds(-1);
+                                var orderPrices = await _context.Orders.Where(e => e.CompanyId == companyId && e.ReceiveDate != null && fromDate <= e.ReceiveDate && e.ReceiveDate <= toDate).Select(e => e.Products.Sum(e => e.Price * e.Quantity)).ToListAsync();
+                                stageAmount.TotalAmount = orderPrices.Sum();
+                                data.Add(stageAmount);
+                            }
+                            fromYear++;
+                        }
+                        break;
+                    case "3":
+                        fromYear = startDate.Year;
+                        while (fromYear <= DateTime.Now.Year)
+                        {
+                            var fromMonth = fromYear == startDate.Year ? startDate.Month : 1;
+                            var toMonth = fromYear == DateTime.Now.Year ? DateTime.Now.Month : 12;
+
+                            var stageAmount = new MoneyAccountingDto
+                            {
+                                Id = data.Count + 1,
+                                Title = $"Năm {fromYear}",
+                                Date = $"{fromYear}"
+                            };
+                            var fromDate = new DateTime(fromYear, fromMonth, 1);
+                            var toDate = new DateTime(fromYear, toMonth, DateTime.DaysInMonth(fromYear, toMonth));
+                            var orderPrices = await _context.Orders.Where(e => e.CompanyId == companyId && e.ReceiveDate != null && fromDate <= e.ReceiveDate && e.ReceiveDate <= toDate).Select(e => e.Products.Sum(e => e.Price * e.Quantity)).ToListAsync();
+                            stageAmount.TotalAmount = orderPrices.Sum();
+                            data.Add(stageAmount);
+                            fromYear++;
+                        }
+                        break;
+                }
+
+                return data;
+            }
+        }
+
+        public async Task<int> GetOrderReceive(Guid companyId)
+        {
+            var kyKeToan = await _context.WarehouseConfigs.Where(e => e.CompanyId == companyId && e.Key == "KyKeToan").Select(e => e.Value).FirstOrDefaultAsync();
+            if (kyKeToan == null) return 0;
+            else
+            {
+                var fromDate = DateTime.Now;
+                switch (kyKeToan)
+                {
+                    case "1":
+                        fromDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+                        break;
+                    case "2":
+                        var quy = DateTime.Now.Month / 3;
+                        var mid = DateTime.Now.Month % 3;
+                        if (mid == 0) quy = quy + 1;
+                        var thangDauQuy = quy * 3 - 2;
+                        fromDate = new DateTime(DateTime.Now.Year, thangDauQuy, 1);
+                        break;
+                    case "3":
+                        fromDate = new DateTime(DateTime.Now.Year, 1, 1);
+                        break;
+                }
+                var result = await _context.Orders.CountAsync(e => e.CompanyId == companyId && e.ReceiveDate != null && fromDate <= e.ReceiveDate);
+                return result;
+            }
+        }
+        public async Task<int> GetTotalOrderReceive(Guid companyId)
+        {
+            var result = await _context.Orders.CountAsync(e => e.CompanyId == companyId && e.ReceiveDate != null);
+            return result;
+        }
+        public async Task<int> GetOrderReceive(Guid companyId, DateTime fromDate, DateTime toDate)
+        {
+            var result = await _context.Orders.CountAsync(e => e.CompanyId == companyId && e.ReceiveDate != null && fromDate <= e.ReceiveDate && e.ReceiveDate <= toDate);
+            return result;
+        }
+        public async Task<List<MoneyAccountingDto>> GetStageOrderReceive(Guid companyId)
+        {
+            var data = new List<MoneyAccountingDto>();
+
+            var kyKeToan = await _context.WarehouseConfigs.Where(e => e.CompanyId == companyId && e.Key == "KyKeToan").Select(e => e.Value).FirstOrDefaultAsync();
+            if (kyKeToan == null) return data;
+            else
+            {
+                var company = await _context.Companies.FirstAsync(e => e.Id == companyId);
+                var startDate = company.PublishDate == null ? company.CreateDate : company.PublishDate.Value;
+                var fromYear = DateTime.Now.Year;
+                switch (kyKeToan)
+                {
+                    case "1":
+                        fromYear = startDate.Year;
+                        while (fromYear <= DateTime.Now.Year)
+                        {
+                            var fromMonth = fromYear == startDate.Year ? startDate.Month : 1;
+                            var toMonth = fromYear == DateTime.Now.Year ? DateTime.Now.Month : 12;
+
+                            for (var i = fromMonth; i <= toMonth; i++)
+                            {
+                                var stageAmount = new MoneyAccountingDto
+                                {
+                                    Id = data.Count + 1,
+                                    Title = $"Tháng {i} Năm {fromYear}",
+                                    Date = $"{i}/{fromYear}"
+                                };
+                                var fromDate = new DateTime(fromYear, i, 1);
+                                var toDate = fromDate.AddMonths(1).AddMilliseconds(-1);
+                                stageAmount.TotalAmount = await _context.Orders.CountAsync(e => e.CompanyId == companyId && e.ReceiveDate != null && fromDate <= e.ReceiveDate && e.ReceiveDate <= toDate);
+                                data.Add(stageAmount);
+                            }
+                            fromYear++;
+                        }
+                        break;
+                    case "2":
+                        fromYear = startDate.Year;
+                        while (fromYear <= DateTime.Now.Year)
+                        {
+                            var fromMonth = fromYear == startDate.Year ? startDate.Month : 1;
+                            var toMonth = fromYear == DateTime.Now.Year ? DateTime.Now.Month : 12;
+
+                            for (var i = fromMonth; i <= toMonth; i += 3)
+                            {
+                                var stageAmount = new MoneyAccountingDto
+                                {
+                                    Id = data.Count + 1,
+                                    Title = $"Quí {i / 3 + 1} Năm {fromYear}",
+                                    Date = $"Quí {i / 3 + 1}/{fromYear}"
+                                };
+                                var fromDate = new DateTime(fromYear, i, 1);
+                                var toDate = fromDate.AddMonths(3).AddMilliseconds(-1);
+                                stageAmount.TotalAmount = await _context.Orders.CountAsync(e => e.CompanyId == companyId && e.ReceiveDate != null && fromDate <= e.ReceiveDate && e.ReceiveDate <= toDate);
+                                data.Add(stageAmount);
+                            }
+                            fromYear++;
+                        }
+                        break;
+                    case "3":
+                        fromYear = startDate.Year;
+                        while (fromYear <= DateTime.Now.Year)
+                        {
+                            var fromMonth = fromYear == startDate.Year ? startDate.Month : 1;
+                            var toMonth = fromYear == DateTime.Now.Year ? DateTime.Now.Month : 12;
+
+                            var stageAmount = new MoneyAccountingDto
+                            {
+                                Id = data.Count + 1,
+                                Title = $"Năm {fromYear}",
+                                Date = $"{fromYear}"
+                            };
+                            var fromDate = new DateTime(fromYear, fromMonth, 1);
+                            var toDate = new DateTime(fromYear, toMonth, DateTime.DaysInMonth(fromYear, toMonth));
+                            stageAmount.TotalAmount = await _context.Orders.CountAsync(e => e.CompanyId == companyId && e.ReceiveDate != null && fromDate <= e.ReceiveDate && e.ReceiveDate <= toDate);
+                            data.Add(stageAmount);
+                            fromYear++;
+                        }
+                        break;
+                }
+
+                return data;
+            }
+        }
+
+        public async Task<int> GetOrderReturn(Guid companyId)
+        {
+            var kyKeToan = await _context.WarehouseConfigs.Where(e => e.CompanyId == companyId && e.Key == "KyKeToan").Select(e => e.Value).FirstOrDefaultAsync();
+            if (kyKeToan == null) return 0;
+            else
+            {
+                var fromDate = DateTime.Now;
+                switch (kyKeToan)
+                {
+                    case "1":
+                        fromDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+                        break;
+                    case "2":
+                        var quy = DateTime.Now.Month / 3;
+                        var mid = DateTime.Now.Month % 3;
+                        if (mid == 0) quy = quy + 1;
+                        var thangDauQuy = quy * 3 - 2;
+                        fromDate = new DateTime(DateTime.Now.Year, thangDauQuy, 1);
+                        break;
+                    case "3":
+                        fromDate = new DateTime(DateTime.Now.Year, 1, 1);
+                        break;
+                }
+                var result = await _context.Orders.CountAsync(e => e.CompanyId == companyId && e.CancelDate != null && fromDate <= e.CancelDate);
+                return result;
+            }
+        }
+        public async Task<int> GetTotalOrderReturn(Guid companyId)
+        {
+            var result = await _context.Orders.CountAsync(e => e.CompanyId == companyId && e.CancelDate != null);
+            return result;
+        }
+        public async Task<int> GetOrderReturn(Guid companyId, DateTime fromDate, DateTime toDate)
+        {
+            var result = await _context.Orders.CountAsync(e => e.CompanyId == companyId && e.CancelDate != null && fromDate <= e.CancelDate && e.CancelDate <= toDate);
+            return result;
+        }
+        public async Task<List<MoneyAccountingDto>> GetStageOrderReturn(Guid companyId)
+        {
+            var data = new List<MoneyAccountingDto>();
+
+            var kyKeToan = await _context.WarehouseConfigs.Where(e => e.CompanyId == companyId && e.Key == "KyKeToan").Select(e => e.Value).FirstOrDefaultAsync();
+            if (kyKeToan == null) return data;
+            else
+            {
+                var company = await _context.Companies.FirstAsync(e => e.Id == companyId);
+                var startDate = company.PublishDate == null ? company.CreateDate : company.PublishDate.Value;
+                var fromYear = DateTime.Now.Year;
+                switch (kyKeToan)
+                {
+                    case "1":
+                        fromYear = startDate.Year;
+                        while (fromYear <= DateTime.Now.Year)
+                        {
+                            var fromMonth = fromYear == startDate.Year ? startDate.Month : 1;
+                            var toMonth = fromYear == DateTime.Now.Year ? DateTime.Now.Month : 12;
+
+                            for (var i = fromMonth; i <= toMonth; i++)
+                            {
+                                var stageAmount = new MoneyAccountingDto
+                                {
+                                    Id = data.Count + 1,
+                                    Title = $"Tháng {i} Năm {fromYear}",
+                                    Date = $"{i}/{fromYear}"
+                                };
+                                var fromDate = new DateTime(fromYear, i, 1);
+                                var toDate = fromDate.AddMonths(1).AddMilliseconds(-1);
+                                stageAmount.TotalAmount = await _context.Orders.CountAsync(e => e.CompanyId == companyId && e.CancelDate != null && fromDate <= e.CancelDate && e.ReceiveDate <= toDate);
+                                data.Add(stageAmount);
+                            }
+                            fromYear++;
+                        }
+                        break;
+                    case "2":
+                        fromYear = startDate.Year;
+                        while (fromYear <= DateTime.Now.Year)
+                        {
+                            var fromMonth = fromYear == startDate.Year ? startDate.Month : 1;
+                            var toMonth = fromYear == DateTime.Now.Year ? DateTime.Now.Month : 12;
+
+                            for (var i = fromMonth; i <= toMonth; i += 3)
+                            {
+                                var stageAmount = new MoneyAccountingDto
+                                {
+                                    Id = data.Count + 1,
+                                    Title = $"Quí {i / 3 + 1} Năm {fromYear}",
+                                    Date = $"Quí {i / 3 + 1}/{fromYear}"
+                                };
+                                var fromDate = new DateTime(fromYear, i, 1);
+                                var toDate = fromDate.AddMonths(3).AddMilliseconds(-1);
+                                stageAmount.TotalAmount = await _context.Orders.CountAsync(e => e.CompanyId == companyId && e.CancelDate != null && fromDate <= e.CancelDate && e.CancelDate <= toDate);
+                                data.Add(stageAmount);
+                            }
+                            fromYear++;
+                        }
+                        break;
+                    case "3":
+                        fromYear = startDate.Year;
+                        while (fromYear <= DateTime.Now.Year)
+                        {
+                            var fromMonth = fromYear == startDate.Year ? startDate.Month : 1;
+                            var toMonth = fromYear == DateTime.Now.Year ? DateTime.Now.Month : 12;
+
+                            var stageAmount = new MoneyAccountingDto
+                            {
+                                Id = data.Count + 1,
+                                Title = $"Năm {fromYear}",
+                                Date = $"{fromYear}"
+                            };
+                            var fromDate = new DateTime(fromYear, fromMonth, 1);
+                            var toDate = new DateTime(fromYear, toMonth, DateTime.DaysInMonth(fromYear, toMonth));
+                            stageAmount.TotalAmount = await _context.Orders.CountAsync(e => e.CompanyId == companyId && e.CancelDate != null && fromDate <= e.CancelDate && e.CancelDate <= toDate);
+                            data.Add(stageAmount);
+                            fromYear++;
+                        }
+                        break;
+                }
+
+                return data;
+            }
         }
         #endregion
     }

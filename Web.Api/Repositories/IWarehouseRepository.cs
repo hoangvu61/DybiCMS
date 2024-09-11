@@ -82,5 +82,16 @@ namespace Web.Api.Repositories
         Task<PagedList<WarehouseInventory>> GetInventories(Guid companyId, WarehouseInventorySearch search);
         Task<List<WarehouseInputInventory>> GetInventories(Guid companyId, Guid productId);
         #endregion
+
+        #region Expensive
+        Task<decimal> GetCOGS(Guid companyId);
+        Task<decimal> GetTotalCOGS(Guid companyId);
+        Task<decimal> GetCOGS(Guid companyId, DateTime fromDate, DateTime toDate);
+        Task<List<MoneyAccountingDto>> GetStageCOGS(Guid companyId);
+        Task<decimal> GetExpensive(Guid companyId);
+        Task<decimal> GetTotalExpensive(Guid companyId);
+        Task<decimal> GetExpensive(Guid companyId, DateTime fromDate, DateTime toDate);
+        Task<List<MoneyAccountingDto>> GetStageExpensive(Guid companyId);
+        #endregion
     }
 }

@@ -5,6 +5,7 @@
 @using Microsoft.AspNetCore.Authorization;
 @using Microsoft.AspNetCore.Components.Authorization
 @using Dybi.App.Services;
+@using MudBlazor
 @using Web.Models;
 @using Microsoft.Extensions.Configuration
 @using Web.Models.Enums;
@@ -18,7 +19,7 @@
 
 <h1 class="text-center">Phần mềm quản lý Bán hàng - Xuất nhập kho</h1>
 <section>
-    <div class="row">
+    <div class="row mb-5">
         <div class="col">
             <!-- small box -->
             <div class="small-box bg-warning">
@@ -55,6 +56,117 @@
             </div>
         </div>
     </div>
+    <h2>Tình hình tài chính</h2>
+    <div class="row">
+        <div class="col-9">
+            <MudChart ChartType="ChartType.Line" ChartSeries="@Series" XAxisLabels="@XAxisLabels" Width="100%" Height="350px"></MudChart>
+
+            @if (COGS != null && COGS.Any())
+            {
+                <table class="table table-sm table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Giá vốn hàng hóa</th>
+                            <th>Doanh thu</th>
+                            <th>Lợi nhuận gộp</th>
+                            <th>Chi phí</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = MinId; i <= COGS.Last().Id; i++)
+                        {
+                            <tr>
+                                <td>@COGS.First(e => e.Id == i).Title</td>
+                                <td style="text-align:right">@COGS.First(e => e.Id == i).TotalAmount.ToString("N0")<sup>đ</sup></td>
+                                <td style="text-align:right">@Revenue.First(e => e.Id == i).TotalAmount.ToString("N0")<sup>đ</sup></td>
+                                <td style="text-align:right">@GrossProfit.First(e => e.Id == i).TotalAmount.ToString("N0")<sup>đ</sup></td>
+                                <td style="text-align:right">@Expensive.First(e => e.Id == i).TotalAmount.ToString("N0")<sup>đ</sup></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+        <div class="col-3">
+            @if (StatisticInStage != null)
+            {
+                <div class="card mt-3 mb-5">
+                    <div class="card-header">
+                        Thống kê trong kỳ
+                    </div>
+                    <table class="table table-sm table-striped mb-0">
+                        <tbody>
+                            <tr>
+                                <td>Giá vốn hàng hóa</td>
+                                <td style="text-align:right">@StatisticInStage.CostofGoodsSold.ToString("N0")<sup>đ</sup></td>
+                            </tr>
+                            <tr>
+                                <td>Doanh thu</td>
+                                <td style="text-align:right">@StatisticInStage.Revenue.ToString("N0")<sup>đ</sup></td>
+                            </tr>
+                            <tr>
+                                <td>Lợi nhuận gộp</td>
+                                <td style="text-align:right">@StatisticInStage.GrossProfit.ToString("N0")<sup>đ</sup></td>
+                            </tr>
+                            <tr>
+                                <td>Chí phí</td>
+                                <td style="text-align:right">@StatisticInStage.Expenses.ToString("N0")<sup>đ</sup></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            }
+
+            @if (StatisticTotal != null)
+            {
+                <div class="card mb-3">
+                    <div class="card-header">
+                        Đến thời điểm hiện tại
+                    </div>
+                    <table class="table table-sm table-striped mb-0">
+                        <tbody>
+                            <tr>
+                                <td>Giá vốn hàng hóa</td>
+                                <td style="text-align:right">@StatisticTotal.CostofGoodsSold.ToString("N0")<sup>đ</sup></td>
+                            </tr>
+                            <tr>
+                                <td>Doanh thu</td>
+                                <td style="text-align:right">@StatisticTotal.Revenue.ToString("N0")<sup>đ</sup></td>
+                            </tr>
+                            <tr>
+                                <td>Lợi nhuận gộp</td>
+                                <td style="text-align:right">@StatisticTotal.GrossProfit.ToString("N0")<sup>đ</sup></td>
+                            </tr>
+                            <tr>
+                                <td>Chí phí</td>
+                                <td style="text-align:right">@StatisticTotal.Expenses.ToString("N0")<sup>đ</sup></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            }
+
+            <div class="card mt-3 mb-5">
+                <div class="card-header">
+                    Công nợ
+                </div>
+                <table class="table table-sm table-striped mb-0">
+                    <tbody>
+                        <tr>
+                            <td>Nợ phải thu</td>
+                            <td style="text-align:right">0<sup>đ</sup></td>
+                        </tr>
+                        <tr>
+                            <td>Nợ phải trả</td>
+                            <td style="text-align:right">0<sup>đ</sup></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <h2>Tình hình bán hàng</h2>
 </section>
 <SetConfig @ref="SetConfigDialog"></SetConfig>
 
@@ -62,10 +174,20 @@
     private PagingParameters NewOrderPaging = new PagingParameters();
     private WarehouseInventorySearch WarehouseInventorySearch = new WarehouseInventorySearch();
 
-    protected int NewOrder { get; set; }
-    protected int Inventory { get; set; }
+    private int NewOrder { get; set; }
+    private int Inventory { get; set; }
+    private ReportStatisticDto StatisticInStage { get; set; }
+    private ReportStatisticDto StatisticTotal { get; set; }
+    private List<MoneyAccountingDto> COGS { get; set; }
+    private List<MoneyAccountingDto> Revenue { get; set; }
+    private List<MoneyAccountingDto> Expensive { get; set; }
+    private List<MoneyAccountingDto> GrossProfit { get; set; }
 
-    protected SetConfig SetConfigDialog { set; get; }
+    private List<ChartSeries> Series { get; set; } = new List<ChartSeries>();
+    private string[] XAxisLabels = { };
+    private int MinId { get; set; }
+
+    private SetConfig SetConfigDialog { set; get; }
 
     protected async override Task OnInitializedAsync()
     {
@@ -83,6 +205,47 @@
         WarehouseInventorySearch.IsAlertEmpty = true;
         var inventoryResponse = await WarehouseApiClient.GetInventories(WarehouseInventorySearch);
         Inventory = inventoryResponse.MetaData.TotalCount;
+
+        var taskStatisticInStage = WarehouseApiClient.GetStatisticCurrent();
+        var taskStatisticTotal = WarehouseApiClient.GetStatisticTotal();
+
+        var taskCogs = WarehouseApiClient.GetReportCostOfGrossSoldStage();
+        var taskRevenue = WarehouseApiClient.GetReportRevenueStage();
+        var taskExpensive = WarehouseApiClient.GetReportExpensiveStage();
+
+        await Task.WhenAll(taskCogs, taskRevenue, taskExpensive);
+
+        StatisticInStage = await taskStatisticInStage;
+        StatisticTotal = await taskStatisticTotal;
+
+        COGS = await taskCogs;
+        Revenue = await taskRevenue;
+        Expensive = await taskExpensive;
+
+        var firstCogs = COGS.FirstOrDefault(e => e.TotalAmount > 0);
+        var firstRevenue = Revenue.FirstOrDefault(e => e.TotalAmount > 0);
+        var firstExpensive = Expensive.FirstOrDefault(e => e.TotalAmount > 0);
+
+        if (firstCogs != null) MinId = firstCogs.Id;
+        if (firstRevenue != null && firstRevenue.Id < MinId) MinId = firstRevenue.Id;
+        if (firstExpensive != null && firstExpensive.Id < MinId) MinId = firstExpensive.Id;
+        if (MinId > 0)
+        {
+            COGS = COGS.Where(e => MinId <= e.Id).ToList();
+            Revenue = Revenue.Where(e => MinId <= e.Id).ToList();
+            Expensive = Expensive.Where(e => MinId <= e.Id).ToList();
+        }
+
+        GrossProfit = COGS.Join(Revenue, c => c.Id, p => p.Id, (c, p) => new MoneyAccountingDto { Id = c.Id, Title = c.Title, Date = c.Date, TotalAmount = p.TotalAmount - c.TotalAmount }).ToList();
+
+        XAxisLabels = COGS.Select(e => e.Date).ToArray();
+        Series = new List<ChartSeries>()
+        {
+            new ChartSeries() { Name = "Giá vốn hàng hóa", Data = COGS.Select(e => (double)e.TotalAmount).ToArray() },
+            new ChartSeries() { Name = "Doanh thu", Data = Revenue.Select(e => (double)e.TotalAmount).ToArray() },
+            new ChartSeries() { Name = "Lợi nhuận gộp", Data = GrossProfit.Select(e => (double)e.TotalAmount).ToArray() },
+            new ChartSeries() { Name = "Chi phí", Data = Expensive.Select(e => (double)e.TotalAmount).ToArray() },
+        };
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {

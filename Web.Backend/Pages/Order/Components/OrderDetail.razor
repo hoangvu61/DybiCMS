@@ -61,34 +61,36 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col">
-
-                                    <div class="info-box bg-light">
-                                        <div class="info-box-content">
-                                            @if (Delivery != null && Delivery.OrderId != Guid.Empty)
-                                            {
-                                                <span class="info-box-text text-center text-muted" style="text-align:left !important"><lable>Đơn vị giao hàng: </lable> @Delivery.DeliveryName</span>
-                                                <span class="info-box-text text-center text-muted" style="text-align:left !important"><lable>Mã đơn hàng: </lable> @Delivery.DeliveryCode</span>
-                                                <span class="info-box-text text-center text-muted" style="text-align:left !important"><lable>Phí giao hàng: </lable> @Delivery.DeliveryFee.ToString("N0")</span>
-                                                <span class="info-box-text text-center text-muted" style="text-align:left !important"><lable>Thu hộ (COD): </lable> @(Delivery.COD ? "Có" : "Không")</span>
-                                                <span class="info-box-text text-center text-muted" style="text-align:left !important"><lable>Ghi chú: </lable> @Delivery.DeliveryNote</span>
-                                                <hr />
-                                                <div class="row">
-                                                    <div class="col text-center">
-                                                        <button type="button" class="btn btn-success btn-xs" @onclick="() => EditDeliveryControl.Show(Model.Id, Delivery)">Sửa đơn vị vận chuyển</button>
+                                @if (Model.SendDate == null || (Delivery != null && Delivery.OrderId != Guid.Empty))
+                                {
+                                    <div class="col">
+                                        <div class="info-box bg-light">
+                                            <div class="info-box-content">
+                                                @if (Delivery != null && Delivery.OrderId != Guid.Empty)
+                                                {
+                                                    <span class="info-box-text text-center text-muted" style="text-align:left !important"><lable>Đơn vị giao hàng: </lable> @Delivery.DeliveryName</span>
+                                                    <span class="info-box-text text-center text-muted" style="text-align:left !important"><lable>Mã đơn hàng: </lable> @Delivery.DeliveryCode</span>
+                                                    <span class="info-box-text text-center text-muted" style="text-align:left !important"><lable>Phí giao hàng: </lable> @Delivery.DeliveryFee.ToString("N0")</span>
+                                                    <span class="info-box-text text-center text-muted" style="text-align:left !important"><lable>Thu hộ (COD): </lable> @(Delivery.COD ? "Có" : "Không")</span>
+                                                    <span class="info-box-text text-center text-muted" style="text-align:left !important"><lable>Ghi chú: </lable> @Delivery.DeliveryNote</span>
+                                                    <hr />
+                                                    <div class="row">
+                                                        <div class="col text-center">
+                                                            <button type="button" class="btn btn-success btn-xs" @onclick="() => EditDeliveryControl.Show(Model.Id, Delivery)">Sửa đơn vị vận chuyển</button>
+                                                        </div>
+                                                        <div class="col text-center">
+                                                            <button type="button" class="btn btn-danger btn-xs" @onclick="OpenDeleteOrderDiliveryConfirm">Bỏ đơn vị vận chuyển</button>
+                                                        </div>
                                                     </div>
-                                                    <div class="col text-center">
-                                                        <button type="button" class="btn btn-danger btn-xs" @onclick="OpenDeleteOrderDiliveryConfirm">Bỏ đơn vị vận chuyển</button>
-                                                    </div>
-                                                </div>
-                                            }
-                                            else
-                                            {
-                                                <button type="button" class="btn btn-primary" data-toggle="modal" @onclick="() => EditDeliveryControl.Show(Model.Id, Delivery)">Thêm đơn vị vận chuyển</button>
-                                            }
+                                                }
+                                                else if (Model.SendDate == null)
+                                                {
+                                                    <button type="button" class="btn btn-primary" data-toggle="modal" @onclick="() => EditDeliveryControl.Show(Model.Id, Delivery)">Thêm đơn vị vận chuyển</button>
+                                                }
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                }
                             </div>
                         </div>
                     </div>

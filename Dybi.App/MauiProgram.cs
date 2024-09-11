@@ -5,6 +5,7 @@ using Dybi.App.Services;
 using Blazored.Toast;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Maui.LifecycleEvents;
+using MudBlazor.Services;
 
 namespace Dybi.App
 {
@@ -64,6 +65,7 @@ namespace Dybi.App
             builder.Services.AddBlazoredLocalStorage();
             builder.Services.AddAuthorizationCore();
             builder.Services.AddBlazoredToast();
+            builder.Services.AddMudServices();
 
             builder.Configuration.AddJsonFile("appsettings.json");
 

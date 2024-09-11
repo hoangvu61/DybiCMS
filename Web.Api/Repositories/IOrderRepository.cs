@@ -32,5 +32,20 @@ namespace Web.Api.Repositories
         Task<bool> AddOrderDelivery(OrderDelivery delivery);
         Task<bool> UpdateOrderDelivery(OrderDelivery delivery);
         Task<bool> DeleteOrderDelivery(OrderDelivery delivery);
+
+        Task<decimal> GetRevenue(Guid companyId);
+        Task<decimal> GetTotalRevenue(Guid companyId);
+        Task<decimal> GetRevenue(Guid companyId, DateTime fromDate, DateTime toDate);
+        Task<List<MoneyAccountingDto>> GetStageRevenue(Guid companyId);
+
+        Task<int> GetOrderReceive(Guid companyId);
+        Task<int> GetTotalOrderReceive(Guid companyId);
+        Task<int> GetOrderReceive(Guid companyId, DateTime fromDate, DateTime toDate);
+        Task<List<MoneyAccountingDto>> GetStageOrderReceive(Guid companyId);
+
+        Task<int> GetOrderReturn(Guid companyId);
+        Task<int> GetTotalOrderReturn(Guid companyId);
+        Task<int> GetOrderReturn(Guid companyId, DateTime fromDate, DateTime toDate);
+        Task<List<MoneyAccountingDto>> GetStageOrderReturn(Guid companyId);
     }
 }

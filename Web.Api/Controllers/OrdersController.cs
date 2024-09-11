@@ -586,5 +586,77 @@ namespace Web.Api.Controllers
             return Ok();
         }
         #endregion
+
+        #region report
+        [HttpGet]
+        [Route("reports/current")]
+        public async Task<IActionResult> GetReportOrders()
+        {
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Unauthorized();
+
+            var data = new ReportOrderDto();
+            data.Receive = await _orderRepository.GetOrderReceive(user.CompanyId);
+            data.Return = await _orderRepository.GetOrderReturn(user.CompanyId);
+
+            return Ok(data);
+        }
+
+        [HttpGet]
+        [Route("reports/date")]
+        public async Task<IActionResult> GetReportOrdersByDate([FromQuery] DateTime fromDate, [FromQuery] DateTime toDate)
+        {
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Unauthorized();
+
+            var data = new ReportOrderDto();
+            data.Receive = await _orderRepository.GetOrderReceive(user.CompanyId, fromDate, toDate);
+            data.Return = await _orderRepository.GetOrderReturn(user.CompanyId, fromDate, toDate);
+
+            return Ok(data);
+        }
+
+        [HttpGet]
+        [Route("reports/all")]
+        public async Task<IActionResult> GetReportOrderAll()
+        {
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Unauthorized();
+
+            var data = new ReportOrderDto();
+            data.Receive = await _orderRepository.GetTotalOrderReceive(user.CompanyId);
+            data.Return = await _orderRepository.GetTotalOrderReturn(user.CompanyId);
+
+            return Ok(data);
+        }
+
+        [HttpGet]
+        [Route("reports/ReceiveStage")]
+        public async Task<IActionResult> GetReportOrderReceiveStage()
+        {
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Unauthorized();
+
+            var data = await _orderRepository.GetStageOrderReceive(user.CompanyId);
+
+            return Ok(data);
+        }
+        [HttpGet]
+        [Route("reports/ReturnStage")]
+        public async Task<IActionResult> GetReportOrderReturnStage()
+        {
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Unauthorized();
+
+            var data = await _orderRepository.GetStageOrderReturn(user.CompanyId);
+
+            return Ok(data);
+        }
+        #endregion
     }
 }

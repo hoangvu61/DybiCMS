@@ -85,5 +85,14 @@ namespace Dybi.App.Services
         Task<bool> UpdateProductCategory(Guid itemId, Guid categoryId);
         Task<bool> DeleteProduct(Guid id);
         #endregion
+
+        #region report
+        Task<ReportStatisticDto> GetStatisticCurrent();
+        Task<ReportStatisticDto> GetStatisticTotal();
+
+        Task<List<MoneyAccountingDto>> GetReportCostOfGrossSoldStage();
+        Task<List<MoneyAccountingDto>> GetReportRevenueStage();
+        Task<List<MoneyAccountingDto>> GetReportExpensiveStage();
+        #endregion
     }
 }

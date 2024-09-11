@@ -1406,5 +1406,115 @@ namespace Web.Api.Controllers
             return Ok();
         }
         #endregion
+
+        #region report
+        [HttpGet]
+        [Route("reports/statistic/current")]
+        public async Task<IActionResult> GetReportStatistic()
+        {
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Unauthorized();
+
+            var data = new ReportStatisticDto();
+            data.CostofGoodsSold = await _warehouseRepository.GetCOGS(user.CompanyId);
+            data.Revenue = await _orderRepository.GetRevenue(user.CompanyId);
+            data.GrossProfit = data.Revenue - data.CostofGoodsSold;
+            data.Expenses = await _warehouseRepository.GetExpensive(user.CompanyId);
+
+            return Ok(data);
+        }
+
+        [HttpGet]
+        [Route("reports/statistic/total")]
+        public async Task<IActionResult> GetReportStatisticAll()
+        {
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Unauthorized();
+
+            var data = new ReportStatisticDto();
+            data.CostofGoodsSold = await _warehouseRepository.GetTotalCOGS(user.CompanyId);
+            data.Revenue = await _orderRepository.GetTotalRevenue(user.CompanyId);
+            data.GrossProfit = data.Revenue - data.CostofGoodsSold;
+            data.Expenses = await _warehouseRepository.GetTotalExpensive(user.CompanyId);
+
+            return Ok(data);
+        }
+
+        [HttpGet]
+        [Route("reports/statistic/cogs/stage")]
+        public async Task<IActionResult> GetReportCostOfGrossSoldStage()
+        {
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Unauthorized();
+
+            var data = await _warehouseRepository.GetStageCOGS(user.CompanyId);
+
+            return Ok(data);
+        }
+
+        [HttpGet]
+        [Route("reports/statistic/cogs/date")]
+        public async Task<IActionResult> GetReportCostOfGrossSoldByDate([FromQuery] DateTime fromDate, [FromQuery] DateTime toDate)
+        {
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Unauthorized();
+
+            var data = await _warehouseRepository.GetCOGS(user.CompanyId, fromDate, toDate);
+            return Ok(data);
+        }
+
+        [HttpGet]
+        [Route("reports/statistic/revenue/stage")]
+        public async Task<IActionResult> GetReportRevenueStage()
+        {
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Unauthorized();
+
+            var data = await _orderRepository.GetStageRevenue(user.CompanyId);
+
+            return Ok(data);
+        }
+
+        [HttpGet]
+        [Route("reports/statistic/revenue/date")]
+        public async Task<IActionResult> GetReportRevenueByDate([FromQuery] DateTime fromDate, [FromQuery] DateTime toDate)
+        {
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Unauthorized();
+
+            var data = await _orderRepository.GetRevenue(user.CompanyId, fromDate, toDate);
+            return Ok(data);
+        }
+
+        [HttpGet]
+        [Route("reports/statistic/expensive/stage")]
+        public async Task<IActionResult> GetReportExpensiveStage()
+        {
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Unauthorized();
+
+            var data = await _warehouseRepository.GetStageExpensive(user.CompanyId);
+
+            return Ok(data);
+        }
+        [HttpGet]
+        [Route("reports/statistic/expensive/date")]
+        public async Task<IActionResult> GetReportExpensiveByDate([FromQuery] DateTime fromDate, [FromQuery] DateTime toDate)
+        {
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Unauthorized();
+
+            var data = await _warehouseRepository.GetExpensive(user.CompanyId, fromDate, toDate);
+            return Ok(data);
+        }
+        #endregion
     }
 }

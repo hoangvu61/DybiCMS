@@ -495,5 +495,34 @@ namespace Dybi.App.Services
             return result.IsSuccessStatusCode;
         }
         #endregion
+
+        #region report
+        public async Task<ReportStatisticDto> GetStatisticCurrent()
+        {
+            var result = await _httpClient.GetFromJsonAsync<ReportStatisticDto>("/api/warehouses/reports/statistic/current");
+            return result;
+        }
+        public async Task<ReportStatisticDto> GetStatisticTotal()
+        {
+            var result = await _httpClient.GetFromJsonAsync<ReportStatisticDto>("/api/warehouses/reports/statistic/total");
+            return result;
+        }
+
+        public async Task<List<MoneyAccountingDto>> GetReportCostOfGrossSoldStage()
+        {
+            var result = await _httpClient.GetFromJsonAsync< List<MoneyAccountingDto>>("/api/warehouses/reports/statistic/cogs/stage");
+            return result;
+        }
+        public async Task<List<MoneyAccountingDto>> GetReportRevenueStage()
+        {
+            var result = await _httpClient.GetFromJsonAsync< List<MoneyAccountingDto>>("/api/warehouses/reports/statistic/revenue/stage");
+            return result;
+        }
+        public async Task<List<MoneyAccountingDto>> GetReportExpensiveStage()
+        {
+            var result = await _httpClient.GetFromJsonAsync< List<MoneyAccountingDto>>("/api/warehouses/reports/statistic/expensive/stage");
+            return result;
+        }
+        #endregion
     }
 }

@@ -1066,5 +1066,280 @@ namespace Web.Api.Repositories
             return data;
         }
         #endregion
+
+        #region report
+        public async Task<decimal> GetCOGS(Guid companyId)
+        {
+            var kyKeToan = await _context.WarehouseConfigs.Where(e => e.CompanyId == companyId && e.Key == "KyKeToan").Select(e => e.Value).FirstOrDefaultAsync();
+            if (kyKeToan == null) return 0;
+            else
+            {
+                var fromDate = DateTime.Now;
+                switch (kyKeToan)
+                {
+                    case "1":
+                        fromDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+                        break;
+                    case "2":
+                        var quy = DateTime.Now.Month / 3;
+                        var mid = DateTime.Now.Month % 3;
+                        if (mid == 0) quy = quy + 1;
+                        var thangDauQuy = quy * 3 - 2;
+                        fromDate = new DateTime(DateTime.Now.Year, thangDauQuy, 1);
+                        break;
+                    case "3":
+                        fromDate = new DateTime(DateTime.Now.Year, 1, 1);
+                        break;
+                }
+                var result = await _context.WarehouseInputs.Where(e => e.Warehouse.CompanyId == companyId && (e.Warehouse.Type == 152 || e.Warehouse.Type == 156) && fromDate <= e.CreateDate).Select(e => e.Products.Sum(e => e.Price * e.Quantity)).ToListAsync();
+                return result.Sum();
+            }
+        }
+        public async Task<decimal> GetTotalCOGS(Guid companyId)
+        {
+            var result = await _context.WarehouseInputs.Where(e => e.Warehouse.CompanyId == companyId && (e.Warehouse.Type == 152 || e.Warehouse.Type == 156)).Select(e => e.Products.Sum(e => e.Price * e.Quantity)).ToListAsync();
+            return result.Sum();
+        }
+        public async Task<decimal> GetCOGS(Guid companyId, DateTime fromDate, DateTime toDate)
+        {
+            var result = await _context.WarehouseInputs.Where(e => e.Warehouse.CompanyId == companyId && (e.Warehouse.Type == 152 || e.Warehouse.Type == 156) && fromDate <= e.CreateDate && e.CreateDate <= toDate).Select(e => e.Products.Sum(e => e.Price * e.Quantity)).ToListAsync();
+            return result.Sum();
+        }
+        public async Task<List<MoneyAccountingDto>> GetStageCOGS(Guid companyId)
+        {
+            var data = new List<MoneyAccountingDto>();
+
+            var kyKeToan = await _context.WarehouseConfigs.Where(e => e.CompanyId == companyId && e.Key == "KyKeToan").Select(e => e.Value).FirstOrDefaultAsync();
+            if (kyKeToan == null) return data;
+            else
+            {
+                var company = await _context.Companies.FirstAsync(e => e.Id == companyId);
+                var startDate = company.PublishDate == null ? company.CreateDate : company.PublishDate.Value;
+                var fromYear = DateTime.Now.Year;
+                switch (kyKeToan)
+                {
+                    case "1":
+                        fromYear = startDate.Year;
+                        while (fromYear <= DateTime.Now.Year)
+                        {
+                            var fromMonth = fromYear == startDate.Year ? startDate.Month : 1;
+                            var toMonth = fromYear == DateTime.Now.Year ? DateTime.Now.Month: 12;
+
+                            for (var i = fromMonth; i <= toMonth; i++)
+                            {
+                                var stageAmount = new MoneyAccountingDto
+                                {
+                                    Id = data.Count + 1,
+                                    Title = $"Tháng {i} Năm {fromYear}",
+                                    Date = $"{i}/{fromYear}"
+                                };
+                                var fromDate = new DateTime(fromYear, i, 1);
+                                var toDate = fromDate.AddMonths(1).AddMilliseconds(-1);
+                                var result = await _context.WarehouseInputs.Where(e => e.Warehouse.CompanyId == companyId && (e.Warehouse.Type == 152 || e.Warehouse.Type == 156) && fromDate <= e.CreateDate && e.CreateDate <= toDate).Select(e => e.Products.Sum(e => e.Price * e.Quantity)).ToListAsync();
+                                stageAmount.TotalAmount = result.Sum();
+                                data.Add(stageAmount);
+                            }
+                            fromYear++;
+                        }
+                        break;
+                    case "2":
+                        fromYear = startDate.Year;
+                        while (fromYear <= DateTime.Now.Year)
+                        {
+                            var fromMonth = fromYear == startDate.Year ? startDate.Month : 1;
+                            var toMonth = fromYear == DateTime.Now.Year ? DateTime.Now.Month : 12;
+
+                            for (var i = fromMonth; i <= toMonth; i += 3)
+                            {
+                                var stageAmount = new MoneyAccountingDto
+                                {
+                                    Id = data.Count + 1,
+                                    Title = $"Quí {i / 3 + 1} Năm {fromYear}",
+                                    Date = $"Quí {i / 3 + 1}/{fromYear}"
+                                };
+                                var fromDate = new DateTime(fromYear, i, 1);
+                                var toDate = fromDate.AddMonths(3).AddMilliseconds(-1);
+                                var result = await _context.WarehouseInputs.Where(e => e.Warehouse.CompanyId == companyId && (e.Warehouse.Type == 152 || e.Warehouse.Type == 156) && fromDate <= e.CreateDate && e.CreateDate <= toDate).Select(e => e.Products.Sum(e => e.Price * e.Quantity)).ToListAsync();
+                                stageAmount.TotalAmount = result.Sum();
+                                data.Add(stageAmount);
+                            }
+                            fromYear++;
+                        }
+                        break;
+                    case "3":
+                        fromYear = startDate.Year;
+                        while (fromYear <= DateTime.Now.Year)
+                        {
+                            var fromMonth = fromYear == startDate.Year ? startDate.Month : 1;
+                            var toMonth = fromYear == DateTime.Now.Year ? DateTime.Now.Month : 12;
+
+                            var stageAmount = new MoneyAccountingDto
+                            {
+                                Id = data.Count + 1,
+                                Title = $"Năm {fromYear}",
+                                Date = $"{fromYear}"
+                            };
+                            var fromDate = new DateTime(fromYear, fromMonth, 1);
+                            var toDate = new DateTime(fromYear, toMonth, DateTime.DaysInMonth(fromYear, toMonth));
+                            var result = await _context.WarehouseInputs.Where(e => e.Warehouse.CompanyId == companyId && (e.Warehouse.Type == 152 || e.Warehouse.Type == 156) && fromDate <= e.CreateDate && e.CreateDate <= toDate).Select(e => e.Products.Sum(e => e.Price * e.Quantity)).ToListAsync();
+                            stageAmount.TotalAmount = result.Sum();
+                            data.Add(stageAmount);
+                            fromYear++;
+                        }
+                        break;
+                }
+
+                return data;
+            }
+        }
+
+        public async Task<decimal> GetExpensive(Guid companyId)
+        {
+            var kyKeToan = await _context.WarehouseConfigs.Where(e => e.CompanyId == companyId && e.Key == "KyKeToan").Select(e => e.Value).FirstOrDefaultAsync();
+            if (kyKeToan == null) return 0;
+            else
+            {
+                var fromDate = DateTime.Now;
+                switch (kyKeToan)
+                {
+                    case "1":
+                        fromDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+                        break;
+                    case "2":
+                        var quy = DateTime.Now.Month / 3;
+                        var mid = DateTime.Now.Month % 3;
+                        if (mid == 0) quy = quy + 1;
+                        var thangDauQuy = quy * 3 - 2;
+                        fromDate = new DateTime(DateTime.Now.Year, thangDauQuy, 1);
+                        break;
+                    case "3":
+                        fromDate = new DateTime(DateTime.Now.Year, 1, 1);
+                        break;
+                }
+                var COGS = await _context.WarehouseInputs.Where(e => e.Warehouse.CompanyId == companyId && (e.Warehouse.Type == 152 || e.Warehouse.Type == 156) && fromDate <= e.CreateDate).Select(e => e.TotalPrice - e.Products.Sum(e => e.Price * e.Quantity)).ToListAsync();
+                var deliveryFee = await _context.OrderDeliveries.Where(e => e.Order.CompanyId == companyId && e.Order.ReceiveDate != null && fromDate <= e.Order.ReceiveDate).SumAsync(e => e.DeliveryFee);
+                var expensive = await _context.WarehouseInputs.Where(e => e.Warehouse.CompanyId == companyId && (e.Type == 153) && fromDate <= e.CreateDate).Select(e => e.TotalPrice - e.Products.Sum(e => e.Price * e.Quantity)).ToListAsync();
+
+                var result = COGS.Sum() + deliveryFee + expensive.Sum();
+                return result;
+            }
+        }
+        public async Task<decimal> GetTotalExpensive(Guid companyId)
+        {
+            var COGS = await _context.WarehouseInputs.Where(e => e.Warehouse.CompanyId == companyId && (e.Warehouse.Type == 152 || e.Warehouse.Type == 156)).Select(e => e.TotalPrice - e.Products.Sum(e => e.Price * e.Quantity)).ToListAsync();
+            var deliveryFee = await _context.OrderDeliveries.Where(e => e.Order.CompanyId == companyId && e.Order.ReceiveDate != null).SumAsync(e => e.DeliveryFee);
+            var expensive = await _context.WarehouseInputs.Where(e => e.Warehouse.CompanyId == companyId && (e.Type == 153)).Select(e => e.TotalPrice - e.Products.Sum(e => e.Price * e.Quantity)).ToListAsync();
+            var result = COGS.Sum() + deliveryFee + expensive.Sum();
+            return result;
+        }
+        public async Task<decimal> GetExpensive(Guid companyId, DateTime fromDate, DateTime toDate)
+        {
+            var COGS = await _context.WarehouseInputs.Where(e => e.Warehouse.CompanyId == companyId && (e.Warehouse.Type == 152 || e.Warehouse.Type == 156) && fromDate <= e.CreateDate && e.CreateDate <= toDate).Select(e => e.TotalPrice - e.Products.Sum(e => e.Price * e.Quantity)).ToListAsync();
+            var deliveryFee = await _context.OrderDeliveries.Where(e => e.Order.CompanyId == companyId && e.Order.ReceiveDate != null && fromDate <= e.Order.ReceiveDate && e.Order.ReceiveDate <= toDate).SumAsync(e => e.DeliveryFee);
+            var expensive = await _context.WarehouseInputs.Where(e => e.Warehouse.CompanyId == companyId && (e.Type == 153) && fromDate <= e.CreateDate && e.CreateDate <= toDate).Select(e => e.TotalPrice - e.Products.Sum(e => e.Price * e.Quantity)).ToListAsync();
+            var result = COGS.Sum() + deliveryFee + expensive.Sum();
+            return result;
+        }
+        public async Task<List<MoneyAccountingDto>> GetStageExpensive(Guid companyId)
+        {
+            var data = new List<MoneyAccountingDto>();
+
+            var kyKeToan = await _context.WarehouseConfigs.Where(e => e.CompanyId == companyId && e.Key == "KyKeToan").Select(e => e.Value).FirstOrDefaultAsync();
+            if (kyKeToan == null) return data;
+            else
+            {
+                var company = await _context.Companies.FirstAsync(e => e.Id == companyId);
+                var startDate = company.PublishDate == null ? company.CreateDate : company.PublishDate.Value;
+                var fromYear = DateTime.Now.Year;
+                switch (kyKeToan)
+                {
+                    case "1":
+                        fromYear = startDate.Year;
+                        while (fromYear <= DateTime.Now.Year)
+                        {
+                            var fromMonth = fromYear == startDate.Year ? startDate.Month : 1;
+                            var toMonth = fromYear == DateTime.Now.Year ? DateTime.Now.Month : 12;
+
+                            for (var i = fromMonth; i <= toMonth; i++)
+                            {
+                                var stageAmount = new MoneyAccountingDto
+                                {
+                                    Id = data.Count + 1,
+                                    Title = $"Tháng {i} Năm {fromYear}",
+                                    Date = $"{i}/{fromYear}"
+                                };
+                                var fromDate = new DateTime(fromYear, i, 1);
+                                var toDate = fromDate.AddMonths(1).AddMilliseconds(-1);
+
+                                var COGS = await _context.WarehouseInputs.Where(e => e.Warehouse.CompanyId == companyId && (e.Warehouse.Type == 152 || e.Warehouse.Type == 156) && fromDate <= e.CreateDate && e.CreateDate <= toDate).Select(e => e.TotalPrice - e.Products.Sum(e => e.Price * e.Quantity)).ToListAsync();
+                                var deliveryFee = await _context.OrderDeliveries.Where(e => e.Order.CompanyId == companyId && e.Order.ReceiveDate != null && fromDate <= e.Order.ReceiveDate && e.Order.ReceiveDate <= toDate).SumAsync(e => e.DeliveryFee);
+                                var expensive = await _context.WarehouseInputs.Where(e => e.Warehouse.CompanyId == companyId && (e.Type == 153) && fromDate <= e.CreateDate && e.CreateDate <= toDate).Select(e => e.TotalPrice - e.Products.Sum(e => e.Price * e.Quantity)).ToListAsync();
+
+                                var result = COGS.Sum() + deliveryFee + expensive.Sum();
+                                data.Add(stageAmount);
+                            }
+                            fromYear++;
+                        }
+                        break;
+                    case "2":
+                        fromYear = startDate.Year;
+                        while (fromYear <= DateTime.Now.Year)
+                        {
+                            var fromMonth = fromYear == startDate.Year ? startDate.Month : 1;
+                            var toMonth = fromYear == DateTime.Now.Year ? DateTime.Now.Month : 12;
+
+                            for (var i = fromMonth; i <= toMonth; i += 3)
+                            {
+                                var stageAmount = new MoneyAccountingDto
+                                {
+                                    Id = data.Count + 1,
+                                    Title = $"Quí {i / 3 + 1} Năm {fromYear}",
+                                    Date = $"Quí {i / 3 + 1}/{fromYear}"
+                                };
+                                var fromDate = new DateTime(fromYear, i, 1);
+                                var toDate = fromDate.AddMonths(3).AddMilliseconds(-1);
+
+                                var COGS = await _context.WarehouseInputs.Where(e => e.Warehouse.CompanyId == companyId && (e.Warehouse.Type == 152 || e.Warehouse.Type == 156) && fromDate <= e.CreateDate && e.CreateDate <= toDate).Select(e => e.TotalPrice - e.Products.Sum(e => e.Price * e.Quantity)).ToListAsync();
+                                var deliveryFee = await _context.OrderDeliveries.Where(e => e.Order.CompanyId == companyId && e.Order.ReceiveDate != null && fromDate <= e.Order.ReceiveDate && e.Order.ReceiveDate <= toDate).SumAsync(e => e.DeliveryFee);
+                                var expensive = await _context.WarehouseInputs.Where(e => e.Warehouse.CompanyId == companyId && (e.Type == 153) && fromDate <= e.CreateDate && e.CreateDate <= toDate).Select(e => e.TotalPrice - e.Products.Sum(e => e.Price * e.Quantity)).ToListAsync();
+
+                                var result = COGS.Sum() + deliveryFee + expensive.Sum();
+                                data.Add(stageAmount);
+                            }
+                            fromYear++;
+                        }
+                        break;
+                    case "3":
+                        fromYear = startDate.Year;
+                        while (fromYear <= DateTime.Now.Year)
+                        {
+                            var fromMonth = fromYear == startDate.Year ? startDate.Month : 1;
+                            var toMonth = fromYear == DateTime.Now.Year ? DateTime.Now.Month : 12;
+
+                            var stageAmount = new MoneyAccountingDto
+                            {
+                                Id = data.Count + 1,
+                                Title = $"Năm {fromYear}",
+                                Date = $"{fromYear}"
+                            };
+
+                            var fromDate = new DateTime(fromYear, fromMonth, 1);
+                            var toDate = new DateTime(fromYear, toMonth, DateTime.DaysInMonth(fromYear, toMonth));
+
+                            var COGS = await _context.WarehouseInputs.Where(e => e.Warehouse.CompanyId == companyId && (e.Warehouse.Type == 152 || e.Warehouse.Type == 156) && fromDate <= e.CreateDate && e.CreateDate <= toDate).Select(e => e.TotalPrice - e.Products.Sum(e => e.Price * e.Quantity)).ToListAsync();
+                            var deliveryFee = await _context.OrderDeliveries.Where(e => e.Order.CompanyId == companyId && e.Order.ReceiveDate != null && fromDate <= e.Order.ReceiveDate && e.Order.ReceiveDate <= toDate).SumAsync(e => e.DeliveryFee);
+                            var expensive = await _context.WarehouseInputs.Where(e => e.Warehouse.CompanyId == companyId && (e.Type == 153) && fromDate <= e.CreateDate && e.CreateDate <= toDate).Select(e => e.TotalPrice - e.Products.Sum(e => e.Price * e.Quantity)).ToListAsync();
+
+                            var result = COGS.Sum() + deliveryFee + expensive.Sum();
+                            data.Add(stageAmount);
+                            fromYear++;
+                        }
+                        break;
+                }
+
+                return data;
+            }
+        }
+        #endregion
     }
 }
