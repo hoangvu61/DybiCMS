@@ -231,5 +231,19 @@ namespace Web.Api.Controllers
             }
             return Ok(resultData);
         }
+
+        [HttpGet]
+        [Route("reports/current")]
+        public async Task<IActionResult> GetReportDebts()
+        {
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Unauthorized();
+
+            var report = new ReportDebtDto();
+            report.AccountsReceivable = await _debtRepository.GetDebtAccountsReceivable(user.CompanyId);
+            report.AccountsPayable = await _debtRepository.GetDebtAccountsPayvable(user.CompanyId);
+            return Ok(report);
+        }
     }
 }

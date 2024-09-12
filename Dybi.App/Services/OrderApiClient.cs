@@ -180,5 +180,9 @@ namespace Dybi.App.Services
             return result.IsSuccessStatusCode;
         }
         #endregion
+
+        #region report
+
+        #endregion
     }
 }

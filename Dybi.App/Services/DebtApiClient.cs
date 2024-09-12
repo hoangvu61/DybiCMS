@@ -115,5 +115,11 @@ namespace Dybi.App.Services
             }
             return string.Empty;
         }
+
+        public async Task<ReportDebtDto> GetReportDebts()
+        {
+            var result = await _httpClient.GetFromJsonAsync<ReportDebtDto>("/api/debts/reports/current");
+            return result;
+        }
     }
 }

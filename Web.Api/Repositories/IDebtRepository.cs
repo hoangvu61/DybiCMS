@@ -16,5 +16,7 @@ namespace Web.Api.Repositories
         Task<int> CreateCustomerDebt(DebtCustomer debt);
         Task<int> DeleteCustomerDebt(DebtCustomer debt);
 
+        Task<decimal> GetDebtAccountsReceivable(Guid companyId);
+        Task<decimal> GetDebtAccountsPayvable(Guid companyId);
     }
 }

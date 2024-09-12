@@ -14,5 +14,7 @@ namespace Dybi.App.Services
         Task<DebtDto> GetCustomerDebt(Guid id);
         Task<string> CreateCustomerDebt(DebtRequest request);
         Task<string> DeleteCustomerDebt(Guid id);
+
+        Task<ReportDebtDto> GetReportDebts();
     }
 }

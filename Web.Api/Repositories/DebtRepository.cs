@@ -148,5 +148,19 @@ namespace Web.Api.Repositories
             await _context.SaveChangesAsync();
             return 0;
         }
+
+        #region report
+        public async Task<decimal> GetDebtAccountsReceivable(Guid companyId)
+        {
+            var result = await _context.DebtCustomers.GroupBy(e => e.CustomerId).Select(g => g.OrderByDescending(e => e.CreateDate).First()).ToListAsync();
+            return result.Sum(e => e.TotalDebt);
+        }
+
+        public async Task<decimal> GetDebtAccountsPayvable(Guid companyId)
+        {
+            var result = await _context.DebtSuppliers.GroupBy(e => e.SupplierId).Select(g => g.OrderByDescending(e => e.CreateDate).First()).ToListAsync();
+            return result.Sum(e => e.TotalDebt);
+        }
+        #endregion
     }
 }

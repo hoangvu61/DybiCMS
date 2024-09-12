@@ -15,6 +15,7 @@
 @inject IConfiguration Configuration;
 @inject IOrderApiClient OrderApiClient;
 @inject IWarehouseApiClient WarehouseApiClient;
+@inject IDebtApiClient DebtApiClient;
 @inject GlobalVariables Global;
 
 <h1 class="text-center">Phần mềm quản lý Bán hàng - Xuất nhập kho</h1>
@@ -56,9 +57,11 @@
             </div>
         </div>
     </div>
-    <h2>Tình hình tài chính</h2>
+    
     <div class="row">
         <div class="col-9">
+            <h2>Tình hình tài chính</h2>
+
             <MudChart ChartType="ChartType.Line" ChartSeries="@Series" XAxisLabels="@XAxisLabels" Width="100%" Height="350px"></MudChart>
 
             @if (COGS != null && COGS.Any())
@@ -92,9 +95,7 @@
             @if (StatisticInStage != null)
             {
                 <div class="card mt-3 mb-5">
-                    <div class="card-header">
-                        Thống kê trong kỳ
-                    </div>
+                    <div class="card-header bg-info">Thống kê trong kỳ</div>
                     <table class="table table-sm table-striped mb-0">
                         <tbody>
                             <tr>
@@ -120,10 +121,8 @@
 
             @if (StatisticTotal != null)
             {
-                <div class="card mb-3">
-                    <div class="card-header">
-                        Đến thời điểm hiện tại
-                    </div>
+                <div class="card mb-5">
+                    <div class="card-header bg-info">Đến thời điểm hiện tại</div>
                     <table class="table table-sm table-striped mb-0">
                         <tbody>
                             <tr>
@@ -147,26 +146,26 @@
                 </div>
             }
 
-            <div class="card mt-3 mb-5">
-                <div class="card-header">
-                    Công nợ
+            @if (Debts != null)
+            {
+                <div class="card mt-3 mb-5">
+                    <div class="card-header bg-info">Công nợ</div>
+                    <table class="table table-sm table-striped mb-0">
+                        <tbody>
+                            <tr>
+                                <td>Nợ phải thu</td>
+                                <td style="text-align:right">@Debts.AccountsReceivable.ToString("N0")<sup>đ</sup></td>
+                            </tr>
+                            <tr>
+                                <td>Nợ phải trả</td>
+                                <td style="text-align:right">@Debts.AccountsPayable.ToString("N0")<sup>đ</sup></td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
-                <table class="table table-sm table-striped mb-0">
-                    <tbody>
-                        <tr>
-                            <td>Nợ phải thu</td>
-                            <td style="text-align:right">0<sup>đ</sup></td>
-                        </tr>
-                        <tr>
-                            <td>Nợ phải trả</td>
-                            <td style="text-align:right">0<sup>đ</sup></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+            }
         </div>
     </div>
-    <h2>Tình hình bán hàng</h2>
 </section>
 <SetConfig @ref="SetConfigDialog"></SetConfig>
 
@@ -178,6 +177,7 @@
     private int Inventory { get; set; }
     private ReportStatisticDto StatisticInStage { get; set; }
     private ReportStatisticDto StatisticTotal { get; set; }
+    private ReportDebtDto Debts { get; set; }
     private List<MoneyAccountingDto> COGS { get; set; }
     private List<MoneyAccountingDto> Revenue { get; set; }
     private List<MoneyAccountingDto> Expensive { get; set; }
@@ -208,6 +208,7 @@
 
         var taskStatisticInStage = WarehouseApiClient.GetStatisticCurrent();
         var taskStatisticTotal = WarehouseApiClient.GetStatisticTotal();
+        var taskDebts = DebtApiClient.GetReportDebts();
 
         var taskCogs = WarehouseApiClient.GetReportCostOfGrossSoldStage();
         var taskRevenue = WarehouseApiClient.GetReportRevenueStage();
@@ -217,6 +218,7 @@
 
         StatisticInStage = await taskStatisticInStage;
         StatisticTotal = await taskStatisticTotal;
+        Debts = await taskDebts;
 
         COGS = await taskCogs;
         Revenue = await taskRevenue;
