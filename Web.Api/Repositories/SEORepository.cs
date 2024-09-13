@@ -36,9 +36,9 @@ namespace Web.Api.Repositories
             return seo;
         }
 
-        public async Task<bool> CheckExist(Guid companyId, string seoUrl)
+        public async Task<bool> CheckExist(Guid companyId, Guid id, string seoUrl)
         {
-            var check = await _context.SEOs.AnyAsync(e => e.CompanyId == companyId && e.SeoUrl == seoUrl);
+            var check = await _context.SEOs.AnyAsync(e => e.CompanyId == companyId && e.SeoUrl == seoUrl && e.Id != id);
             return check;
         }
         public async Task<bool> CheckExist(Guid companyId, string seoUrl, string url)

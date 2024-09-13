@@ -9,7 +9,7 @@ namespace Web.Api.Repositories
         Task<List<SEO>> GetSEOWithoutItems(Guid companyId);
         Task<SEO> GetSEOWithoutItem(Guid companyId, Guid id);
         
-        Task<bool> CheckExist(Guid companyId, string seoUrl);
+        Task<bool> CheckExist(Guid companyId, Guid id, string seoUrl);
         Task<bool> CheckExist(Guid companyId, string seoUrl, string url);
         Task<bool> CheckExist(Guid companyId, Guid id, string seoUrl, string url);
         Task<SEO> CreateSEO(SEO seo);
