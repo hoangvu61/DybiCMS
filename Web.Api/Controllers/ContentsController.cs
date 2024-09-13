@@ -1553,6 +1553,7 @@ namespace Web.Api.Controllers
             var userId = User.GetUserId();
             var user = await _userManager.FindByIdAsync(userId);
 
+            var languageItem = new ItemLanguage { Title = request.Title.Trim(), LanguageCode = request.LanguageCode, Brief = request.Title + " " + request.StartDate + " " + request.Place, Content = "" };
             var item = new Item()
             {
                 Id = request.Id,
@@ -1566,34 +1567,13 @@ namespace Web.Api.Controllers
                     StartDate = request.StartDate,
                     Place = request.Place
                 },
-                ItemLanguages = new List<ItemLanguage>()
-                { new ItemLanguage()
-                    {
-                        Title = request.Title,
-                        LanguageCode = request.LanguageCode,
-                        Brief = request.Title,
-                        Content = ""
-                    }
-                },
+                ItemLanguages = new List<ItemLanguage>() { languageItem }
             };
 
             await _itemRepository.CreateItem(item);
 
             // SEO
-            var seo = new SEO
-                {
-                    Id = Guid.NewGuid(),
-                    ItemId = request.Id,
-                    CompanyId = user.CompanyId,
-                    LanguageCode = request.LanguageCode,
-                    Title = request.Title,
-                    MetaDescription = request.Title + " " + request.StartDate + " " + request.Place,
-                    MetaKeyWord = request.Title,
-                    Url = $"/event/{ConvertToUnSign(request.Title.Trim().ToLower())}/seve/{request.Id.ToString().ToLower()}",
-                    SeoUrl = $"/{ConvertToUnSign(request.Title.Trim())}"
-                };
-
-            await _seoRepository.CreateSEO(seo);
+            await CrerateSEO(user.CompanyId, "event", "seve", languageItem);
  
             return Ok();
         }
@@ -1619,43 +1599,14 @@ namespace Web.Api.Controllers
 
             await _itemRepository.UpdateEvent(request);
 
-            // SEO
-            var seo = await _seoRepository.GetSEO(user.CompanyId, id, request.LanguageCode);
-            if (seo == null)
+            var languageItem = new ItemLanguage
             {
-                seo = new SEO
-                {
-                    Id = Guid.NewGuid(),
-                    ItemId = request.Id,
-                    CompanyId = user.CompanyId,
-                    LanguageCode = request.LanguageCode,
-                    Title = request.Title,
-                    MetaDescription = request.Brief,
-                    MetaKeyWord = request.Title,
-                    Url = $"/event/{ConvertToUnSign(request.Title.Trim().ToLower())}/seve/{request.Id.ToString().ToLower()}",
-                    SeoUrl = $"/{ConvertToUnSign(request.Title.Trim())}"
-                };
-
-                bool check = false;
-                do
-                {
-                    if (check) seo.SeoUrl += "-";
-                    check = await _seoRepository.CheckExist(user.CompanyId, seo.SeoUrl);
-                }
-                while (check);
-
-                await _seoRepository.CreateSEO(seo);
-            }
-            else
-            {
-
-                var url = $"/event/{ConvertToUnSign(request.Title.Trim().ToLower())}/seve/{request.Id.ToString().ToLower()}";
-                if (seo.Url != url)
-                {
-                    seo.Url = url;
-                    await _seoRepository.UpdateSEO(seo);
-                }
-            }
+                ItemId = id,
+                LanguageCode = request.LanguageCode,
+                Title = request.Title,
+                Brief = request.Brief
+            };
+            await UpdateSEO(user.CompanyId, "event", "seve", languageItem);
 
             //return Ok(request);
             return CreatedAtAction(nameof(GetEvent), new { id = request.Id, language = request.LanguageCode }, request);
@@ -1732,7 +1683,7 @@ namespace Web.Api.Controllers
             do
             {
                 if (check) seo.SeoUrl += "-";
-                check = await _seoRepository.CheckExist(user.CompanyId, seo.SeoUrl);
+                check = await _seoRepository.CheckExist(user.CompanyId, seo.Id, seo.SeoUrl);
             }
             while (check);
 
@@ -1761,7 +1712,7 @@ namespace Web.Api.Controllers
             do
             {
                 if (check) seo.SeoUrl += "-";
-                check = await _seoRepository.CheckExist(companyId, seo.SeoUrl);
+                check = await _seoRepository.CheckExist(companyId, seo.Id, seo.SeoUrl);
             }
             while (check);
 
