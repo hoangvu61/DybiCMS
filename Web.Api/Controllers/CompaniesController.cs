@@ -369,6 +369,7 @@ namespace Web.Api.Controllers
         [Route("domains/{domain}")]
         public async Task<IActionResult> GetDomain(string domain)
         {
+            domain = WebUtility.UrlDecode(domain);
             var obj = await _companyRepository.GetDomain(domain);
             if (obj == null) return NotFound($"{domain} không tồn tại");
             return Ok(new CompanyDomainDto()
@@ -426,6 +427,7 @@ namespace Web.Api.Controllers
             var obj = await _companyRepository.GetDomain( domain);
             if (obj == null) return NotFound($"{companyid}.{domain} không tồn tại");
 
+            domain = WebUtility.UrlDecode(domain);
             await _companyRepository.DeleteDomain(obj);
             return Ok(new CompanyDomainDto()
             {

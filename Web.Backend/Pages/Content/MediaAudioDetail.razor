@@ -1,6 +1,7 @@
 ﻿
 @page "/medialaudiodetail/{Id}"
 @using Web.Backend.Components
+@using Web.Backend.Components.TextEditor
 @using Web.Backend.Pages.Content.Components;
 @using Web.Backend.Services;
 @using Web.Models;
@@ -253,11 +254,24 @@
         ImageManagerControl.Show(true);
     }
 
-    protected async Task InsertImage(string paramImageURL)
+    protected async Task InsertImage(ImageSelected img)
     {
-        await this.QuillHtml.InsertImage(paramImageURL);
+        await this.QuillHtml.InsertImage(img.URL);
 
-        ImageManagerControl.Show(true);
+        var currentImageURL = $"<img src=\"{img.URL}\" alt=\"{img.URL}\">";
+        var newImageURL = string.Empty;
+        if (!string.IsNullOrEmpty(img.ALT)) newImageURL = $"<img src=\"{img.URL}\" alt=\"{img.ALT}\">";
+        else newImageURL = $"<img src=\"{img.URL}\" alt=\"{Model.Title}\">";
+
+        if (!string.IsNullOrEmpty(newImageURL))
+        {
+            Model.Content = await this.QuillHtml.GetHTML();
+            Model.Content = Model.Content.Replace(currentImageURL, newImageURL);
+            await this.QuillHtml.LoadHTMLContent(Model.Content);
+        }
+
+        StateHasChanged();
+        ImageManagerControl.Show(false);
     }
 
     private async void OnInputFileChange(InputFileChangeEventArgs e)

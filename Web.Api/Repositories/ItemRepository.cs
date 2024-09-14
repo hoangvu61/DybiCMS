@@ -380,6 +380,12 @@ namespace Web.Api.Repositories
             var seos = await _context.SEOs.Where(e => e.ItemId == category.ItemId).ToArrayAsync();
             _context.SEOs.RemoveRange(seos);
 
+            var attributeCategories = await _context.AttributeCategories.Where(e => e.CategoryId == category.ItemId).ToArrayAsync();
+            _context.AttributeCategories.RemoveRange(attributeCategories);
+
+            var attributes = await _context.ItemAttributes.Where(e => e.ItemId == category.ItemId).ToArrayAsync();
+            _context.ItemAttributes.RemoveRange(attributes);
+
             _context.ItemCategories.Remove(category);
             _context.Items.Remove(item);
             await _context.SaveChangesAsync();

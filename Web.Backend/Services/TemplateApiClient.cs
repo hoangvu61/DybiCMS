@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.WebUtilities;
+using System.Net;
 using System.Net.Http.Json;
 using Web.Models;
 using Web.Models.SeedWork;
@@ -70,7 +71,8 @@ namespace Web.Backend.Services
         }
         public async Task<TemplateSkinDto> GetTemplateSkin(string templateName, string skinName) 
         {
-            var result = await _httpClient.GetFromJsonAsync<TemplateSkinDto>($"/api/templates/{templateName}/skins/{skinName}");
+            var endCodeSkinName = WebUtility.UrlEncode(skinName);
+            var result = await _httpClient.GetFromJsonAsync<TemplateSkinDto>($"/api/templates/{templateName}/skins/{endCodeSkinName}");
             return result;
         }
         public async Task<bool> CreateTemplateSkin(TemplateSkinDto request) 
@@ -85,7 +87,8 @@ namespace Web.Backend.Services
         }
         public async Task<bool> DeleteTemplateSkin(string templateName, string skinName) 
         {
-            var result = await _httpClient.DeleteAsync($"/api/templates/{templateName}/skins/{skinName}");
+            var endCodeSkinName = WebUtility.UrlEncode(skinName);
+            var result = await _httpClient.DeleteAsync($"/api/templates/{templateName}/skins/{endCodeSkinName}");
             return result.IsSuccessStatusCode;
         }
         #endregion
@@ -110,7 +113,8 @@ namespace Web.Backend.Services
         }
         public async Task<TemplateComponentDto> GetTemplateComponent(string templateName, string componentName) 
         {
-            var result = await _httpClient.GetFromJsonAsync<TemplateComponentDto>($"/api/templates/{templateName}/components/{componentName}");
+            var endCodeComponentName = WebUtility.UrlEncode(componentName);
+            var result = await _httpClient.GetFromJsonAsync<TemplateComponentDto>($"/api/templates/{templateName}/components/{endCodeComponentName}");
             return result;
         }
         public async Task<bool> CreateTemplateComponent(TemplateComponentDto request) 
@@ -125,7 +129,8 @@ namespace Web.Backend.Services
         }
         public async Task<bool> DeleteTemplateComponent(string templateName, string componentName) 
         {
-            var result = await _httpClient.DeleteAsync($"/api/templates/{templateName}/components/{componentName}");
+            var endCodeComponentName = WebUtility.UrlEncode(componentName);
+            var result = await _httpClient.DeleteAsync($"/api/templates/{templateName}/components/{endCodeComponentName}");
             return result.IsSuccessStatusCode;
         }
         #endregion
@@ -150,7 +155,8 @@ namespace Web.Backend.Services
         }
         public async Task<TemplatePositionDto> GetTemplatePosition(string templateName, string positionName, string componentName) 
         {
-            string url = $"/api/templates/{templateName}/positions/{positionName}";
+            var endCodePositionName = WebUtility.UrlEncode(positionName);
+            string url = $"/api/templates/{templateName}/positions/{endCodePositionName}";
             if (!string.IsNullOrEmpty(componentName))
             {
                 var queryStringParam = new Dictionary<string, string>
@@ -185,7 +191,8 @@ namespace Web.Backend.Services
         }
         public async Task<bool> DeleteTemplatePosition(string templateName, string positionName, string componentName) 
         {
-            string url = $"/api/templates/{templateName}/positions/{positionName}";
+            var endCodePositionName = WebUtility.UrlEncode(positionName);
+            string url = $"/api/templates/{templateName}/positions/{endCodePositionName}";
             if (!string.IsNullOrEmpty(componentName))
             {
                 var queryStringParam = new Dictionary<string, string>

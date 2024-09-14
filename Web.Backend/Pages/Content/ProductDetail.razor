@@ -3,6 +3,7 @@
 
 @using Microsoft.AspNetCore.Authorization;
 @using Web.Backend.Components
+@using Web.Backend.Components.TextEditor
 @using Web.Backend.Pages.Content.Components;
 @using Web.Backend.Services;
 @using Web.Models;
@@ -185,6 +186,14 @@ else
                                                 <option value="5"></option>
                                             </select>
                                             <span class="ql-formats">
+                                                <select class="ql-size">
+                                                    <option value="small"></option>
+                                                    <option selected=""></option>
+                                                    <option value="large"></option>
+                                                    <option value="huge"></option>
+                                                </select>
+                                            </span>
+                                            <span class="ql-formats">
                                                 <button class="ql-bold"></button>
                                                 <button class="ql-italic"></button>
                                                 <button class="ql-underline"></button>
@@ -197,16 +206,29 @@ else
                                             <span class="ql-formats">
                                                 <button class="ql-list" value="ordered"></button>
                                                 <button class="ql-list" value="bullet"></button>
+                                                <button class="ql-indent" value="-1"></button>
+                                                <button class="ql-indent" value="+1"></button>
+                                                <select class="ql-align">
+                                                    <option selected=""></option>
+                                                    <option value="center"></option>
+                                                    <option value="right"></option>
+                                                    <option value="justify"></option>
+                                                </select>
                                             </span>
                                             <span class="ql-formats">
                                                 <button class="ql-link"></button>
-                                                <button type="button" class="btn btn-link" @onclick="InsertImageClick">
+                                            </span>
+
+                                            <span class="ql-formats">
+                                                <button type="button" class="btn btn-img" @onclick="InsertImageClick">
                                                     <img src="imageicon.png" style="border:hidden;width:20px;height:18px" />
                                                 </button>
-                                                <button type="button" class="btn btn-link" @onclick="InsertVideoClick">
+                                                <button type="button" class="btn btn-img" @onclick="InsertVideoClick">
                                                     <img src="videoicon.png" style="border:hidden;width:20px;height:18px" />
                                                 </button>
-                                                <button type="button" class="btn btn-link" @onclick="ShowHTMLClick">H</button>
+                                            </span>
+                                            <span class="ql-formats">
+                                                <button type="button" class="btn btn-code" @onclick="ShowHTMLClick">&lt;/&gt;</button>
                                             </span>
                                         </ToolbarContent>
                                         <EditorContent>
@@ -331,20 +353,24 @@ else
     {
         ImageManagerControl.Show(true);
     }
-    protected async Task InsertImage(string paramImageURL)
+
+    protected async Task InsertImage(ImageSelected img)
     {
-        await this.QuillHtml.InsertImage(paramImageURL);
-        
-        if (!string.IsNullOrEmpty(Model.Title))
+        await this.QuillHtml.InsertImage(img.URL);
+
+        var currentImageURL = $"<img src=\"{img.URL}\" alt=\"{img.URL}\">";
+        var newImageURL = string.Empty;
+        if (!string.IsNullOrEmpty(img.ALT)) newImageURL = $"<img src=\"{img.URL}\" alt=\"{img.ALT}\">";
+        else newImageURL = $"<img src=\"{img.URL}\" alt=\"{Model.Title}\">";
+
+        if (!string.IsNullOrEmpty(newImageURL))
         {
-            var currentImageURL = $"<img src=\"{paramImageURL}\" alt=\"{paramImageURL}\">";
-            var newImageURL = $"<img src=\"{paramImageURL}\" alt=\"{Model.Title}\">";
             Model.Content = await this.QuillHtml.GetHTML();
             Model.Content = Model.Content.Replace(currentImageURL, newImageURL);
             await this.QuillHtml.LoadHTMLContent(Model.Content);
-            StateHasChanged();
         }
 
+        StateHasChanged();
         ImageManagerControl.Show(false);
     }
 

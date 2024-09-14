@@ -87,7 +87,7 @@
                                 </tr>
                                 <tr>
                                     <td>
-                                        <button class="btn btn-primary btn-sm" type="button" @onclick="() => SelectImage(file.FullPath)">Chọn</button>
+                                        <button class="btn btn-primary btn-sm" type="button" @onclick="() => ImageAltControlt.Show(file.FullPath)">Chọn</button>
                                     </td>
                                     <td>
                                         <button class="btn btn-danger btn-sm" type="button" @onclick="() => DeleteImage(file.FileName)">Xóa</button>
@@ -100,6 +100,8 @@
             </div>
         </div>
     </div>
+
+    <ImageAlt @ref="ImageAltControlt" SelectImage="SelectImage"></ImageAlt>
 }
 
 @using Microsoft.AspNetCore.Authorization;
@@ -116,7 +118,7 @@
     // ImageSelected is an EventCallback that will
     // notify the parent component when an image is selected
     // passing the url of the image to the parent component
-    [Parameter] public EventCallback<string> ImageSelected { get; set; }
+    [Parameter] public EventCallback<ImageSelected> ImageSelected { get; set; }
     private bool ShowFileManager = false;
 
     private List<FileData> Images { get; set; }
@@ -128,6 +130,8 @@
     private string dropClass = string.Empty;
     private int maxAllowedFiles = 10;
     List<FileUploadProgress> filesQueue = new();
+
+    private ImageAlt ImageAltControlt { get; set; }
 
     record FileUploadProgress(IBrowserFile File, string FileName, long Size, int FileId)
     {
@@ -278,9 +282,9 @@
         dropClass = string.Empty;
     } //HandleDragLeave
 
-    private async Task SelectImage(string filepath)
+    private async Task SelectImage(ImageSelected img)
     {
-        await ImageSelected.InvokeAsync(BackendApiUrl + "/" + filepath);
+        await ImageSelected.InvokeAsync(img);
         ShowFileManager = false;
     }
 

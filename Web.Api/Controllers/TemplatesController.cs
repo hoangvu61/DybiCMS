@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 using Web.Api.Entities;
 using Web.Api.Extensions;
 using Web.Api.Repositories;
@@ -177,6 +178,7 @@ namespace Web.Api.Controllers
         [Route("{templatename}/skins/{skinname}")]
         public async Task<IActionResult> GetSkin(string templatename, string skinname)
         {
+            skinname = WebUtility.UrlDecode(skinname);
             var skin = await _templateRepository.GetSkinByName(templatename, skinname);
             if (skin == null) return NotFound($"{templatename}.{skinname} không tồn tại");
             
@@ -237,6 +239,7 @@ namespace Web.Api.Controllers
         [Route("{templatename}/skins/{skinname}")]
         public async Task<IActionResult> DeleteSkin([FromRoute] string templatename, [FromRoute] string skinname)
         {
+            skinname = WebUtility.UrlDecode(skinname);
             var skin = await _templateRepository.GetSkinByName(templatename, skinname);
             if (skin == null) return NotFound($"{templatename}.{templatename} không tồn tại");
 
@@ -290,6 +293,7 @@ namespace Web.Api.Controllers
         [Route("{templatename}/components/{componentname}")]
         public async Task<IActionResult> GetComponent(string templatename, string componentname)
         {
+            componentname = WebUtility.UrlDecode(componentname);
             var component = await _templateRepository.GetComponentByName(templatename, componentname);
             if (component == null) return NotFound($"{templatename}.{componentname} không tồn tại");
 
@@ -347,6 +351,7 @@ namespace Web.Api.Controllers
         [Route("{templatename}/components/{componentname}")]
         public async Task<IActionResult> DeleteComponent([FromRoute] string templatename, [FromRoute] string componentname)
         {
+            componentname = WebUtility.UrlDecode(componentname);
             var component = await _templateRepository.GetComponentByName(templatename, componentname);
             if (component == null) return NotFound($"{templatename}.{componentname} không tồn tại");
 
@@ -404,6 +409,7 @@ namespace Web.Api.Controllers
         public async Task<IActionResult> GetPosition(string templatename, string positionname, [FromQuery] string? componentname)
         {
             if (componentname == null) componentname = string.Empty;
+            positionname = WebUtility.UrlDecode(positionname);
             var position = await _templateRepository.GetPositionByName(templatename, componentname, positionname);
             if (position == null) return NotFound($"{templatename}.{componentname}.{positionname} không tồn tại");
 
@@ -467,6 +473,7 @@ namespace Web.Api.Controllers
         public async Task<IActionResult> DeletePosition([FromRoute] string templatename, [FromRoute] string positionname, [FromQuery] string? componentname)
         {
             if (componentname == null) componentname = string.Empty;
+            positionname = WebUtility.UrlDecode(positionname);
             var position = await _templateRepository.GetPositionByName(templatename, componentname, positionname);
             if (position == null) return NotFound($"{templatename}.{componentname}.{positionname} không tồn tại");
 

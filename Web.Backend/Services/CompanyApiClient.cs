@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.WebUtilities;
+using System.Net;
 using Web.Models;
 using Web.Models.SeedWork;
 
@@ -128,7 +129,8 @@ namespace Web.Backend.Services
         }
         public async Task<CompanyDomainDto> GetDomain(string domain) 
         {
-            var result = await _httpClient.GetFromJsonAsync<CompanyDomainDto>($"/api/companies/domains/{domain}");
+            var endCodeDomain = WebUtility.UrlEncode(domain);
+            var result = await _httpClient.GetFromJsonAsync<CompanyDomainDto>($"/api/companies/domains/{endCodeDomain}");
             return result;
         }
         public async Task<bool> CreateDomain(CompanyDomainDto request) 
@@ -143,7 +145,8 @@ namespace Web.Backend.Services
         }
         public async Task<bool> DeleteDomain(Guid companyid, string domain) 
         {
-            var result = await _httpClient.DeleteAsync($"/api/companies/{companyid}/domains/{domain}");
+            var endCodeDomain = WebUtility.UrlEncode(domain);
+            var result = await _httpClient.DeleteAsync($"/api/companies/{companyid}/domains/{endCodeDomain}");
             return result.IsSuccessStatusCode;
         }
         #endregion
