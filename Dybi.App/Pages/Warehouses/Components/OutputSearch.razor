@@ -11,7 +11,7 @@
         <span class="input-group-text">Từ ngày</span>
         <input class="form-control" type="date" value="@Model.FromDate?.ToString("dd/MM/yyyy")" @onchange="@(() => OnSearch.InvokeAsync(Model))" />
         <span class="input-group-text">Đến ngày</span>
-        <input type="date" value="@Model.ToDate?.ToString("dd/MM/yyyy")" @onchange="@(() => OnSearch.InvokeAsync(Model))" />
+        <input class="form-control" type="date" value="@Model.ToDate?.ToString("dd/MM/yyyy")" @onchange="@(() => OnSearch.InvokeAsync(Model))" />
         <InputSelect class="form-select" ValueExpression="@(()=>OutputType)"
                      Value="@OutputType"
                      ValueChanged="@((int? value) => TypeChange(value))">

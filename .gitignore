@@ -734,3 +734,4 @@
 /Library/obj
 /Library/bin
 /Dybi.App/Properties/PublishProfiles
+/Dybi.App/bin/Release

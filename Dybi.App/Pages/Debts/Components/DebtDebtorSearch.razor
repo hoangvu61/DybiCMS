@@ -9,9 +9,9 @@
 <div class="form-group">
     <div class="input-group input-group-xs mb-3">
         <span class="input-group-text">Từ ngày</span>
-        <input type="date" value="@Model.FromDate?.ToString("dd/MM/yyyy")" @onchange="@(() => OnSearch.InvokeAsync(Model))" />
+        <input class="form-control" type="date" value="@Model.FromDate?.ToString("dd/MM/yyyy")" @onchange="@(() => OnSearch.InvokeAsync(Model))" />
         <span class="input-group-text">Đến ngày</span>
-        <input type="date" value="@Model.ToDate?.ToString("dd/MM/yyyy")" @onchange="@(() => OnSearch.InvokeAsync(Model))" />
+        <input class="form-control" type="date" value="@Model.ToDate?.ToString("dd/MM/yyyy")" @onchange="@(() => OnSearch.InvokeAsync(Model))" />
         <InputSelect class="form-select" ValueExpression="@(()=>Model.DebtorOrCreditor_Id)"
                      Value="@Model.DebtorOrCreditor_Id"
                      ValueChanged="@((Guid? value) => SupplierChange(value))">

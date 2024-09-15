@@ -9,11 +9,11 @@
 <div class="form-group">
     <div class="input-group input-group-xs mb-3">
         <span class="input-group-text">Từ ngày</span>
-        <input type="date" value="@Model.FromDate?.ToString("dd/MM/yyyy")" @onchange="@(() => OnSearch.InvokeAsync(Model))" />
+        <input class="form-control" type="date" value="@Model.FromDate?.ToString("dd/MM/yyyy")" @onchange="@(() => OnSearch.InvokeAsync(Model))" />
         <span class="input-group-text">Đến ngày</span>
-        <input type="date" value="@Model.ToDate?.ToString("dd/MM/yyyy")" @onchange="@(() => OnSearch.InvokeAsync(Model))" />
+        <input class="form-control" type="date" value="@Model.ToDate?.ToString("dd/MM/yyyy")" @onchange="@(() => OnSearch.InvokeAsync(Model))" />
         <span class="input-group-text">Tìm tên hoặc số điện thoại</span>
-        <input @bind="Model.Key" @bind:event="oninput" @onkeyup="KeyChange" @onchange="KeyChange" />
+        <input class="form-control" @bind="Model.Key" @bind:event="oninput" @onkeyup="KeyChange" @onchange="KeyChange" />
         <span class="input-group-text">Loại</span>
         <InputSelect class="form-select" ValueExpression="@(()=>Model.Type)"
                      Value="@Model.Type"
