@@ -31,7 +31,7 @@
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <ModuleConfigSearch @ref="ModuleConfigSearchControl" OnSearch="SearchModuleConfig" PageSize="20"></ModuleConfigSearch>
+                        <ModuleConfigSearch @ref="ModuleConfigSearchControl" OnSearch="SearchModuleConfig"></ModuleConfigSearch>
                     </div>
                     <table class="table table-sm">
                         <thead>
@@ -119,6 +119,7 @@
     protected Confirmation DeleteConfirmation { set; get; }
     protected ModuleConfigCreate ModuleConfigCreate { set; get; }
 
+    private const int PageSize = 20;
     private List<ModuleConfigDto> Modules;
     private Guid DeleteId { set; get; }
 
@@ -131,7 +132,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        ModuleConfigListSearch.PageSize = 20;
+        ModuleConfigListSearch.PageSize = PageSize;
         await RefreshList(true);
     }
 
@@ -155,6 +156,7 @@
     public async Task SearchModuleConfig(ModuleConfigListSearch moduleConfigListSearch)
     {
         ModuleConfigListSearch = moduleConfigListSearch;
+        ModuleConfigListSearch.PageSize = PageSize;
         await RefreshList(true);
     }
 

@@ -1,8 +1,5 @@
 ﻿
 using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.Design;
-using System.Diagnostics.Eventing.Reader;
-using System.Reflection;
 using Web.Api.Data;
 using Web.Api.Entities;
 using Web.Models;
@@ -18,20 +15,17 @@ namespace Web.Api.Repositories
             _context = context;
         }
 
-     
+
         public async Task<PagedList<ModuleConfig>> GetModules(Guid companyId, ModuleConfigListSearch moduleConfigSearch)
         {
-            var query = _context.ModuleConfigs.Where(e => e.CompanyId == companyId);
+            var query = _context.ModuleConfigs.Include(e => e.ModuleConfigDetails).Where(e => e.CompanyId == companyId);
 
-            if (!string.IsNullOrEmpty(moduleConfigSearch.Name))
-            {
-                query = query.Include(e => e.ModuleConfigDetails.Where(d => d.Title.Contains(moduleConfigSearch.Name)));
-                query = query.Where(e => e.ModuleConfigDetails.Any());
-            }
-            else query = query.Include(e => e.ModuleConfigDetails);
+            if (!string.IsNullOrEmpty(moduleConfigSearch.Name)) 
+                query = query.Where(e => e.ModuleConfigDetails.Any(d => d.Title.Contains(moduleConfigSearch.Name)));
 
-            if (!string.IsNullOrEmpty(moduleConfigSearch.ComponentName))
-                query = query.Where(e => e.ComponentName == moduleConfigSearch.ComponentName);
+            if (moduleConfigSearch.ComponentName != "*")
+                if (moduleConfigSearch.ComponentName == "_") query = query.Where(e => e.OnTemplate);
+                else query = query.Where(e => e.ComponentName == moduleConfigSearch.ComponentName);
 
             if (!string.IsNullOrEmpty(moduleConfigSearch.Position))
                 query = query.Where(e => e.Position == moduleConfigSearch.Position);

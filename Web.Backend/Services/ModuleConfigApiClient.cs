@@ -23,7 +23,7 @@ namespace Web.Backend.Services
                 ["pageSize"] = paging.PageSize.ToString()
             };
 
-            if (!string.IsNullOrEmpty(paging.ComponentName) && paging.ComponentName != "*")
+            if (!string.IsNullOrEmpty(paging.ComponentName))
                 queryStringParam.Add("ComponentName", paging.ComponentName);
             if (!string.IsNullOrEmpty(paging.Position))
                 queryStringParam.Add("Position", paging.Position);

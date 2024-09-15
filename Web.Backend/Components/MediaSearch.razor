@@ -11,7 +11,7 @@
     @if (string.IsNullOrEmpty(Type))
     {
         <span class="input-group-text">Loại</span>
-        <InputSelect class="form-control" ValueExpression="@(()=>Model.Type)"
+        <InputSelect class="form-select" ValueExpression="@(()=>Model.Type)"
                      Value="@Model.Type"
                      ValueChanged="@((string value) => TypeChange(value))">
             <option value="">Chọn loại</option>
@@ -25,7 +25,7 @@
         </InputSelect>
     }
         <span class="input-group-text">Danh mục</span>
-        <InputSelect class="form-control" ValueExpression="@(()=>Model.CategoryId)"
+        <InputSelect class="form-select" ValueExpression="@(()=>Model.CategoryId)"
                      Value="@Model.CategoryId"
                      ValueChanged="@((Guid? value) => CategoryChange(value))">
             <option value="@Guid.Empty">Chọn danh mục</option>
