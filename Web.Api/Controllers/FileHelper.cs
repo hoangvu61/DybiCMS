@@ -1,4 +1,6 @@
-﻿using SixLabors.ImageSharp.Formats.Webp;
+﻿using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Jpeg;
+using SixLabors.ImageSharp.Formats.Webp;
 using Web.Models.SeedWork;
 
 namespace Web.Api.Controllers
@@ -9,6 +11,7 @@ namespace Web.Api.Controllers
         public string Folder { get; set; }
         public string OldName { get; set; }
         public FileData File { get; set; }
+        public int CompressQuality { get; set; } = 50;
 
         public FileHelper(string contentRootPath, string folder = "")
         {
@@ -59,21 +62,26 @@ namespace Web.Api.Controllers
             {
                 var oldFilePath = Path.Combine(path, OldName);
                 if (System.IO.File.Exists(oldFilePath)) System.IO.File.Delete(oldFilePath);
-            }    
+            }
 
-            await System.IO.File.WriteAllBytesAsync(path + Path.DirectorySeparatorChar + File.FileName, buf);
+            CompressImageSixLabors(buf, path + Path.DirectorySeparatorChar + File.FileName);
+            //await System.IO.File.WriteAllBytesAsync(path + Path.DirectorySeparatorChar + File.FileName, buf);
 
             // save webp
             if (File.FileExtension != null && File.FileExtension.ToLower() != ".webp")
             {
-                using var inStream = new MemoryStream(buf);
-                using var myImage = await Image.LoadAsync(inStream);
-                await myImage.SaveAsWebpAsync(path + Path.DirectorySeparatorChar + File.FileName + ".webp", new WebpEncoder());
-
-                if (!string.IsNullOrEmpty(OldName) && OldName != File.FileName)
+                using (var inStream = new MemoryStream(buf))
                 {
-                    var oldFileWebpPath = Path.Combine(path, OldName + ".webp");
-                    if (System.IO.File.Exists(oldFileWebpPath)) System.IO.File.Delete(oldFileWebpPath);
+                    using (var myImage = await Image.LoadAsync(inStream))
+                    {
+                        await myImage.SaveAsWebpAsync(path + Path.DirectorySeparatorChar + File.FileName + ".webp", new WebpEncoder());
+
+                        if (!string.IsNullOrEmpty(OldName) && OldName != File.FileName)
+                        {
+                            var oldFileWebpPath = Path.Combine(path, OldName + ".webp");
+                            if (System.IO.File.Exists(oldFileWebpPath)) System.IO.File.Delete(oldFileWebpPath);
+                        }
+                    }
                 }
             }
         }
@@ -83,9 +91,10 @@ namespace Web.Api.Controllers
             var path = Path.Combine(ContentRootPath, File.FilePath);
             if (!string.IsNullOrEmpty(Folder)) path = string.Format(path, Folder);
             if (!Directory.Exists(path)) Directory.CreateDirectory(path);
+            var filePath = path + Path.DirectorySeparatorChar + File.FileName;
 
             // open for writing
-            using (var stream = System.IO.File.OpenWrite(path + Path.DirectorySeparatorChar + File.FileName))
+            using (var stream = System.IO.File.OpenWrite(filePath))
             {
                 stream.Seek(File.UploadedBytes, SeekOrigin.Begin);
                 stream.Write(File.UploadData, 0, File.UploadData.Length);
@@ -93,11 +102,14 @@ namespace Web.Api.Controllers
 
             if (File.LastUpload == true)
             {
+                // compress image
+                CompressImageSixLabors(filePath, filePath);
+
                 // save webp
                 if (File.FileExtension != null && File.FileExtension.ToLower() != ".webp")
                 {
-                    using var myImage = await Image.LoadAsync(path + Path.DirectorySeparatorChar + File.FileName);
-                    await myImage.SaveAsWebpAsync(path + Path.DirectorySeparatorChar + File.FileName + ".webp", new WebpEncoder());
+                    using var myImage = await Image.LoadAsync(filePath);
+                    await myImage.SaveAsWebpAsync(filePath + ".webp", new WebpEncoder());
                 }
             }
         }
@@ -154,6 +166,34 @@ namespace Web.Api.Controllers
             foreach (DirectoryInfo subfolder in directoryInfo.GetDirectories())
             {
                 EmptyFolder(subfolder);
+            }
+        }
+
+        public void CompressImageSixLabors(byte[] buffer, string outputPath)
+        {
+            using (Image image = Image.Load(buffer))
+            {
+                var encoder = new JpegEncoder
+                {
+                    Quality = CompressQuality // Set the quality of JPEG compression
+                };
+
+                // Save the image with compression
+                image.Save(outputPath, encoder);
+            }
+        }
+
+        public void CompressImageSixLabors(string inputPath, string outputPath)
+        {
+            using (Image image = Image.Load(inputPath))
+            {
+                var encoder = new JpegEncoder
+                {
+                    Quality = CompressQuality // Set the quality of JPEG compression
+                };
+
+                // Save the image with compression
+                image.Save(outputPath, encoder);
             }
         }
     }

@@ -23,7 +23,7 @@ namespace Web.Api.Repositories
             if (!string.IsNullOrEmpty(moduleConfigSearch.Name)) 
                 query = query.Where(e => e.ModuleConfigDetails.Any(d => d.Title.Contains(moduleConfigSearch.Name)));
 
-            if (moduleConfigSearch.ComponentName != "*")
+            if (!string.IsNullOrEmpty(moduleConfigSearch.ComponentName) && moduleConfigSearch.ComponentName != "*")
                 if (moduleConfigSearch.ComponentName == "_") query = query.Where(e => e.OnTemplate);
                 else query = query.Where(e => e.ComponentName == moduleConfigSearch.ComponentName);
 

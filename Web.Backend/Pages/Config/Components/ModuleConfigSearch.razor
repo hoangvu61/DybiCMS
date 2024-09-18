@@ -8,6 +8,7 @@
 
 <div class="form-group">
     <div class="input-group input-group-sm mb-3">
+        <span class="input-group-text">Tìm tiêu đề</span>
         <input class="form-control" @bind="Model.Name" @bind:event="oninput" @onkeyup="TextChange" @onchange="TextChange" />
         <InputSelect class="form-select" ValueExpression="@(()=>Model.ComponentName)"
                         Value="@Model.ComponentName"

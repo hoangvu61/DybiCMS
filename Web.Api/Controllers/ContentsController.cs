@@ -721,10 +721,13 @@ namespace Web.Api.Controllers
             var category = await _itemRepository.GetCategory(user.CompanyId, request.CategoryId);
             if (category == null) return ValidationProblem($"Danh mục [{request.CategoryId}] không tồn tại");
 
+            var article = await _itemRepository.GetArticle(user.CompanyId, request.Id);
+            if (article == null) return ValidationProblem($"Bài viết [{request.Id}] không tồn tại");
+
             if (request.Image != null && !string.IsNullOrEmpty(request.Image.Base64data) && !string.IsNullOrEmpty(request.Image.FileName))
             {
                 request.Image.FileName = ConvertToUnSign(request.Title) + "_" + DateTime.Now.Ticks + request.Image.FileExtension;
-                var fileHelper = new FileHelper(category.Item.Image, request.Image, _env.ContentRootPath);
+                var fileHelper = new FileHelper(article.Item.Image, request.Image, _env.ContentRootPath);
                 await fileHelper.Save();
             }
 
@@ -1048,10 +1051,13 @@ namespace Web.Api.Controllers
             var category = await _itemRepository.GetCategory(user.CompanyId, request.CategoryId);
             if (category == null) return ValidationProblem($"Danh mục [{request.CategoryId}] không tồn tại");
 
+            var item = await _itemRepository.GetItem(user.CompanyId, id);
+            if (item == null) return ValidationProblem($"Media {id} không tồn tại");
+
             if (request.Image != null && !string.IsNullOrEmpty(request.Image.Base64data) && !string.IsNullOrEmpty(request.Image.FileName))
             {
                 request.Image.FileName = ConvertToUnSign(request.Title) + "_" + DateTime.Now.Ticks + request.Image.FileExtension;
-                var fileHelper = new FileHelper(category.Item.Image, request.Image, _env.ContentRootPath, user.CompanyId.ToString());
+                var fileHelper = new FileHelper(item.Image, request.Image, _env.ContentRootPath, user.CompanyId.ToString());
                 await fileHelper.Save();
             }
 
@@ -1311,10 +1317,13 @@ namespace Web.Api.Controllers
             var category = await _itemRepository.GetCategory(user.CompanyId, request.CategoryId);
             if (category == null) return ValidationProblem($"Danh mục [{request.CategoryId}] không tồn tại");
 
+            var item = await _itemRepository.GetItem(user.CompanyId, id);
+            if (item == null) return ValidationProblem($"Sản phẩm {id} không tồn tại");
+
             if (request.Image != null && !string.IsNullOrEmpty(request.Image.Base64data) && !string.IsNullOrEmpty(request.Image.FileName))
             {
                 request.Image.FileName = category.ItemId + "-" + DateTime.Now.Ticks + request.Image.FileExtension;
-                var fileHelper = new FileHelper(category.Item.Image, request.Image, _env.ContentRootPath);
+                var fileHelper = new FileHelper(item.Image, request.Image, _env.ContentRootPath);
                 await fileHelper.Save();
             }
 
@@ -1588,7 +1597,7 @@ namespace Web.Api.Controllers
             var user = await _userManager.FindByIdAsync(userId);
 
             var item = await _itemRepository.GetItem(user.CompanyId, id);
-            if (item == null) return NotFound($"{id} không tồn tại");
+            if (item == null) return ValidationProblem($"Sự kiện {id} không tồn tại");
 
             if (request.Image != null && !string.IsNullOrEmpty(request.Image.Base64data) && !string.IsNullOrEmpty(request.Image.FileName))
             {
