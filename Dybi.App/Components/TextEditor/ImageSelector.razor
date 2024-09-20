@@ -20,7 +20,7 @@
                         <InputFile OnChange="AddFilesToQueue"
                         @ondragenter="HandleDragEnter"
                         @ondragleave="HandleDragLeave"
-                        accept="image/png, image/jpeg, image/gif"
+                        accept="image/png, image/jpeg, image/gif, image/webp"
                         disabled="@isUploading"
                         style="width:100%;height:100px;position:relative;top:-36px;margin-bottom:-40px;"
                         multiple />
@@ -30,7 +30,7 @@
                         <div class="card">
                             <div class="card-header">Đang tải lên</div>
                             <div class="card-body">
-                                <table class="table table-sm table-striped table-bordered">
+                                <table class="table table-sm">
                                     <thead>
                                         <tr>
                                             <th></th>
@@ -62,15 +62,15 @@
                                                 <td>@file.FileName.Substring(file.FileName.LastIndexOf('_') + 1, file.FileName.Length - (file.FileName.LastIndexOf('_') + 1))</td>
                                                 <td class="text-end">@string.Format("{0:#,0.##}", @size)</td>
 
-                                                <td class="text-end"><button type="button" class="btn btn-xs btn-link" disabled="@isUploading" @onclick="(() => RemoveFromQueue(file.FileId))"><span class="oi oi-trash" aria-hidden="true"></span></button></td>
+                                                <td class="text-end"><button type="button" class="btn btn-sm btn-link" disabled="@isUploading" @onclick="(() => RemoveFromQueue(file.FileId))"><span class="oi oi-trash" aria-hidden="true"></span></button></td>
                                             </tr>
                                         }
                                     </tbody>
                                 </table>
 
                                 <div class="btn-group w-100" role="group" aria-label="Basic mixed styles example">
-                                    <button type="button" disabled="@isUploading" class="btn btn-xs btn-success" @onclick="UploadFileQueue">Tải lên</button>
-                                    <button type="button" disabled="@isUploading" class="btn btn-xs btn-info" @onclick="ClearFileQueue">Xóa hết</button>
+                                    <button type="button" disabled="@isUploading" class="btn btn-sm btn-success" @onclick="UploadFileQueue">Tải lên</button>
+                                    <button type="button" disabled="@isUploading" class="btn btn-sm btn-info" @onclick="ClearFileQueue">Xóa hết</button>
                                 </div>
 
                             </div>
@@ -100,10 +100,13 @@
             </div>
         </div>
     </div>
+
+    <ImageAlt @ref="ImageAltControlt" SelectImage="SelectImageAddAlt"></ImageAlt>
 }
 
+@using Dybi.App.Services
 @using Microsoft.AspNetCore.Authorization;
-@using Dybi.App.Services;
+@using Dybi.App;
 @using Web.Models;
 @using Web.Models.Enums;
 @using Web.Models.SeedWork;
@@ -116,7 +119,7 @@
     // ImageSelected is an EventCallback that will
     // notify the parent component when an image is selected
     // passing the url of the image to the parent component
-    [Parameter] public EventCallback<string> ImageSelected { get; set; }
+    [Parameter] public EventCallback<ImageSelected> ImageSelected { get; set; }
     private bool ShowFileManager = false;
 
     private List<FileData> Images { get; set; }
@@ -128,6 +131,8 @@
     private string dropClass = string.Empty;
     private int maxAllowedFiles = 10;
     List<FileUploadProgress> filesQueue = new();
+
+    private ImageAlt ImageAltControlt { get; set; }
 
     record FileUploadProgress(IBrowserFile File, string FileName, long Size, int FileId)
     {
@@ -278,9 +283,14 @@
         dropClass = string.Empty;
     } //HandleDragLeave
 
-    private async Task SelectImage(string filepath)
+    private async Task SelectImage(string url)
     {
-        await ImageSelected.InvokeAsync(BackendApiUrl + "/" + filepath);
+        ImageAltControlt.Show(BackendApiUrl + "/" + url);
+    }
+
+    private async Task SelectImageAddAlt(ImageSelected img)
+    {
+        await ImageSelected.InvokeAsync(img);
         ShowFileManager = false;
     }
 

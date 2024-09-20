@@ -55,7 +55,7 @@
                         }
                         else if (HeaderBackgroundType == 2)
                         {
-                            <InputFile type="file" OnChange="HeaderFileChange" accept="image/png, image/jpeg, image/gif"></InputFile>
+                            <InputFile type="file" OnChange="HeaderFileChange" accept="image/png, image/jpeg, image/gif, image/webp"></InputFile>
                             @if (Model.HeaderBackgroundFile != null && !string.IsNullOrEmpty(Model.HeaderBackgroundFile.FileName))
                             {
                                 <img src="@(BackendApiUrl + "/" + Model.HeaderBackgroundFile.FullPath + "?DummyId=" + DateTime.Now.Ticks)" asp-append-version="true" width="100%" />
@@ -88,7 +88,7 @@
                         }
                         else if (BodyBackgroundType == 2)
                         {
-                            <InputFile type="file" OnChange="BodyFileChange" accept="image/png, image/jpeg, image/gif"></InputFile>
+                            <InputFile type="file" OnChange="BodyFileChange" accept="image/png, image/jpeg, image/gif, image/webp"></InputFile>
                             @if (Model.BodyBackgroundFile != null && !string.IsNullOrEmpty(Model.BodyBackgroundFile.FileName))
                             {
                                 <img src="@(BackendApiUrl + "/" + Model.BodyBackgroundFile.FullPath + "?DummyId=" + DateTime.Now.Ticks)" asp-append-version="true" width="100%" />

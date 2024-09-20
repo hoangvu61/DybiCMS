@@ -14,7 +14,7 @@
         <div class="form-group">
             <div class="input-group input-group-sm">
                 <label class="input-group-text" for="InputFileWebIcon">Web icon:</label>
-                <InputFile id="InputFileWebIcon" type="file" OnChange="WebIconChange" accept="image/png, image/jpeg, image/gif"></InputFile>
+                <InputFile id="InputFileWebIcon" type="file" OnChange="WebIconChange" accept="image/png, image/jpeg, image/gif, image/webp"></InputFile>
                 <button class="btn btn-success" style="position:absolute;right:0" @onclick="WebIconSave">Lưu</button>
             </div>
             @if (WebIcon != null && !string.IsNullOrEmpty(WebIcon.FileName))
@@ -25,7 +25,7 @@
         <div class="form-group">
             <div class="input-group input-group-sm">
                 <label class="input-group-text" for="InputFileLogo">Logo:</label>
-                <InputFile id="InputFileLogo" type="file" OnChange="LogoChange" accept="image/png, image/jpeg, image/gif"></InputFile>
+                <InputFile id="InputFileLogo" type="file" OnChange="LogoChange" accept="image/png, image/jpeg, image/gif, image/webp"></InputFile>
                 <button class="btn btn-success" style="position:absolute;right:0" @onclick="LogoSave">Lưu</button>
             </div>
             @if (Logo != null && !string.IsNullOrEmpty(Logo.FileName))
@@ -36,7 +36,7 @@
         <div class="form-group">
             <div class="input-group input-group-sm">
                 <label class="input-group-text" for="InputFileLogo">Image:</label>
-                <InputFile id="InputFileLogo" type="file" OnChange="ImageChange" accept="image/png, image/jpeg, image/gif"></InputFile>
+                <InputFile id="InputFileLogo" type="file" OnChange="ImageChange" accept="image/png, image/jpeg, image/gif, image/webp"></InputFile>
                 <button class="btn btn-success" style="position:absolute;right:0" @onclick="ImageSave">Lưu</button>
             </div>
             @if (Image != null && !string.IsNullOrEmpty(Image.FileName))

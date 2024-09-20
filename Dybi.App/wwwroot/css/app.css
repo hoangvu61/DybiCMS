@@ -91,7 +91,7 @@ hr{background:#fff}
 
 .small-box {position:relative}
 .small-box > .inner {padding: 10px;}
-.small-box h3 {font-size: 2.2rem;font-weight: 700;margin: 0 0 10px;padding: 0; white-space: nowrap;}
+.small-box h3 {font-size: 2.2rem;font-weight: 700;marvigin: 0 0 10px;padding: 0; white-space: nowrap;}
 .small-box p {font-size: 1rem;}
 .small-box .icon {color: rgba(0, 0, 0, .15);z-index: 0;}
 .small-box .icon>span {font-size: 70px;position: absolute;right: 15px;top: 15px;transition: -webkit-transform .3s linear;transition: transform .3s linear;transition: transform .3s linear, -webkit-transform .3s linear;}
@@ -116,3 +116,7 @@ hr{background:#fff}
 .auto-list-group-item:hover {background-color: #f0f0f0;}
 .order-create-section .auto-list-group{left:85px;}
 .product-section .auto-list-group{left:68px;}
+
+.ql-align .ql-picker-label{padding-top:0px !important}
+.ql-formats .btn-img{padding-top:0px !important}
+.ql-formats .btn-code {width: 24px !important;border: 1px solid !important;padding: 0px !important;font-size: 12px;height: 18px !important;margin-top: 3px;font-weight: 600;}

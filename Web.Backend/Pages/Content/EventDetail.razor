@@ -81,7 +81,7 @@
                             <div class="col-md-5">
                                 <div class="form-group">
                                     <label for="InputFileLogo">Hình:</label>
-                                    <InputFile id="InputFileLogo" type="file" OnChange="LogoChange" accept="image/png, image/jpeg, image/gif"></InputFile>
+                                    <InputFile id="InputFileLogo" type="file" OnChange="LogoChange" accept="image/png, image/jpeg, image/gif, image/webp"></InputFile>
                                     @if (Model.Image != null && !string.IsNullOrEmpty(Model.Image.FileName))
                                     {
                                         <img src="@(BackendApiUrl + "/" + Model.Image.FullPath + "?DummyId=" + DateTime.Now.Ticks)" asp-append-version="true" width="100%" />

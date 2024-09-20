@@ -51,7 +51,7 @@
                     }
                     else if (BackgroundType == 2)
                     {
-                        <InputFile type="file" OnChange="OnInputFileChange" accept="image/png, image/jpeg, image/gif"></InputFile>
+                        <InputFile type="file" OnChange="OnInputFileChange" accept="image/png, image/jpeg, image/gif, image/webp"></InputFile>
                         @if (!string.IsNullOrEmpty(BackgroundFile.FileName))
                         {
                             <img src="@(BackendApiUrl + "/" + BackgroundFile.FullPath + "?DummyId=" + DateTime.Now.Ticks)" asp-append-version="true" width="100%" />

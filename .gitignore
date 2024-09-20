@@ -735,3 +735,6 @@
 /Library/bin
 /Dybi.App/Properties/PublishProfiles
 /Dybi.App/bin/Release
+/Dybi.App/Dybi.App.csproj.user
+*.md
+/Dybi.App/Platforms/Windows/Package.appxmanifest
