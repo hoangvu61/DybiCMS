@@ -139,7 +139,8 @@ namespace Web.Api.Controllers
             var path = Path.Combine(env.ContentRootPath, file.FullPath);
 
             var domains = await _companyRepository.GetDomains(user.CompanyId);
-            var domainLanguagesCount = domains.Select(e => e.LanguageCode).Distinct().Count();
+            domains = domains.Where(e => !e.Domain.StartsWith("www") && !e.Domain.StartsWith("localhost")).ToList();
+            var domainLanguagesCount = domains.Select(e => e.LanguageCode).Distinct().ToList();
 
             var links = await _sEORepository.GetAllSEOs(user.CompanyId);
             var languages = links.Select(e => e.LanguageCode).Distinct().ToList();
@@ -150,24 +151,22 @@ namespace Web.Api.Controllers
                 writer.WriteStartElement("urlset", "http://www.sitemaps.org/schemas/sitemap/0.9");
 
                 var domain = string.Empty;
-                if (domainLanguagesCount == 1)
+                if (domainLanguagesCount.Count == 1)
                 {
-                    domain = domains.Where(e => e.LanguageCode == languages[0]).Select(e => e.Domain).FirstOrDefault(e => !e.StartsWith("www") && !e.StartsWith("localhost"));
+                    domain = domains.Where(e => e.LanguageCode == domainLanguagesCount[0]).Select(e => e.Domain).FirstOrDefault();
                     domain = "https://" + domain;
                     WriteTag("1", "Daily", domain, writer);
                 }
 
                 foreach (var lang in languages)
                 {
-                    if (domainLanguagesCount > 1)
+                    if (domainLanguagesCount.Count > 1)
                     {
-                        domain = domains.Where(e => e.LanguageCode == lang)
-                            .Select(e => e.Domain).FirstOrDefault(e => !e.StartsWith("www") && !e.StartsWith("localhost"));
-                        if (domain != null)
-                        {
-                            domain = "https://" + domain;
-                            WriteTag("1", "Daily", domain, writer);
-                        }
+                        var domainLanguage = domains.Where(e => e.LanguageCode == lang).Select(e => e.Domain).FirstOrDefault();
+                        if (domainLanguage != null) domain = domainLanguage;
+
+                        domain = "https://" + domain;
+                        WriteTag("1", "Daily", domain, writer);
                     }
 
                     // tao sitemap
