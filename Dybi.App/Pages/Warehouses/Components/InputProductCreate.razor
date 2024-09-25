@@ -25,11 +25,11 @@
                     <div><label class="form-label">Danh mục:</label> @Product.CategoryName</div>
                     <div class="input-group input-group-xs mb-3">
                         <span class="input-group-text">Giá nhập</span>
-                        <InputNumber class="form-control" type="number" @bind-Value="Model.Price" />
+                        <InputNumber class="form-control" type="number" @bind-Value="Model.Price" @bind-Value:format="N0" />
                     </div>
                     <div class="input-group input-group-xs mb-3">
                         <span class="input-group-text">Số lượng</span>
-                        <InputNumber class="form-control" type="number" @bind-Value="Model.Quantity" />
+                        <InputNumber class="form-control" type="number" @bind-Value="Model.Quantity" @bind-Value:format="N0" />
                     </div>
                 </div>
                 <div class="modal-footer">

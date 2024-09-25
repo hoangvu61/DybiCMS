@@ -33,7 +33,7 @@
                         }
                         <div class="input-group input-group-xs mb-2">
                             <span class="input-group-text">Trả</span>
-                            <InputNumber id="inputRepayment" class="form-control" @bind-Value="Model.Repayment" />
+                            <InputNumber id="inputRepayment" class="form-control" @bind-Value="Model.Repayment" @bind-Value:format="N0"/>
                             <span class="input-group-text"><sup>đ</sup></span>
                         </div>
                     </div>

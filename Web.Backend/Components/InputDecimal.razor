@@ -1,0 +1,37 @@
+﻿<input @bind="StringValue" class="@CssClass" @bind:event="oninput" @onkeyup="OnChange" @onchange="OnChange" @attributes="AdditionalAttributes" />
+
+@code {
+    [Parameter]
+    public decimal Value { get; set; }
+
+    [Parameter]
+    public EventCallback<decimal> NumberChange { set; get; }
+
+    private string StringValue { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object> AdditionalAttributes { get; set; } // Để nhận các thuộc tính không xác định, bao gồm class
+
+    private string CssClass => AdditionalAttributes != null && AdditionalAttributes.ContainsKey("class")
+        ? AdditionalAttributes["class"]?.ToString()
+        : string.Empty; // Lấy giá trị class từ @attributes nếu có
+
+    protected override void OnParametersSet()
+    {
+        if (Value > 0)
+        {
+            StringValue = Value.ToString("N0");
+        }
+    }
+
+    private async Task OnChange()
+    {
+        if (!string.IsNullOrEmpty(StringValue))
+        {
+            var number = StringValue.Replace(".", string.Empty);
+            await NumberChange.InvokeAsync(Convert.ToDecimal(number));
+
+            StringValue = Value.ToString("N0");
+        }
+    }
+}

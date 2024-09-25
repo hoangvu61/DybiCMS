@@ -38,7 +38,7 @@
                         <ValidationMessage For="()=> Model.DeliveryCode"></ValidationMessage>
                         <div class="form-group input-group input-group-xs mb-2">
                             <span class="input-group-text">Phí vận chuyển:</span>
-                            <InputNumber class="form-control" @bind-Value="Model.DeliveryFee"></InputNumber>
+                            <InputNumber class="form-control" @bind-Value="Model.DeliveryFee" @bind-Value:format="N0"></InputNumber>
                             <span class="input-group-text">COD:</span>
                             <div class="input-group-text">
                                 <InputCheckbox class="form-check-input mt-0" @bind-Value="Model.COD"></InputCheckbox>

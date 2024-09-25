@@ -118,7 +118,7 @@ else
                             <div class="form-group mb-2">
                                 <div class="input-group input-group-xs mb-1">
                                     <span class="input-group-text">Thứ tự</span>
-                                    <InputNumber class="form-control" @bind-Value="Model.Order"></InputNumber>
+                                    <InputNumber class="form-control" @bind-Value="Model.Order" @bind-Value:format="N0"></InputNumber>
                                 </div>
                                 <div class="row">
                                     <div class="col"><label class="form-check-label">Hoạt dộng:</label></div>

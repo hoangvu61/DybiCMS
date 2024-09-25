@@ -81,87 +81,87 @@
             <div class="row">
                 @if (Model.Attributes != null)
                 {
-                <div class="col-6">
-                    @foreach (var att in Model.Attributes)
-                    {
-                        <div class="form-group">
-                            @if (att.Type == "Number")
-                            {
-                                <div class="input-group input-group-xs mb-2">
-                                    <span class="input-group-text">@att.Title</span>
-                                    <InputNumber class="form-control" @bind-Value="@att.Value" />
-                                </div>
-                            }
-                            else if (att.Type == "Date")
-                            {
-                                <div class="input-group input-group-xs mb-2">
-                                    <span class="input-group-text">@att.Title</span>
-                                    <InputDate class="form-control" @bind-Value="@att.Value" />
-                                </div>
-                            }
-                            else if (att.Type == "Color")
-                            {
-                                <div class="input-group input-group-xs mb-2">
-                                    <span class="input-group-text">@att.Title</span>
-                                    <InputText type="color" class="form-control" @bind-Value="@att.Value" />
-                                </div>
-                            }
-                            else if (att.Type == "Image")
-                            {
-                                <div class="input-group input-group-xs mb-2">
-                                    <span class="input-group-text">@att.Title</span>
-                                    <InputFile id="InputFileWebIcon" type="file" OnChange="@((args) => ImageChange(args, att))" accept="image/png, image/jpeg, image/gif, image/webp"></InputFile>
-                                </div>
-                            }
-                            else if (att.Type == "Boolean")
-                            {
-                                <div class="row form-switch" style="padding:0">
-                                    <div class="col"><label class="form-check-label">@att.Title</label></div>
-                                    <div class="col" style="text-align:right;padding:0">
-                                        <input type="checkbox" checked="@(att.Value.ToLower() == "true")" class="form-check-input" role="switch" @onchange="@((e) => {att.Value = e.Value.ToString();})"></input>
-                                    </div>
-                                </div>
-                            }
-                            else if (att.Type == "Check" && att.Values != null && att.Values.Count > 0)
-                            {
-                                var productAttributeIds = att.Value.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(e => e.Trim()).ToList();
-                                <label>@att.Title</label>
-                                @foreach (var value in att.Values)
+                    <div class="col-6">
+                        @foreach (var att in Model.Attributes)
+                        {
+                            <div class="form-group">
+                                @if (att.Type == "Number")
                                 {
-                                    <div class="form-check">
-                                        <input class="form-check-input" name="@att.Id" type="checkbox" value="@value.Id" checked="@productAttributeIds.Contains(value.Id)" @onchange="@((e) => Oncheck(e, productAttributeIds, value.Id, att))">
-                                        <span>@value.Title</span>
+                                    <div class="input-group input-group-xs mb-2">
+                                        <span class="input-group-text">@att.Title</span>
+                                        <InputNumber class="form-control" @bind-Value="@att.Value" @bind-Value:format="N0" />
                                     </div>
                                 }
-                            }
-                            else if (att.Type == "Option" && att.Values != null && att.Values.Count > 0)
-                            {
-                                <label>@att.Title</label>
-                                @foreach (var value in att.Values)
+                                else if (att.Type == "Date")
                                 {
-                                    <div class="form-check">
-                                        <input class="form-check-input" name="@att.Id" type="radio" value="@value.Id" checked="@(att.Value == value.Id.ToString())" @onchange="@(() => {att.Value = value.Id.ToString();})" />
-                                        <span>@value.Title</span>
+                                    <div class="input-group input-group-xs mb-2">
+                                        <span class="input-group-text">@att.Title</span>
+                                        <InputDate class="form-control" @bind-Value="@att.Value" />
                                     </div>
                                 }
-                            }
-                            else if (att.Type == "Textarea")
-                            {
-                                <div class="input-group input-group-xs mb-2">
-                                    <span class="input-group-text">@att.Title</span>
-                                    <InputTextArea type="text" class="form-control form-control-sm" @bind-Value="@att.Value"></InputTextArea>
-                                </div>
-                            }
-                            else
-                            {
-                                <div class="input-group input-group-xs mb-2">
-                                    <span class="input-group-text">@att.Title</span>
-                                    <InputText class="form-control" @bind-Value="@att.Value" />
-                                </div>
-                            }
-                        </div>
-                    }
-                </div>
+                                else if (att.Type == "Color")
+                                {
+                                    <div class="input-group input-group-xs mb-2">
+                                        <span class="input-group-text">@att.Title</span>
+                                        <InputText type="color" class="form-control" @bind-Value="@att.Value" />
+                                    </div>
+                                }
+                                else if (att.Type == "Image")
+                                {
+                                    <div class="input-group input-group-xs mb-2">
+                                        <span class="input-group-text">@att.Title</span>
+                                        <InputFile id="InputFileWebIcon" type="file" OnChange="@((args) => ImageChange(args, att))" accept="image/png, image/jpeg, image/gif, image/webp"></InputFile>
+                                    </div>
+                                }
+                                else if (att.Type == "Boolean")
+                                {
+                                    <div class="row form-switch" style="padding:0">
+                                        <div class="col"><label class="form-check-label">@att.Title</label></div>
+                                        <div class="col" style="text-align:right;padding:0">
+                                            <input type="checkbox" checked="@(att.Value.ToLower() == "true")" class="form-check-input" role="switch" @onchange="@((e) => {att.Value = e.Value.ToString();})"></input>
+                                        </div>
+                                    </div>
+                                }
+                                else if (att.Type == "Check" && att.Values != null && att.Values.Count > 0)
+                                {
+                                    var productAttributeIds = att.Value.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(e => e.Trim()).ToList();
+                                    <label>@att.Title</label>
+                                    @foreach (var value in att.Values)
+                                    {
+                                        <div class="form-check">
+                                            <input class="form-check-input" name="@att.Id" type="checkbox" value="@value.Id" checked="@productAttributeIds.Contains(value.Id)" @onchange="@((e) => Oncheck(e, productAttributeIds, value.Id, att))">
+                                            <span>@value.Title</span>
+                                        </div>
+                                    }
+                                }
+                                else if (att.Type == "Option" && att.Values != null && att.Values.Count > 0)
+                                {
+                                    <label>@att.Title</label>
+                                    @foreach (var value in att.Values)
+                                    {
+                                        <div class="form-check">
+                                            <input class="form-check-input" name="@att.Id" type="radio" value="@value.Id" checked="@(att.Value == value.Id.ToString())" @onchange="@(() => {att.Value = value.Id.ToString();})" />
+                                            <span>@value.Title</span>
+                                        </div>
+                                    }
+                                }
+                                else if (att.Type == "Textarea")
+                                {
+                                    <div class="input-group input-group-xs mb-2">
+                                        <span class="input-group-text">@att.Title</span>
+                                        <InputTextArea type="text" class="form-control form-control-sm" @bind-Value="@att.Value"></InputTextArea>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="input-group input-group-xs mb-2">
+                                        <span class="input-group-text">@att.Title</span>
+                                        <InputText class="form-control" @bind-Value="@att.Value" />
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
                 }
                 @if (Model.IsDelivery)
                 {
@@ -186,7 +186,7 @@
                         <div class="form-group mb-2">
                             <div class="input-group input-group-xs">
                                 <span class="input-group-text">Phí vận chuyển</span>
-                                <InputNumber class="form-control" @bind-Value="Model.Delivery.DeliveryFee"></InputNumber>
+                                <InputNumber class="form-control" @bind-Value="Model.Delivery.DeliveryFee" @bind-Value:format="N0"></InputNumber>
                                 <span class="input-group-text">COD</span>
                                 <div class="input-group-text">
                                     <InputCheckbox class="form-check-input" @bind-Value="Model.Delivery.COD"></InputCheckbox>
@@ -230,10 +230,10 @@
                             </td>
                             <td style="text-align:center"><img src="@(BackendApiUrl + "/" + product.Image.FullPath)" asp-append-version="true" width="50px" /></td>
                             <td>
-                                <InputNumber class="form-control input-xs" @bind-Value="product.Price"></InputNumber>
+                                <InputNumber class="form-control input-xs" @bind-Value="product.Price" @bind-Value:format="N0"></InputNumber>
                             </td>
                             <td>
-                                <InputNumber class="form-control input-xs" @bind-Value="product.Quantity"></InputNumber>
+                                <InputNumber class="form-control input-xs" @bind-Value="product.Quantity" @bind-Value:format="N0"></InputNumber>
                             </td>
                             <td style="text-align:right">@product.TotalCost.ToString("N0")</td>
                             <td class="text-center">

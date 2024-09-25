@@ -25,12 +25,12 @@
                         </div>
                         <div class="form-group">
                             <label class="col-form-label">Giá:</label>
-                            <InputNumber class="form-control form-control-sm" @bind-Value="Model.Price"></InputNumber>
+                            <InputNumber class="form-control form-control-sm" @bind-Value="Model.Price" @bind-Value:format="N0"></InputNumber>
                             <ValidationMessage For="()=> Model.Price"></ValidationMessage>
                         </div>
                         <div class="form-group">
                             <label class="col-form-label">Số lượng:</label>
-                            <InputNumber class="form-control form-control-sm" @bind-Value="Model.Quantity"></InputNumber>
+                            <InputNumber class="form-control form-control-sm" @bind-Value="Model.Quantity" @bind-Value:format="N0"></InputNumber>
                             <ValidationMessage For="()=> Model.Quantity"></ValidationMessage>
                         </div>
                     </div>

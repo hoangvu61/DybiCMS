@@ -52,7 +52,7 @@
                                 <div class="form-group">
                                     <div class="input-group input-group-sm mb-3">
                                         <span class="input-group-text">Danh mục</span>
-                                        <InputSelect class="form-control form-control-sm" ValueExpression="@(()=>Model.CategoryId)"
+                                        <InputSelect class="form-select form-control-sm" ValueExpression="@(()=>Model.CategoryId)"
                                                         Value="@Model.CategoryId"
                                                         ValueChanged="@((Guid value) => OnCategoryChanged(value))">
                                             @foreach (var category in Categories)
@@ -67,7 +67,7 @@
                                 <div class="form-group">
                                     <div class="input-group input-group-sm mb-3">
                                         <span class="input-group-text">Loại</span>
-                                        <InputSelect class="form-control form-control-sm" ValueExpression="@(()=>Model.Type)"
+                                        <InputSelect class="form-select form-control-sm" ValueExpression="@(()=>Model.Type)"
                                                         Value="@Model.Type"
                                                         ValueChanged="@((string value) => OnTypeChanged(value))">
                                             @foreach (var type in DataSource.ArticleTypes)

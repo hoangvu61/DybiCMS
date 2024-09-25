@@ -21,7 +21,7 @@
                     <div class="form-group">
                         <div class="input-group input-group-xs mb-3">
                             <span class="input-group-text">Tổng tiền</span>
-                            <InputNumber class="form-control" type="number" @bind-Value="TotalPrice" disabled="disabled" />
+                            <InputNumber class="form-control" type="number" @bind-Value="TotalPrice" disabled="disabled" @bind-Value:format="N0" />
                         </div>
                         <div class="input-group input-group-xs mb-3">
                             <span class="input-group-text">Trả trước</span>
