@@ -1,0 +1,225 @@
+﻿@using Web.Admin.Services;
+@using Web.Models;
+@using Web.Admin.Components;
+@using Web.Models.SeedWork;
+
+@inject IToastService ToastService;
+@inject ICompanyApiClient CompanyApiClient;
+@inject IAttributeApiClient AttributeApiClient;
+
+<table class="table table-sm">
+    <thead>
+        <tr>
+            <th>Danh mục</th>
+            <th>Thuộc tính</th>
+            <th>Thứ tự</th>
+            <th style="text-align:right">
+                <button class="btn btn-primary btn-xs" @onclick="()=> CreateAttributeConfigCreateDialog.Show()">Thêm</button>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (AttributeContacts != null && AttributeContacts.Count > 0)
+        {
+            <tr>
+                <td>Liên hệ</td>
+                <td colspan="4" style="text-align:right">
+                    <button class="btn btn-primary btn-xs" @onclick="()=> CreateAttributeConfigCreateDialog.Show(1)">Thêm thuộc tính</button>
+                </td>
+            </tr>
+            @foreach (var item in AttributeContacts)
+            {
+                <tr>
+                    <td></td>
+                    <td>@item.AttributeId (@item.AttributeTitles.FirstOrDefault(e => e.Key == "vi").Value)</td>
+                    <td style="text-align: center;width:100px">
+                        <div class="input-group input-group-sm mb-3">
+                            <button class="btn btn-outline-secondary" @onclick="@((e) => {item.Order--; OrderAtributeContactChanged(item.AttributeId, item.Order);})">&lt;</button>
+                            <span class="form-control">@item.Order</span>
+                            <button class="btn btn-outline-secondary" @onclick="@((e) => {item.Order++; OrderAtributeContactChanged(item.AttributeId, item.Order);})">&gt;</button>
+                        </div>
+                    </td>
+                    <td style="text-align:right">
+                        <button class="btn btn-danger btn-xs" @onclick="()=> OnDeleteAttributeConfig(1, item.AttributeId)">Xóa</button>
+                    </td>
+                </tr>
+            }
+        }
+        @if (AttributeOrders != null && AttributeOrders.Count > 0)
+        {
+            <tr>
+                <td>Đơn hàng</td>
+                <td colspan="4" style="text-align:right">
+                    <button class="btn btn-primary btn-xs" @onclick="()=> CreateAttributeConfigCreateDialog.Show(2)">Thêm thuộc tính</button>
+                </td>
+            </tr>
+            @foreach (var item in AttributeOrders)
+            {
+                <tr>
+                    <td></td>
+                    <td>@item.AttributeId (@item.AttributeTitles.FirstOrDefault(e => e.Key == "vi").Value)</td>
+                    <td style="text-align: center;width:100px">
+                        <div class="input-group input-group-sm mb-3">
+                            <button class="btn btn-outline-secondary" @onclick="@((e) => {item.Order--; OrderAtributeOrderChanged(item.AttributeId, item.Order);})">&lt;</button>
+                            <span class="form-control">@item.Order</span>
+                            <button class="btn btn-outline-secondary" @onclick="@((e) => {item.Order++; OrderAtributeOrderChanged(item.AttributeId, item.Order);})">&gt;</button>
+                        </div>
+                    </td>
+                    <td style="text-align:right">
+                        <button class="btn btn-danger btn-xs" @onclick="()=> OnDeleteAttributeConfig(2, item.AttributeId)">Xóa</button>
+                    </td>
+                </tr>
+            }
+        }
+        @if (AttributeCategories != null && AttributeCategories.Count > 0)
+        {
+            @foreach (var caterogyId in CategoryIds)
+            {
+                var category = AttributeCategories.First(e => e.CategoryId == caterogyId);
+                <tr>
+                    <td>@category.CategoryNames.FirstOrDefault(e => e.Key == "vi").Value</td>
+                    <td colspan="4" style="text-align:right">
+                        <button class="btn btn-primary btn-xs" @onclick="()=> CreateAttributeConfigCreateDialog.Show(caterogyId)">Thêm thuộc tính</button>
+                    </td>
+                </tr>
+                @foreach (var item in AttributeCategories.Where(d => d.CategoryId == category.CategoryId))
+                {
+                    <tr>
+                        <td></td>
+                        <td>@item.AttributeId (@item.AttributeTitles.FirstOrDefault(e => e.Key == "vi").Value)</td>
+                        <td style="text-align: center;width:100px">
+                            <div class="input-group input-group-sm mb-3">
+                                <button class="btn btn-outline-secondary" @onclick="@((e) => {item.Order--; OrderAttributeCategoryChanged(item.CategoryId, item.AttributeId, item.Order);})">&lt;</button>
+                                <span class="form-control">@item.Order</span>
+                                <button class="btn btn-outline-secondary" @onclick="@((e) => {item.Order++; OrderAttributeCategoryChanged(item.CategoryId, item.AttributeId, item.Order);})">&gt;</button>
+                            </div>
+                        </td>
+                        <td style="text-align:right">
+                            <button class="btn btn-danger btn-xs" @onclick="()=> OnDeleteAttributeCategory(item.CategoryId, item.AttributeId)">Xóa</button>
+                        </td>
+                    </tr>
+                }
+            }
+        }
+    </tbody>
+</table>
+
+<AttributeConfigCreate @ref="CreateAttributeConfigCreateDialog" CloseEventCallbak="RefreshList"></AttributeConfigCreate>
+
+<Confirmation ConfirmationMessage="Bạn có chắc chắn xóa?"
+            ConfirmationTitle="Xóa cấu hình thuộc tính này"
+            @ref="DeleteConfirmation"
+            ConfirmationChanged="OnConfirmDelete">
+</Confirmation>
+
+@code {
+    private string TemplateName { set; get; }
+    private List<AttributeCategoryDto> AttributeCategories { set; get; }
+    private List<AttributeOrderContactDto> AttributeOrders { set; get; }
+    private List<AttributeOrderContactDto> AttributeContacts { set; get; }
+    private List<Guid> CategoryIds { set; get; }
+    private Guid DeleteCategoryId { set; get; }
+    private string DeleteAttributeId { set; get; }
+    private int DeleteType { set; get; }
+
+    protected Confirmation DeleteConfirmation { set; get; }
+    protected AttributeConfigCreate CreateAttributeConfigCreateDialog { set; get; }
+
+    [CascadingParameter]
+    private Error Error { set; get; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await RefreshList();
+    }
+
+    public async Task RefreshList()
+    {
+        try
+        {
+            AttributeOrders = await AttributeApiClient.GetAttributeOrderList();
+            AttributeContacts = await AttributeApiClient.GetAttributeContactList();
+            AttributeCategories = await AttributeApiClient.GetAttributeCategoryList();
+            CategoryIds = AttributeCategories.Select(e => e.CategoryId).Distinct().ToList();
+        }
+        catch (Exception ex)
+        {
+            Error.ProcessError(ex);
+        }
+    }
+
+    public async void Show(string name)
+    {
+        TemplateName = name;
+
+        await RefreshList();
+
+        StateHasChanged();
+    }
+
+    public void OnDeleteAttributeConfig(int configType, string attributeId)
+    {
+        DeleteType = configType;
+        DeleteAttributeId = attributeId;
+        DeleteConfirmation.Show();
+    }
+    public void OnDeleteAttributeCategory(Guid categoryId, string attributeId)
+    {
+        DeleteCategoryId = categoryId;
+        DeleteAttributeId = attributeId;
+        DeleteType = 0;
+        DeleteConfirmation.Show();
+    }
+
+    public async Task OnConfirmDelete(bool deleteConfirmed)
+    {
+        if (deleteConfirmed)
+        {
+            switch(DeleteType)
+            {
+                case 0: await AttributeApiClient.DeleteAttributeCategory(DeleteCategoryId, DeleteAttributeId);
+                    break;
+                case 1:
+                    await AttributeApiClient.DeleteAttributeContact(DeleteAttributeId);
+                    break;
+                case 2:
+                    await AttributeApiClient.DeleteAttributeOrder(DeleteAttributeId);
+                    break;
+            }
+            
+            await RefreshList();
+        }
+    }
+
+    public async void OrderAtributeContactChanged(string attributeId, int order)
+    {
+        var result = await AttributeApiClient.UpdateAttributeContactOrder(attributeId, order);
+        if (result)
+        {
+            ToastService.ShowInfo($"Đã cập nhật thứ tự thành [{order}] thành công");
+            await RefreshList();
+        }
+        else ToastService.ShowError("Cập nhật không thành công");
+    }
+    public async void OrderAtributeOrderChanged(string attributeId, int order)
+    {
+        var result = await AttributeApiClient.UpdateAttributeOrderOrder(attributeId, order);
+        if (result)
+        {
+            ToastService.ShowInfo($"Đã cập nhật thứ tự thành [{order}] thành công");
+            await RefreshList();
+        }
+        else ToastService.ShowError("Cập nhật không thành công");
+    }
+
+    public async void OrderAttributeCategoryChanged(Guid categoryId, string attributeId, int order)
+    {
+        var result = await AttributeApiClient.UpdateAttributeCategoryOrder(categoryId, attributeId, order);
+        if (result)
+        {
+            ToastService.ShowInfo($"Đã cập nhật thứ tự thành [{order}] thành công");
+            await RefreshList();
+        }
+        else ToastService.ShowError("Cập nhật không thành công");
+    }
+}

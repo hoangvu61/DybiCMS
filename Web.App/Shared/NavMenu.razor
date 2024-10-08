@@ -1,0 +1,138 @@
+﻿@using Web.App.Pages.Components
+
+<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">Dybi Solution</a>
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</div>
+
+<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+    <nav class="flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="oi oi-home" aria-hidden="true"></span> Trang chủ
+            </NavLink>
+        </div>
+
+        <hr />
+
+        <div class="nav-item menu-group">
+            <div class="menu-group-title px-3" @onclick="@(() => Click("BanHang"))">Bán hàng <span class="oi oi-chevron-@(Menu["BanHang"] ? "bottom" : "right")"></span></div>
+            <div style="display:@(Menu["BanHang"] ? "block" : "none")">
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="sales/ordercreate">
+                        <span class="oi oi-plus" aria-hidden="true"></span> Tạo đơn hàng
+                    </NavLink>
+                    <NavLink class="nav-link" href="sales/orders">
+                        <span class="oi oi-cart" aria-hidden="true"></span> Danh sách đơn hàng
+                    </NavLink>
+                    <NavLink class="nav-link" href="sales/customers">
+                        <span class="oi oi-people" aria-hidden="true"></span> Khách hàng
+                    </NavLink>
+                </div>
+            </div>
+        </div>
+
+        <div class="nav-item menu-group">
+            <div class="menu-group-title px-3" @onclick="@(() => Click("KhoHang"))">Kho hàng <span class="oi oi-chevron-@(Menu["KhoHang"] ? "bottom" : "right")"></span></div>
+            <div style="display:@(Menu["KhoHang"] ? "block" : "none")">
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="warehouses/inputs">
+                        <span class="oi oi-account-login" aria-hidden="true"></span> Nhập kho
+                    </NavLink>
+                    <NavLink class="nav-link" href="warehouses/outputs">
+                        <span class="oi oi-account-logout" aria-hidden="true"></span> Xuất kho
+                    </NavLink>
+                    <NavLink class="nav-link" href="warehouses/inventories">
+                        <span class="oi oi-inbox" aria-hidden="true"></span> Tồn kho
+                    </NavLink>
+                    <NavLink class="nav-link" href="warehouses/findproduct">
+                        <span class="oi oi-magnifying-glass" aria-hidden="true"></span> Tìm hàng hóa
+                    </NavLink>
+                </div>
+            </div>
+        </div>
+
+        <div class="nav-item menu-group">
+            <div class="menu-group-title px-3" @onclick="@(() => Click("CongNo"))">Công nợ <span class="oi oi-chevron-@(Menu["CongNo"] ? "bottom" : "right")"></span></div>
+            <div style="display:@(Menu["CongNo"] ? "block" : "none")">
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="debts/accountspayable">
+                        <span class="oi oi-dollar" aria-hidden="true"></span> Nợ phải trả
+                    </NavLink>
+                    <NavLink class="nav-link" href="debts/accountsreceivable">
+                        <span class="oi oi-dollar" aria-hidden="true"></span> Nợ phải thu
+                    </NavLink>
+                </div>
+            </div>
+        </div>
+
+        <div class="nav-item menu-group">
+            <div class="menu-group-title px-3" @onclick="@(() => Click("CaiDat"))"> Cài đặt <span class="oi oi-chevron-@(Menu["CaiDat"] ? "bottom" : "right")"></span></div>
+            <div style="display:@(Menu["CaiDat"] ? "block" : "none")">
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="settings/categories">
+                        <span class="oi oi-list-rich" aria-hidden="true"></span> DM sản phẩm
+                    </NavLink>
+                    <NavLink class="nav-link" href="settings/products">
+                        <span class="oi oi-list-rich" aria-hidden="true"></span> Sản phẩm
+                    </NavLink>
+                    <NavLink class="nav-link" href="settings/warehouses">
+                        <span class="oi oi-list" aria-hidden="true"></span> Kho
+                    </NavLink>
+                    <NavLink class="nav-link" href="settings/suppliers">
+                        <span class="oi oi-list" aria-hidden="true"></span> Nhà cung cấp
+                    </NavLink>
+                    <NavLink class="nav-link" href="settings/factories">
+                        <span class="oi oi-list" aria-hidden="true"></span> Nơi sản xuất
+                    </NavLink>
+                    <hr />
+                    <span class="nav-link" @onclick="() => SetConfigDialog.Show()">
+                        <span class="oi oi-cog" aria-hidden="true"></span> Cấu hình hệ thống
+                    </span>
+                    <NavLink class="nav-link" href="settings/attributeorders">
+                        <span class="oi oi-cog" aria-hidden="true"></span> Thuộc tính đơn hàng
+                    </NavLink>
+                </div>
+            </div>
+        </div>
+
+        <hr />
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="/logout">
+                Đăng xuất
+            </NavLink>
+        </div>
+    </nav>
+</div>
+
+<SetConfig @ref="SetConfigDialog"></SetConfig>
+@code {
+    private bool collapseNavMenu = true;
+    private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+    private Dictionary<string, bool> Menu;
+
+    protected SetConfig SetConfigDialog { set; get; }
+
+    protected override void OnInitialized()
+    {
+        Menu = new Dictionary<string, bool>();
+        Menu["BanHang"] = false;
+        Menu["KhoHang"] = false;
+        Menu["CongNo"] = false;
+        Menu["CaiDat"] = false;
+    }
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+    protected void Click(string key)
+    {
+        var flag = Menu[key];
+        Menu[key] = !flag;
+    }
+}

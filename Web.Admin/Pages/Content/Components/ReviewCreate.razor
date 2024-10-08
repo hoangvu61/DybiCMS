@@ -1,0 +1,101 @@
+﻿@using Web.Admin.Services;
+@using Web.Models;
+@using System.IO;
+@using Web.Models.Enums;
+@using Web.Models.SeedWork;
+@using Microsoft.AspNetCore.Components.Authorization;
+
+@inject IToastService ToastService;
+@inject IContentApiClient ContentApiClient;
+
+@if (ShowDialog)
+{
+    <div class="modal fade show d-block" id="assignModel" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <EditForm Model="Model" OnValidSubmit="HandleSubmit">
+                <DataAnnotationsValidator></DataAnnotationsValidator>
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Trả lời bình luận</h5>
+                        <button type="button" class="close" data-dismiss="modal" @onclick="()=>Hide()" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <div class="input-group input-group-sm mb-3">
+                                <span class="input-group-text">Khách hàng: </span> @ReviewName
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group input-group-sm mb-3">
+                                <span class="input-group-text">Bình luận: </span> @ReviewComment
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group input-group-sm mb-3">
+                                <span class="input-group-text">Người trả lời: </span>
+                                <InputText class="form-control form-control-sm" @bind-Value="Model.Name"></InputText>
+                                <ValidationMessage For="()=> Model.Name"></ValidationMessage>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group input-group-sm mb-3">
+                                <span class="input-group-text">Nội dung:</span>
+                                <InputText class="form-control form-control-sm" @bind-Value="Model.Comment"></InputText>
+                                <ValidationMessage For="()=> Model.Comment"></ValidationMessage>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-xs" @onclick="()=>Hide()" data-dismiss="modal">Đóng</button>
+                        <button type="submit" class="btn btn-primary btn-xs">Thêm</button>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@code {
+    protected bool ShowDialog { get; set; }
+    private string ReviewName { get; set; }
+    private string ReviewComment { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> CloseEventCallbak { get; set; }
+
+    private ReviewCreateRequest Model { set; get; } = new ReviewCreateRequest();
+
+    public async Task Show(Guid reviewFore, string name, string comment)
+    {
+        Model.Id = Guid.NewGuid();
+        Model.ReviewFor = reviewFore;
+        ReviewName = name;
+        ReviewComment = comment;
+
+        ShowDialog = true;
+        StateHasChanged();
+    }
+
+    private void Hide()
+    {
+        ShowDialog = false;
+        StateHasChanged();
+    }
+
+    protected async Task HandleSubmit()
+    {
+        var result = await ContentApiClient.CreateReview(Model);
+        if (result)
+        {
+            ShowDialog = false;
+            await CloseEventCallbak.InvokeAsync(result);
+            ToastService.ShowInfo("Trả lời bình luận thành công");
+        }
+        else
+        {
+            ToastService.ShowError("Trả lời bình luận không thành công");
+        }
+    }
+}

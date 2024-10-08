@@ -1,0 +1,61 @@
+﻿@using Microsoft.AspNetCore.Authorization;
+@using Web.Admin.Services;
+@using Web.Models;
+
+@inject IToastService ToastService;
+@inject ICompanyApiClient CompanyApiClient;
+
+@attribute [Authorize]
+
+<div class="card card-outline card-warning">
+    <div class="card-body">
+        <div style="margin-left:20px">
+            <div class="form-check form-switch">
+                <input type="checkbox" checked="@CanRightClick" class="form-check-input" role="switch" @onchange="@((e) => {CanRightClick = bool.Parse(e.Value.ToString()); CheckboxChanged(Field.CanRightClick);})"></input>
+                <label class="form-check-label">Cho phép click chuột phải</label>
+            </div>
+            <div class="form-check form-switch">
+                <input type="checkbox" checked="@CanSelectCopy" class="form-check-input" role="switch" @onchange="@((e) => {CanSelectCopy = bool.Parse(e.Value.ToString()); CheckboxChanged(Field.CanSelectCopy);})"></input>
+                <label class="form-check-label">Cho phép chọn và sao chép nội dung</label>
+            </div>
+            @*<div class="form-check form-switch">
+                <input type="checkbox" checked="@Hierarchy" class="form-check-input" role="switch" @onchange="@((e) => {Hierarchy = bool.Parse(e.Value.ToString()); CheckboxChanged(Field.Hierarchy);})"></input>
+                <label class="form-check-label">Phân cấp URL</label>
+            </div>*@
+            <SiteMap></SiteMap>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public bool CanRightClick { set; get; }
+
+    [Parameter]
+    public bool CanSelectCopy { set; get; }
+
+    [Parameter]
+    public bool Hierarchy { set; get; }
+
+    public enum Field
+    {
+        CanRightClick,
+        CanSelectCopy,
+        Hierarchy
+    }
+
+    private async Task CheckboxChanged(Field field)
+    {
+        var modelRequest = new WebConfigRequest();
+        switch(field)
+        {
+            case Field.CanSelectCopy: modelRequest.CanSelectCopy = CanSelectCopy; break;
+            case Field.CanRightClick: modelRequest.CanRightClick = CanRightClick; break;
+            case Field.Hierarchy: modelRequest.Hierarchy = Hierarchy; break;
+        }
+
+        var result = await CompanyApiClient.UpdateWebConfig(modelRequest);
+        if (result) ToastService.ShowInfo("Cập nhật thành công");
+        else ToastService.ShowError("Cập nhật không thành công");
+    }
+}

@@ -1,0 +1,176 @@
+﻿@page "/signup"
+
+@using Web.Models;
+@using Web.Models.SeedWork;
+@using Web.Admin.Services;
+
+@inject IAuthService AuthService;
+@inject NavigationManager NavigationManager;
+@inject IToastService ToastService
+@inject ITemplateApiClient TemplateApiClient;
+@inject ICompanyApiClient CompanyApiClient
+
+<section class="content-header">
+    <div class="container-fluid">
+        <h1 class="m-0">Đăng ký Website</h1>
+    </div>
+</section>
+<section class="content">
+    <div class="container-fluid">
+        <EditForm Model="Request" OnValidSubmit="SubmitRequest">
+            <DataAnnotationsValidator></DataAnnotationsValidator>
+    
+            <h4>Thông tin cá nhân</h4>
+            
+            <div class="form-group mb-2">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text">Họ:</span>
+                    <InputText class="form-control" placeholder="Phạm" @bind-Value="Request.FirstName"></InputText>
+                    <ValidationMessage For="()=>Request.FirstName"></ValidationMessage>
+                </div>
+            </div>
+            <div class="form-group mb-2">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text">Tên</span>
+                    <InputText class="form-control" placeholder="Hoàng" @bind-Value="Request.LastName"></InputText>
+                </div>
+                <ValidationMessage For="()=> Request.LastName"></ValidationMessage>
+            </div>
+            <div class="form-group mb-2">
+                <div class="input-group input-group-sm">
+                    <span for="username" class="input-group-text">Tên đăng nhập</span>
+                    <InputText class="form-control" placeholder="tendangnhap" @bind-Value="Request.UserName"></InputText>
+                </div>
+                <ValidationMessage For="()=> Request.UserName"></ValidationMessage>
+            </div>
+            <div class="form-group mb-2">
+                <div class="input-group input-group-sm">
+                    <span for="Password" class="input-group-text">Mật khẩu</span>
+                    <InputText type="password" class="form-control" placeholder="********" @bind-Value="Request.Password"></InputText>
+                </div>
+                <ValidationMessage For="()=> Request.Password"></ValidationMessage>
+            </div>
+
+            <h4>Thông tin Website</h4>
+            <div class="form-group mb-2">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text">Tên miền</span>
+                    <span class="input-group-text">https://</span>
+                    <InputText class="form-control" placeholder="ten-mien-cua-ban.com" @bind-Value="Request.Domain"></InputText>
+                </div>
+                <ValidationMessage For="()=> Request.Domain"></ValidationMessage>
+            </div>
+            <div class="form-group mb-2">
+                <div class="input-group input-group-sm">
+                    <label class="input-group-text">Tên website</label>
+                    <InputText class="form-control" placeholder="Cửa hàng tiện lợi online" @bind-Value="Request.WebsiteName"></InputText>
+                </div>
+                <ValidationMessage For="()=> Request.WebsiteName"></ValidationMessage>
+            </div>
+            <div class="form-group mb-2">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text">Số điện thoại</span>
+                    <InputText class="form-control" placeholder="0987xxxxxx" @bind-Value="Request.Phone"></InputText>
+                </div>
+                <ValidationMessage For="()=> Request.Phone"></ValidationMessage>
+            </div>
+            <div class="form-group mb-2">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text">Email</span>
+                    <InputText type="email" class="form-control" placeholder="Email" @bind-Value="Request.Email"></InputText>
+                </div>
+                <ValidationMessage For="()=> Request.Email"></ValidationMessage>
+            </div>
+
+            <h4>Giao diện</h4>
+            <div class="form-group mb-2">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text">Mã giao diện</span>
+                    <InputSelect class="form-select" ValueExpression="@(()=>Request.TemplateName)"
+                                 Value="@Request.TemplateName"
+                                 ValueChanged="@((string value) => OnTemplateChanged(value))">
+                        <option value="">Chọn giao diện</option>
+                        @if (Templates != null)
+                        {
+                            @foreach (var item in Templates)
+                            {
+                                <option value="@item.TemplateName">@item.TemplateName</option>
+                            }
+                        }
+                    </InputSelect>
+                </div>
+                <ValidationMessage For="()=> Request.TemplateName"></ValidationMessage>
+            </div>
+            <div class="form-group mb-2">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text">Sao chép từ</span>
+                    <InputSelect class="form-select" @bind-Value="Request.CoppyFrom">
+                        <option value="">Chọn trang mẫu</option>
+                        @if (Domains != null)
+                        {
+                            @foreach (var domain in Domains)
+                            {
+                                <option value="@domain">@domain</option>
+                            }
+                        }
+                    </InputSelect>
+                </div>
+                <ValidationMessage For="()=>Request.CoppyFrom"></ValidationMessage>
+            </div>
+
+            <input type="submit" class="btn btn-primary btn-sm" value="Đăng ký" @onclick="SubmitRequest" />
+        </EditForm>
+    </div>
+</section>
+
+@code {
+    private SignupRequest Request = new SignupRequest();
+    private List<TemplateDto> Templates;
+    private List<string> Domains;
+
+    public MetaData MetaData { get; set; } = new MetaData();
+
+    [CascadingParameter]
+    private Error Error { set; get; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetTemplates();
+    }
+
+    private async Task GetTemplates()
+    {
+        try
+        {
+            var pagingResponse = await TemplateApiClient.GetTemplateList(new PagingParameters(0));
+            Templates = pagingResponse.Items;
+            MetaData = pagingResponse.MetaData;
+        }
+        catch (Exception ex)
+        {
+            Error.ProcessError(ex);
+        }
+
+    }
+
+    protected async Task OnTemplateChanged(string templateName)
+    {
+        Request.TemplateName = templateName;
+        Domains = await CompanyApiClient.GetDomainsByTemplate(Request.TemplateName);
+        //Domains = Domains.Where(e => e.EndsWith(".dybiweb.com")).ToList();
+    }
+
+    private async Task SubmitRequest()
+    {
+        var result = await AuthService.Signup(Request);
+        if (result)
+        {
+            ToastService.ShowSuccess("${Request.FullName} đã được tạo thành công.");
+            NavigationManager.NavigateTo("/login");
+        }
+        else
+        {
+            ToastService.ShowError($"Có lỗi xảy ra trong quá trình xử lý. Vui lòng liên hệ quản trị viên.");
+        }
+    }
+}

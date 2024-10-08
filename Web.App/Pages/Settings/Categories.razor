@@ -1,0 +1,139 @@
+﻿@page "/settings/categories"
+@attribute [Authorize]
+
+@using Web.App.Pages.Components
+@using Web.App.Pages.Settings.Components
+@using Microsoft.AspNetCore.Authorization;
+@using Web.App.Components;
+@using Web.App.Services;
+@using Web.Models;
+@using Web.Models.SeedWork;
+
+@inject IToastService ToastService;
+@inject IWarehouseApiClient WarehouseApiClient;
+
+<h1>Quản lý Danh mục Sản phẩm</h1>
+<section>
+    @if (ListCategories == null)
+    {
+        <LoadingIndicator></LoadingIndicator>
+    }
+    else
+    {
+        <div class="card card-outline card-info">
+            <div class="card-header">
+                <h3 class="card-title">Danh sách Danh mục Sản phẩm</h3>
+            </div>
+            <div class="card-body">
+                <table class="table table-sm table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Tên</th>
+                            <th>Mô tả</th>
+                            <th>Lên Website</th>
+                            <th style="width:75px">
+                                <button class="btn btn-primary btn-xs" @onclick="() => CreateDialog.Show()">Thêm</button>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in ListCategories)
+                        {
+                            <tr>
+                                <td>@item.Title</td>
+                                <td>@item.Describe</td>
+                                <td class="form-switch" style="text-align: center; padding-left: 30px;">
+                                    <input type="checkbox" checked="@item.IsPuslished" class="form-check-input" role="switch" @onchange="@((e) => {item.IsPuslished = bool.Parse(e.Value.ToString()); CheckboxChanged(item);})"></input>
+                                </td>
+                                <td>
+                                    <button class="btn btn-success btn-xs" @onclick="() => UpdateDialog.Show(item)">Sửa</button>
+                                    <button class="btn btn-danger btn-xs" @onclick="() => OnDelete(item.Id)">Xóa</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <Confirmation ConfirmationMessage="Bạn có chắc chắn xóa?"
+                    ConfirmationTitle="Xóa danh mục"
+                    @ref="DeleteConfirmation"
+                    ConfirmationChanged="OnConfirmDelete">
+        </Confirmation>
+
+        <CategoryCreate @ref="CreateDialog" ListCategories="ListCategories" CloseEventCallbak="RefreshList"></CategoryCreate>
+        <CategoryUpdate @ref="UpdateDialog" ListCategories="ListCategories" CloseEventCallbak="RefreshList"></CategoryUpdate>
+        <CategoryPublish @ref="PublishDialog" ListCategories="ListCategories" CloseEventCallbak="RefreshList"></CategoryPublish>
+    }
+</section>
+
+@code {
+    protected Confirmation DeleteConfirmation { set; get; }
+    protected CategoryCreate CreateDialog { set; get; }
+    protected CategoryUpdate UpdateDialog { set; get; }
+    protected CategoryPublish PublishDialog { set; get; }
+
+    private List<WarehouseCategoryDto> ListCategories;
+    private Guid DeleteId { set; get; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    public async Task LoadData()
+    {
+        ListCategories = await WarehouseApiClient.GetCategories();
+        ListCategories = SortTable(ListCategories, null, "", "---");
+    }
+
+    public async Task CheckboxChanged(WarehouseCategoryDto dto)
+    {
+        if (dto.IsPuslished) PublishDialog.Show(dto);
+        else
+        {
+            var result = await WarehouseApiClient.PublishCategory(dto);
+            if (result) ToastService.ShowInfo("Cập nhật tắt khỏi website thành công");
+            else ToastService.ShowError("Cập nhật tắt khỏi website không thành công");
+        }
+    }
+
+    public void OnDelete(Guid deleteId)
+    {
+        DeleteId = deleteId;
+        DeleteConfirmation.Show();
+    }
+
+    public async Task OnConfirmDelete(bool deleteConfirmed)
+    {
+        if (deleteConfirmed)
+        {
+            await WarehouseApiClient.DeleteCategory(DeleteId);
+            await LoadData();
+        }
+    }
+
+    public async Task RefreshList(bool result)
+    {
+        if (result) await LoadData();
+    }
+
+    private List<WarehouseCategoryDto> SortTable(List<WarehouseCategoryDto> table, Guid? parentId, string space = "", string distance = "....")
+    {
+        var rows = table.Where(dto => dto.ParentId == parentId).ToList();
+        if (!rows.Any()) return new List<WarehouseCategoryDto>();
+        var sortData = new List<WarehouseCategoryDto>();
+        foreach (var row in rows)
+        {
+            var spaceNext = space + distance;
+            var dt = SortTable(table, row.Id, spaceNext, distance);
+            row.Title = space + row.Title;
+            //row.Title = space + row.Title;
+            sortData.Add(row);
+
+            if (dt.Count > 0) sortData.AddRange(dt);
+        }
+        return sortData;
+    }
+}

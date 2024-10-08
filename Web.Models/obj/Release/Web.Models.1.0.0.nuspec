@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>Web.Models</id>
+    <version>1.0.0</version>
+    <authors>Web.Models</authors>
+    <description>Package Description</description>
+    <repository type="git" commit="4ac081804d535a80dce27c36326b13ddc88c0ab4" />
+    <dependencies>
+      <group targetFramework="net8.0" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="D:\Working\DybiWeb\DybiCMS\Web.Models\bin\Release\net8.0\Web.Models.dll" target="lib\net8.0\Web.Models.dll" />
+  </files>
+</package>

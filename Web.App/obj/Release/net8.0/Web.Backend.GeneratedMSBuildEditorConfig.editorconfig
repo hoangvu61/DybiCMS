@@ -1,0 +1,543 @@
+is_global = true
+build_property.EnableAotAnalyzer = 
+build_property.EnableSingleFileAnalyzer = 
+build_property.EnableTrimAnalyzer = false
+build_property.IncludeAllContentForSelfExtract = 
+build_property.TargetFramework = net8.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = 
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = false
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = browser
+build_property.RootNamespace = Web.Backend
+build_property.RootNamespace = Web.Backend
+build_property.ProjectDir = D:\Working\DybiWeb\DybiCMS\Web.Backend\
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = false
+build_property.RazorLangVersion = 8.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = D:\Working\DybiWeb\DybiCMS\Web.Backend
+build_property._RazorSourceGeneratorDebug = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/App.razor]
+build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Components/ArticleListPopup.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xBcnRpY2xlTGlzdFBvcHVwLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Components/ArticleSearch.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xBcnRpY2xlU2VhcmNoLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Components/Confirmation.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xDb25maXJtYXRpb24ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Components/LanguageOption.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xMYW5ndWFnZU9wdGlvbi5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Components/LinkListPopup.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xMaW5rTGlzdFBvcHVwLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Components/LoadingIndicator.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xMb2FkaW5nSW5kaWNhdG9yLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Components/MediaListPopup.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xNZWRpYUxpc3RQb3B1cC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Components/MediaSearch.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xNZWRpYVNlYXJjaC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Components/Pagination.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdpbmF0aW9uLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Components/ProductListPopup.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQcm9kdWN0TGlzdFBvcHVwLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Components/ProductSearch.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQcm9kdWN0U2VhcmNoLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Components/TextEditor/EmbedVideoInsert.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xUZXh0RWRpdG9yXEVtYmVkVmlkZW9JbnNlcnQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Components/TextEditor/HTMLEdit.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xUZXh0RWRpdG9yXEhUTUxFZGl0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Components/TextEditor/ImageAlt.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xUZXh0RWRpdG9yXEltYWdlQWx0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Components/TreeView.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xUcmVlVmlldy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Admin/CompanyList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cQ29tcGFueUxpc3QucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Admin/Components/CompanyDomainCreate.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cQ29tcG9uZW50c1xDb21wYW55RG9tYWluQ3JlYXRlLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Admin/Components/CompanyDomainList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cQ29tcG9uZW50c1xDb21wYW55RG9tYWluTGlzdC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Admin/Components/CompanyDomainUpdate.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cQ29tcG9uZW50c1xDb21wYW55RG9tYWluVXBkYXRlLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Admin/Components/CompanyLanguageCreate.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cQ29tcG9uZW50c1xDb21wYW55TGFuZ3VhZ2VDcmVhdGUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Admin/Components/CompanyLanguageList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cQ29tcG9uZW50c1xDb21wYW55TGFuZ3VhZ2VMaXN0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Admin/Components/CompanyUserCreate.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cQ29tcG9uZW50c1xDb21wYW55VXNlckNyZWF0ZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Admin/Components/CompanyUserList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cQ29tcG9uZW50c1xDb21wYW55VXNlckxpc3QucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Admin/Components/CompanyUserUpdate.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cQ29tcG9uZW50c1xDb21wYW55VXNlclVwZGF0ZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Admin/Components/ModuleCreate.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cQ29tcG9uZW50c1xNb2R1bGVDcmVhdGUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Admin/Components/ModuleParamCreate.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cQ29tcG9uZW50c1xNb2R1bGVQYXJhbUNyZWF0ZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Admin/Components/ModuleParamList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cQ29tcG9uZW50c1xNb2R1bGVQYXJhbUxpc3QucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Admin/Components/ModuleParamUpdate.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cQ29tcG9uZW50c1xNb2R1bGVQYXJhbVVwZGF0ZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Admin/Components/ModuleUpdate.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cQ29tcG9uZW50c1xNb2R1bGVVcGRhdGUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Admin/Components/TemplateComponentCreate.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cQ29tcG9uZW50c1xUZW1wbGF0ZUNvbXBvbmVudENyZWF0ZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Admin/Components/TemplateComponentList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cQ29tcG9uZW50c1xUZW1wbGF0ZUNvbXBvbmVudExpc3QucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Admin/Components/TemplateComponentUpdate.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cQ29tcG9uZW50c1xUZW1wbGF0ZUNvbXBvbmVudFVwZGF0ZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Admin/Components/TemplateCreate.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cQ29tcG9uZW50c1xUZW1wbGF0ZUNyZWF0ZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Admin/Components/TemplateLanguageKeyList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cQ29tcG9uZW50c1xUZW1wbGF0ZUxhbmd1YWdlS2V5TGlzdC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Admin/Components/TemplatePositionCreate.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cQ29tcG9uZW50c1xUZW1wbGF0ZVBvc2l0aW9uQ3JlYXRlLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Admin/Components/TemplatePositionUpdate.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cQ29tcG9uZW50c1xUZW1wbGF0ZVBvc2l0aW9uVXBkYXRlLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Admin/Components/TemplatePosotiontList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cQ29tcG9uZW50c1xUZW1wbGF0ZVBvc290aW9udExpc3QucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Admin/Components/TemplateSkinCreate.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cQ29tcG9uZW50c1xUZW1wbGF0ZVNraW5DcmVhdGUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Admin/Components/TemplateSkinList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cQ29tcG9uZW50c1xUZW1wbGF0ZVNraW5MaXN0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Admin/Components/TemplateSkinUpdate.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cQ29tcG9uZW50c1xUZW1wbGF0ZVNraW5VcGRhdGUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Admin/Components/TemplateUpdate.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cQ29tcG9uZW50c1xUZW1wbGF0ZVVwZGF0ZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Admin/ModuleList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cTW9kdWxlTGlzdC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Admin/TemplateList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cVGVtcGxhdGVMaXN0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Config/AttributeList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29uZmlnXEF0dHJpYnV0ZUxpc3QucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Config/CompanyInfo.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29uZmlnXENvbXBhbnlJbmZvLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Config/Components/AttributeConfigCreate.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29uZmlnXENvbXBvbmVudHNcQXR0cmlidXRlQ29uZmlnQ3JlYXRlLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Config/Components/AttributeConfigList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29uZmlnXENvbXBvbmVudHNcQXR0cmlidXRlQ29uZmlnTGlzdC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Config/Components/AttributeCreate.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29uZmlnXENvbXBvbmVudHNcQXR0cmlidXRlQ3JlYXRlLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Config/Components/AttributeSourceCreate.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29uZmlnXENvbXBvbmVudHNcQXR0cmlidXRlU291cmNlQ3JlYXRlLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Config/Components/AttributeSourceList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29uZmlnXENvbXBvbmVudHNcQXR0cmlidXRlU291cmNlTGlzdC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Config/Components/AttributeSourceUpdate.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29uZmlnXENvbXBvbmVudHNcQXR0cmlidXRlU291cmNlVXBkYXRlLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Config/Components/AttributeUpdate.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29uZmlnXENvbXBvbmVudHNcQXR0cmlidXRlVXBkYXRlLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Config/Components/AttributeValueCreate.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29uZmlnXENvbXBvbmVudHNcQXR0cmlidXRlVmFsdWVDcmVhdGUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Config/Components/AttributeValueUpdate.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29uZmlnXENvbXBvbmVudHNcQXR0cmlidXRlVmFsdWVVcGRhdGUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Config/Components/BranchCreate.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29uZmlnXENvbXBvbmVudHNcQnJhbmNoQ3JlYXRlLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Config/Components/BranchesList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29uZmlnXENvbXBvbmVudHNcQnJhbmNoZXNMaXN0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Config/Components/BranchUpdate.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29uZmlnXENvbXBvbmVudHNcQnJhbmNoVXBkYXRlLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Config/Components/CompanyLanguageConfig.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29uZmlnXENvbXBvbmVudHNcQ29tcGFueUxhbmd1YWdlQ29uZmlnLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Config/Components/MenuConfigCreate.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29uZmlnXENvbXBvbmVudHNcTWVudUNvbmZpZ0NyZWF0ZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Config/Components/ModuleConfigCreate.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29uZmlnXENvbXBvbmVudHNcTW9kdWxlQ29uZmlnQ3JlYXRlLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Config/Components/ModuleConfigParams.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29uZmlnXENvbXBvbmVudHNcTW9kdWxlQ29uZmlnUGFyYW1zLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Config/Components/ModuleConfigSearch.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29uZmlnXENvbXBvbmVudHNcTW9kdWxlQ29uZmlnU2VhcmNoLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Config/Components/ModuleConfigSkin.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29uZmlnXENvbXBvbmVudHNcTW9kdWxlQ29uZmlnU2tpbi5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Config/Components/SEOPageCreate.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29uZmlnXENvbXBvbmVudHNcU0VPUGFnZUNyZWF0ZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Config/Components/SEOPageUpdate.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29uZmlnXENvbXBvbmVudHNcU0VPUGFnZVVwZGF0ZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Config/Components/SiteMap.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29uZmlnXENvbXBvbmVudHNcU2l0ZU1hcC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Config/Components/ThirdPartyCreate.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29uZmlnXENvbXBvbmVudHNcVGhpcmRQYXJ0eUNyZWF0ZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Config/Components/ThirdPartyUpdate.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29uZmlnXENvbXBvbmVudHNcVGhpcmRQYXJ0eVVwZGF0ZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Config/Components/WebBackground.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29uZmlnXENvbXBvbmVudHNcV2ViQmFja2dyb3VuZC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Config/Components/Webconfig.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29uZmlnXENvbXBvbmVudHNcV2ViY29uZmlnLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Config/Components/WebConfigImage.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29uZmlnXENvbXBvbmVudHNcV2ViQ29uZmlnSW1hZ2UucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Config/Components/WebInfo.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29uZmlnXENvbXBvbmVudHNcV2ViSW5mby5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Config/MenuConfig.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29uZmlnXE1lbnVDb25maWcucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Config/ModuleConfigDetail.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29uZmlnXE1vZHVsZUNvbmZpZ0RldGFpbC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Config/ModuleConfigList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29uZmlnXE1vZHVsZUNvbmZpZ0xpc3QucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Config/SEOPageList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29uZmlnXFNFT1BhZ2VMaXN0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Config/ThirdPartyList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29uZmlnXFRoaXJkUGFydHlMaXN0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Content/ArticleCreate.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29udGVudFxBcnRpY2xlQ3JlYXRlLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Content/ArticleDetail.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29udGVudFxBcnRpY2xlRGV0YWlsLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Content/ArticleList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29udGVudFxBcnRpY2xlTGlzdC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Content/CategoryList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29udGVudFxDYXRlZ29yeUxpc3QucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Content/Components/ArticleRelatedList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29udGVudFxDb21wb25lbnRzXEFydGljbGVSZWxhdGVkTGlzdC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Content/Components/AttributeList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29udGVudFxDb21wb25lbnRzXEF0dHJpYnV0ZUxpc3QucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Content/Components/CategoryCreate.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29udGVudFxDb21wb25lbnRzXENhdGVnb3J5Q3JlYXRlLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Content/Components/CategoryDetail.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29udGVudFxDb21wb25lbnRzXENhdGVnb3J5RGV0YWlsLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Content/Components/EventCreate.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29udGVudFxDb21wb25lbnRzXEV2ZW50Q3JlYXRlLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Content/Components/EventSearch.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29udGVudFxDb21wb25lbnRzXEV2ZW50U2VhcmNoLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Content/Components/ImageList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29udGVudFxDb21wb25lbnRzXEltYWdlTGlzdC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Content/Components/MediaAudioCreate.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29udGVudFxDb21wb25lbnRzXE1lZGlhQXVkaW9DcmVhdGUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Content/Components/MediaDocumentCreate.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29udGVudFxDb21wb25lbnRzXE1lZGlhRG9jdW1lbnRDcmVhdGUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Content/Components/MediaLinkCreate.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29udGVudFxDb21wb25lbnRzXE1lZGlhTGlua0NyZWF0ZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Content/Components/MediaLinkUpdate.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29udGVudFxDb21wb25lbnRzXE1lZGlhTGlua1VwZGF0ZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Content/Components/MediaVideoCreate.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29udGVudFxDb21wb25lbnRzXE1lZGlhVmlkZW9DcmVhdGUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Content/Components/ProductAddOnList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29udGVudFxDb21wb25lbnRzXFByb2R1Y3RBZGRPbkxpc3QucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Content/Components/ProductRelatedList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29udGVudFxDb21wb25lbnRzXFByb2R1Y3RSZWxhdGVkTGlzdC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Content/Components/ReviewCreate.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29udGVudFxDb21wb25lbnRzXFJldmlld0NyZWF0ZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Content/Components/ReviewSearch.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29udGVudFxDb21wb25lbnRzXFJldmlld1NlYXJjaC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Content/Components/SEOItem.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29udGVudFxDb21wb25lbnRzXFNFT0l0ZW0ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Content/EventDetail.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29udGVudFxFdmVudERldGFpbC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Content/EventList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29udGVudFxFdmVudExpc3QucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Content/MediaAudioDetail.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29udGVudFxNZWRpYUF1ZGlvRGV0YWlsLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Content/MediaAudioList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29udGVudFxNZWRpYUF1ZGlvTGlzdC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Content/MediaDocumentDetail.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29udGVudFxNZWRpYURvY3VtZW50RGV0YWlsLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Content/MediaDocumentList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29udGVudFxNZWRpYURvY3VtZW50TGlzdC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Content/MediaLinkList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29udGVudFxNZWRpYUxpbmtMaXN0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Content/MediaPictureList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29udGVudFxNZWRpYVBpY3R1cmVMaXN0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Content/MediaVideoDetail.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29udGVudFxNZWRpYVZpZGVvRGV0YWlsLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Content/MediaVideoList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29udGVudFxNZWRpYVZpZGVvTGlzdC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Content/ProductCreate.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29udGVudFxQcm9kdWN0Q3JlYXRlLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Content/ProductDetail.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29udGVudFxQcm9kdWN0RGV0YWlsLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Content/ProductList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29udGVudFxQcm9kdWN0TGlzdC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Content/ReviewList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29udGVudFxSZXZpZXdMaXN0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Home.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSG9tZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Index.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSW5kZXgucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Login.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTG9naW4ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Logout.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTG9nb3V0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Order/Components/OrderCustomerUpdate.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcT3JkZXJcQ29tcG9uZW50c1xPcmRlckN1c3RvbWVyVXBkYXRlLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Order/Components/OrderDeliveryEdit.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcT3JkZXJcQ29tcG9uZW50c1xPcmRlckRlbGl2ZXJ5RWRpdC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Order/Components/OrderDetail.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcT3JkZXJcQ29tcG9uZW50c1xPcmRlckRldGFpbC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Order/Components/OrderProductUpdate.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcT3JkZXJcQ29tcG9uZW50c1xPcmRlclByb2R1Y3RVcGRhdGUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Order/OrderList.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcT3JkZXJcT3JkZXJMaXN0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Signup.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2lnbnVwLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Shared/Error.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXEVycm9yLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Shared/Navbar.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXE5hdmJhci5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Shared/Sidebar.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXFNpZGViYXIucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/_Imports.razor]
+build_metadata.AdditionalFiles.TargetPath = X0ltcG9ydHMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Components/TextEditor/ImageSelector.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xUZXh0RWRpdG9yXEltYWdlU2VsZWN0b3IucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-6kr9787rld
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Pages/Content/Components/MediaPictureCreate.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29udGVudFxDb21wb25lbnRzXE1lZGlhUGljdHVyZUNyZWF0ZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = b-l256ppy8l2
+
+[D:/Working/DybiWeb/DybiCMS/Web.Backend/Shared/MainLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXE1haW5MYXlvdXQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-pm75e2noby

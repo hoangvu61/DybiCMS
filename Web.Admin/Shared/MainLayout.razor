@@ -1,0 +1,31 @@
+﻿@inherits LayoutComponentBase
+@using Blazored.Toast.Configuration;
+@using Web.Admin.Pages;
+@using Microsoft.AspNetCore.Components.Authorization;
+
+<BlazoredToasts Position="ToastPosition.BottomRight" Timeout="5" IconType="IconType.FontAwesome" ErrorIcon="fa fa-times"
+    InfoIcon="fa fa-info" SuccessIcon="fa fa-check" WarningIcon="fa fa-exclamation" />
+<div class="wrapper">
+<AuthorizeView>
+    <Authorized>
+    <!-- Navbar -->
+    <Navbar />
+    <!-- /.navbar -->
+
+    <Sidebar />
+
+    <div class="content-wrapper">@Body</div>
+
+    <!-- /.content-wrapper -->
+    <footer class="main-footer">
+                <strong>Phát triển bởi <a href="https://dybiweb.com">dybiweb.com</a>.</strong>
+        <div class="float-right d-none d-sm-inline-block">
+            <b>Version</b> 8.2.1
+        </div>
+    </footer>
+    </Authorized>
+    <NotAuthorized>
+        <Login></Login>
+    </NotAuthorized>
+</AuthorizeView>
+</div>

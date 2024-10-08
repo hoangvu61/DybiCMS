@@ -1,0 +1,91 @@
+﻿@using Web.Admin.Services;
+@using Web.Models;
+@using Web.Models.Enums;
+@using Web.Models.SeedWork;
+
+@inject IToastService ToastService;
+@inject ICompanyApiClient CompanyApiClient;
+
+@if (ShowDialog)
+{
+    <div class="modal fade show d-block" id="assignModel" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Sửa tên miền</h5>
+                    <button type="button" class="close" data-dismiss="modal" @onclick="()=>Hide()" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                @if (Model != null)
+                {
+                    <EditForm Model="Model" OnValidSubmit="HandleSubmit">
+                        <DataAnnotationsValidator></DataAnnotationsValidator>
+                        <div class="modal-body">
+
+                            <div class="form-group">
+                                <InputText class="form-control form-control-sm" @bind-Value="Model.Domain" readonly="readonly"></InputText>
+                                <ValidationMessage For="()=> Model.Domain"></ValidationMessage>
+                            </div>
+                            <div class="form-group">
+                                <InputSelect class="form-control form-control-sm" @bind-Value="Model.LanguageCode">
+                                    @foreach (var item in Languages)
+                                    {
+                                        <option value="@item">@item</option>
+                                    }
+                                </InputSelect>
+                            <ValidationMessage For="()=> Model.LanguageCode"></ValidationMessage>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary btn-xs" @onclick="()=>Hide()" data-dismiss="modal">Đóng</button>
+                            <button type="submit" class="btn btn-primary btn-xs">Lưu</button>
+                        </div>
+                    </EditForm>
+                }
+            </div>
+
+        </div>
+    </div>
+}
+
+@code {
+    protected bool ShowDialog { get; set; }
+
+    private CompanyDomainDto Model { set; get; }
+    private List<string> Languages = new List<string>();
+
+    [Parameter]
+    public EventCallback<bool> CloseEventCallbak { get; set; }
+
+    public async void Show(Guid companyId, string domain)
+    {
+        Model.CompanyId = companyId;
+        Model.Domain = domain;
+        Model = await CompanyApiClient.GetDomain(Model.Domain);
+        Languages = await CompanyApiClient.GetLanguageList(Model.CompanyId);
+        ShowDialog = true;
+        StateHasChanged();
+    }
+
+    private void Hide()
+    {
+        ShowDialog = false;
+        StateHasChanged();
+    }
+
+    protected async Task HandleSubmit()
+    {
+        var result = await CompanyApiClient.UpdateDomain(Model);
+        if (result)
+        {
+            ShowDialog = false;
+            await CloseEventCallbak.InvokeAsync(true);
+            ToastService.ShowInfo("Lưu tên miền thành công");
+        }
+        else
+        {
+            ToastService.ShowError("Lưu tên miền không thành công");
+        }
+    }
+}

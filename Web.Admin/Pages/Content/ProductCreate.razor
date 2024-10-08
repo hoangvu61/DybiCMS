@@ -1,0 +1,588 @@
+﻿@page "/ProductCreate"
+@using Web.Admin.Components
+@using Web.Admin.Components.TextEditor
+@using Web.Admin.Pages.Content.Components;
+@using Web.Admin.Services;
+@using Web.Models;
+@using Web.Models.Enums;
+@using Web.Models.SeedWork;
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+@inject IToastService ToastService;
+@inject IContentApiClient ContentApiClient;
+@inject IAttributeApiClient AttributeApiClient;
+@inject NavigationManager NavigationManager;
+@inject ICompanyApiClient CompanyApiClient;
+
+@if (Model == null || Categories == null)
+{
+    <LoadingIndicator></LoadingIndicator>
+}
+else
+{
+    @if (Categories.Count == 0)
+    {
+        <div class="callout callout-info">
+            <h5><i class="fas fa-info"></i> Note:</h5>
+            Chưa có danh mục nào. Vui lòng tạo danh mục trước: <a href="/categorylist">Đến quản lý danh mục</a>
+        </div>
+    }
+    else
+    {
+        <EditForm Model="Model" OnValidSubmit="HandleSubmit">
+            <DataAnnotationsValidator></DataAnnotationsValidator>
+            <section class="content-header">
+                <div class="container-fluid">
+                    <div class="row mb-2">
+                        <div class="col"><h1 class="m-0">Thêm sản phẩm</h1></div>
+                        <div class="col" style="text-align:right"><button type="submit" class="btn btn-success">Lưu</button></div>
+                    </div>
+                </div>
+            </section>
+            <section class="content" style="padding:0">
+                <div class="container-fluid">
+                    <div class="card card-outline card-info">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-7">
+                                    <div class="form-group">
+                                        <div class="input-group input-group-sm mb-3" style="font-weight:bold">
+                                            <span class="input-group-text">Tên sản phẩm</span>
+                                            <InputText class="form-control form-control-sm" @bind-Value="Model.Title"></InputText>
+                                        </div>
+                                        <ValidationMessage For="()=> Model.Title"></ValidationMessage>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="input-group input-group-sm mb-3" style="font-weight:bold">
+                                            <span class="input-group-text">Mã sản phẩm</span>
+                                            <InputText class="form-control form-control-sm" @bind-Value="Model.Code"></InputText>
+                                        </div>
+                                        <ValidationMessage For="()=> Model.Code"></ValidationMessage>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="input-group input-group-sm mb-3">
+                                            <span class="input-group-text">Danh mục</span>
+                                            <InputSelect class="form-control form-control-sm" ValueExpression="@(()=>Model.CategoryId)"
+                                             Value="@Model.CategoryId"
+                                             ValueChanged="@((Guid value) => OnCategoryChanged(value))">
+                                                @foreach (var category in Categories)
+                                                {
+                                                    <option value="@category.Id">@category.Type @category.Titles.FirstOrDefault(e => e.Key == Model.LanguageCode).Value</option>
+                                                }
+                                            </InputSelect>
+                                            <button class="btn btn-outline-secondary" type="button" @onclick="() => CreateCategoryControl.Show()">+</button>
+                                        </div>
+                                        <ValidationMessage For="()=>Model.CategoryId"></ValidationMessage>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="input-group input-group-sm mb-3">
+                                            <span class="input-group-text">Hình đại diện (một)</span>
+                                            <InputFile type="file" OnChange="AddImage" accept="image/png, image/jpeg, image/gif, image/webp"></InputFile>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="input-group input-group-sm mb-3">
+                                            <span class="input-group-text">Hình chi tiết (nhiều)</span>
+                                            <InputFile multiple type="file" OnChange="AddImageDetails" accept="image/png, image/jpeg, image/gif, image/webp"></InputFile>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="input-group input-group-sm mb-3">
+                                            <span class="input-group-text" id="inputGroup-sizing-sm">Giá</span>
+                                            <InputNumber class="form-control" @bind-Value="Model.Price" @bind-Value:format="N0"></InputNumber>
+                                        </div>
+                                    </div>
+                                    <div class="from-group">
+                                        <label>Giảm giá:</label>
+                                        <div class="form-check form-check-inline">
+                                            @foreach (var discount in DataSource.DiscountTypes)
+                                            {
+                                                <input name="discount" type="radio" class="form-check-input" @onchange="@(() => {Model.DiscountType = discount.Key;})" checked="@(Model.DiscountType == discount.Key)" />
+                                                @discount.Value
+                                            }
+                                        </div>
+                                        @if (Model.DiscountType > 0)
+                                        {
+                                            <div class="input-group input-group-sm mb-3">
+                                                @if (Model.DiscountType == 1 || Model.DiscountType == 2)
+                                                {
+                                                    <span class="input-group-text" id="inputGroup-sizing-sm">Giảm</span>
+                                                }
+                                                else if (Model.DiscountType == 3)
+                                                {
+                                                    <span class="input-group-text" id="inputGroup-sizing-sm">Giá bán</span>
+                                                }
+                                                <InputNumber class="form-control" @bind-Value="Model.Discount" @bind-Value:format="N0"></InputNumber>
+                                                <ValidationMessage For="()=>Model.Discount"></ValidationMessage>
+                                                @if (Model.DiscountType == 1)
+                                                {
+                                                    <span class="input-group-text" id="inputGroup-sizing-sm">(%) Còn @((Model.Price - (Model.Discount * Model.Price / 100)).ToString("N0"))</span>
+                                                }
+                                                else if (Model.DiscountType == 2)
+                                                {
+                                                    <span class="input-group-text" id="inputGroup-sizing-sm">Còn @((Model.Price - Model.Discount).ToString("N0"))</span>
+                                                }
+                                            </div>
+                                        }
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="input-group input-group-sm mb-3">
+                                            <span class="input-group-text" id="inputGroup-sizing-sm">Thứ tự</span>
+                                            <InputNumber class="form-control" @bind-Value="Model.Order"></InputNumber>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-5">
+                                    @if (Attributes != null && Attributes.Count > 0)
+                                    {
+                                        <div class="card">
+                                            <div class="card-header">
+                                                <h3 class="card-title">Thông số kỹ thuật</h3>
+                                            </div>
+                                            <!-- /.card-header -->
+                                            <div class="card-body">
+                                                @foreach (var att in Attributes)
+                                                {
+                                                    <div class="form-group">
+                                                        @if (att.Type == "Number")
+                                                        {
+                                                            <div class="input-group input-group-sm mb-3">
+                                                                <span class="input-group-text" id="inputGroup-sizing-sm">@att.Title</span>
+                                                                <input type="number" class="form-control" value="@att.Value" @onchange="@(e => att.Value = e.Value.ToString())"></input>
+                                                            </div>
+                                                        }
+                                                        else if (att.Type == "Date")
+                                                        {
+                                                            <div class="input-group input-group-sm mb-3">
+                                                                <span class="input-group-text" id="inputGroup-sizing-sm">@att.Title</span>
+                                                                <input type="date" class="form-control" value="@att.Value" @onchange="@(e => att.Value = e.Value.ToString())"></input>
+                                                            </div>
+                                                        }
+                                                        else if (att.Type == "Color")
+                                                        {
+                                                            <div class="input-group input-group-sm mb-3">
+                                                                <span class="input-group-text" id="inputGroup-sizing-sm">@att.Title</span>
+                                                                <input type="color" class="form-control" value="@att.Value" @onchange="@(e => att.Value = e.Value.ToString())"></input>
+                                                            </div>
+                                                        }
+                                                        else if (att.Type == "Boolean")
+                                                        {
+                                                            <div class="row form-switch" style="padding:0">
+                                                                <div class="col"><label class="form-check-label">@att.Title</label></div>
+                                                                <div class="col" style="text-align:right;padding:0"><input type="checkbox" checked="@att.Value" class="form-check-input" role="switch" @onchange="@((e) => {att.Value = e.Value.ToString();})"></input></div>
+                                                            </div>
+                                                        }
+                                                        else if (att.Type == "Check" && att.Values != null && att.Values.Count > 0)
+                                                        {
+                                                            <label>@att.Title</label>
+                                                            @foreach (var value in att.Values)
+                                                            {
+                                                                var productAttributeIds = new List<string>();
+                                                                <div class="form-check">
+                                                                    <input class="form-check-input" name="@att.Id" type="checkbox" value="@value.Id" @onchange="@((e) => Oncheck(e, productAttributeIds, value.Id, att))">
+                                                                    <label class="form-check-label">@value.Title</label>
+                                                                </div>
+                                                            }
+                                                        }
+                                                        else if (att.Type == "Option" && att.Values != null && att.Values.Count > 0)
+                                                        {
+                                                            <label>@att.Title</label>
+                                                            @foreach (var value in att.Values)
+                                                            {
+                                                                <div class="form-check">
+                                                                    <input name="@att.Id" type="radio" value="@value.Id" class="form-check-input" @onchange="@(() => {att.Value = value.Id.ToString();})" />
+                                                                    <label class="form-check-label">@value.Title</label>
+                                                                </div>
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="input-group input-group-sm mb-3">
+                                                                <span class="input-group-text" id="inputGroup-sizing-sm">@att.Title</span>
+                                                                <input type="text" class="form-control" value="@att.Value" @onchange="@(e => att.Value = e.Value.ToString())"></input>
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                }
+                                            </div>
+                                            <!-- /.card-body -->
+                                        </div>
+                                    }
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>Mô tả ngắn:</label>
+                                        <InputTextArea @bind-Value="Model.Brief" class="form-control form-control-sm" style="height:150px"></InputTextArea>
+                                        <ValidationMessage For="()=> Model.Brief"></ValidationMessage>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Mô tả chi tiết:</label>
+                                        <BlazoredTextEditor @ref="@QuillHtml">
+                                            <ToolbarContent>
+                                                <select class="ql-header">
+                                                    <option selected=""></option>
+                                                    <option value="2"></option>
+                                                    <option value="3"></option>
+                                                    <option value="4"></option>
+                                                    <option value="5"></option>
+                                                </select>
+                                                <span class="ql-formats">
+                                                    <select class="ql-size">
+                                                        <option value="small"></option>
+                                                        <option selected=""></option>
+                                                        <option value="large"></option>
+                                                        <option value="huge"></option>
+                                                    </select>
+                                                </span>
+                                                <span class="ql-formats">
+                                                    <button class="ql-bold"></button>
+                                                    <button class="ql-italic"></button>
+                                                    <button class="ql-underline"></button>
+                                                    <button class="ql-strike"></button>
+                                                </span>
+                                                <span class="ql-formats">
+                                                    <select class="ql-color"></select>
+                                                    <select class="ql-background"></select>
+                                                </span>
+                                                <span class="ql-formats">
+                                                    <button class="ql-list" value="ordered"></button>
+                                                    <button class="ql-list" value="bullet"></button>
+                                                    <button class="ql-indent" value="-1"></button>
+                                                    <button class="ql-indent" value="+1"></button>
+                                                    <select class="ql-align">
+                                                        <option selected=""></option>
+                                                        <option value="center"></option>
+                                                        <option value="right"></option>
+                                                        <option value="justify"></option>
+                                                    </select>
+                                                </span>
+                                                <span class="ql-formats">
+                                                    <button class="ql-link"></button>
+                                                </span>
+
+                                                <span class="ql-formats">
+                                                    <button type="button" class="btn btn-img" @onclick="InsertImageClick">
+                                                        <img src="imageicon.png" style="border:hidden;width:20px;height:18px" />
+                                                    </button>
+                                                    <button type="button" class="btn btn-img" @onclick="InsertVideoClick">
+                                                        <img src="videoicon.png" style="border:hidden;width:20px;height:18px" />
+                                                    </button>
+                                                </span>
+                                                <span class="ql-formats">
+                                                    <button type="button" class="btn btn-code" @onclick="ShowHTMLClick">&lt;/&gt;</button>
+                                                </span>
+                                            </ToolbarContent>
+                                            <EditorContent>
+                                                @* @((MarkupString)Model.Content)*@
+                                            </EditorContent>
+                                        </BlazoredTextEditor>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Các sản phẩm kèm theo</h3>
+                        </div>
+                        <!-- /.card-header -->
+                        <div class="card-body">
+                            <table class="table table-sm table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Tiêu đề</th>
+                                        <th style="text-align:center">Hình ảnh</th>
+                                        <th style="text-align:right">Số lượng</th>
+                                        <th style="text-align:right">Giá</th>
+                                        <th style="text-align:right"><button type="button" class="btn btn-primary btn-xs" @onclick="ShowAddAddOn">Thêm</button></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in AddOns)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <table>
+                                                    @foreach (var title in item.Titles)
+                                                    {
+                                                        <tr>
+                                                            <td style="border:0;padding:0">@title.Key: </td>
+                                                            <td style="border:0;padding:0">@title.Value</td>
+                                                        </tr>
+                                                    }
+                                                </table>
+                                            </td>
+                                            <td style="text-align:center"><img src="@(BackendApiUrl + "/" + item.Image.FullPath + "?DummyId=" + DateTime.Now.Ticks)" asp-append-version="true" width="50px" /></td>
+                                            <td>
+                                                <InputNumber class="form-control" @bind-Value="item.Order"></InputNumber>
+                                            </td>
+                                            <td>
+                                                <InputNumber class="form-control" @bind-Value="item.Price"></InputNumber>
+                                            </td>
+                                            <td style="text-align:right"><button class="btn btn-danger btn-sm" @onclick="()=> AddOns.Remove(item)">Xóa</button></td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- /.card-body -->
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Các sản phẩm liên quan</h3>
+                        </div>
+                        <!-- /.card-header -->
+                        <div class="card-body">
+                            <table class="table table-sm table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Tiêu đề</th>
+                                        <th>Hình ảnh</th>
+                                        <th style="text-align:right"><button type="button" class="btn btn-primary btn-xs" @onclick="ShowAddRelated">Thêm</button></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Relateds)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <table>
+                                                    @foreach (var title in item.Titles)
+                                                    {
+                                                        <tr>
+                                                            <td style="border:0;padding:0">@title.Key: </td>
+                                                            <td style="border:0;padding:0">@title.Value</td>
+                                                        </tr>
+                                                    }
+                                                </table>
+                                            </td>
+                                            <td style="text-align:center"><img src="@(BackendApiUrl + "/" + item.Image.FullPath + "?DummyId=" + DateTime.Now.Ticks)" asp-append-version="true" width="50px" /></td>
+                                            <td style="text-align:right"><button class="btn btn-danger btn-sm" @onclick="()=> Relateds.Remove(item)">Xóa</button></td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- /.card-body -->
+                    </div>
+                </div>
+            </section>
+        </EditForm>
+
+        <ImageSelector @ref="ImageManagerControl" ImageSelected="InsertImage"></ImageSelector>
+        <HTMLEdit @ref="EditHTML" TextChanged="ApplyHTML"></HTMLEdit>
+        <EmbedVideoInsert @ref="VideoInsertControl" InsertVideo="InsertVideo"></EmbedVideoInsert>
+        <CategoryCreate @ref="CreateCategoryControl" LanguageCode="@Model.LanguageCode" CloseEventCallbak="LoadCategories" Type="PRO"></CategoryCreate>
+        <ProductListPopup @ref="ListProductRelatedControl" EventCallbak="AddRelatedAddOn"></ProductListPopup>
+    }
+}
+@code {
+    private string BackendApiUrl { get; set; }
+    private bool YesAddOnNoRelated { get; set; }
+
+    private ProductCreateRequest Model { get; set; } = new ProductCreateRequest();
+    private List<CategoryDto> Categories { set; get; }
+    private List<ProductDto> Relateds { set; get; } = new List<ProductDto>();
+    private List<ProductDto> AddOns { set; get; } = new List<ProductDto>();
+    private List<AttributeSetupDto> Attributes { set; get; } = new List<AttributeSetupDto>();
+
+    private HTMLEdit EditHTML { get; set; }
+    private ImageSelector ImageManagerControl { get; set; }
+    private EmbedVideoInsert VideoInsertControl { get; set; }
+    private BlazoredTextEditor QuillHtml;
+    protected CategoryCreate CreateCategoryControl { set; get; }
+    protected ProductListPopup ListProductRelatedControl { set; get; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        BackendApiUrl = Configuration["BackendApiUrl"];
+
+        var languages = await CompanyApiClient.GetLanguageList(Guid.Empty);
+        if (languages.Count == 0 || languages.Contains("vi")) Model.LanguageCode = "vi";
+        else Model.LanguageCode = languages.First();
+
+        Model.Id = Guid.NewGuid();
+        await LoadCategories();
+        if (Categories.Count > 0)
+        {
+            Model.CategoryId = Categories.First().Id;
+            //Attributes = await AttributeApiClient.GetAttributeSetupList(Model.LanguageCode, Model.CategoryId);
+        }
+    }
+
+    public async Task LoadCategories()
+    {
+        var categories = await ContentApiClient.GetCategories("PRO");
+        Categories = SortTable(categories, null, "", "---");
+    }
+
+    public async Task OnCategoryChanged(Guid categoryId)
+    {
+        Model.CategoryId = categoryId;
+        Attributes = await AttributeApiClient.GetAttributeSetupList(Model.LanguageCode, Model.CategoryId);
+    }
+
+    private async Task Oncheck(ChangeEventArgs e, List<string> productAttributeIds, string attributeId, AttributeSetupDto dto)
+    {
+        if (bool.Parse(e.Value.ToString())) productAttributeIds.Add(attributeId);
+        else productAttributeIds.Remove(attributeId);
+        dto.Value = string.Join(',', productAttributeIds);
+    }
+
+    protected void ShowAddRelated()
+    {
+        YesAddOnNoRelated = false;
+        ListProductRelatedControl.Show();
+    }
+    protected void ShowAddAddOn()
+    {
+        YesAddOnNoRelated = true;
+        ListProductRelatedControl.Show();
+    }
+
+    protected void AddRelatedAddOn(ProductDto related)
+    {
+        if (YesAddOnNoRelated)
+        {
+            if (!AddOns.Any(e => e.Id == related.Id))
+                AddOns.Add(related);
+        }
+        else
+        {
+            if (!Relateds.Any(e => e.Id == related.Id))
+                Relateds.Add(related);
+        }
+    }
+
+    protected async Task ShowHTMLClick()
+    {
+        Model.Content = await this.QuillHtml.GetHTML();
+        EditHTML.Show(Model.Content);
+    }
+    protected async Task ApplyHTML(string content)
+    {
+        await this.QuillHtml.LoadHTMLContent(content);
+        StateHasChanged();
+    }
+
+    protected async Task InsertImageClick()
+    {
+        ImageManagerControl.Show(true);
+    }
+
+    protected async Task InsertImage(ImageSelected img)
+    {
+        await this.QuillHtml.InsertImage(img.URL);
+
+        var currentImageURL = $"<img src=\"{img.URL}\" alt=\"{img.URL}\">";
+        var newImageURL = string.Empty;
+        if (!string.IsNullOrEmpty(img.ALT)) newImageURL = $"<img src=\"{img.URL}\" alt=\"{img.ALT}\">";
+        else newImageURL = $"<img src=\"{img.URL}\" alt=\"{Model.Title}\">";
+
+        if (!string.IsNullOrEmpty(newImageURL))
+        {
+            Model.Content = await this.QuillHtml.GetHTML();
+            Model.Content = Model.Content.Replace(currentImageURL, newImageURL);
+            await this.QuillHtml.LoadHTMLContent(Model.Content);
+        }
+
+        StateHasChanged();
+        ImageManagerControl.Show(false);
+    }
+
+    protected async Task InsertVideoClick()
+    {
+        VideoInsertControl.Show(true);
+    }
+    protected async Task InsertVideo(string embedVideo)
+    {
+        // Model.Content = await this.QuillHtml.GetHTML();
+        // Model.Content += embedVideo;
+
+        await this.QuillHtml.InsertImage("DybiEmbedVideoInsert");
+
+        Model.Content = await this.QuillHtml.GetHTML();
+        Model.Content = Model.Content.Replace("<img src=\"DybiEmbedVideoInsert\" alt=\"DybiEmbedVideoInsert\">", embedVideo);
+
+        await this.QuillHtml.LoadHTMLContent(Model.Content);
+        StateHasChanged();
+    }
+
+    private async void AddImage(InputFileChangeEventArgs e)
+    {
+        var files = e.GetMultipleFiles(); // get the files selected by the users
+        foreach (var file in files)
+        {
+            //var resizedFile = await file.RequestImageFileAsync(file.ContentType, 640, 480); // resize the image file
+            var buf = new byte[file.Size]; // allocate a buffer to fill with the file's data
+            using (var stream = file.OpenReadStream(file.Size))
+            {
+                await stream.ReadAsync(buf); // copy the stream to the buffer
+            }
+            Model.Image = new FileData
+                {
+                    Base64data = Convert.ToBase64String(buf),
+                    ContentType = file.ContentType,
+                    FileName = file.Name,
+                    Type = FileType.ProductImage
+                };
+        }
+    }
+
+    private async void AddImageDetails(InputFileChangeEventArgs e)
+    {
+        var files = e.GetMultipleFiles(); // get the files selected by the users
+        foreach (var file in files)
+        {
+            //var resizedFile = await file.RequestImageFileAsync(file.ContentType, 640, 480); // resize the image file
+            var buf = new byte[file.Size]; // allocate a buffer to fill with the file's data
+            using (var stream = file.OpenReadStream())
+            {
+                await stream.ReadAsync(buf); // copy the stream to the buffer
+            }
+            Model.Images.Add(new FileData
+            {
+                Base64data = Convert.ToBase64String(buf),
+                ContentType = file.ContentType,
+                FileName = file.Name,
+                Type = FileType.ItemImage
+            });
+        }
+    }
+
+    protected async Task HandleSubmit()
+    {
+        Model.Content = await this.QuillHtml.GetHTML();
+        Model.Relateds = Relateds.Select(e => e.Id).ToList();
+        Model.AddOns = AddOns.Select(e => new ProductAddOnDto { ProductId = e.Id, Price = e.Price, Quantity = e.Order }).ToList();
+        Model.Attributes = Attributes.Select(e => new ItemAttributeDto { Id = e.Id, Value = e.Value == null ? string.Empty : e.Value}).ToList();
+        var result = await ContentApiClient.CreateProduct(Model);
+        if (result)
+        {
+            ToastService.ShowInfo("Thêm sản phẩm thành công");
+            NavigationManager.NavigateTo($"/ProductDetail/{Model.Id}");
+        }
+        else
+        {
+            ToastService.ShowError("Thêm sản phẩm không thành công");
+        }
+    }
+
+    private List<CategoryDto> SortTable(List<CategoryDto> table, Guid? parentId, string space = "", string distance = "....")
+    {
+        var rows = table.Where(dto => dto.ParentId == parentId).ToList();
+        if (!rows.Any()) return new List<CategoryDto>();
+        var sortData = new List<CategoryDto>();
+        foreach (var row in rows)
+        {
+            var spaceNext = space + distance;
+            var dt = SortTable(table, row.Id, spaceNext, distance);
+            row.Type = space;
+            sortData.Add(row);
+
+            if (dt.Count > 0) sortData.AddRange(dt);
+        }
+        return sortData;
+    }
+}

@@ -1,0 +1,96 @@
+﻿@using Web.Models;
+@using System.IO;
+@using Web.Models.Enums
+@using Web.App.Services;
+@using Web.App.Pages.Warehouses.Components
+@using Web.App.Pages.Settings.Components
+
+@inject IToastService ToastService;
+@inject IWarehouseApiClient WarehouseApiClient;
+@inject IJSRuntime JS
+
+@if (ShowDialog)
+{
+    <div class="modal fade show d-block" id="assignModel" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Xóa Mã sản phẩm / vật tư</h5>
+                    <button type="button" class="close" data-dismiss="modal" @onclick="()=>Hide(false)" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <EditForm Model="Model" OnValidSubmit="HandleSubmit">
+                        <div class="input-group input-group-xs mb-3">
+                            <span class="input-group-text">Mã</span>
+                            <InputText id="inputDeleteCode" class="form-control" @bind-Value="Model.Code" />
+                            <button type="submit" class="btn btn-danger">Xóa</button>
+                        </div>
+                    </EditForm>
+                    <div class="alert alert-secondary" role="alert">
+                        @foreach (var seri in Seris)
+                        {
+                            <span class="badge bg-info text-dark" style="margin-right:5px">@seri</span>
+                        }
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-xs" @onclick="()=>Hide(false)" data-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    protected bool ShowDialog { get; set; }
+
+    private List<string> Seris { set; get; }
+    private WarehouseIOType IOType { set; get; }
+    private Guid IOId { set; get; }
+    private Guid ProductId { set; get; }
+    private WarehouseProductCodeRequest Model { set; get; } = new WarehouseProductCodeRequest();
+
+    [Parameter]
+    public EventCallback CloseEventCallback { set; get; }
+
+    public async Task Show(Guid ioId, Guid productId, List<string> seris, WarehouseIOType iOType)
+    {
+        Seris = seris;
+        IOType = iOType;
+        IOId = ioId;
+        ProductId = productId;
+        ShowDialog = true;
+        StateHasChanged(); 
+        await JS.InvokeVoidAsync("setFocus", "#inputDeleteCode");
+    }
+
+    private async Task Hide(bool callback)
+    {
+        if (callback) await CloseEventCallback.InvokeAsync();
+
+        ShowDialog = false;
+        StateHasChanged();
+    }
+
+    protected async Task HandleSubmit()
+    {
+        if (!string.IsNullOrEmpty(Model.Code))
+        {
+            var result = string.Empty;
+            if (IOType == WarehouseIOType.Input) result = await WarehouseApiClient.DeleteWarehouseInputProductCode(IOId, ProductId, Model.Code);
+            else result = await WarehouseApiClient.DeleteWarehouseInputProductCode(IOId, ProductId, Model.Code);
+            if (string.IsNullOrEmpty(result))
+            {
+                ToastService.ShowInfo("Xóa mã thành công");
+                await Hide(true);
+            }
+            else
+            {
+                ToastService.ShowError(result);
+                Model.Code = string.Empty;
+            }
+        }
+    }
+}

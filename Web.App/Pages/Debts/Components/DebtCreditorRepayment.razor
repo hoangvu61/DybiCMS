@@ -1,0 +1,94 @@
+﻿@using Web.Models;
+@using System.IO;
+@using Web.Models.Enums
+@using Web.App.Services;
+@using Web.App.Pages.Warehouses.Components
+@using Web.App.Pages.Settings.Components
+
+@inject IToastService ToastService;
+@inject IWarehouseApiClient WarehouseApiClient;
+@inject IDebtApiClient DebtApiClient;
+@inject IJSRuntime JS
+
+@if (ShowDialog)
+{
+    <div class="modal fade show d-block" id="assignModel" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Thu nợ khách hàng</h5>
+                    <button type="button" class="close" data-dismiss="modal" @onclick="()=>Hide(false)" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <EditForm Model="Model" OnValidSubmit="HandleSubmit">
+                    <div class="modal-body">
+                        @if(Dept != null)
+                        {
+                            <div><label class="form-label">Khách hàng:</label> <strong>@Dept.DebtorOrCreditor_Name</strong></div>
+                            <div><label class="form-label">Số điện thoại:</label> <strong>@Dept.DebtorOrCreditor_Phone</strong></div>
+                            <div><label class="form-label">Địa chỉ:</label> <strong>@Dept.DebtorOrCreditor_Address</strong></div>
+                            <div><label class="form-label">Tổng nợ phải thu:</label> <strong style="color:blue">@Dept.TotalDebt.ToString("N0")</strong></div>
+                            <hr />
+                        }
+                        <div class="input-group input-group-xs mb-2">
+                            <span class="input-group-text">Trả</span>
+                            <InputNumber id="inputRepayment" class="form-control" @bind-Value="Model.Repayment" @bind-Value:format="N0"/>
+                            <span class="input-group-text"><sup>đ</sup></span>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-xs" @onclick="()=>Hide(false)" data-dismiss="modal">Đóng</button>
+                        <button type="submit" class="btn btn-primary btn-xs">Thêm</button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    protected bool ShowDialog { get; set; }
+
+    private DebtRequest Model { set; get; } = new DebtRequest();
+    private DebtDto Dept { set; get; }
+
+    [Parameter]
+    public EventCallback CloseEventCallback { set; get; }
+
+    public async Task Show(DebtDto debt)
+    {
+        Dept = debt;
+        Model.DebtorOrCreditor_Id = debt.DebtorOrCreditor_Id;
+        Model.Repayment = debt.TotalDebt;
+
+        ShowDialog = true;
+        StateHasChanged();
+        await JS.InvokeVoidAsync("setFocus", "#inputRepayment");
+    }
+
+    private async Task Hide(bool callback)
+    {
+        if (callback) await CloseEventCallback.InvokeAsync();
+
+        ShowDialog = false;
+        StateHasChanged();
+    }
+
+    protected async Task HandleSubmit()
+    {
+        if (Model.Repayment > 0)
+        {
+            var result = await DebtApiClient.CreateCustomerDebt(Model);
+            if (string.IsNullOrEmpty(result))
+            {
+                ToastService.ShowInfo("Thêm trả nợ thành công");
+                await Hide(true);
+            }
+            else
+            {
+                ToastService.ShowError(result);
+            }
+        }
+    }
+}

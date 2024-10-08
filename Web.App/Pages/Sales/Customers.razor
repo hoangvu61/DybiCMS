@@ -1,0 +1,159 @@
+﻿@page "/warehouses/inputs"
+@attribute [Authorize]
+
+@using Web.App.Components
+@using Web.App.Pages.Components
+@using Web.App.Pages.Warehouses.Components
+@using Microsoft.AspNetCore.Authorization;
+@using Web.App.Services;
+@using Web.Models;
+@using Web.Models.SeedWork;
+@using Microsoft.Extensions.Configuration
+
+@inject IToastService ToastService;
+@inject IWarehouseApiClient WarehouseApiClient;
+
+<h1>Quản lý Nhập kho</h1>
+
+<section>
+    @if (ListInputs == null)
+    {
+        <LoadingIndicator></LoadingIndicator>
+    }
+    else
+    {
+        <div class="card card-outline card-info">
+            <div class="card-header">
+                <h3 class="card-title">Danh sách Nhập kho</h3>
+            </div>
+            <div class="card-body">
+                <InputSearch OnSearch="SearchInput"></InputSearch>
+                <table class="table table-sm table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Mã</th>
+                            <th>Ngày</th>
+                            <th>Tổng sản phẩm</th>
+                            <th>Tổng tiền</th>
+                            <th>Từ</th>
+                            <th>Vào kho</th>
+                            <th class="text-center" style="width:75px">
+                                <button @onclick="() => CreateDialog.Show()" class="btn btn-primary btn-xs">Thêm</button>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in ListInputs)
+                        {
+                            <tr>
+                                <td style=" vertical-align:middle">@item.InputCode</td>
+                                <td style="text-align:center; vertical-align:middle">@item.CreateDate.ToString("dd/MM/yyyy hh:mm")</td>
+                                <td style="text-align:right; vertical-align:middle">@item.ProductCount.ToString("N0")</td>
+                                <td style="text-align:right; vertical-align:middle">@item.TotalPrice.ToString("N0") <sup>đ</sup></td>
+                                <td>
+                                    @item.TypeName<br />
+                                    Từ: @item.SourceName
+                                </td>
+                                <td>
+                                    @item.WarehouseType<br />
+                                    @item.WarehouseName
+                                </td>
+                                <td style="text-align:center;vertical-align:middle">
+                                    <a href="/warehouses/inputs/@item.Id" class="btn btn-primary btn-xs">Xem</a>
+                                    <button class="btn btn-danger btn-xs" @onclick="()=> OnDelete(item.Id)">Xóa</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="9">
+                                <Pagination MetaData="MetaData" Spread="2" SelectedPage="SelectedPage"></Pagination>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <Confirmation ConfirmationMessage="Bạn có chắc chắn xóa?"
+                    ConfirmationTitle="Xóa phiếu nhập kho"
+                    @ref="DeleteConfirmation"
+                    ConfirmationChanged="OnConfirmDelete">
+        </Confirmation>
+
+        <InputCreate @ref="CreateDialog"></InputCreate>
+    }
+</section>
+
+@code {
+    protected Confirmation DeleteConfirmation { set; get; }
+    protected InputCreate CreateDialog { set; get; }
+
+    private const int PageSize = 12;
+    private List<WarehouseInputDto> ListInputs;
+    private Guid DeleteId { set; get; }
+
+    private WarehouseIOSearch WarehouseInputSearch = new WarehouseIOSearch();
+    public MetaData MetaData { get; set; } = new MetaData();
+
+    [CascadingParameter]
+    private Error Error { set; get; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        WarehouseInputSearch.PageSize = PageSize;
+        await RefreshList(true);
+    }
+
+    public async Task RefreshList(bool result)
+    {
+        if (result)
+        {
+            try
+            {
+                var pagingResponse = await WarehouseApiClient.GetWarehouseInputs(WarehouseInputSearch);
+                ListInputs = pagingResponse.Items;
+                MetaData = pagingResponse.MetaData;
+
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                Error.ProcessError(ex);
+            }
+        }
+    }
+
+    public async Task SearchInput(WarehouseIOSearch inputListSearch)
+    {
+        WarehouseInputSearch = inputListSearch;
+        WarehouseInputSearch.PageSize = PageSize;
+        await RefreshList(true);
+    }
+
+    private async Task SelectedPage(int page)
+    {
+        WarehouseInputSearch.PageNumber = page;
+        await RefreshList(true);
+    }
+
+    public async Task OnConfirmDelete(bool deleteConfirmed)
+    {
+        if (deleteConfirmed)
+        {
+            var result = await WarehouseApiClient.DeleteInput(DeleteId);
+            if (string.IsNullOrEmpty(result))
+            {
+                ToastService.ShowWarning($"Đã xóa {DeleteId}");
+                await RefreshList(true);
+            }
+            else ToastService.ShowError(result);
+        }
+    }
+    public void OnDelete(Guid deleteId)
+    {
+        DeleteId = deleteId;
+        DeleteConfirmation.Show();
+    }
+}

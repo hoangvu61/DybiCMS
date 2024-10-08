@@ -1,0 +1,103 @@
+﻿@using Web.Admin.Services;
+@using Web.Models;
+@using Web.Models.Enums;
+@using Web.Models.SeedWork;
+
+@inject IToastService ToastService;
+@inject ITemplateApiClient TemplateApiClient;
+@inject IModuleApiClient ModuleApiClient;
+
+@if (ShowDialog && Model != null)
+{
+    <div class="modal fade show d-block" id="assignModel" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-sm" role="document">
+            <EditForm Model="Model" OnValidSubmit="HandleSubmit">
+                <DataAnnotationsValidator></DataAnnotationsValidator>
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Sửa Skin</h5>
+                        <button type="button" class="close" data-dismiss="modal" @onclick="()=>Hide()" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label class="col-form-label">Tên:</label>
+                            <InputText class="form-control form-control-sm" @bind-Value="Model.SkinName" readonly="readonly"></InputText>
+                            <ValidationMessage For="()=> Model.SkinName"></ValidationMessage>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-form-label">Module:</label>
+                            <InputSelect class="form-control form-control-sm" @bind-Value="Model.ModuleName" readonly="readonly">
+                                @if (Modules != null)
+                                {
+                                    @foreach (var module in Modules)
+                                    {
+                                        <option value="@module.ModuleName">@module.ModuleName - @module.Describe</option>
+                                    }
+                                }
+                            </InputSelect>
+                            <ValidationMessage For="()=> Model.SkinName"></ValidationMessage>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-form-label">Mô tả:</label>
+                            <InputText class="form-control form-control-sm" @bind-Value="Model.Describe"></InputText>
+                            <ValidationMessage For="()=> Model.Describe"></ValidationMessage>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-xs" @onclick="()=>Hide()" data-dismiss="modal">Đóng</button>
+                        <button type="submit" class="btn btn-primary btn-xs">Lưu</button>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@code {
+    protected bool ShowDialog { get; set; }
+
+    private TemplateSkinDto Model { set; get; }
+    private List<ModuleDto> Modules;
+
+    [Parameter]
+    public EventCallback<bool> CloseEventCallbak { get; set; }
+
+    private PagingParameters Paging = new PagingParameters(0);
+
+    protected override async Task OnInitializedAsync()
+    {
+        var pagingResponse = await ModuleApiClient.GetModuleList(Paging);
+        Modules = pagingResponse.Items;
+    }
+
+    public async void Show(string templateName, string skinName)
+    {
+        Model = await TemplateApiClient.GetTemplateSkin(templateName, skinName);
+
+        ShowDialog = true;
+        StateHasChanged();
+    }
+
+    private void Hide()
+    {
+        ShowDialog = false;
+        StateHasChanged();
+    }
+
+    protected async Task HandleSubmit()
+    {
+        var result = await TemplateApiClient.UpdateTemplateSkin(Model);
+        if (result)
+        {
+            ShowDialog = false;
+            await CloseEventCallbak.InvokeAsync(true);
+            ToastService.ShowInfo("Lưu skin thành công");
+        }
+        else
+        {
+            ToastService.ShowError("Lưu skin không thành công");
+        }
+    }
+}

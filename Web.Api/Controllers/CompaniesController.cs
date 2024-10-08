@@ -74,13 +74,15 @@ namespace Web.Api.Controllers
             var user = await _userManager.FindByIdAsync(userId);
             var webInfo = await _webinfoRepository.GetWebInfo(user.CompanyId, language);
 
-            var dto = new SEOWebdto()
+            var dto = new SEOWebdto();
+            if (webInfo != null)
             {
-                Title = webInfo.Title,
-                LanguageCode = webInfo.LanguageCode,
-                MetaDescription = webInfo.Brief,
-                MetaKeyWord = webInfo.Keywords
+                dto.Title = webInfo.Title;
+                dto.LanguageCode = webInfo.LanguageCode;
+                dto.MetaDescription = webInfo.Brief;
+                dto.MetaKeyWord = webInfo.Keywords;
             };
+
             return Ok(dto);
         }
 
@@ -109,22 +111,25 @@ namespace Web.Api.Controllers
             var user = await _userManager.FindByIdAsync(userId);
 
             var webInfo = await _webinfoRepository.GetWebInfo(user.CompanyId, request.LanguageCode);
-            if(webInfo == null)
+            if (webInfo == null)
             {
                 webInfo = new WebInfo()
                 {
                     CompanyId = user.CompanyId,
-                    LanguageCode = request.LanguageCode
+                    LanguageCode = request.LanguageCode,
+                    Title = request.Title,
+                    Brief = request.MetaDescription,
+                    Keywords = request.MetaKeyWord,
                 };
                 await _webinfoRepository.CreateWebInfo(webInfo);
-            }   
+            }
             else
             {
                 webInfo.Title = request.Title;
                 webInfo.Brief = request.MetaDescription;
                 webInfo.Keywords = request.MetaKeyWord;
                 await _webinfoRepository.UpdateWebInfo(webInfo);
-            }    
+            }
 
             return Ok(webInfo);
         }

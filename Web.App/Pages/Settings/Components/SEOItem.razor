@@ -1,0 +1,95 @@
+﻿@using Microsoft.Extensions.Configuration;
+@using Web.Models.Enums;
+@using Web.Models.SeedWork;
+@using Web.App.Services;
+@using Web.Models;
+
+@inject IToastService ToastService;
+@inject IWebsiteApiClient WebsiteApiClient;
+
+@if(Model != null && Model.ItemId != Guid.Empty)
+{
+    <div class="card card-outline card-info">
+        <EditForm Model="Model" OnValidSubmit="HandleSubmit">
+            <DataAnnotationsValidator></DataAnnotationsValidator>
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="icon fas fa-info"></i>
+                    SEO
+                </h3>
+                <div class="card-tools">
+                    <button type="submit" class="btn btn-success btn-xs">Lưu</button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="form-group py-1">
+                    <div class="input-group input-group-xs">
+                        <span class="input-group-text">SEO URL</span>
+                        <InputText @bind-Value="Model.SeoUrl" class="form-control"></InputText>
+                    </div>
+                    <ValidationMessage For="()=> Model.SeoUrl"></ValidationMessage>
+                </div>
+                <div class="form-group py-1">
+                    <div class="input-group input-group-xs">
+                        <span class="input-group-text">Meta Title (@Model.Title.Length / 65 ký tự)</span>
+                        <InputText @bind-Value="Model.Title" class="form-control"></InputText>
+                    </div>
+                    <ValidationMessage For="()=> Model.Title"></ValidationMessage>
+                </div>
+                <div class="form-group py-1">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text">
+                            Meta Description <br>
+                            @Model.MetaDescription.Length / 155 ký tự
+                        </span>
+                        <InputTextArea @bind-Value="Model.MetaDescription" class="form-control"></InputTextArea>
+                    </div>
+                    <ValidationMessage For="()=> Model.MetaDescription"></ValidationMessage>
+                </div>
+                <div class="form-group py-1">
+                    <div class="input-group input-group-xs">
+                        <span class="input-group-text">Meta Keyword</span>
+                        <InputText @bind-Value="Model.MetaKeyWord" class="form-control"></InputText>
+                    </div>
+                    <ValidationMessage For="()=> Model.MetaKeyWord"></ValidationMessage>
+                </div>
+            </div>
+        </EditForm>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string LanguageCode { set; get; }
+
+    [Parameter]
+    public Guid ItemId { set; get; }
+
+    private SEOItemdto Model { get; set; }
+
+    protected async override Task OnParametersSetAsync()
+    {
+        if (!string.IsNullOrEmpty(LanguageCode))
+        {
+            Model = await WebsiteApiClient.GetSEO(ItemId, LanguageCode);
+        }
+    }
+
+    public async Task Load()
+    {
+        Model = await WebsiteApiClient.GetSEO(ItemId, LanguageCode);
+        StateHasChanged();
+    }
+
+    private async Task HandleSubmit()
+    {
+        if (!Model.SeoUrl.StartsWith('/')) ToastService.ShowWarning("URL phải bắt dầu bằng ký tự '/'");
+        else if (Model.SeoUrl.Trim() == "/") ToastService.ShowWarning("URL phải nhiều hơn 1 ký tự");
+        else
+        {
+            var result = await WebsiteApiClient.UpdateSEO(Model);
+            if (result) ToastService.ShowInfo("Cập nhật thành công");
+            else ToastService.ShowError("Cập nhật không thành công");
+        }
+    }
+}

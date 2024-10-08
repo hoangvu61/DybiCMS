@@ -1,0 +1,88 @@
+﻿@using Web.Admin.Services;
+@using Web.Models;
+@using Web.Models.Enums;
+@using Web.Models.SeedWork;
+
+@inject IToastService ToastService;
+@inject ITemplateApiClient TemplateApiClient;
+
+@if (ShowDialog)
+{
+    <tr>
+         <td colspan="4">
+            <EditForm Model="Model" OnValidSubmit="HandleSubmit">
+                <DataAnnotationsValidator></DataAnnotationsValidator>
+                <div class="row">
+                    <div class="col">
+                        <InputSelect class="form-control form-control-sm" @bind-Value="Model.ComponentName">
+                            <option value="">Tất cả các trang (Template)</option>
+                            @foreach (var module in Components)
+                            {
+                                <option value="@module.ComponentName">@module.ComponentName - @module.Describe</option>
+                            }
+                        </InputSelect>
+                        <ValidationMessage For="()=> Model.ComponentName"></ValidationMessage>
+                    </div>
+                    <div class="col">
+                        <InputText class="form-control form-control-sm" @bind-Value="Model.PositionName" placeholder="Tên Position"></InputText>
+                        <ValidationMessage For="()=> Model.PositionName"></ValidationMessage>
+                    </div>
+                    <div class="col">
+                        <InputText class="form-control form-control-sm" @bind-Value="Model.Describe" placeholder="Mô tả"></InputText>
+                        <ValidationMessage For="()=> Model.Describe"></ValidationMessage>
+                    </div>
+                    
+                    <div class="col" style="text-align:right">
+                        <button type="button" class="btn btn-secondary btn-xs" @onclick="()=>Hide()" data-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-primary btn-xs">Lưu</button>
+                    </div>
+                </div>
+            </EditForm>
+         </td>
+    </tr>
+}
+
+@code {
+    protected bool ShowDialog { get; set; }
+
+    private TemplatePositionDto Model { set; get; } = new TemplatePositionDto();
+    private List<TemplateComponentDto> Components;
+
+    private PagingParameters Paging = new PagingParameters(0);
+
+    [Parameter]
+    public EventCallback<bool> CloseEventCallbak { get; set; }
+
+    public async void Show(string templateName)
+    {
+        Model.TemplateName = templateName;
+
+        var pagingResponse = await TemplateApiClient.GetTemplateComponentList(Model.TemplateName, Paging);
+        Components = pagingResponse.Items;
+
+        ShowDialog = true;
+        StateHasChanged();
+    }
+
+    private void Hide()
+    {
+        ShowDialog = false;
+        StateHasChanged();
+    }
+
+    protected async Task HandleSubmit()
+    {
+        if (Model.ComponentName == null) Model.ComponentName = string.Empty;
+        var result = await TemplateApiClient.CreateTemplatePosition(Model);
+        if (result)
+        {
+            ShowDialog = false;
+            await CloseEventCallbak.InvokeAsync(true);
+            ToastService.ShowInfo("Thêm Position thành công");
+        }
+        else
+        {
+            ToastService.ShowError("Thêm Position không thành công");
+        }
+    }
+}

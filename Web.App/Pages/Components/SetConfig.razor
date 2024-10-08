@@ -1,0 +1,146 @@
+﻿@using Web.App.Components
+@using Microsoft.AspNetCore.Authorization
+@using Web.Models.Enums;
+@using Web.Models.SeedWork;
+@using Web.App.Services;
+@using Web.Models;
+
+@attribute [Authorize]
+
+@inject IToastService ToastService;
+@inject IWarehouseApiClient WarehouseApiClient;
+@inject GlobalVariables Global;
+@inject IAuthService AuthService
+@inject NavigationManager NavigationManager
+
+@if (ShowBox)
+{
+    <div class="modal fade show d-block modalconfig" id="assignModel" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-scrollable" role="document">
+            @if (Configs == null)
+            {
+                <LoadingIndicator></LoadingIndicator>
+            }
+            else
+            {
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Cấu hình hệ thống</h5>
+                        <button type="button" class="close" data-dismiss="modal" @onclick="()=>Hide()" aria-label="Close">
+                            <span class="oi oi-circle-x"></span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        @foreach (var config in Configs)
+                        {
+                            <div class="form-group configsetup">
+                                @if (config.Type == "Number")
+                                {
+                                    <div class="input-group input-group-xs mb-3">
+                                        <span class="input-group-text">@config.Describe</span>
+                                        <input type="number" class="form-control" value="@config.Value" @onchange="@(e => config.Value = e.Value.ToString())"></input>
+                                        <button class="btn btn-secondary" type="button" @onclick="() => Onchange(config)">Lưu</button>
+                                    </div>
+                                }
+                                else if (config.Type == "Boolean")
+                                {
+                                    <div class="row form-switch" style="padding:0">
+                                        <div class="col"><label class="form-check-label">@config.Describe</label></div>
+                                        <div class="col" style="text-align:right;padding:0"><input type="checkbox" checked="@(Convert.ToBoolean(config.Value))" class="form-check-input" role="switch" @onchange="@((e) => {config.Value = e.Value.ToString(); Onchange(config);})"></input></div>
+                                    </div>
+                                }
+                                else if (config.Type == "Check")
+                                {
+                                    var configValues = config.Value.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(e => e.Trim()).ToList();
+                                    <label>@config.Describe</label>
+                                    @foreach (var item in DataSource.ConfigSources[config.Key])
+                                    {
+                                        <div class="form-check">
+                                            <input class="form-check-input" name="@config.Key" type="checkbox" value="@item.Key" checked="@configValues.Contains(item.Key.ToString())" @onchange="@((e) => Oncheck(e, configValues, item.Key.ToString(), config))">
+                                            <span>@item.Value</span>
+                                        </div>
+                                    }
+                                }
+                                else if (config.Type == "Option")
+                                {
+                                    <label>@config.Describe</label>
+                                    @foreach (var item in DataSource.ConfigSources[config.Key])
+                                    {
+                                        <div class="form-check">
+                                            <input class="form-check-input" name="@config.Key" type="radio" value="@item.Key" checked="@(config.Value == item.Key.ToString())" @onchange="@(() => {config.Value = item.Key.ToString();Onchange(config);})" />
+                                            <span>@item.Value</span>
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="input-group input-group-xs mb-3">
+                                        <span class="input-group-text">@config.Describe</span>
+                                        <input class="form-control" value="@config.Value" @onchange="@(e => config.Value = e.Value.ToString())"></input>
+                                        <button class="btn btn-secondary" type="button" @onclick="() => Onchange(config)">Lưu</button>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
+@code {
+    protected bool ShowBox { get; set; }
+    private List<ConfigDefaultDto> Configs { get; set; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        try
+        {
+            Configs = await WarehouseApiClient.GetConfigDefaults();
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            await AuthService.Logout();
+            NavigationManager.NavigateTo("/login");
+        }
+
+        if (Global.Configs == null) Global.Configs = await WarehouseApiClient.GetConfigs();
+        if (Global.Configs.Count > 0)
+        {
+            foreach (var config in Configs)
+            {
+                config.Value = Global.Configs.Where(e => e.Key == config.Key).Select(e => e.Value).FirstOrDefault();
+            }
+        }
+    }
+
+    public void Show()
+    {
+        ShowBox = true;
+        StateHasChanged();
+    }
+
+    private void Hide()
+    {
+        ShowBox = false;
+        StateHasChanged();
+    }
+
+    private async Task Onchange(ConfigDefaultDto dto)
+    {
+        var result = await WarehouseApiClient.SetConfig(dto.Key, dto.Value);
+        if (result)
+        {
+            Global.Configs = await WarehouseApiClient.GetConfigs();
+            ToastService.ShowInfo($"Cập nhật [{dto.Describe}] thành công");
+        }
+        else ToastService.ShowError($"Cập nhật [{dto.Describe}] không thành công");
+    }
+    private async Task Oncheck(ChangeEventArgs e, List<string> configValues, string key, ConfigDefaultDto dto)
+    {
+        if (bool.Parse(e.Value.ToString())) configValues.Add(key);
+        else configValues.Remove(key);
+        dto.Value = string.Join(',', configValues);
+        Onchange(dto);
+    }
+}

@@ -1,0 +1,185 @@
+﻿@using Web.Admin.Pages.Config.Components
+@using Web.Admin.Services;
+@using Web.Models;
+@using Microsoft.Extensions.Configuration
+@using Web.Models.Enums;
+@using Web.Models.SeedWork;
+
+@inject IToastService ToastService;
+@inject ICompanyApiClient CompanyApiClient;
+@inject IConfiguration Configuration;
+
+<div class="card card-outline card-info">
+    <div class="card-body">
+        <div class="form-group">
+            <div class="input-group input-group-sm">
+                <label class="input-group-text" for="InputFileWebIcon">Web icon:</label>
+                <InputFile id="InputFileWebIcon" type="file" OnChange="WebIconChange" accept="image/png, image/jpeg, image/gif, image/webp"></InputFile>
+                <button class="btn btn-success" style="position:absolute;right:0" @onclick="WebIconSave">Lưu</button>
+            </div>
+            @if (WebIcon != null && !string.IsNullOrEmpty(WebIcon.FileName))
+            {
+                <img src="@(BackendApiUrl + "/" + WebIcon.FullPath + "?DummyId=" + DateTime.Now.Ticks)" asp-append-version="true" width="100%" />
+            }
+        </div>
+        <div class="form-group">
+            <div class="input-group input-group-sm">
+                <label class="input-group-text" for="InputFileLogo">Logo:</label>
+                <InputFile id="InputFileLogo" type="file" OnChange="LogoChange" accept="image/png, image/jpeg, image/gif, image/webp"></InputFile>
+                <button class="btn btn-success" style="position:absolute;right:0" @onclick="LogoSave">Lưu</button>
+            </div>
+            @if (Logo != null && !string.IsNullOrEmpty(Logo.FileName))
+            {
+                <img src="@(BackendApiUrl + "/" + Logo.FullPath + "?DummyId=" + DateTime.Now.Ticks)" asp-append-version="true" width="100%" />
+            }
+        </div>
+        <div class="form-group">
+            <div class="input-group input-group-sm">
+                <label class="input-group-text" for="InputFileLogo">Image:</label>
+                <InputFile id="InputFileLogo" type="file" OnChange="ImageChange" accept="image/png, image/jpeg, image/gif, image/webp"></InputFile>
+                <button class="btn btn-success" style="position:absolute;right:0" @onclick="ImageSave">Lưu</button>
+            </div>
+            @if (Image != null && !string.IsNullOrEmpty(Image.FileName))
+            {
+                <img src="@(BackendApiUrl + "/" + Image.FullPath + "?DummyId=" + DateTime.Now.Ticks)" asp-append-version="true" width="100%" />
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private string BackendApiUrl { get; set; }
+    private FileData WebIcon { get; set; }
+    private FileData Logo { get; set; }
+    private FileData Image { get; set; }
+
+    [Parameter]
+    public Guid CompanyId { set; get; }
+
+    [Parameter]
+    public string WebIconName { set; get; }
+
+    [Parameter]
+    public string LogoName { set; get; }
+
+    [Parameter]
+    public string ImageName { set; get; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        BackendApiUrl = Configuration["BackendApiUrl"];
+        WebIcon = new FileData() { Type = FileType.WebIcon };
+        Logo = new FileData() { Type = FileType.WebLogo };
+        Image = new FileData() { Type = FileType.WebImage };
+    }
+
+    protected async override Task OnParametersSetAsync()
+    {
+        if (!string.IsNullOrEmpty(WebIconName))
+        {
+            WebIcon.FileName = WebIconName;
+        }
+        if (!string.IsNullOrEmpty(LogoName))
+        {
+            Logo.FileName = LogoName;
+        }
+        if (!string.IsNullOrEmpty(ImageName))
+        {
+            Image.FileName = ImageName;
+        }
+        if (CompanyId != Guid.Empty)
+        {
+            WebIcon.Folder = Logo.Folder = Image.Folder = CompanyId.ToString();
+        }
+    }
+
+    private async void WebIconChange(InputFileChangeEventArgs e)
+    {
+        var files = e.GetMultipleFiles(); // get the files selected by the users
+        foreach (var file in files)
+        {
+            //var resizedFile = await file.RequestImageFileAsync(file.ContentType, 640, 480); // resize the image file
+            var buf = new byte[file.Size]; // allocate a buffer to fill with the file's data
+            using (var stream = file.OpenReadStream(file.Size))
+            {
+                await stream.ReadAsync(buf); // copy the stream to the buffer
+            }
+            WebIcon.Base64data = Convert.ToBase64String(buf);
+            WebIcon.ContentType = file.ContentType;
+            WebIcon.FileName = "favicon-" + file.Name;
+        }
+    }
+
+    private async Task WebIconSave()
+    {
+        if (!string.IsNullOrEmpty(WebIcon.FileName))
+        {
+            var result = await CompanyApiClient.UploadImage(WebIcon);
+            if (result)
+            {
+                ToastService.ShowInfo("Cập nhật thành công");
+            }
+            else ToastService.ShowError("Cập nhật không thành công");
+        }
+    }
+
+    private async void LogoChange(InputFileChangeEventArgs e)
+    {
+        var files = e.GetMultipleFiles(); // get the files selected by the users
+        foreach (var file in files)
+        {
+            //var resizedFile = await file.RequestImageFileAsync(file.ContentType, 640, 480); // resize the image file
+            var buf = new byte[file.Size]; // allocate a buffer to fill with the file's data
+            using (var stream = file.OpenReadStream(file.Size))
+            {
+                await stream.ReadAsync(buf); // copy the stream to the buffer
+            }
+            Logo.Base64data = Convert.ToBase64String(buf);
+            Logo.ContentType = file.ContentType;
+            Logo.FileName = "logo-" + file.Name;
+        }
+    }
+
+    private async Task LogoSave()
+    {
+        if (!string.IsNullOrEmpty(Logo.FileName))
+        {
+            var result = await CompanyApiClient.UploadImage(Logo);
+            if(result)
+            {
+                ToastService.ShowInfo("Cập nhật thành công");
+            }
+            else ToastService.ShowError("Cập nhật không thành công");
+        }
+    }
+
+    private async void ImageChange(InputFileChangeEventArgs e)
+    {
+        var files = e.GetMultipleFiles(); // get the files selected by the users
+        foreach (var file in files)
+        {
+            //var resizedFile = await file.RequestImageFileAsync(file.ContentType, 640, 480); // resize the image file
+            var buf = new byte[file.Size]; // allocate a buffer to fill with the file's data
+            using (var stream = file.OpenReadStream(file.Size))
+            {
+                await stream.ReadAsync(buf); // copy the stream to the buffer
+            }
+            Image.Base64data = Convert.ToBase64String(buf);
+            Image.ContentType = file.ContentType;
+            Image.FileName = "image-" + file.Name;
+        }
+    }
+
+    private async Task ImageSave()
+    {
+        if (!string.IsNullOrEmpty(Image.FileName))
+        {
+            var result = await CompanyApiClient.UploadImage(Image);
+            if (result)
+            {
+                ToastService.ShowInfo("Cập nhật Image thành công");
+            }
+            else ToastService.ShowError("Cập nhật Image không thành công");
+        }
+    }
+}

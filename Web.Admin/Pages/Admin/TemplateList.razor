@@ -1,0 +1,180 @@
+﻿@page "/templatelist"
+@attribute [Authorize]
+
+@using Microsoft.AspNetCore.Authorization;
+@using Web.Admin.Components;
+@using Web.Admin.Pages.Admin.Components;
+@using Web.Admin.Services;
+@using Web.Models;
+@using Web.Models.SeedWork;
+@using Microsoft.Extensions.Configuration
+
+@inject IConfiguration Configuration
+
+<section class="content-header">
+    <div class="container-fluid">
+        <h1 class="m-0">Quản lý Template</h1>
+    </div>
+</section>
+
+<section class="content">
+    <div class="container-fluid">
+        @if (Templates == null)
+        {
+            <LoadingIndicator></LoadingIndicator>
+        }
+        else
+        {
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card card-outline card-info">
+                        <div class="card-header">
+                            <h3 class="card-title">Danh sách Template</h3>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Tên</th>
+                                        <th>Hình</th>
+                                        <th>Dùng chung</th>
+                                        <th>Sử dụng</th>
+                                        <th style="text-align:right">
+                                            <button class="btn btn-primary btn-xs" @onclick="()=> OpenCreatePopup()">Thêm</button>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Templates)
+                                    {
+                                        <tr style="cursor:pointer" @onclick="() => ShowDetailTemplate(item.TemplateName)">
+                                            <td>@item.TemplateName</td>
+                                            <td><img src="@(BackendApiUrl + "/" + item.Image.FullPath)" asp-append-version="true" width="50px" /></td>
+                                            <td>@item.IsPublic</td>
+                                            <td>@item.IsPublished</td>
+                                            <td style="text-align:right">
+                                                <button class="btn btn-success btn-xs" @onclick="()=> OpenUpdatePopup(item.TemplateName)">Sửa</button>
+                                                <button class="btn btn-danger btn-xs" @onclick="()=> OnDelete(item.TemplateName)">Xóa</button>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="5">
+                                            <Pagination MetaData="MetaData" Spread="2" SelectedPage="SelectedPage"></Pagination>
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <TemplateSkinList @ref="ListSkin"></TemplateSkinList>
+                    <TemplateComponentList @ref="ListComponent"></TemplateComponentList>
+                    <TemplatePosotiontList @ref="ListPosition"></TemplatePosotiontList>
+                    <TemplateLanguageKeyList @ref="ListLanguageKey"></TemplateLanguageKeyList>
+                </div>
+            </div>
+
+            <Confirmation ConfirmationMessage="Bạn có chắc chắn xóa?"
+                      ConfirmationTitle="Xóa Template"
+                      @ref="DeleteConfirmation"
+                      ConfirmationChanged="OnConfirmDelete">
+            </Confirmation>
+
+            <TemplateCreate @ref="CreateTemplateDialog" CloseEventCallbak="RefreshList"></TemplateCreate>
+            <TemplateUpdate @ref="UpdateTemplateDialog" CloseEventCallbak="RefreshList"></TemplateUpdate>
+        }
+    </div>
+</section>
+
+@code {
+    [Inject] private ITemplateApiClient TemplateApiClient { get; set; }
+
+    protected Confirmation DeleteConfirmation { set; get; }
+    protected TemplateCreate CreateTemplateDialog { set; get; }
+    protected TemplateUpdate UpdateTemplateDialog { set; get; }
+    protected TemplateSkinList ListSkin { set; get; }
+    protected TemplateComponentList ListComponent { set; get; }
+    protected TemplatePosotiontList ListPosition { set; get; }
+    protected TemplateLanguageKeyList ListLanguageKey { set; get; }
+
+    private List<TemplateDto> Templates;
+    private string DeleteId { set; get; }
+    public MetaData MetaData { get; set; } = new MetaData();
+    private PagingParameters Paging = new PagingParameters(15);
+    private string BackendApiUrl { get; set; }
+
+    [CascadingParameter]
+    private Error Error { set; get; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetTemplates();
+        BackendApiUrl = Configuration["BackendApiUrl"];
+    }
+
+    private async Task GetTemplates()
+    {
+        try
+        {
+            var pagingResponse = await TemplateApiClient.GetTemplateList(Paging);
+            Templates = pagingResponse.Items;
+            MetaData = pagingResponse.MetaData;
+        }
+        catch (Exception ex)
+        {
+            Error.ProcessError(ex);
+        }
+
+    }
+
+    public void OnDelete(string deleteId)
+    {
+        DeleteId = deleteId;
+        DeleteConfirmation.Show();
+    }
+
+    public async Task OnConfirmDelete(bool deleteConfirmed)
+    {
+        if (deleteConfirmed)
+        {
+            await TemplateApiClient.DeleteTemplate(DeleteId);
+            await GetTemplates();
+        }
+    }
+
+    private async Task SelectedPage(int page)
+    {
+        Paging.PageNumber = page;
+        await GetTemplates();
+    }
+
+    public void OpenCreatePopup()
+    {
+        CreateTemplateDialog.Show();
+    }
+
+    public void OpenUpdatePopup(string name)
+    {
+        UpdateTemplateDialog.Show(name);
+    }
+
+    public async Task RefreshList(bool result)
+    {
+        if (result)
+        {
+            await GetTemplates();
+        }
+    }
+
+    public void ShowDetailTemplate(string name)
+    {
+        ListSkin.Show(name);
+        ListComponent.Show(name);
+        ListPosition.Show(name);
+        ListLanguageKey.Show(name);
+    }
+}

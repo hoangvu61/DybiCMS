@@ -1,0 +1,98 @@
+﻿@using Microsoft.AspNetCore.Authorization;
+@using Web.Admin.Services;
+@using Web.Models;
+@using Web.Admin.Components;
+
+@inject ICompanyApiClient CompanyApiClient;
+
+@attribute [Authorize]
+
+@if (Branches != null)
+{
+    <div class="card card-default">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="icon fas fa-info"></i>
+                Thông tin địa chỉ
+            </h3>
+            <div class="card-tools">
+                <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                    <i class="fas fa-minus"></i>
+                </button>
+                <button type="button" class="btn btn-tool" data-card-widget="remove">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            @foreach (var item in Branches)
+            {
+                <div class="callout callout-success">
+                    <h5>@item.Name</h5>
+                    <p>@item.Address</p>
+                    <p><lable>Điện thoại:</lable> @item.Phone</p>
+                    <p><lable>Email:</lable> @item.Email</p>
+                    <div class ="form-group" style="text-align:right">
+                        <button type="button" class="btn btn-default btn-xs" @onclick="()=> {UpdateBranch.Show(item.Id);}">Sửa</button>
+                        @if (Branches.Count > 1)
+                        {
+                            <button type="button" class="btn btn-danger btn-xs" style="margin-left:5px" @onclick="()=> OnDelete(item.Id)">Xóa</button>
+                        }
+                    </div>
+                </div>
+            }
+            <BranchCreate @ref="CreateBranch" LanguageCode="@LanguageCode" CloseEventCallbak="Load"></BranchCreate>
+        </div>
+
+    <BranchUpdate @ref="UpdateBranch" CloseEventCallbak="Load"></BranchUpdate>
+
+    <div class="card-footer" style="text-align:right">
+        <button class="btn btn-primary btn-xs" @onclick="()=>{CreateBranch.Show();}">Thêm</button>
+    </div>
+</div>
+<Confirmation ConfirmationMessage="Bạn có chắc chắn xóa?"
+                      ConfirmationTitle="Xóa chi nhánh"
+                      @ref="DeleteConfirmation"
+                      ConfirmationChanged="OnConfirmDelete">
+            </Confirmation>
+}
+@code{
+    [Parameter]
+    public string LanguageCode { set; get; }
+
+    private List<CompanyBranchDto> Branches { get; set; }
+    
+    private Guid DeleteId { set; get; }
+    private Confirmation DeleteConfirmation { set; get; }
+    private BranchCreate CreateBranch { set; get; }
+    private BranchUpdate UpdateBranch { set; get; }
+
+    protected async override Task OnParametersSetAsync()
+    {
+        if (!string.IsNullOrEmpty(LanguageCode))
+        {
+            Branches = await CompanyApiClient.GetBranchList(LanguageCode);
+        }
+    }
+
+    public void OnDelete(Guid deleteId)
+    {
+        DeleteId = deleteId;
+        DeleteConfirmation.Show();
+    }
+
+    public async Task OnConfirmDelete(bool deleteConfirmed)
+    {
+        if (deleteConfirmed)
+        {
+            await CompanyApiClient.DeleteBranch(DeleteId);
+            await Load();
+        }
+    }
+
+    public async Task Load()
+    {
+        Branches = await CompanyApiClient.GetBranchList(LanguageCode);
+        StateHasChanged();
+    }
+}

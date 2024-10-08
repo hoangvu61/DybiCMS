@@ -1,0 +1,153 @@
+﻿@page "/moduleconfigdetail/{ModuleConfigId}"
+@using Web.Admin.Pages.Config.Components
+@using Web.Admin.Services;
+@using Web.Admin.Components;
+@using Web.Models;
+
+@inject IToastService ToastService;
+@inject IModuleConfigApiClient ModuleConfigApiClient;
+@inject ICompanyApiClient CompanyApiClient;
+
+<section class="content-header">
+    <div class="container-fluid">
+        <h1 class="m-0">Chi tiết cấu hình</h1>
+    </div>
+</section>
+
+<section class="content">
+    <div class="container-fluid">
+        @if (Model== null)
+        {
+            <LoadingIndicator></LoadingIndicator>
+        }
+        else
+        {
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card card-outline card-info">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-edit"></i>
+                                Vị trí
+                            </h3>
+                        </div>
+                        <div class="card-body">
+                            <div>
+                                <strong>Chức năng: </strong> @Model.SkinDescribe (@Model.SkinName)
+                            </div>
+                            <div>
+                                <strong>Vị trí: </strong> Trên @(Model.OnTemplate ? "Template" : "Trang")
+                            </div>
+                            <div>
+                                <strong>Trang: </strong> @Model.ComponentDescribe (@Model.ComponentName)
+                            </div>
+                            <div>
+                                <strong>Vị trí: </strong> @Model.Position (@Model.Position)
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card card-outline card-warning">
+                        <div class="card-body">
+                                <div class="form-group">
+                                    <div class="input-group input-group-sm mb-3">
+                                        <span class="input-group-text" id="inputGroup-sizing-sm">Thứ tự</span>
+                                        <InputNumber class="form-control" @bind-Value="Model.Order"></InputNumber>
+                                        <button class="btn btn-secondary" @onclick="OrderChanged">Lưu</button>
+                                    </div>
+                                </div>
+                                <div class="row form-switch" style="padding:0">
+                                    <div class="col"><label class="form-check-label">Hoạt động</label></div>
+                                    <div class="col" style="text-align:right;padding:0"><input type="checkbox" checked="@Model.Apply" class="form-check-input" role="switch" @onchange="@((e) => {Model.Apply = bool.Parse(e.Value.ToString()); ApplyChanged();})"></input></div>
+                                </div>
+                        </div>
+                    </div>
+
+                    <ModuleConfigSkin ModuleConfigId="@Model.Id"></ModuleConfigSkin>
+                </div>
+                <div class="col-md-6">
+                    <div class="card card-outline card-private">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-edit"></i>
+                                Tiêu đề
+                            </h3>
+                        </div>
+                        <div class="card-body">
+                            @foreach (var title in Titles)
+                            {
+                                <div class="input-group input-group-sm mb-3">
+                                    <span class="input-group-text" id="inputGroup-sizing-sm">@title.LanguageCode</span>
+                                    <InputText class="form-control" @bind-Value="@title.Title"></InputText>
+                                    <button class="btn btn-secondary" type="button" @onclick="() => TitleChanged(title)">Lưu</button>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <ModuleConfigParams ModuleConfigId="@Model.Id"></ModuleConfigParams>
+                </div>
+            </div>
+        }
+    </div>
+</section>
+
+@code {
+    [Parameter]
+    public string ModuleConfigId { set; get; }
+
+    private ModuleConfigDto Model { set; get; }
+    private List<TitleLanguageDto> Titles { set; get; } = new List<TitleLanguageDto>();
+    private List<string> Languages { get; set; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        Model = await ModuleConfigApiClient.GetModule(ModuleConfigId);
+        Languages = await CompanyApiClient.GetLanguageList(Guid.Empty);
+        foreach (var language in Languages)
+        {
+            var exist = Model.Titles.ContainsKey(language);
+            if (exist)
+            {
+                Titles.Add(new TitleLanguageDto
+                    {
+                        LanguageCode = language,
+                        Title = Model.Titles[language]
+                    });
+            }
+            else
+            {
+                Titles.Add(new TitleLanguageDto
+                    {
+                        LanguageCode = language,
+                        Title = ""
+                    });
+            }
+        }
+    }
+
+    public async void ApplyChanged()
+    {
+        var result = await ModuleConfigApiClient.UpdateApplyModule(Model.Id);
+        if (result)
+        {
+            if (Model.Apply) ToastService.ShowInfo("Chức năng đã hoạt động");
+            else ToastService.ShowWarning("Chức năng đã ngừng hoạt động");
+        }
+        else ToastService.ShowError("Cập nhật không thành công");
+    }
+
+    public async void OrderChanged()
+    {
+        var result = await ModuleConfigApiClient.UpdateOrderModule(Model.Id, Model.Order);
+        if (result) ToastService.ShowInfo($"Đã cập nhật thứ tự thành [{Model.Order}] thành công");
+        else ToastService.ShowError("Cập nhật không thành công");
+    }
+
+    public async void TitleChanged(TitleLanguageDto title)
+    {
+        var result = await ModuleConfigApiClient.UpdateTitle(Model.Id, title);
+        if (result) ToastService.ShowInfo($"Cập nhật tiêu đề [{title.LanguageCode}] thành công");
+        else ToastService.ShowError("Cập nhật không thành công");
+    }
+}

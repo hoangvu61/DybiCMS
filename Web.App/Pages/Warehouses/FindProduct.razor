@@ -1,0 +1,157 @@
+﻿@page "/warehouses/findproduct"
+@attribute [Authorize]
+
+@using Web.App.Components
+@using Web.App.Pages.Components
+@using Web.App.Pages.Warehouses.Components
+@using Microsoft.AspNetCore.Authorization;
+@using Web.App.Services;
+@using Web.Models;
+@using Web.Models.SeedWork;
+@using Microsoft.Extensions.Configuration
+
+@inject IConfiguration Configuration;
+@inject IToastService ToastService;
+@inject IWarehouseApiClient WarehouseApiClient;
+@inject IJSRuntime JS
+
+<h1>Tìm sản phẩm</h1>
+
+<div class="row">
+    <div class="col-6 mx-auto">
+        <div class="form-group">
+            <div class="input-group input-group-sm mb-3">
+                <input id="inputFindCode" class="form-control form-control-sm" @bind="Key" @bind:event="oninput" @onkeyup="Search" @onchange="Search" placeholder="Nhập tên hoặc mã sản phẩm" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<section>
+    @if (Model == null)
+    {
+        <h2 class="text-center py-3">Không tìm thấy sản phẩm</h2>
+    }
+    else
+    {
+        <h2 class="text-center py-3">@Model.Title</h2>
+        <div class="row">
+            <div class="col-5">
+                <div class="row">
+                    <div class="col">
+                        @if (Model.Image != null && !string.IsNullOrEmpty(Model.Image.FileName))
+                        {
+                            <img src="@(BackendApiUrl + "/" + Model.Image.FullPath + "?DummyId=" + DateTime.Now.Ticks)" asp-append-version="true" width="100%" />
+                        }
+                    </div>
+                    <div class="col">
+                        <div><label class="form-label">Mã sản phẩm:</label> <strong>@Model.Code</strong></div>
+                        <div><label class="form-label">Tình trạng:</label> @(Model.IsPuslished ? "Đang kinh doanh" : "Ngừng kinh doanh")</div>
+                        <div><label class="form-label">Mô tả:</label>@(!string.IsNullOrEmpty(Model.Brief) ? (MarkupString)(Model.Brief.Replace("\n", "<br />")) : (MarkupString)"")</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-7">
+                @if (ListInputs != null)
+                {
+                    var warehouses = ListInputs.Select(e => e.WarehouseName).Distinct().ToArray();
+                    <div class="card card-outline card-info">
+                        <div class="card-header">
+                            <h3 class="card-title">Tồn kho</h3>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-sm table-striped table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Kho</th>
+                                        <th>Số lượng</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in warehouses)
+                                    {
+                                        <tr>
+                                            <td>@item</td>
+                                            <td style="text-align:center">@ListInputs.Where(e => e.WarehouseName == item).Sum(e => e.InventoryNumber)</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card card-outline card-info">
+                    <div class="card-header">
+                        <h3 class="card-title">Lô hàng nhập</h3>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-sm table-striped table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Kho</th>
+                                    <th>Mã nhập kho</th>
+                                    <th>Nhập từ</th>
+                                    <th>Giá nhập</th>
+                                    <th>Số lượng</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in ListInputs)
+                                {
+                                    <tr>
+                                        <td style="vertical-align:middle">@item.WarehouseName</td>
+                                        <td style="vertical-align:middle">@item.InputCode</td>
+                                        <td>
+                                            @item.InputType <br />
+                                            Từ: @item.InputSourceName
+                                        </td>
+                                        <td style="text-align:right;vertical-align:middle">@item.ProductPrice.ToString("N0")</td>
+                                        <td style="text-align:right;vertical-align:middle">
+                                            <strong>@item.InventoryNumber.ToString("N0")</strong>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                }
+            </div>
+        </div>
+    }
+</section>
+
+
+@code {
+    private string BackendApiUrl { get; set; }
+    private List<WarehouseInputInventoryDto> ListInputs;
+
+    protected async override Task OnInitializedAsync()
+    {
+        BackendApiUrl = Configuration["BackendApiUrl"];
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await JS.InvokeVoidAsync("setFocus", "#inputFindCode");
+    }
+
+    [CascadingParameter]
+    private Error Error { set; get; }
+
+    private string Key { set; get; }
+    private ProductDetailDto Model { set; get; }
+
+    private async Task Search()
+    {
+        if (!string.IsNullOrEmpty(Key) && Key.Length > 3)
+        {
+            Model = await WarehouseApiClient.GetProductByCode(Key);
+            if (Model != null)
+            {
+                ListInputs = (await WarehouseApiClient.GetInventories(Model.Id)).OrderBy(e => e.WarehouseName).ThenBy(e => e.InputId).ToList();
+            }
+            Key = string.Empty;
+            StateHasChanged();
+        }
+    }
+}

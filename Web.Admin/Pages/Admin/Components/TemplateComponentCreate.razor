@@ -1,0 +1,70 @@
+﻿@using Web.Admin.Services;
+@using Web.Models;
+@using Web.Models.Enums;
+@using Web.Models.SeedWork;
+
+@inject IToastService ToastService;
+@inject ITemplateApiClient TemplateApiClient;
+@inject IModuleApiClient ModuleApiClient;
+
+@if (ShowDialog)
+{
+    <tr>
+         <td colspan="4">
+            <EditForm Model="Model" OnValidSubmit="HandleSubmit">
+                <DataAnnotationsValidator></DataAnnotationsValidator>
+                <div class="row">
+                    <div class="col">
+                        <InputText class="form-control form-control-sm" @bind-Value="Model.ComponentName" placeholder="Tên Component"></InputText>
+                        <ValidationMessage For="()=> Model.ComponentName"></ValidationMessage>
+                    </div>
+                    <div class="col">
+                        <InputText class="form-control form-control-sm" @bind-Value="Model.Describe" placeholder="Mô tả"></InputText>
+                        <ValidationMessage For="()=> Model.Describe"></ValidationMessage>
+                    </div>
+                    <div class="col" style="text-align:right">
+                        <button type="button" class="btn btn-secondary btn-xs" @onclick="()=>Hide()" data-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-primary btn-xs">Lưu</button>
+                    </div>
+                </div>
+            </EditForm>
+         </td>
+    </tr>
+}
+
+@code {
+    protected bool ShowDialog { get; set; }
+
+    private TemplateComponentDto Model { set; get; } = new TemplateComponentDto();
+
+    [Parameter]
+    public EventCallback<bool> CloseEventCallbak { get; set; }
+
+    public void Show(string templateName)
+    {
+        Model.TemplateName = templateName;
+        ShowDialog = true;
+        StateHasChanged();
+    }
+
+    private void Hide()
+    {
+        ShowDialog = false;
+        StateHasChanged();
+    }
+
+    protected async Task HandleSubmit()
+    {
+        var result = await TemplateApiClient.CreateTemplateComponent(Model);
+        if (result)
+        {
+            ShowDialog = false;
+            await CloseEventCallbak.InvokeAsync(true);
+            ToastService.ShowInfo("Thêm component thành công");
+        }
+        else
+        {
+            ToastService.ShowError("Thêm component không thành công");
+        }
+    }
+}

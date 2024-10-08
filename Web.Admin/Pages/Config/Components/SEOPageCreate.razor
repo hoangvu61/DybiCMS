@@ -1,0 +1,136 @@
+﻿@using Web.Admin.Services;
+@using Web.Models;
+@using System.IO;
+@using Web.Models.Enums;
+@using Web.Models.SeedWork;
+
+@inject IToastService ToastService;
+@inject ISEOApiClient SEOApiClient;
+@inject ICompanyApiClient CompanyApiClient;
+
+@if (ShowDialog)
+{
+    <div class="modal fade show d-block" id="assignModel" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <EditForm Model="Model" OnValidSubmit="HandleSubmit">
+                <DataAnnotationsValidator></DataAnnotationsValidator>
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Thêm liên kết</h5>
+                        <button type="button" class="close" data-dismiss="modal" @onclick="()=>Hide()" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label class="col-form-label">Url gốc:</label>
+                            <InputText class="form-control form-control-sm" @bind-Value="Model.Url"></InputText>
+                            <ValidationMessage For="()=> Model.Url"></ValidationMessage>
+                        </div>
+                        @if (ShowLanguage)
+                        {
+                            <div class="form-group">
+                                <label for="Name">Ngôn ngữ:</label>
+                                <InputSelect class="form-control form-control-sm" @bind-Value="Model.LanguageCode">
+                                    @foreach (var lang in Languages)
+                                    {
+                                        <option value="@lang">@lang</option>
+                                    }
+                                </InputSelect>
+                                <ValidationMessage For="()=>Model.LanguageCode"></ValidationMessage>
+                            </div>
+                        }
+                        <div class="form-group">
+                            <label class="col-form-label">Url mới:</label>
+                            <InputText class="form-control form-control-sm" @bind-Value="Model.SeoUrl"></InputText>
+                            <ValidationMessage For="()=> Model.SeoUrl"></ValidationMessage>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-form-label">Meta Title: (@Model.Title.Length / 65 ký tự)</label>
+                            <InputText class="form-control form-control-sm" @bind-Value="Model.Title"></InputText>
+                            <ValidationMessage For="()=> Model.Title"></ValidationMessage>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-form-label">Meta MetaDescription: (@Model.MetaDescription.Length / 155 ký tự)</label>
+                            <InputText class="form-control form-control-sm" @bind-Value="Model.MetaDescription"></InputText>
+                            <ValidationMessage For="()=> Model.MetaDescription"></ValidationMessage>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-form-label">Meta MetaKeyWord:</label>
+                            <InputText class="form-control form-control-sm" @bind-Value="Model.MetaKeyWord"></InputText>
+                            <ValidationMessage For="()=> Model.MetaKeyWord"></ValidationMessage>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-xs" @onclick="()=>Hide()" data-dismiss="modal">Đóng</button>
+                        <button type="submit" class="btn btn-primary btn-xs">Thêm</button>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@code {
+    protected bool ShowDialog { get; set; }
+    protected bool ShowLanguage { get; set; }
+
+    private SEOPageDto Model { set; get; } = new SEOPageDto();
+    private List<string> Languages { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> CloseEventCallbak { get; set; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        Languages = await CompanyApiClient.GetLanguageList(Guid.Empty);
+        if (Languages.Count > 0) Model.LanguageCode = Languages[0];
+    }
+
+    public void Show()
+    {
+        ShowDialog = true;
+        ShowLanguage = Languages.Count > 1;
+        Model.Id = Guid.NewGuid();
+        Model.NoItemId = Guid.NewGuid();
+        StateHasChanged();
+    }
+
+    public void Show(Guid noItemId, string language)
+    {
+        ShowDialog = true;
+        Model.Id = Guid.NewGuid();
+        Model.NoItemId = noItemId;
+        Model.LanguageCode = language;
+        ShowLanguage = false;
+        StateHasChanged();
+    }
+
+    private void Hide()
+    {
+        ShowDialog = false;
+        StateHasChanged();
+    }
+
+    protected async Task HandleSubmit()
+    {
+        if (!Model.SeoUrl.StartsWith('/')) ToastService.ShowWarning("URL mới phải bắt dầu bằng ký tự '/'");
+        else if (Model.SeoUrl.Trim() == "/") ToastService.ShowWarning("URL mới phải nhiều hơn 1 ký tự");
+        else if (!Model.Url.StartsWith('/')) ToastService.ShowWarning("URL góc phải bắt dầu bằng ký tự '/'");
+        else if (Model.Url.Trim() == "/") ToastService.ShowWarning("URL gốc phải nhiều hơn 1 ký tự");
+        else
+        {
+            var result = await SEOApiClient.Create(Model);
+            if (result)
+            {
+                ShowDialog = false;
+                await CloseEventCallbak.InvokeAsync(true);
+                ToastService.ShowInfo("Thêm thành công");
+            }
+            else
+            {
+                ToastService.ShowError("Thêm không thành công");
+            }
+        }
+    }
+}

@@ -1,0 +1,44 @@
+﻿@using Web.Admin.Services;
+@using Web.Models;
+@using System.IO;
+@using Web.Models.Enums;
+@using Web.Models.SeedWork;
+
+@inject IContentApiClient ContentApiClient;
+
+<div class="row">
+     <div class="col">
+        <InputText class="form-control form-control-sm" @bind-Value="Model.Title" placeholder="Tìm tên"></InputText>
+     </div>
+
+     <div class="col">
+        <InputText class="form-control form-control-sm" @bind-Value="Model.Place" placeholder="Tìm địa điểm"></InputText>
+     </div>
+
+    <div class="col">
+        <InputDate class="form-control form-control-sm" @bind-Value="Model.FromDate" placeholder="Từ ngày"></InputDate>
+    </div>
+
+    <div class="col">
+        <InputDate class="form-control form-control-sm" @bind-Value="Model.ToDate" placeholder="Đến ngày"></InputDate>
+    </div>
+
+    <div class="col button-top">
+        <button type="button" class="btn btn-primary btn-sm" @onclick="SearchForm">Tìm</button>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public EventCallback<EventListSearch> OnSearch { set; get; }
+
+    private EventListSearch Model = new EventListSearch();
+
+    protected async override Task OnParametersSetAsync()
+    {
+    }
+    private async Task SearchForm()
+    {
+        await OnSearch.InvokeAsync(Model);
+    }
+}

@@ -1,0 +1,208 @@
+﻿@using Web.Admin.Services;
+@using Web.Models;
+@using System.IO;
+@using Web.Models.Enums;
+@using Web.Models.SeedWork;
+@using Microsoft.Extensions.Configuration
+
+@inject IToastService ToastService;
+@inject IAttributeApiClient AttributeApiClient
+@inject IContentApiClient ContentApiClient;
+@inject ICompanyApiClient CompanyApiClient;
+
+@if (ShowDialog && Model != null)
+{
+    <div class="modal fade show d-block" id="assignModel" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <EditForm Model="Model" OnValidSubmit="HandleSubmit">
+                <DataAnnotationsValidator></DataAnnotationsValidator>
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Cập nhật thuộc tính</h5>
+                        <button type="button" class="close" data-dismiss="modal" @onclick="()=>Hide()" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <div class="input-group input-group-sm mb-3">
+                                <span class="input-group-text">Mã thuộc tính</span>
+                                <InputText class="form-control" @bind-Value="@Model.Id" readonly="readonly"></InputText>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @foreach (var title in Model.Titles)
+                            {
+                                <div class="input-group input-group-sm mb-3">
+                                    <span class="input-group-text" id="inputGroup-sizing-sm">Tên (@title.LanguageCode)</span>
+                                    <InputText class="form-control" @bind-Value="@title.Title"></InputText>
+                                    <ValidationMessage For="()=>title.Title"></ValidationMessage>
+                                </div>
+                            }
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group input-group-sm mb-3">
+                                <span class="input-group-text">Kiểu thuộc tính:</span>
+                                <InputSelect class="form-control form-control-sm" ValueExpression="@(()=>Model.Type)"
+                                         Value="@Model.Type"
+                                         ValueChanged="@((string value) => OnTypeChanged(value))">
+                                    <option value="">Chọn trang</option>
+                                    @foreach (var item in DataSource.AttributeTypes)
+                                    {
+                                        <option value="@item.Key">@item.Value</option>
+                                    }
+                                </InputSelect>
+                                <ValidationMessage For="()=>Model.Type"></ValidationMessage>
+                            </div>
+                        </div>
+                        @if (ShowSource && Sources != null)
+                        {
+                            <div class="form-group">
+                                <div class="input-group input-group-sm mb-3">
+                                    <span class="input-group-text">Nhóm thuộc tính:</span>
+                                    <InputSelect class="form-control form-control-sm" @bind-Value="@Model.SourceId">
+                                        @foreach (var item in Sources)
+                                        {
+                                            <option value="@item.Id">@item.Titles.Where(e => e.LanguageCode == "vi").Select(e => e.Title).FirstOrDefault()</option>
+                                        }
+                                    </InputSelect>
+                                    <ValidationMessage For="()=>Model.SourceId"></ValidationMessage>
+                                </div>
+                            </div>
+                        }
+                        @*<div class="form-group">
+                            <div class="input-group input-group-sm mb-3">
+                                <span class="input-group-text">Danh mục:</span>
+                                <InputSelect class="form-control form-control-sm" @bind-Value="Model.CategoryId">
+                                    <option value="@Guid.Empty">Chọn danh mục</option>
+                                    @foreach (var category in Categories)
+                                    {
+                                        <option value="@category.Id">@category.Type @category.Titles.FirstOrDefault(e => e.Key == "vi").Value</option>
+                                    }
+                                </InputSelect>
+                                <ValidationMessage For="()=>Model.CategoryId"></ValidationMessage>
+                            </div>
+                        </div>*@
+                        @*<div class="form-group">
+                            <label class="col-form-label">Thứ tự:</label>
+                            <InputNumber class="form-control form-control-sm" @bind-Value="Model.Order"></InputNumber>
+                            <ValidationMessage For="()=> Model.Order"></ValidationMessage>
+                        </div>*@
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-xs" @onclick="()=>Hide()" data-dismiss="modal">Đóng</button>
+                        <button type="submit" class="btn btn-primary btn-xs">Lưu</button>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@code {
+    protected bool ShowDialog { get; set; }
+    protected bool ShowSource { get; set; }
+
+    private AttributeDetailDto Model { set; get; }
+    private List<AttributeSourceDto> Sources { set; get; }
+    private List<CategoryDto> Categories { set; get; }
+    private List<string> Languages { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> CloseEventCallbak { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCategories();
+    }
+
+    public async Task LoadCategories()
+    {
+        var categories = await ContentApiClient.GetCategories();
+        Categories = SortTable(categories, null, "", "---");
+    }
+
+    protected async Task OnTypeChanged(string type)
+    {
+        Model.Type = type;
+        if (type == "Check" || type == "Option")
+        {
+            if (Sources == null) Sources = await AttributeApiClient.GetSourceList();
+            ShowSource = true;
+            Model.SourceId = Sources.Select(e => e.Id).FirstOrDefault();
+        }
+        else
+        {
+            ShowSource = false;
+        }
+    }
+
+    public async void Show(string id)
+    {
+        ShowDialog = true;
+        Model = await AttributeApiClient.GetAttributeById(id);
+        Languages = await CompanyApiClient.GetLanguageList(Guid.Empty);
+        foreach (var language in Languages)
+        {
+            var exist = Model.Titles.Any(e => e.LanguageCode == language);
+            if (!exist)
+            {
+                Model.Titles.Add(new TitleLanguageDto
+                    {
+                        LanguageCode = language,
+                        Title = ""
+                    });
+            }
+        }
+        if (Model.Type == "Check" || Model.Type == "Option")
+        {
+            if (Sources == null) Sources = await AttributeApiClient.GetSourceList();
+            ShowSource = true;
+        }
+        StateHasChanged();
+    }
+
+    private void Hide()
+    {
+        Sources = null;
+        ShowDialog = false;
+        StateHasChanged();
+    }
+
+    protected async Task HandleSubmit()
+    {
+        if (Model.Type != "Check" && Model.Type != "Option") Model.SourceId = null;
+        if (Model.Titles.Any(e => string.IsNullOrEmpty(e.Title))) ToastService.ShowError("Tên thuộc tính không được để trống");
+        else
+        {
+            var result = await AttributeApiClient.UpdateAttribute(Model);
+            if (result)
+            {
+                ShowDialog = false;
+                await CloseEventCallbak.InvokeAsync(true);
+                ToastService.ShowInfo("Lưu thuộc tính thành công");
+            }
+            else
+            {
+                ToastService.ShowError("Lưu thuộc tính không thành công");
+            }
+        }
+    }
+
+    private List<CategoryDto> SortTable(List<CategoryDto> table, Guid? parentId, string space = "", string distance = "....")
+    {
+        var rows = table.Where(dto => dto.ParentId == parentId).ToList();
+        if (!rows.Any()) return new List<CategoryDto>();
+        var sortData = new List<CategoryDto>();
+        foreach (var row in rows)
+        {
+            var spaceNext = space + distance;
+            var dt = SortTable(table, row.Id, spaceNext, distance);
+            row.Type = space;
+            sortData.Add(row);
+
+            if (dt.Count > 0) sortData.AddRange(dt);
+        }
+        return sortData;
+    }
+}

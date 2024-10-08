@@ -1,0 +1,224 @@
+﻿@page "/warehouses/inputs/{Id}"
+@attribute [Authorize]
+
+@using Web.App.Components
+@using Web.App.Pages.Components
+@using Web.App.Pages.Warehouses.Components
+@using Microsoft.AspNetCore.Authorization;
+@using Web.App.Services;
+@using Web.Models;
+@using Web.Models.SeedWork;
+@using Microsoft.Extensions.Configuration
+
+@inject NavigationManager NavigationManager;
+@inject IToastService ToastService;
+@inject IWarehouseApiClient WarehouseApiClient;
+@inject GlobalVariables Global;
+
+<h1>Quản lý Nhập kho</h1>
+
+<section>
+    @if (Model == null)
+    {
+        <LoadingIndicator></LoadingIndicator>
+    }
+    else
+    {
+        <div class="card card-outline card-info mb-3">
+            <div class="card-header">
+                <h3 class="card-title">@Model.TypeName</h3>
+                <button class="btn btn-danger btn-sm" style="float:right" @onclick='()=>{ DeleteConfirmation.SetTitle("Xóa phiếu nhập kho"); DeleteConfirmation.Show();}'>Xóa</button>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col" style="border-right:1px dotted #ccc">
+                        <div><label class="form-label">Mã nhập kho:</label> @Model.InputCode</div>
+                        <div><label class="form-label">Ngày nhập kho:</label> @Model.CreateDate.ToString("dd/MM/yyyy hh:mm")</div>
+                        <div><label class="form-label">Kho nhập:</label> @Model.WarehouseName</div>
+                        <div><label class="form-label">Loại kho:</label> @Model.WarehouseType</div>
+                        @if (Model.Type == 1)
+                        {
+                            <div><label class="form-label">Nhà cung cấp:</label> @Model.SourceName</div>
+                        }
+                        else if (Model.Type == 2)
+                        {
+                            <div><label class="form-label">Nơi sản xuất:</label> @Model.SourceName</div>
+                        }
+                        else if (Model.Type == 3)
+                        {
+                            <div><label class="form-label">Từ kho:</label> @Model.SourceName</div>
+                        }
+                        else if (Model.Type == 4)
+                        {
+                            <div><label class="form-label">Mã đơn hàng:</label> @Model.SourceName</div>
+                        }
+                    </div>
+                    <div class="col">
+                        @if (Model.Type == 1)
+                        {
+                            <div><label class="form-label">Tổng tiền:</label> @Model.TotalPrice.ToString("N0") <sup>đ</sup></div>
+                            @if (Model.Debt > 0)
+                            {
+                                <div>
+                                    <label class="form-label">Thanh toán:</label> @((Model.TotalPrice - Model.Debt).ToString("N0")) <sup>đ</sup>
+                                    <label class="form-label">Nợ:</label> @Model.Debt.ToString("N0") <sup>đ</sup>
+                                </div>
+                            }
+                        }
+                        <div><label class="form-label">Ghi chú:</label> @Model.Note</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card card-outline card-primary">
+            <div class="card-header">
+                <h3 class="card-title">Danh sách Vật tư / Hàng hóa</h3>
+            </div>
+            <div class="card-body">
+                <table class="table table-sm table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Mã</th>
+                            <th>Tên</th>
+                            <th>Danh mục</th>
+                            <th>Đơn giá</th>
+                            <th>Số lượng</th>
+                            <th style="width:@(Global.GetConfig("PhuongPhapTinhGiaXuatKho") == "2"? "200px":"70px")">
+                                <button @onclick="() => ProductListDialog.Show()" class="btn btn-primary btn-xs">Thêm</button>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if(ListProducts != null)
+                        {
+                            foreach (var item in ListProducts)
+                            {
+                                <tr>
+                                    <td>@item.Code</td>
+                                    <td>@item.Title</td>
+                                    <td>@item.CategoryName</td>
+                                    <td style="text-align:right">@item.Price.ToString("N0") <sup>đ</sup></td>
+                                    <td style="text-align:right">@item.Quantity.ToString("N0")</td>
+                                    <td style="text-align:center;">
+                                        @if (Global.GetConfig("PhuongPhapTinhGiaXuatKho") == "2")
+                                        {
+                                            <button class="btn btn-success btn-xs" style="margin-right:5px" @onclick="()=>ProductCodeCreateDialog.Show(Model.Id, item, Web.Models.Enums.WarehouseIOType.Input)">Seri (@item.SeriCount.ToString("N0")/@item.Quantity.ToString("N0"))</button>
+                                        }
+                                        <button class="btn btn-danger btn-xs" @onclick="()=> OnDelete(item.Id)">Xóa</button>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <Confirmation ConfirmationMessage="Bạn có chắc chắn xóa?"
+                    ConfirmationTitle="Xóa phiếu nhập kho"
+                    @ref="DeleteConfirmation"
+                    ConfirmationChanged="OnConfirmDelete">
+        </Confirmation>
+
+        <WarehouseProductListPopup @ref="ProductListDialog" EventCallbak="SelectProduct" AllowAddProduct="true"></WarehouseProductListPopup>
+        <InputProductCreate @ref="ProductInputCreateDialog" InputId="Model.Id" OnAddProduct="AddProduct"></InputProductCreate>
+        <ProductCodeCreate @ref="ProductCodeCreateDialog" CloseEventCallback="UpdateCode"></ProductCodeCreate>
+    }
+</section>
+
+@code {
+    [Parameter]
+    public string Id { set; get; }
+
+    protected Confirmation DeleteConfirmation { set; get; }
+    private WarehouseInputDto Model { set; get; }
+
+    public MetaData MetaData { get; set; } = new MetaData();
+    private List<WarehouseProductInputDto> ListProducts;
+
+    private WarehouseProductListPopup ProductListDialog { set; get; }
+    private InputProductCreate ProductInputCreateDialog { set; get; }
+    private ProductCodeCreate ProductCodeCreateDialog { set; get; }
+
+    private Guid DeleteId { set; get; }
+
+    [CascadingParameter]
+    private Error Error { set; get; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!string.IsNullOrEmpty(Id))
+        {
+            await LoadData(Id);
+        }
+    }
+
+    public async Task LoadData(string id)
+    {
+        try
+        {
+            Model = await WarehouseApiClient.GetWarehouseInput(id);
+            if (Model != null) ListProducts = await WarehouseApiClient.GetWarehouseInputProducts(Model.Id);
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Error.ProcessError(ex);
+        }
+    }
+
+    public void SelectProduct(WarehouseProductDto product)
+    {
+        ProductInputCreateDialog.Show(product);
+    }
+    public void AddProduct(WarehouseProductInputDto product)
+    {
+        ListProducts.Add(product);
+        StateHasChanged();
+    }
+    public void UpdateCode(WarehouseProductInputDto product)
+    {
+        foreach (var pro in ListProducts)
+        {
+            if (pro.Id == product.Id) pro.SeriCount = product.SeriCount;
+        }
+        StateHasChanged();
+    }
+
+    public async Task OnConfirmDelete(bool deleteConfirmed)
+    {
+        if (deleteConfirmed)
+        {
+            if (DeleteId == Guid.Empty)
+            {
+                var result = await WarehouseApiClient.DeleteInput(Model.Id);
+                if (string.IsNullOrEmpty(result))
+                {
+                    ToastService.ShowWarning($"Đã xóa lô nhập [{Model.Id}]");
+                    NavigationManager.NavigateTo($"warehouses/inputs");
+                }
+                else ToastService.ShowError(result);
+            }
+            else
+            {
+                var message = await WarehouseApiClient.DeleteWarehouseInputProduct(Model.Id, DeleteId);
+                if (string.IsNullOrEmpty(message))
+                {
+                    ToastService.ShowInfo($"Đã xóa sản phẩm [{Model.Id}]");
+                    ListProducts.RemoveAll(e => e.Id == DeleteId);
+                }
+                else ToastService.ShowError(message);
+            }
+            StateHasChanged();
+        }
+
+        DeleteId = Guid.Empty;
+    }
+    public void OnDelete(Guid deleteId)
+    {
+        DeleteConfirmation.SetTitle("Xóa sản phẩm");
+        DeleteId = deleteId;
+        DeleteConfirmation.Show();
+    }
+}

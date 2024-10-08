@@ -1,0 +1,105 @@
+﻿@using Web.App.Services;
+@using Web.Models;
+@using System.IO;
+@inject IToastService ToastService;
+@inject IWarehouseApiClient WarehouseApiClient;
+
+@if (ShowDialog)
+{
+    <div class="modal fade show d-block" id="assignModel" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <EditForm Model="Model" OnValidSubmit="HandleSubmit">
+                <DataAnnotationsValidator></DataAnnotationsValidator>
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Thêm nhà cung cấp</h5>
+                        <button type="button" class="close" data-dismiss="modal" @onclick="()=>Hide()" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="input-group input-group-xs mt-2">
+                            <span class="input-group-text">Tên:</span>
+                            <InputText class="form-control" @bind-Value="Model.Name"></InputText>
+                        </div>
+                        <ValidationMessage For="()=> Model.Name"></ValidationMessage>
+
+                        <div class="input-group input-group-xs mt-2">
+                            <span class="input-group-text">Địa chỉ:</span>
+                            <InputText class="form-control" @bind-Value="Model.Address"></InputText>
+                        </div>
+                        <ValidationMessage For="()=> Model.Address"></ValidationMessage>
+
+                        <div class="input-group input-group-xs mt-2">
+                            <span class="input-group-text">Số điện thoại:</span>
+                            <InputText class="form-control" @bind-Value="Model.Phone"></InputText>
+                        </div>
+                        <ValidationMessage For="()=> Model.Phone"></ValidationMessage>
+
+                        <div class="input-group input-group-xs mt-2">
+                            <span class="input-group-text">Email:</span>
+                            <InputText class="form-control" @bind-Value="Model.Email"></InputText>
+                        </div>
+                        <ValidationMessage For="()=> Model.Email"></ValidationMessage>
+
+                        <div class="input-group input-group-xs mt-2">
+                            <div class="form-check form-switch">
+                                <InputCheckbox @bind-Value="Model.IsActive" class="form-check-input" role="switch"></InputCheckbox>
+                                <label class="form-check-label">Sử dụng</label>
+                            </div>
+                        </div>
+                        <ValidationMessage For="()=> Model.IsActive"></ValidationMessage>
+
+                        <div class="form-group">
+                            <label class="col-form-label">Ghi chú:</label>
+                            <InputTextArea class="form-control form-control-sm" @bind-Value="Model.Note"></InputTextArea>
+                            <ValidationMessage For="()=> Model.Note"></ValidationMessage>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-xs" @onclick="()=>Hide()" data-dismiss="modal">Đóng</button>
+                        <button type="submit" class="btn btn-primary btn-xs">Thêm</button>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@code {
+    protected bool ShowDialog { get; set; }
+
+    private WarehouseSupplierDto Model { set; get; } = new WarehouseSupplierDto();
+
+    [Parameter]
+    public EventCallback<bool> CloseEventCallbak { get; set; }
+
+    public void Show()
+    {
+        ShowDialog = true;
+        Model.Id = Guid.NewGuid();
+        StateHasChanged();
+    }
+
+    private async Task Hide()
+    {
+        await CloseEventCallbak.InvokeAsync(false);
+        ShowDialog = false;
+        StateHasChanged();
+    }
+
+    protected async Task HandleSubmit()
+    {
+        var result = await WarehouseApiClient.CreateSupplier(Model);
+        if (result)
+        {
+            ShowDialog = false;
+            await CloseEventCallbak.InvokeAsync(true);
+            ToastService.ShowInfo("Thêm Nhà cung cấp thành công");
+        }
+        else
+        {
+            ToastService.ShowError("Thêm Nhà cung cấp không thành công");
+        }
+    }
+}

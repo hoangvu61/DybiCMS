@@ -1,0 +1,138 @@
+﻿@using Web.Admin.Services;
+@using Web.Models;
+@using System.IO;
+@using Web.Models.Enums;
+@using Web.Models.SeedWork;
+
+@inject IToastService ToastService;
+@inject IThirdPartyApiClient ThirdPartyApiClient;
+@inject ITemplateApiClient TemplateApiClient;
+
+@if (ShowDialog)
+{
+    <div class="modal fade show d-block" id="assignModel" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <EditForm Model="Model" OnValidSubmit="HandleSubmit">
+                <DataAnnotationsValidator></DataAnnotationsValidator>
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Thêm mã nhún</h5>
+                        <button type="button" class="close" data-dismiss="modal" @onclick="()=>Hide()" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label class="col-form-label">Tên:</label>
+                            <InputText class="form-control form-control-sm" @bind-Value="Model.ThirdPartyName"></InputText>
+                            <ValidationMessage For="()=> Model.ThirdPartyName"></ValidationMessage>
+                        </div>
+                        <div class="form-group">
+                            <label for="Name">Trang:</label>
+                            <InputSelect class="form-control form-control-sm" ValueExpression="@(()=>Model.ComponentName)"
+                                     Value="@Model.ComponentName"
+                                     ValueChanged="@((string value) => OnComponentChanged(value))">
+                                <option value="">Template</option>
+                                @if (Components != null)
+                                {
+                                    @foreach (var item in Components)
+                                    {
+                                        <option value="@item.ComponentName">@item.Describe</option>
+                                    }
+                                }
+                            </InputSelect>
+                        <ValidationMessage For="()=>Model.ComponentName"></ValidationMessage>
+                        </div>
+                        <div class="form-group">
+                            <label for="Name">Vị trí:</label>
+                            <InputSelect class="form-control form-control-sm" @bind-Value="Model.PositionName">
+                                @if (Positions != null)
+                                {
+                                    @foreach (var item in Positions)
+                                    {
+                                        <option value="@item.PositionName">@item.Describe</option>
+                                    }
+                                }
+                            </InputSelect>
+                            <ValidationMessage For="()=>Model.PositionName"></ValidationMessage>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-form-label">Nội dung:</label>
+                            <InputTextArea class="form-control form-control-sm" @bind-Value="Model.ContentHTML"></InputTextArea>
+                            <ValidationMessage For="()=> Model.ContentHTML"></ValidationMessage>
+                        </div>
+                        <div class="form-check form-switch" style="padding-left:25px">
+                            <InputCheckbox @bind-Value="Model.Apply" class="form-check-input" role="switch"></InputCheckbox>
+                            <label class="form-check-label">Sử dụng</label>
+                            <ValidationMessage For="()=> Model.Apply"></ValidationMessage>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-xs" @onclick="()=>Hide()" data-dismiss="modal">Đóng</button>
+                        <button type="submit" class="btn btn-primary btn-xs">Thêm</button>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@code {
+    protected bool ShowDialog { get; set; }
+
+    private ThirdPartyDto Model { set; get; } = new ThirdPartyDto();
+    private List<TemplateComponentDto> Components { set; get; }
+    private List<TemplatePositionDto> AllPositions { set; get; }
+    private List<TemplatePositionDto> Positions { set; get; }
+
+    [Parameter]
+    public EventCallback<bool> CloseEventCallbak { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Components = await TemplateApiClient.GetComponents();
+        AllPositions = await TemplateApiClient.GetPositions();
+
+        var componentPositions = AllPositions.Select(p => p.ComponentName).ToList();
+        Components = Components.Where(e => componentPositions.Contains(e.ComponentName)).ToList();
+
+        Model.ComponentName = "";
+        Positions = AllPositions.Where(e => e.ComponentName == Model.ComponentName).ToList();
+        Model.PositionName = Positions.First().PositionName;
+    }
+
+    protected async Task OnComponentChanged(string componentName)
+    {
+        Model.ComponentName = componentName;
+        Positions = AllPositions.Where(e => e.ComponentName == Model.ComponentName).ToList();
+        Model.PositionName = Positions.First().PositionName;
+    }
+
+    public void Show()
+    {
+        ShowDialog = true;
+        Model.Id = Guid.NewGuid();
+        StateHasChanged();
+    }
+
+    private void Hide()
+    {
+        ShowDialog = false;
+        StateHasChanged();
+    }
+
+    protected async Task HandleSubmit()
+    {
+        var result = await ThirdPartyApiClient.Create(Model);
+        if (result)
+        {
+            ShowDialog = false;
+            await CloseEventCallbak.InvokeAsync(true);
+            ToastService.ShowInfo("Thêm mã nhún thành công");
+        }
+        else
+        {
+            ToastService.ShowError("Thêm mã nhún không thành công");
+        }
+    }
+}

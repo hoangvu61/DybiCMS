@@ -1,0 +1,270 @@
+﻿@using Web.Models;
+@using System.IO;
+@using Web.Models.Enums
+@using Web.App.Services;
+@using Web.App.Pages.Warehouses.Components
+@using Web.App.Pages.Settings.Components
+
+@inject NavigationManager NavigationManager;
+@inject IToastService ToastService;
+@inject IWarehouseApiClient WarehouseApiClient;
+@inject IJSRuntime JS
+
+
+<div class="modal fade @(ShowDialog?"show d-block":"")" id="assignModel" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Thêm phiếu Nhập kho</h5>
+                <button type="button" class="close" data-dismiss="modal" @onclick="()=>Hide()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col">
+                        @foreach (var item in DataSource.WarehouseInputTypes)
+                        {
+                            <div class="form-check">
+                                <input id="Type_@item.Key" class="form-check-input" type="radio" name="Type" checked="@(Model.Type == item.Key)" @onchange="@(() => TypeChange(item.Key))" />
+                                <label for="Type_@item.Key">@item.Value</label>
+                            </div>
+                        }
+                    </div>
+                    <div class="col">
+                        <div class="input-group input-group-xs mb-2">
+                            <label class="input-group-text">Mã nhập kho:</label>
+                            <InputText id="inputCode" class="form-control" tabindex="1" @bind-Value="Model.InputCode" />
+                        </div>
+                        <div class="input-group input-group-xs mb-2">
+                            <label class="input-group-text">Nhập vào kho:</label>
+                            <InputSelect tabindex="2" class="form-select" @bind-Value="Model.WarehouseId">
+                                @if (Warehouses != null)
+                                {
+                                    foreach (var item in Warehouses)
+                                    {
+                                        <option value="@item.Id">@item.Name</option>
+                                    }
+                                }
+                            </InputSelect>
+                            <button type="button" class="btn btn-light" @onclick="() => { WarehouseCreateDialog.Show(); Hide(); }"><span class="oi oi-plus"></span></button>
+                        </div>
+                        <div class="form-group">
+                            @if (Model.Type == 1)
+                            {
+                                if (Supplyers != null && Supplyers.Count == 1) Model.FromId = Supplyers[0].Id;
+                                <div class="input-group input-group-sm mb-2">
+                                    <span class="input-group-text">Nhà cung cấp</span>
+                                    <InputSelect tabindex="3" class="form-select form-select-sm" @bind-Value="Model.FromId">
+                                        @if (Supplyers != null && Supplyers.Count > 0)
+                                        {
+                                            foreach (var item in Supplyers)
+                                            {
+                                                <option value="@item.Id">@item.Name</option>
+                                            }
+                                        }
+                                    </InputSelect>
+                                    <button type="button" class="btn btn-light btn-sm" @onclick="() => { SupplierCreateDialog.Show(); Hide(); }"><span class="oi oi-plus"></span></button>
+                                </div>
+                                <div class="input-group input-group-xs mb-2">
+                                    <span class="input-group-text">Tổng tiền</span>
+                                    <input tabindex="4" class="form-control" type="number" @bind="Model.TotalPrice" @bind:event="oninput" @onkeyup="StateHasChanged" @onchange="StateHasChanged" />
+                                    @if (Model.TotalPrice > 0)
+                                    {
+                                        <button type="button" class="btn btn-light" @onclick="()=>{ DebtDialog.Show(Model.TotalPrice); Hide(); }"><span class="oi oi-plus"></span> Trả trước</button>
+                                    }
+                                </div>
+                                @if (Model.Payment > 0)
+                                {
+                                    <div class="input-group input-group-xs">
+                                        <span class="input-group-text">Trả trước: @($"{(Model.Payment):N0}") <sup>đ</sup></span>
+                                        <span class="input-group-text">Nợ: @($"{(Model.TotalPrice - Model.Payment):N0}") <sup>đ</sup></span>
+                                    </div>
+                                }
+                            }
+                            else if (Model.Type == 2)
+                            {
+                                if (Factories != null && Factories.Count == 1) Model.FromId = Factories[0].Id;
+                                <div class="input-group input-group-xs mb-2">
+                                    <span class="input-group-text">Nơi sản xuất</span>
+                                    <InputSelect tabindex="3" class="form-select form-select-sm" @bind-Value="Model.FromId">
+                                        @if (Factories != null && Factories.Count > 0)
+                                        {
+                                            foreach (var item in Factories)
+                                            {
+                                                <option value="@item.Id">@item.Name</option>
+                                            }
+                                        }
+                                    </InputSelect>
+                                    <button type="button" class="btn btn-light" @onclick="() => { FactoryCreateDialog.Show(); Hide(); }"><span class="oi oi-plus"></span></button>
+                                </div>
+                            }
+                            else if (Model.Type == 3)
+                            {
+                                if (Warehouses != null && Warehouses.Count == 1) Model.FromId = Warehouses[0].Id;
+                                <div class="input-group input-group-xs mb-2">
+                                    <span class="input-group-text">Từ kho</span>
+                                    <InputSelect tabindex="3" class="form-select" @bind-Value="Model.FromId">
+                                        @if (Warehouses != null && Warehouses.Count > 0)
+                                        {
+                                            foreach (var item in Warehouses)
+                                            {
+                                                <option value="@item.Id">@item.Name</option>
+                                            }
+                                        }
+                                    </InputSelect>
+                                    <button type="button" class="btn btn-light" @onclick="() => { WarehouseCreateDialog.Show(); Hide(); }"><span class="oi oi-plus"></span></button>
+                                </div>
+                            }
+                            else if (Model.Type == 4)
+                            {
+                                Model.FromId = null;
+                                <div class="input-group input-group-xs mb-2">
+                                    <span class="input-group-text">Mã đơn hàng trả lại</span>
+                                    <input id="inputOrderId" tabindex="1" class="form-control" @bind="Model.FromId" @bind:event="oninput" />
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="input-group mb-2">
+                            <label class="input-group-text">Ghi chú:</label>
+                            <InputTextArea id="inputCode" class="form-control form-control-sm" tabindex="1" @bind-Value="Model.Note" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-xs" @onclick="()=>Hide()" data-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary btn-xs" @onclick="()=>CreateInput()">Thêm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<InputPayment @ref="DebtDialog" OnPayment="PaymentChange"></InputPayment>
+<WarehouseCreate @ref="WarehouseCreateDialog" CloseEventCallbak="LoadWarehouses"></WarehouseCreate>
+<SupplierCreate @ref="SupplierCreateDialog" CloseEventCallbak="LoadSupplyers"></SupplierCreate>
+<FactoryCreate @ref="FactoryCreateDialog" CloseEventCallbak="LoadFactories"></FactoryCreate>
+
+@code {
+    protected bool ShowDialog { get; set; }
+
+    protected InputPayment DebtDialog { set; get; }
+    protected WarehouseCreate WarehouseCreateDialog { set; get; }
+    protected SupplierCreate SupplierCreateDialog { set; get; }
+    protected FactoryCreate FactoryCreateDialog { set; get; }
+
+    private WarehouseInputRequest Model { set; get; } = new WarehouseInputRequest();
+
+    private List<WarehouseSupplierDto> Supplyers { set; get; }
+    private List<WarehouseFactoryDto> Factories { set; get; }
+    private List<WarehouseDto> Warehouses { set; get; }
+    private List<WarehouseDto> AllWarehouses { set; get; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        Supplyers = await WarehouseApiClient.GetSuppliers();
+        Supplyers = Supplyers.Where(e => e.IsActive).ToList();
+
+        Factories = await WarehouseApiClient.GetFactories();
+        Factories = Factories.Where(e => e.IsActive).ToList();
+
+        AllWarehouses = await WarehouseApiClient.GetWarehouses();
+        Warehouses = AllWarehouses.Where(e => e.IsActive).ToList();
+        if (Warehouses.Count > 0) Model.WarehouseId = Warehouses.First().Id;
+    }
+
+    public async Task Show()
+    {
+        ShowDialog = true;
+        Model.Id = Guid.NewGuid();
+        Model.Type = 1;
+        if (Supplyers != null && Supplyers.Count == 1) Model.FromId = Supplyers[0].Id;
+        StateHasChanged();
+        await JS.InvokeVoidAsync("setFocus", "#inputCode");
+    }
+
+    private void Hide()
+    {
+        ShowDialog = false;
+        StateHasChanged();
+    }
+
+    private async Task LoadSupplyers(bool isLoad)
+    {
+        if (isLoad)
+        {
+            Supplyers = await WarehouseApiClient.GetSuppliers();
+            Supplyers = Supplyers.Where(e => e.IsActive).ToList();
+        }
+
+        ShowDialog = true;
+        StateHasChanged();
+    }
+    private async Task LoadFactories(bool isLoad)
+    {
+        if (isLoad)
+        {
+            Factories = await WarehouseApiClient.GetFactories();
+            Factories = Factories.Where(e => e.IsActive).ToList();
+        }
+
+        ShowDialog = true;
+        StateHasChanged();
+    }
+    private async Task LoadWarehouses(bool isLoad)
+    {
+        if (isLoad)
+        {
+            AllWarehouses = await WarehouseApiClient.GetWarehouses();
+            Warehouses = AllWarehouses.Where(e => e.IsActive).ToList();
+        }
+
+        ShowDialog = true;
+        StateHasChanged();
+    }
+
+    private void TypeChange(int type)
+    {
+        Model.Type = type;
+        switch (Model.Type)
+        {
+            case 1: 
+                // Nhập mua ngoài: nhập vào kho hàng hóa (156), công cụ, dụng cụ (153) hoặc nguyên vật liệu (152)
+                Warehouses = AllWarehouses.Where(e => e.IsActive && (e.Type == 156 || e.Type == 152 || e.Type == 153)).ToList();
+                if (Warehouses.Count > 0) Model.WarehouseId = Warehouses[0].Id;
+                break;
+            case 2:
+                // Nhập kho sản xuất nội bộ: công cụ, dụng cụ (153), nguyên vật liệu (152)
+                Warehouses = AllWarehouses.Where(e => e.IsActive && (e.Type == 152 || e.Type == 153 || e.Type == 154)).ToList();
+                if (Warehouses.Count > 0) Model.WarehouseId = Warehouses[0].Id;
+                break;
+            default:
+                Warehouses = AllWarehouses.Where(e => e.IsActive).ToList();
+                if (Warehouses.Count > 0) Model.WarehouseId = Warehouses[0].Id;
+                break;
+        }
+        StateHasChanged();
+    }
+
+    private void PaymentChange(decimal payment)
+    {
+        if (Model.Payment != payment) Model.Payment = payment;
+        ShowDialog = true;
+        StateHasChanged();
+    }
+
+    protected async Task CreateInput()
+    {
+        var result = await WarehouseApiClient.CreateWarehouseInput(Model);
+        if (string.IsNullOrEmpty(result))
+        {
+            ShowDialog = false;
+            ToastService.ShowInfo("Thêm phiếu nhập kho thành công");
+            NavigationManager.NavigateTo($"warehouses/inputs/{Model.Id}");
+        }
+        else ToastService.ShowError(result);
+    }
+}

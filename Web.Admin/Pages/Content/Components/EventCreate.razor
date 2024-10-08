@@ -1,0 +1,101 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization;
+@using Web.Admin.Services;
+@using Web.Models;
+@using Web.Models.Enums;
+@using Web.Models.SeedWork;
+
+@inject IToastService ToastService;
+@inject IContentApiClient ContentApiClient;
+@inject AuthenticationStateProvider GetAuthenticationStateAsync
+
+@if (ShowBox)
+{
+    <div class="modal fade show d-block" id="assignModel" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+        <EditForm Model="Model" OnValidSubmit="HandleSubmit">
+            <DataAnnotationsValidator></DataAnnotationsValidator>
+            <div class="modal-content">
+                <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Thêm sự kiện</h5>
+                    <button type="button" class="close" data-dismiss="modal" @onclick="()=>Hide()" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                            <div class="input-group input-group-sm mb-3">
+                          <span class="input-group-text">Tên sự kiện</span>
+                                <InputText class="form-control form-control-sm" @bind-Value="Model.Title"></InputText>
+                        </div>
+                        <ValidationMessage For="()=> Model.Title"></ValidationMessage>
+                    </div>
+                        <div class="form-group">
+                            <div class="input-group input-group-sm mb-3">
+                                <span class="input-group-text">Thời gian</span>
+                                <InputDate Type="InputDateType.DateTimeLocal" class="form-control form-control-sm" @bind-Value="Model.StartDate"></InputDate>
+                            </div>
+                            <ValidationMessage For="()=> Model.StartDate"></ValidationMessage>
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group input-group-sm mb-3">
+                                <span class="input-group-text">Địa điểm</span>
+                                <InputText class="form-control form-control-sm" @bind-Value="Model.Place"></InputText>
+                            </div>
+                            <ValidationMessage For="()=> Model.Place"></ValidationMessage>
+                        </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-xs" @onclick="()=>Hide()" data-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary btn-xs">Thêm</button>
+                </div>
+            </div>
+        </EditForm>
+    </div>
+    </div>
+}
+
+@code {
+    protected bool ShowBox { get; set; }
+
+    private EventCreateRequest Model { set; get; } = new EventCreateRequest();
+
+    [Parameter]
+    public EventCallback<Guid> CloseEventCallbak { get; set; }
+
+    [Parameter]
+    public string LanguageCode { set; get; }
+
+    protected async override Task OnInitializedAsync()
+    {
+    }
+
+    public void Show()
+    {
+        Model.Id = Guid.NewGuid();
+        Model.LanguageCode = LanguageCode;
+        ShowBox = true;
+        StateHasChanged();
+    }
+
+    private void Hide()
+    {
+        ShowBox = false;
+        StateHasChanged();
+    }
+
+    protected async Task HandleSubmit()
+    {
+        var result = await ContentApiClient.CreateEvent(Model);
+        if (result)
+        {
+            ShowBox = false;
+            await CloseEventCallbak.InvokeAsync(Model.Id);
+            ToastService.ShowInfo("Thêm sự kiện thành công");
+        }
+        else
+        {
+            ToastService.ShowError("Thêm sự kiện không thành công");
+        }
+    }
+
+}

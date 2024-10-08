@@ -1,0 +1,129 @@
+﻿@using Web.Admin.Services;
+@using Web.Models;
+@using Web.Admin.Components;
+@using Web.Models.SeedWork;
+
+@inject IToastService ToastService;
+@inject IModuleApiClient ModuleApiClient;
+
+@if (!string.IsNullOrEmpty(ModuleName) && Params != null)
+{
+    <div class="card-header">
+        <h3 class="card-title">Danh sách tham số của Module <strong>@ModuleName</strong></h3>
+    </div>
+    <div class="card-body">
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                    <th>Tên</th>
+                    <th>Loại</th>
+                    <th>Mô tả</th>
+                    <th>Mặc định</th>
+                    <th style="text-align:right">
+                        <button class="btn btn-primary btn-xs" @onclick="()=> OpenCreatePopup()">Thêm</button>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Params)
+                {
+                    <tr>
+                        <td>@item.ParamName</td>
+                        <td>@item.Type</td>
+                        <td>@item.Describe</td>
+                        <td>@item.DefaultValue</td>
+                        <td style="text-align:right">
+                            <button class="btn btn-success btn-xs" @onclick="()=> OpenUpdatePopup(item.ParamName)">Sửa</button>
+                            <button class="btn btn-danger btn-xs" @onclick="()=> OnDeleteModuleParam(item.ParamName)">Xóa</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="5">
+                        <Pagination MetaData="MetaData" Spread="2" SelectedPage="SelectedPage"></Pagination>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    <Confirmation ConfirmationMessage="Bạn có chắc chắn xóa?"
+              ConfirmationTitle="Xóa Param"
+              @ref="DeleteConfirmation"
+              ConfirmationChanged="OnConfirmDeleteParam">
+    </Confirmation>
+
+    <ModuleParamCreate @ref="CreateModuleParam" CloseEventCallbak="RefreshList"></ModuleParamCreate>
+    <ModuleParamUpdate @ref="UpdateModuleParam" CloseEventCallbak="RefreshList"></ModuleParamUpdate>
+}
+
+
+@code {
+    private string ModuleName { set; get; }
+    private List<ModuleParamDto> Params;
+    private string DeleteParamName { set; get; }
+
+    protected Confirmation DeleteConfirmation { set; get; }
+    protected ModuleParamCreate CreateModuleParam { set; get; }
+    protected ModuleParamUpdate UpdateModuleParam { set; get; }
+
+    public MetaData MetaData { get; set; } = new MetaData();
+    private PagingParameters Paging = new PagingParameters(10);
+
+    [CascadingParameter]
+    private Error Error { set; get; }
+
+    public async Task RefreshList()
+    {
+        try
+        {
+            var pagingResponse = await ModuleApiClient.GetModuleParamList(ModuleName, Paging);
+            Params = pagingResponse.Items;
+            MetaData = pagingResponse.MetaData;
+        }
+        catch (Exception ex)
+        {
+            Error.ProcessError(ex);
+        }
+    }
+
+    private async Task SelectedPage(int page)
+    {
+        Paging.PageNumber = page;
+        await RefreshList();
+    }
+
+    public async void Show(string name)
+    {
+        ModuleName = name;
+
+        await RefreshList();
+
+        StateHasChanged();
+    }
+
+    public void OpenCreatePopup()
+    {
+        CreateModuleParam.Show(ModuleName);
+    }
+    public void OpenUpdatePopup(string paramName)
+    {
+        UpdateModuleParam.Show(ModuleName, paramName);
+    }
+
+    public void OnDeleteModuleParam(string name)
+    {
+        DeleteParamName = name;
+        DeleteConfirmation.Show();
+    }
+
+    public async Task OnConfirmDeleteParam(bool deleteConfirmed)
+    {
+        if (deleteConfirmed)
+        {
+            await ModuleApiClient.DeleteModuleParam(ModuleName, DeleteParamName);
+            await RefreshList();
+        }
+    }
+}

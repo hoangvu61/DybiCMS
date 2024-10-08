@@ -1,0 +1,65 @@
+﻿@using Web.Admin.Services;
+@using Web.Models;
+@using Web.Models.Enums;
+@using Web.Models.SeedWork;
+
+@inject IToastService ToastService;
+@inject ICompanyApiClient CompanyApiClient;
+
+@if (ShowDialog)
+{
+    <tr>
+         <td colspan="2">
+            <EditForm Model="Model" OnValidSubmit="HandleSubmit">
+                <DataAnnotationsValidator></DataAnnotationsValidator>
+                <div class="row">
+                    <div class="col">
+                        <InputText class="form-control form-control-sm" @bind-Value="Model.LanguageCode" placeholder="Mã ngôn ngữ"></InputText>
+                        <ValidationMessage For="()=> Model.LanguageCode"></ValidationMessage>
+                    </div>
+                    <div class="col" style="text-align:right">
+                        <button type="button" class="btn btn-secondary btn-xs" @onclick="()=>Hide()" data-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-primary btn-xs">Lưu</button>
+                    </div>
+                </div>
+            </EditForm>
+         </td>
+    </tr>
+}
+
+@code {
+    protected bool ShowDialog { get; set; }
+
+    private CompanyLanguageDto Model { set; get; } = new CompanyLanguageDto();
+
+    [Parameter]
+    public EventCallback<bool> CloseEventCallbak { get; set; }
+
+    public void Show(Guid companyId)
+    {
+        Model.CompanyId = companyId;
+        ShowDialog = true;
+        StateHasChanged();
+    }
+
+    private void Hide()
+    {
+        ShowDialog = false;
+        StateHasChanged();
+    }
+
+    protected async Task HandleSubmit()
+    {
+        var result = await CompanyApiClient.CreateLanguage(Model);
+        if (result)
+        {
+            ShowDialog = false;
+            await CloseEventCallbak.InvokeAsync(true);
+            ToastService.ShowInfo("Thêm ngôn ngữ thành công");
+        }
+        else
+        {
+            ToastService.ShowError("Thêm ngôn ngữ không thành công");
+        }
+    }
+}

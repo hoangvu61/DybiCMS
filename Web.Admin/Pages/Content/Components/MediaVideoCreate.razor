@@ -1,0 +1,181 @@
+﻿@using Web.Admin.Services;
+@using Web.Models;
+@using System.IO;
+@using Web.Models.Enums;
+@using Web.Models.SeedWork;
+
+@inject IToastService ToastService;
+@inject IContentApiClient ContentApiClient;
+
+@if (ShowDialog)
+{
+    <div class="modal fade show d-block" id="assignModel" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <EditForm Model="Model" OnValidSubmit="HandleSubmit">
+                <DataAnnotationsValidator></DataAnnotationsValidator>
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Thêm video</h5>
+                        <button type="button" class="close" data-dismiss="modal" @onclick="()=>Hide()" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <div class="form-group">
+                                <div class="input-group input-group-sm mb-3">
+                                    <span class="input-group-text">Tiêu đề:</span>
+                                    <InputText class="form-control form-control-sm" @bind-Value="Model.Title"></InputText>
+                                    <ValidationMessage For="()=> Model.Title"></ValidationMessage>
+                                </div>
+                            </div>
+                            <div class="input-group input-group-sm mb-3">
+                                <span class="input-group-text">Danh mục</span>
+                                <InputSelect class="form-control form-control-sm" @bind-Value="Model.CategoryId">
+                                    @foreach (var category in Categories)
+                                    {
+                                        <option value="@category.Id">@category.Type @category.Titles.FirstOrDefault(e => e.Key == LanguageCode).Value</option>
+                                    }
+                                </InputSelect>
+                                <button class="btn btn-outline-secondary" type="button" @onclick="() => CreateCategoryControl.Show()">+</button>
+                            </div>
+                            <ValidationMessage For="()=>Model.CategoryId"></ValidationMessage>
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group input-group-sm mb-3">
+                                <span class="input-group-text">Hình:</span>
+                                <InputFile OnChange="OnInputFileChange" class="form-control form-control-sm" accept="image/png, image/jpeg, image/gif, image/webp"></InputFile>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group input-group-sm mb-3">
+                                <span class="input-group-text">Url:</span>
+                                <InputText class="form-control form-control-sm" @bind-Value="Model.Url"></InputText>
+                                <ValidationMessage For="()=> Model.Url"></ValidationMessage>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group input-group-sm mb-3">
+                                <span class="input-group-text">Embed:</span>
+                                <InputTextArea class="form-control form-control-sm" @bind-Value="Model.Embed"></InputTextArea>
+                                <ValidationMessage For="()=> Model.Embed"></ValidationMessage>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group input-group-sm mb-3">
+                                <span class="input-group-text">Mô tả:</span>
+                                <InputTextArea class="form-control form-control-sm" @bind-Value="Model.Brief"></InputTextArea>
+                                <ValidationMessage For="()=> Model.Brief"></ValidationMessage>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group input-group-sm mb-3">
+                                <span class="input-group-text">Thứ tự:</span>
+                                <InputNumber class="form-control form-control-sm" @bind-Value="Model.Order"></InputNumber>
+                                <ValidationMessage For="()=> Model.Order"></ValidationMessage>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-xs" @onclick="()=>Hide()" data-dismiss="modal">Đóng</button>
+                        <button type="submit" class="btn btn-primary btn-xs">Thêm</button>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+
+    <CategoryCreate @ref="CreateCategoryControl" LanguageCode="@LanguageCode" CloseEventCallbak="LoadCategories" Type="MID"></CategoryCreate>
+}
+
+@code {
+    protected bool ShowDialog { get; set; }
+
+    [Parameter]
+    public string LanguageCode { set; get; }
+
+    [Parameter]
+    public EventCallback CloseEventCallbak { get; set; }
+
+    private MediaDetailDto Model { set; get; } = new MediaDetailDto("VID");
+    private List<CategoryDto> Categories { set; get; }
+
+    protected CategoryCreate CreateCategoryControl { set; get; }
+
+    public async Task Show()
+    {
+        Model.Id = Guid.NewGuid();
+        await LoadCategories(Guid.Empty);
+        if (Categories.Count > 0) Model.CategoryId = Categories.First().Id;  
+        
+        ShowDialog = true;
+        StateHasChanged();
+    }
+
+    private void Hide()
+    {
+        ShowDialog = false;
+        StateHasChanged();
+    }
+
+    private async void OnInputFileChange(InputFileChangeEventArgs e)
+    {
+        var files = e.GetMultipleFiles(); // get the files selected by the users
+        foreach (var file in files)
+        {
+            //var resizedFile = await file.RequestImageFileAsync(file.ContentType, 640, 480); // resize the image file
+            var buf = new byte[file.Size]; // allocate a buffer to fill with the file's data
+            using (var stream = file.OpenReadStream(file.Size))
+            {
+                await stream.ReadAsync(buf); // copy the stream to the buffer
+            }
+            Model.Image = new FileData { Base64data = Convert.ToBase64String(buf), ContentType = file.ContentType, FileName = file.Name, Type = FileType.MediaImage }; // convert to a base64 string!!
+        }
+    }
+
+    protected async Task HandleSubmit()
+    {
+        if (string.IsNullOrEmpty(Model.Url) && string.IsNullOrEmpty(Model.Embed))
+        {
+            ToastService.ShowError("Vui lòng nhập URL hoặc Embed hoặc cả hai");
+        }
+        else
+        {
+            var result = await ContentApiClient.CreateMedia(Model);
+            if (result)
+            {
+                ShowDialog = false;
+                await CloseEventCallbak.InvokeAsync();
+                ToastService.ShowInfo("Thêm video thành công");
+            }
+            else
+            {
+                ToastService.ShowError("Thêm video không thành công");
+            }
+        }
+    }
+
+    public async Task LoadCategories(Guid id)
+    {
+        var categories = await ContentApiClient.GetCategories("MID");
+        Categories = SortTable(categories, null, "", "---");
+        if (id != Guid.Empty) Model.CategoryId = id;
+    }
+
+    private List<CategoryDto> SortTable(List<CategoryDto> table, Guid? parentId, string space = "", string distance = "....")
+    {
+        var rows = table.Where(dto => dto.ParentId == parentId).ToList();
+        if (!rows.Any()) return new List<CategoryDto>();
+        var sortData = new List<CategoryDto>();
+        foreach (var row in rows)
+        {
+            var spaceNext = space + distance;
+            var dt = SortTable(table, row.Id, spaceNext, distance);
+            row.Type = space;
+            sortData.Add(row);
+
+            if (dt.Count > 0) sortData.AddRange(dt);
+        }
+        return sortData;
+    }
+}

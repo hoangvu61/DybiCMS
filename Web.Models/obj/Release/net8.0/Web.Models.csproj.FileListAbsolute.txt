@@ -1,0 +1,12 @@
+D:\Working\DybiWeb\DybiCMS\Web.Models\bin\Release\net8.0\Web.Models.deps.json
+D:\Working\DybiWeb\DybiCMS\Web.Models\bin\Release\net8.0\Web.Models.dll
+D:\Working\DybiWeb\DybiCMS\Web.Models\bin\Release\net8.0\Web.Models.pdb
+D:\Working\DybiWeb\DybiCMS\Web.Models\obj\Release\net8.0\Web.Models.GeneratedMSBuildEditorConfig.editorconfig
+D:\Working\DybiWeb\DybiCMS\Web.Models\obj\Release\net8.0\Web.Models.AssemblyInfoInputs.cache
+D:\Working\DybiWeb\DybiCMS\Web.Models\obj\Release\net8.0\Web.Models.AssemblyInfo.cs
+D:\Working\DybiWeb\DybiCMS\Web.Models\obj\Release\net8.0\Web.Models.csproj.CoreCompileInputs.cache
+D:\Working\DybiWeb\DybiCMS\Web.Models\obj\Release\net8.0\Web.Models.sourcelink.json
+D:\Working\DybiWeb\DybiCMS\Web.Models\obj\Release\net8.0\Web.Models.dll
+D:\Working\DybiWeb\DybiCMS\Web.Models\obj\Release\net8.0\refint\Web.Models.dll
+D:\Working\DybiWeb\DybiCMS\Web.Models\obj\Release\net8.0\Web.Models.pdb
+D:\Working\DybiWeb\DybiCMS\Web.Models\obj\Release\net8.0\ref\Web.Models.dll

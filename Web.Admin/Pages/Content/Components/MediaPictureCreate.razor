@@ -1,0 +1,350 @@
+﻿@using Web.Admin.Services;
+@using Web.Models;
+@using System.IO;
+@using Web.Models.Enums;
+@using Web.Models.SeedWork;
+
+@inject IToastService ToastService;
+@inject IContentApiClient ContentApiClient;
+
+@if (ShowDialog)
+{
+    <div class="modal fade show d-block" id="assignModel" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Thêm hình ảnh</h5>
+                    <button type="button" class="close" data-dismiss="modal" @onclick="()=>Hide()" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <div class="input-group input-group-sm mb-3">
+                            <span class="input-group-text">Danh mục</span>
+                            <InputSelect class="form-control form-control-sm" @bind-Value="Model.CategoryId">
+                                <option value="@Guid.Empty">Chọn danh mục</option>
+                                @foreach (var category in Categories)
+                                {
+                                    <option value="@category.Id">@category.Type @category.Titles.FirstOrDefault(e => e.Key == LanguageCode).Value</option>
+                                }
+                            </InputSelect>
+                            <button class="btn btn-outline-secondary" type="button" @onclick="() => CreateCategoryControl.Show()">+</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="dropzone @dropClass">
+                            <label>
+                                Kéo và thả hình vào đây
+                                <br />hoặc click vào đây để chọn hình
+                            </label>
+                            <InputFile OnChange="AddFilesToQueue"
+                            @ondragenter="HandleDragEnter"
+                            @ondragleave="HandleDragLeave"
+                                       accept="image/png, image/jpeg, image/gif, image/webp"
+                                        disabled="@isUploading"
+                                        style="width:100%;height:100px;position:relative;top:-36px;margin-bottom:-40px;"
+                                        multiple />
+                        </div>
+                        @if (filesQueue.Count > 0)
+                        {
+                            <div class="card">
+                                <div class="card-header">Đang tải lên</div>
+                                <div class="card-body">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th></th>
+                                                <th class="text-center" style="width:50px">%</th>
+                                                <th style="width:170px;"></th>
+                                                <th>Tên hình</th>
+                                                <th class="text-end" style="width:80px;">Kích thước (KB)</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var file in filesQueue.OrderByDescending(x => x.FileId))
+                                            {
+                                                var size = Math.Round((file.Size / 1024.00));
+                                                var percentage = Math.Round(file.UploadedPercentage);
+                                                <tr>
+                                                    <td class="text-center">
+                                                        @if (file.HasBeenUploaded)
+                                                        {
+                                                            <span class="oi oi-circle-check text-success"></span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="oi oi-circle-check text-icon-light"></span>
+                                                        }
+                                                    </td>
+                                                    <td class="text-end">@($"{percentage}%")</td>
+                                                    <td><progress value="@file.UploadedBytes" max="@file.Size" class="fileProgress"></progress></td>
+                                                    <td>@file.FileName.Substring(file.FileName.LastIndexOf('_') + 1, file.FileName.Length - (file.FileName.LastIndexOf('_') + 1))</td>
+                                                    <td class="text-end">@string.Format("{0:#,0.##}", @size)</td>
+
+                                                    <td class="text-end"><button type="button" class="btn btn-sm btn-link" disabled="@isUploading" @onclick="(() => RemoveFromQueue(file.FileId))"><span class="oi oi-trash" aria-hidden="true"></span></button></td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+
+                                    <div class="btn-group w-100" role="group" aria-label="Basic mixed styles example">
+                                        <button type="button" disabled="@isUploading" class="btn btn-sm btn-success" @onclick="UploadFileQueue">Tải lên</button>
+                                        <button type="button" disabled="@isUploading" class="btn btn-sm btn-info" @onclick="ClearFileQueue">Xóa hết</button>
+                                    </div>
+
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <CategoryCreate @ref="CreateCategoryControl" LanguageCode="@LanguageCode" CloseEventCallbak="LoadCategories" Type="MID"></CategoryCreate>
+}
+
+@code {
+    protected bool ShowDialog { get; set; }
+
+    [Parameter]
+    public string LanguageCode { set; get; }
+
+    [Parameter]
+    public EventCallback CloseEventCallbak { get; set; }
+
+    private MediaPictureDto Model { set; get; } = new MediaPictureDto();
+    private List<CategoryDto> Categories { set; get; }
+
+    protected CategoryCreate CreateCategoryControl { set; get; }
+
+    private bool isUploading = false;
+    private string ErrorMessage = string.Empty;
+    private string dropClass = string.Empty;
+    private int maxAllowedFiles = 10;
+    List<FileUploadProgress> filesQueue = new();
+
+    record FileUploadProgress(IBrowserFile File, string FileName, long Size, int FileId)
+    {
+        public IBrowserFile FileData { get; set; } = File;
+        public int FileId { get; set; } = FileId;
+        public long UploadedBytes { get; set; }
+        public double UploadedPercentage => (double)UploadedBytes / (double)Size * 100d;
+        public bool HasBeenUploaded { get; set; } = false;
+    }
+
+    public async Task Show()
+    {
+        Model.CategoryId = Guid.Empty;
+        await LoadCategories(Model.CategoryId);
+        
+        ShowDialog = true;
+        StateHasChanged();
+    }
+
+    private void Hide()
+    {
+        ShowDialog = false;
+        StateHasChanged();
+    }
+
+    private void AddFilesToQueue(InputFileChangeEventArgs e)
+    {
+        dropClass = string.Empty;
+        ErrorMessage = string.Empty;
+
+        if (e.FileCount > maxAllowedFiles)
+        {
+            ErrorMessage = $"Tối đa {maxAllowedFiles} hình một lần tải!";
+        }
+        else
+        {
+            var files = e.GetMultipleFiles(maxAllowedFiles);
+            var fileCount = filesQueue.Count;
+
+            foreach (var file in files)
+            {
+                var progress = new FileUploadProgress(file, $"{DateTime.Now.ToString("yyyyMMddHHmmss")}_{DateTime.Now.Millisecond}_{file.Name}", file.Size, fileCount);
+                filesQueue.Add(progress);
+                fileCount++;
+            }
+        }
+    } //PlaceFilesInQue
+
+    private async Task UploadFileQueue()
+    {
+        if (Model.CategoryId == Guid.Empty) ToastService.ShowWarning("Vui lòng chọn danh mục");
+        else
+        {
+            isUploading = true;
+            await InvokeAsync(StateHasChanged);
+
+            foreach (var file in filesQueue.OrderByDescending(x => x.FileId))
+            {
+                if (!file.HasBeenUploaded)
+                {
+                    await UploadChunks(file);
+                    file.HasBeenUploaded = true;
+                }
+            }
+
+            isUploading = false;
+            await CloseEventCallbak.InvokeAsync();
+            Hide();
+        }
+    } //UploadFileQueue
+
+    private async Task UploadChunks(FileUploadProgress file)
+    {
+        var TotalBytes = file.Size;
+        long chunkSize = 400000;
+        long numChunks = TotalBytes / chunkSize;
+        long remainder = TotalBytes % chunkSize;
+        var fileName = $"{DateTime.Now.ToString("yyyyMMddHHmmss")}_{DateTime.Now.Millisecond}_{file.FileName}";
+
+        bool firstChunk = true;
+        using (var inStream = file.FileData.OpenReadStream(file.Size))
+        {
+            for (int i = 0; i < numChunks; i++)
+            {
+                var buffer = new byte[chunkSize];
+                await inStream.ReadAsync(buffer, 0, buffer.Length);
+
+                Model.Image = new FileData
+                    {
+                        Type = FileType.MediaImage,
+                        UploadData = buffer,
+                        FileName = fileName,
+                        UploadedBytes = filesQueue[file.FileId].UploadedBytes,
+                        FirstUpload = firstChunk
+                    };
+                if (remainder == 0 && i == numChunks - 1) Model.Image.LastUpload = true;
+
+                await ContentApiClient.CreateMedia(Model);
+
+                // Update our progress data and UI
+                filesQueue[file.FileId].UploadedBytes += chunkSize;
+                await InvokeAsync(StateHasChanged);
+            }
+
+            if (remainder > 0)
+            {
+                var buffer = new byte[remainder];
+                await inStream.ReadAsync(buffer, 0, buffer.Length);
+
+                if (TotalBytes > chunkSize) firstChunk = false;
+
+                Model.Image = new FileData
+                    {
+                        Type = FileType.MediaImage,
+                        UploadData = buffer,
+                        FileName = fileName,
+                        UploadedBytes = filesQueue[file.FileId].UploadedBytes,
+                        FirstUpload = firstChunk,
+                        LastUpload = true
+                    };
+
+                await ContentApiClient.CreateMedia(Model);
+
+                // Update our progress data and UI
+                filesQueue[file.FileId].UploadedBytes += remainder;
+                //await ListFiles();
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+    } //UploadChunks
+
+    private void RemoveFromQueue(int fileId)
+    {
+        var itemToRemove = filesQueue.SingleOrDefault(x => x.FileId == fileId);
+        if (itemToRemove != null)
+            filesQueue.Remove(itemToRemove);
+    } //RemoveFromQueue
+
+
+    private void ClearFileQueue()
+    {
+        filesQueue.Clear();
+    } //ClearFileQueue
+
+    void HandleDragEnter()
+    {
+        dropClass = "dropzone-active";
+    } //HandleDragEnter
+    void HandleDragLeave()
+    {
+        dropClass = string.Empty;
+    } //HandleDragLeave
+
+    //private async void OnInputFileChange(InputFileChangeEventArgs e)
+    //{
+    //    var files = e.GetMultipleFiles(100); // get the files selected by the users
+    //    Model.Images = new List<FileData>();
+    //    foreach (var file in files)
+    //    {
+    //        //var resizedFile = await file.RequestImageFileAsync(file.ContentType, 640, 480); // resize the image file
+    //        var buf = new byte[file.Size]; // allocate a buffer to fill with the file's data
+    //        using (var stream = file.OpenReadStream(file.Size))
+    //        {
+    //            await stream.ReadAsync(buf); // copy the stream to the buffer
+    //        }
+    //        var image = new FileData
+    //            {
+    //                Base64data = Convert.ToBase64String(buf),
+    //                ContentType = file.ContentType,
+    //                FileName = file.Name,
+    //                Type = FileType.MediaImage
+    //            };
+    //        Model.Images.Add(image);
+    //    }
+    //}
+
+    //protected async Task HandleSubmit()
+    //{
+    //    if (Disabled == "")
+    //    {
+    //        Disabled = "disabled";
+    //        StateHasChanged();
+    //        var result = await ContentApiClient.CreateMedia(Model);
+
+    //        if (result)
+    //        {
+    //            ShowDialog = false;
+    //            ToastService.ShowInfo($"Thêm {Model.Images.Count} hình ảnh thành công");
+    //            Disabled = "";
+    //            await CloseEventCallbak.InvokeAsync();
+    //        }
+    //        else
+    //        {
+    //            ToastService.ShowError("Thêm hình ảnh không thành công");
+    //        }
+    //    }
+    //}
+        
+
+    public async Task LoadCategories(Guid id)
+    {
+        var categories = await ContentApiClient.GetCategories("MID");
+        Categories = SortTable(categories, null, "", "---");
+        if (id != Guid.Empty) Model.CategoryId = id;
+    }
+
+    private List<CategoryDto> SortTable(List<CategoryDto> table, Guid? parentId, string space = "", string distance = "....")
+    {
+        var rows = table.Where(dto => dto.ParentId == parentId).ToList();
+        if (!rows.Any()) return new List<CategoryDto>();
+        var sortData = new List<CategoryDto>();
+        foreach (var row in rows)
+        {
+            var spaceNext = space + distance;
+            var dt = SortTable(table, row.Id, spaceNext, distance);
+            row.Type = space;
+            sortData.Add(row);
+
+            if (dt.Count > 0) sortData.AddRange(dt);
+        }
+        return sortData;
+    }
+}

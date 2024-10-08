@@ -1,0 +1,101 @@
+﻿@using Web.App.Services;
+@using Web.Models;
+@using System.IO;
+@using Web.Models.Enums;
+@using Web.Models.SeedWork;
+@using Microsoft.Extensions.Configuration
+
+@inject IToastService ToastService;
+@inject IWarehouseApiClient WarehouseApiClient;
+
+@if (ShowDialog && Model != null)
+{
+    <div class="modal fade show d-block" id="assignModel" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <EditForm Model="Model" OnValidSubmit="HandleSubmit">
+                <DataAnnotationsValidator></DataAnnotationsValidator>
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Cập nhật Danh mục</h5>
+                        <button type="button" class="close" data-dismiss="modal" @onclick="()=>Hide()" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <div class="input-group input-group-xs mb-3">
+                                <span class="input-group-text">Danh mục cha</span>
+                                <InputSelect class="form-select" @bind-Value="Model.ParentId">
+                                    <option value="">Chọn danh mục cha</option>
+                                    @foreach (var category in ListCategories)
+                                    {
+                                        <option value="@category.Id">@category.Title</option>
+                                    }
+                                </InputSelect>
+                            </div>
+                            <ValidationMessage For="()=>Model.ParentId"></ValidationMessage>
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group input-group-xs mb-3">
+                                <span class="input-group-text">Tên:</span>
+                                <InputText class="form-control" @bind-Value="Model.Title"></InputText>
+                            </div>
+                            <ValidationMessage For="()=> Model.Title"></ValidationMessage>
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group input-group-xs mb-3">
+                                <label class="col-form-label">Mô tả:</label>
+                                <InputTextArea class="form-control" @bind-Value="Model.Describe"></InputTextArea>
+                            </div>
+                            <ValidationMessage For="()=> Model.Describe"></ValidationMessage>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-xs" @onclick="()=>Hide()" data-dismiss="modal">Đóng</button>
+                        <button type="submit" class="btn btn-primary btn-xs">Lưu</button>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@code {
+    protected bool ShowDialog { get; set; }
+
+    public WarehouseCategoryDto Model { set; get; }
+
+    [Parameter]
+    public List<WarehouseCategoryDto> ListCategories { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> CloseEventCallbak { get; set; }
+
+    public void Show(WarehouseCategoryDto model)
+    {
+        ShowDialog = true;
+        Model = model;
+        StateHasChanged();
+    }
+
+    private void Hide()
+    {
+        ShowDialog = false;
+        StateHasChanged();
+    }
+
+    protected async Task HandleSubmit()
+    {
+        var result = await WarehouseApiClient.UpdateCategory(Model);
+        if (result)
+        {
+            ShowDialog = false;
+            await CloseEventCallbak.InvokeAsync(true);
+            ToastService.ShowInfo("Lưu danh mục thành công");
+        }
+        else
+        {
+            ToastService.ShowError("Lưu danh mục không thành công");
+        }
+    }
+}

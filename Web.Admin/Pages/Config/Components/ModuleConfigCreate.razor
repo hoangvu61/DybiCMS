@@ -1,0 +1,165 @@
+﻿@using Web.Admin.Services;
+@using Web.Models;
+@using System.IO;
+@using Web.Models.Enums;
+@using Web.Models.SeedWork;
+
+@inject IToastService ToastService;
+@inject IModuleConfigApiClient ModuleConfigApiClient;
+@inject ITemplateApiClient TemplateApiClient;
+@inject NavigationManager NavigationManager;
+
+@if (ShowDialog)
+{
+    <div class="modal fade show d-block" id="assignModel" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <EditForm Model="Model" OnValidSubmit="HandleSubmit">
+                <DataAnnotationsValidator></DataAnnotationsValidator>
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Thêm cấu hình</h5>
+                        <button type="button" class="close" data-dismiss="modal" @onclick="()=>Hide()" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="Name">Chức năng:</label>
+                            <InputSelect class="form-control form-control-sm" @bind-Value="Model.SkinName">
+                                @if (Skins != null)
+                                {
+                                    @foreach (var item in Skins)
+                                    {
+                                        <option value="@item.SkinName">@item.SkinName - @item.Describe</option>
+                                    }
+                                }
+                            </InputSelect>
+                            <ValidationMessage For="()=>Model.SkinName"></ValidationMessage>
+                        </div>
+                        <div class="from-group">
+                            <label>Vị trí:</label>
+                            <div class="form-check form-check-inline">
+                                <input name="background" type="radio" class="form-check-input" @onchange="@(() => OnTemplateChanged(true))" checked="@(Model.OnTemplate == true)" /> Template 
+                                <input name="background" type="radio" class="form-check-input" @onchange="@(() => OnTemplateChanged(false))" checked="@(Model.OnTemplate == false)" /> Trang
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="Name">Trang:</label>
+                            <InputSelect class="form-control form-control-sm" ValueExpression="@(()=>Model.ComponentName)"
+                                     Value="@Model.ComponentName"
+                                     ValueChanged="@((string value) => OnComponentChanged(value))">
+                                <option value="">Tất cả các trang</option>
+                                @if (Components != null)
+                                {
+                                    @foreach (var item in Components)
+                                    {
+                                        <option value="@item.ComponentName">@item.ComponentName - @item.Describe</option>
+                                    }
+                                }
+                            </InputSelect>
+                        <ValidationMessage For="()=>Model.ComponentName"></ValidationMessage>
+                        </div>
+                        <div class="form-group">
+                            <label for="Name">Vị trí:</label>
+                            <InputSelect class="form-control form-control-sm" @bind-Value="Model.Position">
+                                @if (Positions != null)
+                                {
+                                    @foreach (var item in Positions)
+                                    {
+                                        <option value="@item.PositionName">@item.PositionName - @item.Describe</option>
+                                    }
+                                }
+                            </InputSelect>
+                            <ValidationMessage For="()=>Model.Position"></ValidationMessage>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-form-label">Thứ tự hiển thị:</label>
+                            <InputNumber class="form-control form-control-sm" @bind-Value="Model.Order"></InputNumber>
+                            <ValidationMessage For="()=> Model.Order"></ValidationMessage>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-xs" @onclick="()=>Hide()" data-dismiss="modal">Đóng</button>
+                        <button type="submit" class="btn btn-primary btn-xs">Thêm</button>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@code {
+    protected bool ShowDialog { get; set; }
+
+    private ModuleConfigCreateRequest Model { set; get; } = new ModuleConfigCreateRequest();
+    private List<TemplateComponentDto> Components { set; get; }
+    private List<TemplatePositionDto> AllPositions { set; get; }
+    private List<TemplatePositionDto> Positions { set; get; }
+    private List<TemplateSkinDto> Skins { set; get; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Skins = await TemplateApiClient.GetSkins();
+        Components = await TemplateApiClient.GetComponents();
+        AllPositions = await TemplateApiClient.GetPositions();
+
+        var componentPositions = AllPositions.Select(p => p.ComponentName).ToList();
+        Components = Components.Where(e => componentPositions.Contains(e.ComponentName)).ToList();
+
+        Model.OnTemplate = true;
+        Model.ComponentName = "";
+        Positions = AllPositions.Where(e => e.ComponentName == Model.ComponentName).ToList();
+        if (Positions != null && Positions.Count > 0)
+            Model.Position = Positions.First().PositionName;
+        if (Skins != null && Skins.Count > 0)
+            Model.SkinName = Skins.First().SkinName;
+
+    }
+
+    protected void OnTemplateChanged(bool onTemplate)
+    {
+        Model.OnTemplate = onTemplate;
+        if (Model.OnTemplate) Positions = AllPositions.Where(e => e.ComponentName == "").ToList();
+        else Positions = AllPositions.Where(e => e.ComponentName == Model.ComponentName).ToList();
+        if (Positions != null && Positions.Count > 0)
+            Model.Position = Positions.First().PositionName;
+    }
+
+    protected void OnComponentChanged(string componentName)
+    {
+        Model.ComponentName = componentName;
+        if (Model.OnTemplate) Positions = AllPositions.Where(e => e.ComponentName == "").ToList();
+        else Positions = AllPositions.Where(e => e.ComponentName == Model.ComponentName).ToList();
+        if (Positions != null && Positions.Count > 0)
+            Model.Position = Positions.First().PositionName;
+    }
+
+    public void Show()
+    {
+        ShowDialog = true;
+        Model.Id = Guid.NewGuid();
+        StateHasChanged();
+    }
+
+    private void Hide()
+    {
+        ShowDialog = false;
+        StateHasChanged();
+    }
+
+    protected async Task HandleSubmit()
+    {        
+        var result = await ModuleConfigApiClient.CreateModule(Model);
+        if (result)
+        {
+            ShowDialog = false;
+            ToastService.ShowInfo("Thêm cấu hình thành công");
+            NavigationManager.NavigateTo($"/moduleconfigdetail/{Model.Id}");
+            
+        }
+        else
+        {
+            ToastService.ShowError("Thêm cấu hình không thành công");
+        }
+    }
+}

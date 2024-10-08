@@ -1,0 +1,240 @@
+﻿@page "/medialinklist"
+@attribute [Authorize]
+
+@using Microsoft.AspNetCore.Authorization;
+@using Web.Admin.Components;
+@using Web.Admin.Pages.Admin.Components;
+@using Web.Admin.Pages.Content.Components;
+@using Web.Admin.Services;
+@using Web.Models;
+@using Web.Models.Enums;
+@using Web.Models.SeedWork;
+@using Microsoft.Extensions.Configuration
+
+@inject IConfiguration Configuration
+@inject IToastService ToastService;
+@inject IContentApiClient ContentApiClient
+@inject ICompanyApiClient CompanyApiClient;
+
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-5">
+                <h1 class="m-0">Quản lý liên kết - logo - banner</h1>
+            </div>
+            <div class="col-sm-7" style=" text-align:right">
+                @if (Links == null || Links.Count == 0)
+                {
+                    <button style="margin-left:10px" class="btn btn-primary btn-sm" @onclick="()=> MediaLinkCreateDialog.Show()">Thêm</button>
+                }
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="content">
+    <div class="container-fluid">
+        @if (Links != null && Links.Count > 0)
+        {
+            <div class="card card-outline card-info">
+                <div class="card-header">
+                    <h3 class="card-title">Danh sách Liên kết</h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <button type="button" class="btn btn-tool" data-card-widget="remove" title="Remove">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <MediaSearch @ref="MediaLinkSearchControl" Type="LIN" OnSearch="SearchLink"></MediaSearch>
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Danh mục</th>
+                                <th>Tên</th>
+                                <th>Hình</th>
+                                <th>Url</th>
+                                <th style="text-align:center">Thứ tự</th>
+                                <th style="text-align:center">Sử dụng</th>
+                                <th style="text-align:right">
+                                    <button class="btn btn-primary btn-sm" @onclick="()=> MediaLinkCreateDialog.Show()">Thêm</button>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Links)
+                            {
+                                <tr>
+                                    <td>
+                                        <table>
+                                            @foreach (var title in item.CategoryNames)
+                                            {
+                                                <tr>
+                                                    <td style="border:0;padding:0">@title.Key: </td>
+                                                    <td style="border:0;padding:0">@title.Value</td>
+                                                </tr>
+                                            }
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table>
+                                            @foreach (var title in item.Titles)
+                                            {
+                                                <tr>
+                                                    <td style="border:0;padding:0">@title.Key: </td>
+                                                    <td style="border:0;padding:0">@title.Value</td>
+                                                </tr>
+                                            }
+                                        </table>
+                                    </td>
+                                    <td>
+                                        @if (item.Image != null && !string.IsNullOrEmpty(item.Image.FileName))
+                                        {
+                                            <img src="@(BackendApiUrl + "/" + item.Image.FullPath + "?DummyId=" + DateTime.Now.Ticks)" asp-append-version="true" width="50px" />
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (item.Url != "/")
+                                        {
+                                            <a href="@item.Url" target="_blank">@(new Uri(item.Url).Host)...</a>
+                                        }
+                                        else
+                                        {
+                                            @item.Url
+                                        }
+                                    </td>
+                                    <td style="text-align: center;width:100px">
+                                        <div class="input-group input-group-sm mb-3">
+                                            <button class="btn btn-outline-secondary" @onclick="@((e) => {item.Order--; OrderChanged(item.Id, item.Order);})">&lt;</button>
+                                            <span class="form-control">@item.Order</span>
+                                            <button class="btn btn-outline-secondary" @onclick="@((e) => {item.Order++; OrderChanged(item.Id, item.Order);})">&gt;</button>
+                                        </div>
+                                    </td>
+                                    <td class="form-switch" style="text-align: center; padding-left: 30px;">
+                                        <input type="checkbox" checked="@item.IsPuslished" class="form-check-input" role="switch" @onchange="@((e) => {item.IsPuslished= bool.Parse(e.Value.ToString()); ApplyChanged(item.Id);})"></input>
+                                    </td>
+                                    <td style="text-align:right;width:100px">
+                                        <button class="btn btn-success btn-sm" @onclick="()=> MediaLinkUpdateDialog.Show(item.Id)">Sửa</button>
+                                        <button class="btn btn-danger btn-sm" @onclick="()=> OnDelete(item.Id)">Xóa</button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="7">
+                                    <Pagination MetaData="LinkMetaData" Spread="2" SelectedPage="SelectedPageLink"></Pagination>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+            <MediaLinkUpdate @ref="MediaLinkUpdateDialog" LanguageCode="@LanguageCode" CloseEventCallbak="GetLinks"></MediaLinkUpdate>
+        }
+
+        <Confirmation ConfirmationMessage="Bạn có chắc chắn xóa liên kết?"
+                      ConfirmationTitle="Xóa dữ liệu đa phương tiện"
+                      @ref="DeleteConfirmation"
+                      ConfirmationChanged="OnConfirmDelete">
+        </Confirmation>
+        <MediaLinkCreate @ref="MediaLinkCreateDialog" LanguageCode="@LanguageCode" CloseEventCallbak="GetLinks"></MediaLinkCreate>
+    </div>
+</section>
+
+@code {
+    protected Confirmation DeleteConfirmation { set; get; }
+    protected MediaLinkCreate MediaLinkCreateDialog { set; get; }
+    protected MediaLinkUpdate MediaLinkUpdateDialog { set; get; }
+
+    private MediaSearch MediaLinkSearchControl { set; get; }
+    private MediaListSearch MediaLinkListSearch = new MediaListSearch() { Type = "LIN" };
+    public MetaData LinkMetaData { get; set; } = new MetaData();
+
+    private List<MediaDto> Links;
+
+    private Guid DeleteId { set; get; }
+    private string BackendApiUrl { get; set; }
+
+    [CascadingParameter]
+    private Error Error { set; get; }
+
+    private string LanguageCode { set; get; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        BackendApiUrl = Configuration["BackendApiUrl"];
+
+        var languages = await CompanyApiClient.GetLanguageList(Guid.Empty);
+        if (languages.Count == 0 || languages.Contains("vi")) LanguageCode = "vi";
+        else LanguageCode = languages.First();
+
+        await GetLinks();
+    }
+
+    private async Task GetLinks()
+    {
+        try
+        {
+            var pagingResponse = await ContentApiClient.GetMedias(MediaLinkListSearch);
+            Links = pagingResponse.Items;
+            LinkMetaData = pagingResponse.MetaData;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Error.ProcessError(ex);
+        }
+    }
+
+    public void OnDelete(Guid deleteId)
+    {
+        DeleteId = deleteId;
+        DeleteConfirmation.Show();
+    }
+
+    public async Task OnConfirmDelete(bool deleteConfirmed)
+    {
+        if (deleteConfirmed)
+        {
+            var result = await ContentApiClient.DeleteMedia(DeleteId);
+            if (result)
+            {
+                ToastService.ShowWarning("Xóa thành công");
+                await GetLinks();
+            }
+            else ToastService.ShowError("Xóa không thành công");
+        }
+    }
+
+    private async Task SelectedPageLink(int page)
+    {
+        MediaLinkListSearch.PageNumber = page;
+        await GetLinks();
+    }
+
+    public async Task SearchLink(MediaListSearch linkListSearch)
+    {
+        MediaLinkListSearch = linkListSearch;
+        await GetLinks();
+    }
+
+    public async void ApplyChanged(Guid id)
+    {
+        var result = await ContentApiClient.UpdatePublish(id);
+        if (result) ToastService.ShowInfo("Cập nhật thành công");
+        else ToastService.ShowError("Cập nhật không thành công");
+    }
+    public async void OrderChanged(Guid id, int order)
+    {
+        var result = await ContentApiClient.UpdateOrder(id, order);
+        if (result)
+        {
+            ToastService.ShowInfo($"Đã cập nhật thứ tự thành [{order}] thành công");
+        }
+        else ToastService.ShowError("Cập nhật không thành công");
+    }
+}

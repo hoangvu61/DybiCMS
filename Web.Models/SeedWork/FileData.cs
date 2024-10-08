@@ -68,7 +68,7 @@ namespace Web.Models.SeedWork
                 if (string.IsNullOrEmpty(FileName)) return FileName;
                 if (!FileName.Contains('.')) return string.Empty;
                 var names = FileName.Split('.');
-                return "." + names[names.Length - 1];
+                return "." + names[names.Length - 1].ToLower();
             }
         }
     }

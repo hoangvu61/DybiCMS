@@ -1,0 +1,107 @@
+﻿@using Microsoft.AspNetCore.Authorization;
+@using Microsoft.AspNetCore.Components.Authorization
+@using Web.App.Services;
+@using Web.Models;
+@using Web.Models.Enums;
+@using Web.Models.SeedWork;
+
+@attribute [Authorize]
+<!-- Main Sidebar Container -->
+<aside class="main-sidebar sidebar-dark-primary elevation-4">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <!-- Sidebar Menu -->
+        <nav class="mt-2">
+            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                <!-- Add icons to the links using the .nav-icon class
+                     with font-awesome or any other icon font library -->
+                
+                <li class="nav-item @(Menu["BanHang"] ? "menu-open" : "")">
+                    <a class="nav-link" @onclick="@(() => Click("BanHang"))">
+                        <i class="nav-icon fas fa-th"></i>
+                        <p>
+                            Bán hàng 
+                            <i class="fas fa-angle-left right"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="/sales/ordercreate" class="nav-link">
+                                <i class="nav-icon fas fa-info"></i>
+                                <p>Tạo đơn hàng</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/sales/orders" class="nav-link">
+                                <i class="nav-icon fas fa-sitemap"></i>
+                                <p>Danh sách đơn hàng</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/sales/customers" class="nav-link">
+                                <i class="nav-icon fas fa-edit"></i>
+                                <p>Khách hàng</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="nav-item @(Menu["KhoHang"] ? "menu-open" : "")">
+                    <a class="nav-link" @onclick="@(() => Click("KhoHang"))">
+                        <i class="nav-icon fas fa-cog"></i>
+                        <p>
+                            Kho hàng
+                            <i class="fas fa-angle-left right"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="/warehouses/inputs" class="nav-link">
+                                <i class="nav-icon far fa-plus-square"></i>
+                                <p>Nhập kho</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/warehouses/outputs" class="nav-link">
+                                <i class="nav-icon fas fa-bars"></i>
+                                <p>Xuất kho</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/warehouses/inventories" class="nav-link">
+                                <i class="nav-icon fas fa-list"></i>
+                                <p>Tồn kho</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/warehouses/findproduct" class="nav-link">
+                                <i class="nav-icon fas fa-link"></i>
+                                <p>Tìm hàng hóa</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+        <!-- /.sidebar-menu -->
+    </div>
+    <!-- /.sidebar -->
+</aside>
+
+@code {
+    private Dictionary<string, bool> Menu;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Menu = new Dictionary<string, bool>();
+        Menu["BanHang"] = false;
+        Menu["KhoHang"] = false;
+        Menu["CongNo"] = false;
+        Menu["CaiDat"] = false;
+    }
+
+    protected async Task Click(string key)
+    {
+        var flag = Menu[key];
+        Menu[key] = !flag;
+    }
+}

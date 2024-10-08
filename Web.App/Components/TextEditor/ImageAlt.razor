@@ -1,0 +1,61 @@
+﻿@if (ShowHTML)
+{
+    <div class="modal" tabindex="-1" style="display:block" role="dialog">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <b class="modal-title">Chi tiết hình</b>
+                    <!-- Close Button -->
+                    <button type="button" class="close"
+                        @onclick="Hide">
+                        <span aria-hidden="true" @onclick="Hide">X</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group mb-3">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text">Alt</span>
+                            <InputText @bind-Value="Image.ALT" class="form-control"></InputText>
+                        </div>
+                    </div>
+                    <div class="form-group mb-3">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text">URL</span>
+                            <InputText @bind-Value="Image.URL" class="form-control" disabled="true"></InputText>
+                        </div>
+                    </div>
+                    <img src="@Image.URL" style="width:100%"/>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-xs" @onclick="Hide" data-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-primary btn-xs" @onclick="Agree">Đồng ý</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    // ImageSelected is an EventCallback that will
+    // notify the parent component when an image is selected
+    // passing the url of the image to the parent component
+    [Parameter] public EventCallback<ImageSelected> SelectImage { get; set; }
+    private ImageSelected Image { get; set; } = new ImageSelected();
+    private bool ShowHTML = false;
+
+    public async void Show(string url)
+    {
+        Image.URL = url;
+        ShowHTML = true;
+    }
+    public async void Hide()
+    {
+        ShowHTML = false;
+    }
+
+    private async Task Agree()
+    {
+        await SelectImage.InvokeAsync(Image);
+        ShowHTML = false;
+    }
+}

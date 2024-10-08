@@ -1,0 +1,112 @@
+﻿@using Web.App.Services;
+@using Web.Models;
+@using System.IO;
+@using Web.Models.Enums;
+@using Web.Models.SeedWork;
+
+@inject IWarehouseApiClient WarehouseApiClient;
+
+<div class="form-group">
+    <div class="input-group input-group-xs mb-3">
+        <span class="input-group-text">Chọn kho</span>
+        <InputSelect class="form-select" ValueExpression="@(()=>Model.WarehouseId)"
+                     Value="@Model.WarehouseId"
+                     ValueChanged="@((Guid? value) => WarehouseChange(value))">
+            <option value="@Guid.Empty">Chọn kho</option>
+            @if (Warehouses != null)
+            {
+                @foreach (var item in Warehouses)
+                {
+                    <option value="@item.Id">@item.Name</option>
+                }
+            }
+        </InputSelect>
+        <span class="input-group-text">Tên hoặc mã sản phẩm</span>
+        <input class="form-control" @bind="Model.Key" @bind:event="oninput" @onkeyup="TextChange" @onchange="TextChange" />
+        <span class="input-group-text">Danh mục</span>
+        <InputSelect class="form-select" ValueExpression="@(()=>Model.CategoryId)"
+                     Value="@Model.CategoryId"
+                     ValueChanged="@((Guid? value) => CategoryChange(value))">
+            <option value="@Guid.Empty">Chọn danh mục</option>
+            @if (Categories != null)
+            {
+                @foreach (var item in Categories)
+                {
+                    <option value="@item.Id">@item.Title</option>
+                }
+            }
+        </InputSelect>
+        <span class="input-group-text">Hàng sắp hết</span>
+        <div class="input-group-text">
+            <input class="form-check-input mt-0" type="checkbox" checked="@IsAlertEmpty" @onchange="IsAlertEmptyChanged">
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public EventCallback<WarehouseInventorySearch> OnSearch { set; get; }
+
+    [Parameter]
+    public bool IsAlertEmpty { set; get; }
+
+    private WarehouseInventorySearch Model = new WarehouseInventorySearch();
+
+    private List<WarehouseDto> Warehouses { set; get; }
+    private List<WarehouseCategoryDto> Categories { set; get; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        Warehouses = await WarehouseApiClient.GetWarehouses();
+
+        Categories = await WarehouseApiClient.GetCategories();
+        Categories = SortTable(Categories, null, "", "---");
+    }
+
+    protected override void OnParametersSet()
+    {
+        Model.IsAlertEmpty = IsAlertEmpty;
+    }
+
+    private async Task TextChange()
+    {
+        if (Model.Key.Length > 3)
+            await OnSearch.InvokeAsync(Model);
+    }
+
+    private async Task WarehouseChange(Guid? value)
+    {
+        Model.WarehouseId = value;
+        await OnSearch.InvokeAsync(Model);
+    }
+
+    private async Task CategoryChange(Guid? value)
+    {
+        Model.CategoryId = value;
+        await OnSearch.InvokeAsync(Model);
+    }
+
+    private async Task IsAlertEmptyChanged(ChangeEventArgs e)
+    {
+        Model.IsAlertEmpty = (bool)e.Value;
+        await OnSearch.InvokeAsync(Model);
+    }
+
+    private List<WarehouseCategoryDto> SortTable(List<WarehouseCategoryDto> table, Guid? parentId, string space = "", string distance = "....")
+    {
+        var rows = table.Where(dto => dto.ParentId == parentId).ToList();
+        if (!rows.Any()) return new List<WarehouseCategoryDto>();
+        var sortData = new List<WarehouseCategoryDto>();
+        foreach (var row in rows)
+        {
+            var spaceNext = space + distance;
+            var dt = SortTable(table, row.Id, spaceNext, distance);
+            row.Title = space + row.Title;
+            //row.Title = space + row.Title;
+            sortData.Add(row);
+
+            if (dt.Count > 0) sortData.AddRange(dt);
+        }
+        return sortData;
+    }
+}

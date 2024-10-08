@@ -64,8 +64,8 @@ namespace Web.Api.Controllers
                 if (System.IO.File.Exists(oldFilePath)) System.IO.File.Delete(oldFilePath);
             }
 
-            CompressImageSixLabors(buf, path + Path.DirectorySeparatorChar + File.FileName);
-            //await System.IO.File.WriteAllBytesAsync(path + Path.DirectorySeparatorChar + File.FileName, buf);
+            if (File.FileExtension != ".png" && File.FileExtension != ".webp") CompressImageSixLabors(buf, path + Path.DirectorySeparatorChar + File.FileName);
+            else await System.IO.File.WriteAllBytesAsync(path + Path.DirectorySeparatorChar + File.FileName, buf);
 
             // save webp
             if (File.FileExtension != null && File.FileExtension.ToLower() != ".webp")
@@ -103,7 +103,7 @@ namespace Web.Api.Controllers
             if (File.LastUpload == true)
             {
                 // compress image
-                CompressImageSixLabors(filePath, filePath);
+                if (File.FileExtension != ".png" && File.FileExtension != ".webp") CompressImageSixLabors(filePath, filePath);
 
                 // save webp
                 if (File.FileExtension != null && File.FileExtension.ToLower() != ".webp")

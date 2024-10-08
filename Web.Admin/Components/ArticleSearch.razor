@@ -1,0 +1,79 @@
+﻿@using Web.Admin.Services;
+@using Web.Models;
+@using System.IO;
+@using Web.Models.Enums;
+@using Web.Models.SeedWork;
+
+@inject IContentApiClient ContentApiClient;
+
+<div class="form-group">
+    <div class="input-group input-group-sm mb-3">
+        <span class="input-group-text">Tìm tiêu đề</span>
+        <input class="form-control" @bind="Model.Title" @bind:event="oninput" @onkeyup="TextChange" @onchange="TextChange" />
+        <span class="input-group-text">Danh mục</span>
+        <InputSelect class="form-select" ValueExpression="@(()=>Model.CategoryId)"
+                     Value="@Model.CategoryId"
+                     ValueChanged="@((Guid? value) => CategoryChange(value))">
+            <option value="@Guid.Empty">Chọn danh mục</option>
+            @if (Categories != null)
+            {
+                @foreach (var item in Categories)
+                {
+                <option value="@item.Id">@item.Type @item.Titles.FirstOrDefault(e => e.Key == "vi").Value</option>
+                }
+            }
+        </InputSelect>
+        <span class="input-group-text">Tag</span>
+        <InputText class="form-control" @bind-Value="Model.Tag" placeholder="Tìm tag"></InputText>
+        <button type="button" class="btn btn-primary" @onclick="SearchForm">Tìm</button>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public EventCallback<ArticleListSearch> OnSearch { set; get; }
+
+    private ArticleListSearch Model = new ArticleListSearch();
+
+    private List<CategoryDto> Categories { set; get; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        var categories = await ContentApiClient.GetCategories("ART");
+        Categories = SortTable(categories, null, "", "---");
+    }
+
+    private async Task TextChange()
+    {
+        if (Model.Title != null && Model.Title.Length > 3)
+            await OnSearch.InvokeAsync(Model);
+    }
+
+    private async Task CategoryChange(Guid? value)
+    {
+        Model.CategoryId = value;
+        await OnSearch.InvokeAsync(Model);
+    }
+
+    private async Task SearchForm()
+    {
+        await OnSearch.InvokeAsync(Model);
+    }
+
+    private List<CategoryDto> SortTable(List<CategoryDto> table, Guid? parentId, string space = "", string distance = "....")
+    {
+        var rows = table.Where(dto => dto.ParentId == parentId).ToList();
+        if (!rows.Any()) return new List<CategoryDto>();
+        var sortData = new List<CategoryDto>();
+        foreach (var row in rows)
+        {
+            var spaceNext = space + distance;
+            var dt = SortTable(table, row.Id, spaceNext, distance);
+            row.Type = space;
+            sortData.Add(row);
+
+            if (dt.Count > 0) sortData.AddRange(dt);
+        }
+        return sortData;
+    }
+}

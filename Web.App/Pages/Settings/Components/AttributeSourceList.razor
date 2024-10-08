@@ -1,0 +1,177 @@
+﻿@using Web.App.Services
+@using Microsoft.AspNetCore.Authorization;
+@using Web.App.Components;
+@using Web.App.Pages.Settings.Components;
+@using Web.Models;
+@using Web.Models.SeedWork;
+
+@inject IToastService ToastService;
+@inject IAttributeApiClient AttributeApiClient
+
+@if (Values == null)
+{
+    <LoadingIndicator></LoadingIndicator>
+}
+else
+{
+    <table class="table table-sm table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>Tên nhóm</th>
+                <th>Mã</th>
+                <th>Giá trị</th>
+                <th>
+                    <button class="btn btn-primary btn-xs" @onclick="()=> CreateAttributeSourceDialog.Show()">Thêm</button>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var source in Sources)
+            {
+                <tr>
+                    <td colspan="3">
+                        @source.Titles.Where(e => e.LanguageCode == "vi").Select(e => e.Title).FirstOrDefault()
+                    </td>
+                    <td style="text-align:right">
+                        <button class="btn btn-primary btn-xs" @onclick='()=> CreateAttributeValueDialog.Show(source.Id, source.Titles.Where(e => e.LanguageCode == "vi").Select(e=> e.Title).FirstOrDefault())'>Thêm giá trị</button>
+                        <button class="btn btn-success btn-xs" @onclick="()=> UpdateAttributeSourceDialog.Show(source.Id)">Sửa</button>
+                        <button class="btn btn-danger btn-xs" @onclick="()=> OnDeleteSource(source.Id)">Xóa</button>
+                    </td>
+                </tr>
+                foreach (var value in Values.Where(d => d.SourceId == source.Id))
+                {
+                    <tr>
+                        <td></td>
+                        <td>@value.Id</td>
+                        <td>
+                            @value.Titles.Where(e => e.LanguageCode == "vi").Select(e => e.Title).FirstOrDefault()
+                        </td>
+                        <td style="text-align:right">
+                            <button class="btn btn-success btn-xs" @onclick='()=> UpdateAttributeValueDialog.Show(value.Id, source.Titles.Where(e => e.LanguageCode == "vi").Select(e => e.Title).FirstOrDefault())'>Sửa</button>
+                            <button class="btn btn-danger btn-xs" @onclick="()=> OnDeleteValue(value.Id)">Xóa</button>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+
+    <Confirmation ConfirmationMessage="Bạn có chắc chắn xóa nhóm thuộc tính?"
+              ConfirmationTitle="Xóa nhóm thuộc tính"
+              @ref="DeleteSourceConfirmation"
+              ConfirmationChanged="OnConfirmDeleteSource">
+    </Confirmation>
+    <Confirmation ConfirmationMessage="Bạn có chắc chắn xóa giá trị thuộc tính?"
+              ConfirmationTitle="Xóa nhóm giá trị thuộc tính"
+              @ref="DeleteValueConfirmation"
+              ConfirmationChanged="OnConfirmDeleteValue">
+    </Confirmation>
+
+    <AttributeSourceCreate @ref="CreateAttributeSourceDialog" CloseEventCallbak="RefreshListSource"></AttributeSourceCreate>
+    <AttributeSourceUpdate @ref="UpdateAttributeSourceDialog" CloseEventCallbak="RefreshListSource"></AttributeSourceUpdate>
+    <AttributeValueCreate @ref="CreateAttributeValueDialog" CloseEventCallbak="RefreshListValue"></AttributeValueCreate>
+    <AttributeValueUpdate @ref="UpdateAttributeValueDialog" CloseEventCallbak="RefreshListValue"></AttributeValueUpdate>
+}
+
+@code {
+    protected Confirmation DeleteSourceConfirmation { set; get; }
+    protected Confirmation DeleteValueConfirmation { set; get; }
+    protected AttributeSourceCreate CreateAttributeSourceDialog { set; get; }
+    protected AttributeSourceUpdate UpdateAttributeSourceDialog { set; get; }
+    protected AttributeValueCreate CreateAttributeValueDialog { set; get; }
+    protected AttributeValueUpdate UpdateAttributeValueDialog { set; get; }
+
+    private List<AttributeValueDto> Values;
+    private List<AttributeSourceDto> Sources;
+    private Guid DeleteSourceId { set; get; }
+    private string DeleteValueId { set; get; }
+
+    [CascadingParameter]
+    private Error Error { set; get; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetSources();
+        await GetValues();
+    }
+
+    private async Task GetSources()
+    {
+        try
+        {
+            Sources = await AttributeApiClient.GetSourceList();
+        }
+        catch (Exception ex)
+        {
+            Error.ProcessError(ex);
+        }
+    }
+
+    private async Task GetValues()
+    {
+        try
+        {
+            Values = await AttributeApiClient.GetValueList();
+        }
+        catch (Exception ex)
+        {
+            Error.ProcessError(ex);
+        }
+    }
+
+    public void OnDeleteSource(Guid deleteId)
+    {
+        DeleteSourceId = deleteId;
+        DeleteSourceConfirmation.Show();
+    }
+
+    public void OnDeleteValue(string deleteId)
+    {
+        DeleteValueId = deleteId;
+        DeleteValueConfirmation.Show();
+    }
+
+    public async Task OnConfirmDeleteSource(bool deleteConfirmed)
+    {
+        if (deleteConfirmed)
+        {
+            var result = await AttributeApiClient.DeleteSource(DeleteSourceId);
+            if (result)
+            {
+                ToastService.ShowWarning($"Xóa nhóm thuộc tính thành công");
+                await RefreshListSource(true);
+            }
+            else ToastService.ShowError("Xóa nhóm thuộc tính không thành công");
+        }
+    }
+
+    public async Task OnConfirmDeleteValue(bool deleteConfirmed)
+    {
+        if (deleteConfirmed)
+        {
+            var result = await AttributeApiClient.DeleteValue(DeleteValueId);
+            if (result)
+            {
+                ToastService.ShowWarning($"Xóa giá trị thuộc tính thành công");
+                await RefreshListValue(true);
+            }
+            else ToastService.ShowError("Xóa giá trị thuộc tính không thành công");
+        }
+    }
+
+    public async Task RefreshListSource(bool result)
+    {
+        if (result)
+        {
+            await GetSources();
+        }
+    }
+
+    public async Task RefreshListValue(bool result)
+    {
+        if (result)
+        {
+            await GetValues();
+        }
+    }
+}

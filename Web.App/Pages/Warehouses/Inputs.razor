@@ -1,0 +1,123 @@
+﻿@page "/sales/customers"
+@attribute [Authorize]
+
+@using Web.App.Components
+@using Web.App.Pages.Components
+@using Web.App.Pages.Sales.Components
+@using Web.App.Pages.Warehouses.Components
+@using Microsoft.AspNetCore.Authorization;
+@using Web.App.Services;
+@using Web.Models;
+@using Web.Models.SeedWork;
+@using Microsoft.Extensions.Configuration
+
+@inject IToastService ToastService;
+@inject IOrderApiClient OrderApiClient;
+
+<h1>Quản lý khách hàng</h1>
+
+<section>
+    @if (ListInputs == null)
+    {
+        <LoadingIndicator></LoadingIndicator>
+    }
+    else
+    {
+        <div class="card card-outline card-info">
+            <div class="card-header">
+                <h3 class="card-title">Danh sách Khách hàng</h3>
+            </div>
+            <div class="card-body">
+                <CustomersSearch OnSearch="Search"></CustomersSearch>
+                <table class="table table-sm table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Khách hàng</th>
+                            <th>Số điện thoại</th>
+                            <th>Địa chỉ</th>
+                            <th>Mua lần cuối</th>
+                            <th>Số đơn hàng</th>
+                            <th>Tổng tiền mua hàng</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in ListInputs)
+                        {
+                            <tr>
+                                <td>@item.CustomerName</td>
+                                <td>@item.CustomerPhone</td>
+                                <td>@item.CustomerAddress</td>
+                                <td style="text-align:center">@item.LastOrder.ToString("dd/MM/yyyy hh:mm")</td>
+                                <td style="text-align:right">@item.OrderCount.ToString("N0")</td>
+                                <td style="text-align:right">@item.TotalAmount.ToString("N0")<sup>đ</sup></td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="9">
+                                <Pagination MetaData="MetaData" Spread="2" SelectedPage="SelectedPage"></Pagination>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <InputCreate @ref="CreateDialog"></InputCreate>
+    }
+</section>
+
+@code {
+    protected Confirmation DeleteConfirmation { set; get; }
+    protected InputCreate CreateDialog { set; get; }
+
+    private const int PageSize = 20;
+    private List<CustomerDto> ListInputs;
+    private Guid DeleteId { set; get; }
+
+    private CustomersSearch CustomerSearchControl { set; get; }
+    private CustomerSearch CustomerSearch = new CustomerSearch();
+    public MetaData MetaData { get; set; } = new MetaData();
+
+    [CascadingParameter]
+    private Error Error { set; get; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        CustomerSearch.PageSize = PageSize;
+        await RefreshList(true);
+    }
+
+    public async Task RefreshList(bool result)
+    {
+        if (result)
+        {
+            try
+            {
+                var pagingResponse = await OrderApiClient.GetCusomers(CustomerSearch);
+                ListInputs = pagingResponse.Items;
+                MetaData = pagingResponse.MetaData;
+
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                Error.ProcessError(ex);
+            }
+        }
+    }
+
+    public async Task Search(CustomerSearch customerSearch)
+    {
+        CustomerSearch = customerSearch;
+        CustomerSearch.PageSize = PageSize;
+        await RefreshList(true);
+    }
+
+    private async Task SelectedPage(int page)
+    {
+        CustomerSearch.PageNumber = page;
+        await RefreshList(true);
+    }
+}

@@ -1,0 +1,93 @@
+﻿@using Web.Admin.Services;
+@using Web.Models;
+@using System.IO;
+@using Web.Models.Enums;
+@using Web.Models.SeedWork;
+
+@inject ITemplateApiClient TemplateApiClient;
+
+<div class="form-group">
+    <div class="input-group input-group-sm mb-3">
+        <span class="input-group-text">Tìm tiêu đề</span>
+        <input class="form-control" @bind="Model.Name" @bind:event="oninput" @onkeyup="TextChange" @onchange="TextChange" />
+        <InputSelect class="form-select" ValueExpression="@(()=>Model.ComponentName)"
+                        Value="@Model.ComponentName"
+                        ValueChanged="@((string value) => OnComponentChanged(value))">
+            <option value="*">Chọn trang</option>
+            <option value="_">Template</option>
+            @if (Components != null)
+            {
+                @foreach (var item in Components)
+                {
+                    <option value="@item.ComponentName">@item.Describe</option>
+                }
+            }
+        </InputSelect>
+        <InputSelect class="form-select" ValueExpression="@(()=>Model.Position)"
+                        Value="@Model.Position"
+                        ValueChanged="@((string value) => OnPositionChanged(value))">
+            <option value="">Chọn vị trí</option>
+            @if (Positions != null)
+            {
+                @foreach (var item in Positions)
+                {
+                    <option value="@item.PositionName">@item.Describe</option>
+                }
+            }
+        </InputSelect>
+        <button class="btn btn-primary" @onclick="Search">Tìm</button>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public EventCallback<ModuleConfigListSearch> OnSearch { set; get; }
+
+    private ModuleConfigListSearch Model = new ModuleConfigListSearch();
+
+    private List<TemplateComponentDto> Components { set; get; } = new List<TemplateComponentDto>();
+    private List<TemplatePositionDto> AllPositions { set; get; } = new List<TemplatePositionDto>();
+    private List<TemplatePositionDto> Positions { set; get; } = new List<TemplatePositionDto>();
+
+    protected async override Task OnInitializedAsync()
+    {
+        Components = await TemplateApiClient.GetComponents();
+        if (Components == null) Components = new List<TemplateComponentDto>();
+
+        AllPositions = await TemplateApiClient.GetPositions();
+        if (AllPositions == null) AllPositions = new List<TemplatePositionDto>();
+
+        var componentPositions = AllPositions.Select(p => p.ComponentName).ToList();
+        Components = Components.Where(e => componentPositions.Contains(e.ComponentName)).ToList();
+
+        Model.ComponentName = "*";
+        Model.Position = "";
+    }
+
+    private async Task TextChange()
+    {
+        if (Model.Name != null && Model.Name.Length > 3)
+            await OnSearch.InvokeAsync(Model);
+    }
+
+    protected async Task OnComponentChanged(string componentName)
+    {
+        Model.ComponentName = componentName;
+        if (Model.ComponentName == "*") Positions = new List<TemplatePositionDto>();
+        else if (Model.ComponentName == "_") Positions = AllPositions.Where(e => e.ComponentName == "").ToList();
+        else Positions = AllPositions.Where(e => e.ComponentName == Model.ComponentName).ToList();
+        Model.Position = "";
+        await OnSearch.InvokeAsync(Model);
+    }
+
+    protected async Task OnPositionChanged(string position)
+    {
+        Model.Position = position;
+        await OnSearch.InvokeAsync(Model);
+    }
+
+    private async Task Search()
+    {
+        await OnSearch.InvokeAsync(Model);
+    }
+}

@@ -1,0 +1,101 @@
+﻿@using Web.Admin.Services;
+@using Web.Models;
+@using Web.Models.Enums;
+@using Web.Models.SeedWork;
+
+@inject IToastService ToastService;
+@inject ICompanyApiClient CompanyApiClient;
+
+@if (ShowDialog && Model != null)
+{
+    <div class="modal fade show d-block" id="assignModel" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Sửa chi nhánh</h5>
+                    <button type="button" class="close" data-dismiss="modal" @onclick="()=>Hide()" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                
+        <EditForm Model="Model" OnValidSubmit="HandleSubmit">
+            <DataAnnotationsValidator></DataAnnotationsValidator>
+                    <div class="modal-body">
+            <div class="form-group">
+                <InputText class="form-control form-control-sm" @bind-Value="Model.Name" placeholder="Tên"></InputText>
+                <ValidationMessage For="()=> Model.Name"></ValidationMessage>
+            </div>
+            <div class="form-group">
+                <InputText class="form-control form-control-sm" @bind-Value="Model.Address" placeholder="Địa chỉ"></InputText>
+                <ValidationMessage For="()=> Model.Address"></ValidationMessage>
+            </div>
+            <div class="form-group">
+                <InputText class="form-control form-control-sm" @bind-Value="Model.Phone" placeholder="Điện thoại"></InputText>
+                <ValidationMessage For="()=> Model.Phone"></ValidationMessage>
+            </div>
+            <div class="form-group">
+                <InputText class="form-control form-control-sm" @bind-Value="Model.Email" placeholder="Email"></InputText>
+                <ValidationMessage For="()=> Model.Email"></ValidationMessage>
+            </div>
+            <div class="form-group">
+                <InputNumber class="form-control form-control-sm" @bind-Value="Model.Order" placeholder="Thứ tự"></InputNumber>
+                <ValidationMessage For="()=> Model.Order"></ValidationMessage>
+            </div>
+            </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-xs" @onclick="()=>Hide()" data-dismiss="modal">Đóng</button>
+                        <button type="submit" class="btn btn-primary btn-xs">Lưu</button>
+            </div>
+        </EditForm>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    protected bool ShowDialog { get; set; }
+
+    private CompanyBranchDto Model { set; get; }
+
+    [Parameter]
+    public EventCallback CloseEventCallbak { get; set; }
+
+    [Parameter]
+    public string LanguageCode { set; get; }
+
+    protected async override Task OnParametersSetAsync()
+    {
+        if (!string.IsNullOrEmpty(LanguageCode))
+        {
+            Model.LanguageCode = LanguageCode;
+        }
+    }
+
+    public async void Show(Guid branchId)
+    {
+        Model = await CompanyApiClient.GetBranch(branchId);
+        ShowDialog = true;
+        StateHasChanged();
+    }
+
+    private void Hide()
+    {
+        ShowDialog = false;
+        StateHasChanged();
+    }
+
+    protected async Task HandleSubmit()
+    {
+        var result = await CompanyApiClient.UpdateBranch(Model);
+        if (result)
+        {
+            ShowDialog = false;
+            await CloseEventCallbak.InvokeAsync();
+            ToastService.ShowInfo("Cập nhật chi nhánh thành công");
+        }
+        else
+        {
+            ToastService.ShowError("Cập nhật chi nhánh không thành công");
+        }
+    }
+}

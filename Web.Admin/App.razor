@@ -1,0 +1,22 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization;
+
+<Error>
+    <Router AppAssembly="@typeof(App).Assembly">
+        <Found Context="routeData">
+            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+                <NotAuthorized>
+                    <Web.Admin.Pages.Login></Web.Admin.Pages.Login>
+                </NotAuthorized>
+                <Authorizing>
+                </Authorizing>
+            </AuthorizeRouteView>
+        </Found>
+        <NotFound>
+            <CascadingAuthenticationState>
+                <LayoutView Layout="@typeof(MainLayout)">
+                    <p>Sorry, there's nothing at this address.</p>
+                </LayoutView>
+            </CascadingAuthenticationState>
+        </NotFound>
+    </Router>
+</Error>

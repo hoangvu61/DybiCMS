@@ -1,0 +1,146 @@
+﻿@attribute [Authorize]
+
+@using Microsoft.AspNetCore.Authorization;
+@using Web.Admin.Components;
+@using Web.Admin.Pages.Content.Components;
+@using Web.Admin.Services;
+@using Web.Models;
+@using Web.Models.SeedWork;
+@using Microsoft.Extensions.Configuration
+
+@inject IConfiguration Configuration
+@inject IToastService ToastService;
+@inject IContentApiClient ContentApiClient;
+@if (AddOns != null)
+{
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Các sản phẩm kèm theo</h3>
+        </div>
+        <!-- /.card-header -->
+        <div class="card-body">
+            <table class="table table-sm table-bordered">
+                <thead>
+                    <tr>
+                        <th>Tiêu đề</th>
+                        <th>Danh mục</th>
+                        <th style="text-align:center">Hình</th>
+                        <th style="text-align:right">Số lượng</th>
+                        <th style="text-align:right">Giá</th>
+                        <th style="text-align:right"><button type="button" class="btn btn-primary btn-xs" @onclick="() => ListProductAddOnControl.Show()">Thêm</button></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in AddOns)
+                    {
+                        <tr>
+                            <td>
+                                <table>
+                                    @foreach (var title in item.Titles)
+                                    {
+                                        <tr>
+                                            <td style="border:0;padding:0">@title.Key: </td>
+                                            <td style="border:0;padding:0">@title.Value</td>
+                                        </tr>
+                                    }
+                                </table>
+                            </td>
+                            <td>
+                                <table>
+                                    @foreach (var title in item.CategoryNames)
+                                    {
+                                        <tr>
+                                            <td style="border:0;padding:0">@title.Key: </td>
+                                            <td style="border:0;padding:0">@title.Value</td>
+                                        </tr>
+                                    }
+                                </table>
+                            </td>
+                            <td style="text-align:center"><img src="@(BackendApiUrl + "/" + item.Image.FullPath)" asp-append-version="true" width="50px" /></td>
+                            <td>
+                                <InputNumber class="form-control form-control-sm" @bind-Value="item.Order" @bind-Value:format="N0"></InputNumber>
+                            </td>
+                            <td>
+                                <InputNumber class="form-control form-control-sm" @bind-Value="item.Price" @bind-Value:format="N0"></InputNumber>
+                            </td>
+                            <td style="text-align:right">
+                                <button class="btn btn-success btn-xs" @onclick="()=> Save(item)">Lưu</button>
+                                <button class="btn btn-danger btn-xs" @onclick="()=> Remove(item.Id)">Xóa</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <!-- /.card-body -->
+    </div>
+
+    <ProductListPopup @ref="ListProductAddOnControl" EventCallbak="AddAddOn"></ProductListPopup>
+}
+@code {
+    [Parameter]
+    public Guid ItemId { set; get; }
+
+    private List<ProductDto> AddOns { set; get; }
+    private string BackendApiUrl { get; set; }
+
+    [CascadingParameter]
+    private Error Error { set; get; }
+
+    private ProductListPopup ListProductAddOnControl { set; get; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        BackendApiUrl = Configuration["BackendApiUrl"];
+    }
+
+
+    protected async override Task OnParametersSetAsync()
+    {
+        if (ItemId != null && ItemId != Guid.Empty)
+        {
+            AddOns = await ContentApiClient.GetProductAddOns(ItemId);
+        }
+    }
+
+    protected async Task AddAddOn(ProductDto addon)
+    {
+        if (addon.Id == ItemId) ToastService.ShowWarning("Sản phẩm kèm theo không thể là chính nó");
+        else if (AddOns.Any(e => e.Id == addon.Id)) ToastService.ShowWarning("Sản phẩm kèm theo đã tồn tại");
+        else
+        {
+            addon.Order = 1;
+            var result = await ContentApiClient.CreateProductAddOn(ItemId, new ProductAddOnDto { ProductId = addon.Id, Quantity = addon.Order, Price = addon.Price });
+            if (result)
+            {
+                AddOns.Add(addon);
+                StateHasChanged();
+                ToastService.ShowInfo("Đã thêm sản kèm theo theo");
+            }
+            else ToastService.ShowError("Thêm sản kèm theo theo không thành công");
+        }
+    }
+
+    public async Task Save(ProductDto addon)
+    {
+        var result = await ContentApiClient.UpdateProductAddOn(ItemId, new ProductAddOnDto { ProductId = addon.Id, Quantity = addon.Order, Price = addon.Price });
+        if (result)
+        {
+            ToastService.ShowWarning("Lưu sản phẩm kèm theo thành công");
+        }
+        else ToastService.ShowError("Lưu sản phẩm kèm theo không thành công");
+    }
+
+    public async Task Remove(Guid adonId)
+    {
+        var result = await ContentApiClient.DeleteProductAddOn(ItemId, adonId);
+        if (result)
+        {
+            ToastService.ShowWarning("Đã xóa sản phẩm kèm theo");
+            AddOns.Remove(AddOns.First(e => e.Id == adonId));
+            StateHasChanged();
+        }
+        else ToastService.ShowError("Xóa sản phẩm kèm theo không thành công");
+    }
+
+}

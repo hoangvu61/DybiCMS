@@ -1,0 +1,196 @@
+﻿@page "/"
+@attribute [Authorize]
+
+@using Microsoft.AspNetCore.Authorization;
+@using Microsoft.AspNetCore.Components.Authorization
+@using Web.Admin.Components;
+@using Web.Admin.Pages.Config.Components
+@using Web.Admin.Services;
+@using Web.Models;
+@using Microsoft.Extensions.Configuration
+@using Web.Models.Enums;
+@using Web.Models.SeedWork;
+
+@inject NavigationManager NavigationManager
+@inject ICompanyApiClient CompanyApiClient;
+@inject IConfiguration Configuration;
+@inject IContentApiClient ContentApiClient;
+@inject IOrderApiClient OrderApiClient;
+@inject IAuthService AuthService
+
+<PageTitle>Trang quản trị</PageTitle>
+
+    <section class="content-header">
+        <div class="container-fluid">
+            <h1 class="m-0">Trang quảng trị</h1>
+        </div>
+    </section>
+    <section class="content">
+        <div class="container-fluid">
+            @if (Model == null)
+            {
+                <LoadingIndicator></LoadingIndicator>
+            }
+            else
+            {
+                <div class="row">
+                    <div class="col-md-3">
+                        <!-- Profile Image -->
+                        <div class="card card-primary card-outline">
+                            <div class="card-body box-profile">
+                                <div class="text-center">
+                                    @if(Logo != null)
+                                    {
+                                        <img class="profile-user-img img-fluid img-circle" src="@(BackendApiUrl + "/" + Logo.FullPath)" alt="User profile picture">
+                                    }
+                                </div>
+
+                                <h3 class="profile-username text-center">@Model.FullName</h3>
+                        @if (Model.PublishDate != null)
+                        {
+                            <p class="text-muted text-center">@Model.PublishDate.Value.ToString(Configuration["DateTimeFormat"])</p>
+                        }
+                        <p class="text-muted text-center">@Model.Slogan</p>
+                            </div>
+                            <!-- /.card-body -->
+                        </div>
+                        <!-- /.card -->
+                        <!-- About Me Box -->
+                        <div class="card card-primary">
+                            <div class="card-body">
+                                @foreach (var item in Branches)
+                                {
+                                    <div class="callout callout-success">
+                                        <h5>@item.Name</h5>
+                                        <p>@item.Address</p>
+                                        <p><lable>Điện thoại:</lable> @item.Phone</p>
+                                        <p><lable>Email:</lable> @item.Email</p>
+                                    </div>
+                                }
+                            </div>
+                            <!-- /.card-body -->
+                        </div>
+                        <!-- /.card -->
+                    </div>
+                    <!-- /.col -->
+                    <div class="col-md-9">
+                <div class="row">
+                    <AuthorizeView Roles="Product">
+                    <div class="col">
+                        <!-- small box -->
+                            <div class="small-box bg-warning">
+                            <div class="inner">
+                                    <h3>@NewOrder</h3>
+                                <p>Đơn hàng</p>
+                            </div>
+                            <div class="icon">
+                                <i class="fas fa-cart-plus"></i>
+                            </div>
+                                <a href="/orderlist" class="small-box-footer">Chi tiết <i class="fas fa-arrow-circle-right"></i></a>
+                        </div>
+                    </div>
+                    <!-- ./col -->
+                    </AuthorizeView>
+                    <div class="col">
+                        <!-- small box -->
+                        <div class="small-box bg-success">
+                            <div class="inner">
+                                <h3>@NewReview</h3>
+                                <p>Bình luận</p>
+                            </div>
+                            <div class="icon">
+                                <i class="fas fa-comments"></i>
+                            </div>
+                            <a href="/reviewlist" class="small-box-footer">Chi tiết <i class="fas fa-arrow-circle-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+                        <div class="card">
+                            <div class="card-header p-2">
+                                @Model.DisplayName
+                            </div><!-- /.card-header -->
+                        <div class="card-body">
+                            @if (!string.IsNullOrEmpty(Model.Vision))
+                            {
+                                <h5>Tầm nhìn</h5>
+                                @((MarkupString)Model.Vision.Replace("\n", "<br />"))
+                                <hr>
+                            }
+                            @if (!string.IsNullOrEmpty(Model.Mission))
+                            {
+                                <h5>Sứ mệnh</h5>
+                                @((MarkupString)Model.Mission.Replace("\n", "<br />"))
+                                <hr>
+                            }
+                            @if (!string.IsNullOrEmpty(Model.CoreValues))
+                            {
+                                <h5>Giá trị cốt lỗi</h5>
+                                @((MarkupString)Model.CoreValues.Replace("\n", "<br />"))
+                                <hr>
+                            }
+                            @if (!string.IsNullOrEmpty(Model.Motto))
+                            {
+                                <h5>Phương châm</h5>
+                                @((MarkupString)Model.Motto.Replace("\n", "<br />"))
+                                <hr>
+                            }
+                            @if (!string.IsNullOrEmpty(Model.Brief))
+                            {
+                                <h5>Mô tả ngắn</h5>
+                                @((MarkupString)Model.Brief.Replace("\n", "<br />"))
+                                <hr>
+                            }
+                            <h5>Mô tả chi tiết</h5>
+                        @((MarkupString)Model.AboutUs)
+                            </div><!-- /.card-body -->
+                        </div>
+                        <!-- /.card -->
+                    </div>
+                    <!-- /.col -->
+                </div>
+            }
+        </div>
+    </section>
+
+@code {
+    private ReviewListSearch ReviewListSearch = new ReviewListSearch();
+    private PagingParameters NewOrderPaging = new PagingParameters();
+
+    private string BackendApiUrl { get; set; }
+    private WebInfoDto Model { get; set; }
+    private List<CompanyBranchDto> Branches { get; set; }
+    private FileData Logo { get; set; }
+
+    protected int NewReview { get; set; }
+    protected int NewOrder { get; set; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        BackendApiUrl = Configuration["BackendApiUrl"];
+        ReviewListSearch.PageSize = 0;
+        ReviewListSearch.Approved = false;
+        NewOrderPaging.PageSize = 0;
+        try
+        {
+            Model = await CompanyApiClient.GetCompanyInfo("vi");
+            Branches = await CompanyApiClient.GetBranchList("vi");
+
+            if (!string.IsNullOrEmpty(Model.Logo))
+            {
+                Logo = new FileData() { Type = FileType.WebLogo, FileName = Model.Logo, Folder = Model.Id.ToString() };
+            }
+
+            var pagingReviewResponse = await ContentApiClient.GetReviews(ReviewListSearch);
+            NewReview = pagingReviewResponse.MetaData.TotalCount;
+
+            var pagingOrderResponse = await OrderApiClient.GetNewOrders(NewOrderPaging);
+            NewOrder = pagingOrderResponse.MetaData.TotalCount;
+
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            await AuthService.Logout();
+            NavigationManager.NavigateTo("/login");
+        }
+    }
+}

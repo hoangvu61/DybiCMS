@@ -1,0 +1,81 @@
+﻿@using Web.App.Components
+@using Web.App.Pages.Components
+@using Web.App.Pages.Warehouses.Components
+@using Web.App.Services;
+@using Web.Models;
+@using Web.Models.SeedWork;
+@using Microsoft.Extensions.Configuration
+
+@inject IToastService ToastService;
+@inject IWarehouseApiClient WarehouseApiClient;
+@inject NavigationManager Navigation
+
+
+@if (ListInputs != null)
+{
+    <div class="col">
+        <section>
+            <div class="card card-outline card-info">
+                <div class="card-header">
+                    <h3 class="card-title">Lô hàng nhập <strong>@ProductName</strong></h3>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Mã nhập kho</th>
+                                <th>Nhập từ</th>
+                                <th>Giá nhập</th>
+                                <th>Số lượng</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in ListInputs)
+                            {
+                                <tr>
+                                    <td style="vertical-align:middle">@item.InputCode</td>
+                                    <td>
+                                        @item.InputType <br />
+                                        Từ: @item.InputSourceName
+                                    </td>
+                                    <td style="text-align:right;vertical-align:middle">@item.ProductPrice.ToString("N0")</td>
+                                    <td style="text-align:right;vertical-align:middle">
+                                        Nhập: @item.TotalProduct.ToString("N0") <br />
+                                        Tồn: <strong>@item.InventoryNumber.ToString("N0")</strong>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </div>
+}
+
+@code {
+    private Guid ProductId { set; get; }
+    private string ProductName { set; get; }
+
+    private List<WarehouseInputInventoryDto> ListInputs;
+
+    [CascadingParameter]
+    private Error Error { set; get; }
+
+    public async Task Load(Guid warehouseId, Guid productId, string productName)
+    {
+        ProductId = productId;
+        ProductName = productName;
+
+        try
+        {
+            ListInputs = await WarehouseApiClient.GetInventories(ProductId);
+            ListInputs = ListInputs.Where(e => e.WarehouseId == warehouseId).ToList();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Error.ProcessError(ex);
+        }
+    }
+}
