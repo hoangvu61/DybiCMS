@@ -956,7 +956,7 @@ namespace Web.Api.Controllers
             await _itemRepository.CreateItem(item);
 
             // SEO
-            if (category.CategoryComponent != null)
+            if (category.CategoryComponent != null && request.Type != "LIN")
                 await CrerateSEO(user.CompanyId, category.CategoryComponent.ComponentDetail, "smid", languageItem);
 
             return Ok();

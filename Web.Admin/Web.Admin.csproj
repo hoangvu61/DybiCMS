@@ -7,11 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="Pages\Order\Customers.razor" />
-    <Content Remove="Pages\Order\OrderCreate.razor" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
     <PackageReference Include="Blazored.TextEditor" Version="1.1.0" />
     <PackageReference Include="Blazored.Toast" Version="4.2.1" />
@@ -28,6 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Properties\PublishProfiles\" />
     <Folder Include="Uploads\" />
   </ItemGroup>
 
