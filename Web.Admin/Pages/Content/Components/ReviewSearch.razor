@@ -6,24 +6,15 @@
 
 @inject IContentApiClient ContentApiClient;
 
-<div class="row">
-    <div class="col">
+<div class="form-group mb-3">
+    <div class="input-group input-group-sm">
         <div class="form-check form-check-inline">
-            <input name="Approved" type="radio" class="form-check-input" @onchange="@(() => {Model.Approved = null;})" checked="@(Model.Approved == null)" /> Tất cả &nbsp;
-            <input name="Approved" type="radio" class="form-check-input" @onchange="@(() => {Model.Approved = false;})" checked="@(Model.Approved == false)" /> Chưa duyệt &nbsp;
-            <input name="Approved" type="radio" class="form-check-input" @onchange="@(() => {Model.Approved = true;})" checked="@(Model.Approved == true)" /> Đã duyệt &nbsp;
+            <input name="Approved" type="radio" class="form-check-input mt-0" @onchange="@(() => ApprovedChange(null))" checked="@(Model.Approved == null)" /> Tất cả &nbsp;
+            <input name="Approved" type="radio" class="form-check-input mt-0" @onchange="@(() => ApprovedChange(false))" checked="@(Model.Approved == false)" /> Chưa duyệt &nbsp;
+            <input name="Approved" type="radio" class="form-check-input mt-0" @onchange="@(() => ApprovedChange(true))" checked="@(Model.Approved == true)" /> Đã duyệt &nbsp;
         </div>
-     </div>
-     <div class="col">
-        <InputText class="form-control form-control-sm" @bind-Value="Model.Name" placeholder="Tìm tên"></InputText>
-     </div>
-
-     <div class="col">
-        <InputText class="form-control form-control-sm" @bind-Value="Model.Phone" placeholder="Tìm tên"></InputText>
-     </div>
-
-    <div class="col button-top">
-        <button type="button" class="btn btn-primary btn-sm" @onclick="SearchForm">Tìm</button>
+        <input class="form-control" @bind="Model.Key" @bind:event="oninput" @onkeyup="TextChange" @onchange="TextChange" placeholder="Tìm tên hoặc số điện thoại" />
+        <button type="button" class="btn btn-primary" @onclick="SearchForm">Tìm</button>
     </div>
 </div>
 
@@ -42,6 +33,16 @@
         {
             Model.Approved = Approved;
         }
+    }
+    private async Task TextChange()
+    {
+        if (Model.Key.Length > 3)
+            await OnSearch.InvokeAsync(Model);
+    }
+    private async Task ApprovedChange(bool? approve)
+    {
+        Model.Approved = approve;
+        await OnSearch.InvokeAsync(Model);
     }
     private async Task SearchForm()
     {

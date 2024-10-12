@@ -234,7 +234,8 @@ namespace Web.Api.Repositories
 
         public async Task<int> Copy(Guid sourceCompanyId, Guid targetCompanyId)
         {
-            var items = await _context.Items.Include(e => e.Category)
+            var items = await _context.Items
+                .Include(e => e.Category).ThenInclude(c => c.CategoryComponent)
                 .Include(e => e.Article)
                 .Include(e => e.Product)
                 .Include(e => e.Media)
@@ -267,6 +268,15 @@ namespace Web.Api.Repositories
                     ItemLanguages = new List<ItemLanguage>(),
                     Images = new List<ItemImage>()
                 };
+                if (category.Category.CategoryComponent != null)
+                {
+                    item.Category.CategoryComponent = new ItemCategoryComponent
+                    {
+                        ComponentDetail = category.Category.CategoryComponent.ComponentDetail,
+                        ComponentList = category.Category.CategoryComponent.ComponentList,
+                    };     
+                } 
+
                 foreach (var language in category.ItemLanguages)
                 {
                     item.ItemLanguages.Add(new ItemLanguage
@@ -302,7 +312,8 @@ namespace Web.Api.Repositories
                     Article = new ItemArticle
                     {
                         CategoryId = mapCategory[article.Article.CategoryId],
-                        DisplayDate = DateTime.Now
+                        DisplayDate = DateTime.Now,
+                        Type = article.Article.Type
                     },
                     ItemLanguages = new List<ItemLanguage>(),
                     Images = new List<ItemImage>()

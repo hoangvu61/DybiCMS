@@ -84,10 +84,8 @@ namespace Web.Admin.Services
 
             if (search.ReviewFor != null && search.ReviewFor != Guid.Empty)
                 queryStringParam.Add("ReviewFor", search.ReviewFor.ToString());
-            if (!string.IsNullOrEmpty(search.Name))
-                queryStringParam.Add("Name", search.Name);
-            if (!string.IsNullOrEmpty(search.Phone))
-                queryStringParam.Add("Phone", search.Phone);
+            if (!string.IsNullOrEmpty(search.Key))
+                queryStringParam.Add("Key", search.Key);
             if (search.Approved != null)
                 queryStringParam.Add("Approved", search.Approved.ToString());
 

@@ -132,11 +132,8 @@ namespace Web.Api.Repositories
                 query = query.Where(e => e.ReviewFor == reviewSearch.ReviewFor);
             }
 
-            if (!string.IsNullOrEmpty(reviewSearch.Name))
-                query = query.Where(e => e.Name != null && e.Name.Contains(reviewSearch.Name));
-
-            if (!string.IsNullOrEmpty(reviewSearch.Phone))
-                query = query.Where(e => e.Name != null && e.Name.Contains(reviewSearch.Phone));
+            if (!string.IsNullOrEmpty(reviewSearch.Key))
+                query = query.Where(e => (e.Name != null && e.Name.Contains(reviewSearch.Key)) || (e.Phone != null && e.Phone.Contains(reviewSearch.Key)));
 
             if(reviewSearch.Approved != null)
             {
