@@ -11,65 +11,72 @@
 
 @inject IToastService ToastService;
 
-<h1>Quản lý Kho</h1>
-<section>
-    @if (ListWarehouses == null)
-    {
-        <LoadingIndicator></LoadingIndicator>
-    }
-    else
-    {
-        <div class="card card-outline card-info">
-            <div class="card-header">
-                <h3 class="card-title">Danh sách Kho</h3>
-            </div>
-            <div class="card-body">
-                <table class="table table-sm table-striped table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Loại</th>
-                            <th>Tên</th>
-                            <th>Địa chỉ</th>
-                            <th>Số ĐT</th>
-                            <th>Email</th>
-                            <th>Sử dụng</th>
-                            <th style="width:75px">
-                                <button class="btn btn-primary btn-xs" @onclick="()=> OpenCreatePopup()">Thêm</button>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var item in ListWarehouses)
-                        {
+<section class="content-header">
+    <div class="container-fluid">
+        <h1 class="m-0">Quản lý Kho</h1>
+    </div>
+</section>
+
+<section class="content">
+    <div class="container-fluid">
+        @if (ListWarehouses == null)
+        {
+            <LoadingIndicator></LoadingIndicator>
+        }
+        else
+        {
+            <div class="card card-outline card-info">
+                <div class="card-header">
+                    <h3 class="card-title">Danh sách Kho</h3>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm table-striped table-bordered">
+                        <thead>
                             <tr>
-                                <td>@DataSource.WarehouseTypes[item.Type]</td>
-                                <td>@item.Name</td>
-                                <td>@item.Address</td>
-                                <td>@item.Phone</td>
-                                <td>@item.Email</td>
-                                <td class="form-switch" style="text-align: center; padding-left: 30px;">
-                                    <input type="checkbox" checked="@item.IsActive" class="form-check-input" role="switch" @onchange="@((e) => {item.IsActive = bool.Parse(e.Value.ToString()); CheckboxChanged(item);})"></input>
-                                </td>
-                                <td>
-                                    <button class="btn btn-success btn-xs" @onclick="()=> OpenUpdatePopup(item.Id)">Sửa</button>
-                                    <button class="btn btn-danger btn-xs" @onclick="()=> OnDelete(item.Id)">Xóa</button>
-                                </td>
+                                <th>Loại</th>
+                                <th>Tên</th>
+                                <th>Địa chỉ</th>
+                                <th>Số ĐT</th>
+                                <th>Email</th>
+                                <th>Sử dụng</th>
+                                <th style="width:75px">
+                                    <button class="btn btn-primary btn-xs" @onclick="()=> OpenCreatePopup()">Thêm</button>
+                                </th>
                             </tr>
-                        }
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in ListWarehouses)
+                            {
+                                <tr>
+                                    <td>@DataSource.WarehouseTypes[item.Type]</td>
+                                    <td>@item.Name</td>
+                                    <td>@item.Address</td>
+                                    <td>@item.Phone</td>
+                                    <td>@item.Email</td>
+                                    <td class="form-switch" style="text-align: center; padding-left: 30px;">
+                                        <input type="checkbox" checked="@item.IsActive" class="form-check-input" role="switch" @onchange="@((e) => {item.IsActive = bool.Parse(e.Value.ToString()); CheckboxChanged(item);})"></input>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-success btn-xs" @onclick="()=> OpenUpdatePopup(item.Id)">Sửa</button>
+                                        <button class="btn btn-danger btn-xs" @onclick="()=> OnDelete(item.Id)">Xóa</button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </div>
 
-        <Confirmation ConfirmationMessage="Bạn có chắc chắn xóa?"
-                    ConfirmationTitle="Xóa mã nhún"
-                    @ref="DeleteConfirmation"
-                    ConfirmationChanged="OnConfirmDelete">
-        </Confirmation>
+            <Confirmation ConfirmationMessage="Bạn có chắc chắn xóa?"
+                        ConfirmationTitle="Xóa mã nhún"
+                        @ref="DeleteConfirmation"
+                        ConfirmationChanged="OnConfirmDelete">
+            </Confirmation>
 
-        <WarehouseCreate @ref="CreateWarehouseDialog" CloseEventCallbak="RefreshList"></WarehouseCreate>
-        <WarehouseUpdate @ref="UpdateWarehouseDialog" CloseEventCallbak="RefreshList"></WarehouseUpdate>
-    }
+            <WarehouseCreate @ref="CreateWarehouseDialog" CloseEventCallbak="RefreshList"></WarehouseCreate>
+            <WarehouseUpdate @ref="UpdateWarehouseDialog" CloseEventCallbak="RefreshList"></WarehouseUpdate>
+        }
+    </div>
 </section>
 
 @code {

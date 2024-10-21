@@ -15,7 +15,11 @@
 @inject IWarehouseApiClient WarehouseApiClient;
 @inject IJSRuntime JS
 
-<h1>Tìm sản phẩm</h1>
+<section class="content-header">
+    <div class="container-fluid">
+        <h1 class="m-0">Tìm sản phẩm</h1>
+    </div>
+</section>
 
 <div class="row">
     <div class="col-6 mx-auto">
@@ -27,97 +31,99 @@
     </div>
 </div>
 
-<section>
-    @if (Model == null)
-    {
-        <h2 class="text-center py-3">Không tìm thấy sản phẩm</h2>
-    }
-    else
-    {
-        <h2 class="text-center py-3">@Model.Title</h2>
-        <div class="row">
-            <div class="col-5">
-                <div class="row">
-                    <div class="col">
-                        @if (Model.Image != null && !string.IsNullOrEmpty(Model.Image.FileName))
-                        {
-                            <img src="@(BackendApiUrl + "/" + Model.Image.FullPath + "?DummyId=" + DateTime.Now.Ticks)" asp-append-version="true" width="100%" />
-                        }
-                    </div>
-                    <div class="col">
-                        <div><label class="form-label">Mã sản phẩm:</label> <strong>@Model.Code</strong></div>
-                        <div><label class="form-label">Tình trạng:</label> @(Model.IsPuslished ? "Đang kinh doanh" : "Ngừng kinh doanh")</div>
-                        <div><label class="form-label">Mô tả:</label>@(!string.IsNullOrEmpty(Model.Brief) ? (MarkupString)(Model.Brief.Replace("\n", "<br />")) : (MarkupString)"")</div>
+<section class="content">
+    <div class="container-fluid">
+        @if (Model == null)
+        {
+            <h2 class="text-center py-3">Không tìm thấy sản phẩm</h2>
+        }
+        else
+        {
+            <h2 class="text-center py-3">@Model.Title</h2>
+            <div class="row">
+                <div class="col-5">
+                    <div class="row">
+                        <div class="col">
+                            @if (Model.Image != null && !string.IsNullOrEmpty(Model.Image.FileName))
+                            {
+                                <img src="@(BackendApiUrl + "/" + Model.Image.FullPath + "?DummyId=" + DateTime.Now.Ticks)" asp-append-version="true" width="100%" />
+                            }
+                        </div>
+                        <div class="col">
+                            <div><label class="form-label">Mã sản phẩm:</label> <strong>@Model.Code</strong></div>
+                            <div><label class="form-label">Tình trạng:</label> @(Model.IsPuslished ? "Đang kinh doanh" : "Ngừng kinh doanh")</div>
+                            <div><label class="form-label">Mô tả:</label>@(!string.IsNullOrEmpty(Model.Brief) ? (MarkupString)(Model.Brief.Replace("\n", "<br />")) : (MarkupString)"")</div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-7">
-                @if (ListInputs != null)
-                {
-                    var warehouses = ListInputs.Select(e => e.WarehouseName).Distinct().ToArray();
-                    <div class="card card-outline card-info">
+                <div class="col-7">
+                    @if (ListInputs != null)
+                    {
+                        var warehouses = ListInputs.Select(e => e.WarehouseName).Distinct().ToArray();
+                        <div class="card card-outline card-info">
+                            <div class="card-header">
+                                <h3 class="card-title">Tồn kho</h3>
+                            </div>
+                            <div class="card-body">
+                                <table class="table table-sm table-striped table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Kho</th>
+                                            <th>Số lượng</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in warehouses)
+                                        {
+                                            <tr>
+                                                <td>@item</td>
+                                                <td style="text-align:center">@ListInputs.Where(e => e.WarehouseName == item).Sum(e => e.InventoryNumber)</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="card card-outline card-info">
                         <div class="card-header">
-                            <h3 class="card-title">Tồn kho</h3>
+                            <h3 class="card-title">Lô hàng nhập</h3>
                         </div>
                         <div class="card-body">
                             <table class="table table-sm table-striped table-bordered">
                                 <thead>
                                     <tr>
                                         <th>Kho</th>
+                                        <th>Mã nhập kho</th>
+                                        <th>Nhập từ</th>
+                                        <th>Giá nhập</th>
                                         <th>Số lượng</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach (var item in warehouses)
+                                    @foreach (var item in ListInputs)
                                     {
                                         <tr>
-                                            <td>@item</td>
-                                            <td style="text-align:center">@ListInputs.Where(e => e.WarehouseName == item).Sum(e => e.InventoryNumber)</td>
+                                            <td style="vertical-align:middle">@item.WarehouseName</td>
+                                            <td style="vertical-align:middle">@item.InputCode</td>
+                                            <td>
+                                                @item.InputType <br />
+                                                Từ: @item.InputSourceName
+                                            </td>
+                                            <td style="text-align:right;vertical-align:middle">@item.ProductPrice.ToString("N0")</td>
+                                            <td style="text-align:right;vertical-align:middle">
+                                                <strong>@item.InventoryNumber.ToString("N0")</strong>
+                                            </td>
                                         </tr>
                                     }
                                 </tbody>
                             </table>
                         </div>
                     </div>
-                    <div class="card card-outline card-info">
-                    <div class="card-header">
-                        <h3 class="card-title">Lô hàng nhập</h3>
-                    </div>
-                    <div class="card-body">
-                        <table class="table table-sm table-striped table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>Kho</th>
-                                    <th>Mã nhập kho</th>
-                                    <th>Nhập từ</th>
-                                    <th>Giá nhập</th>
-                                    <th>Số lượng</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var item in ListInputs)
-                                {
-                                    <tr>
-                                        <td style="vertical-align:middle">@item.WarehouseName</td>
-                                        <td style="vertical-align:middle">@item.InputCode</td>
-                                        <td>
-                                            @item.InputType <br />
-                                            Từ: @item.InputSourceName
-                                        </td>
-                                        <td style="text-align:right;vertical-align:middle">@item.ProductPrice.ToString("N0")</td>
-                                        <td style="text-align:right;vertical-align:middle">
-                                            <strong>@item.InventoryNumber.ToString("N0")</strong>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
+                    }
                 </div>
-                }
             </div>
-        </div>
-    }
+        }
+    </div>
 </section>
 
 

@@ -17,15 +17,18 @@
 @inject IOrderApiClient OrderApiClient;
 @inject IAttributeApiClient AttributeApiClient
 
-<h1>Quản lý đơn hàng</h1>
+<section class="content-header">
+    <div class="container-fluid">
+        <h1 class="m-0">Tạo đơn hàng</h1>
+    </div>
+</section>
 
-<section class="order-create-section">
-    <div class="card card-outline card-info mt-3">
+<section class="content">
+    <div class="container-fluid">
+        <div class="card card-outline card-info">
         <div class="card-header">
             <h3 class="card-title">Tạo đơn hàng</h3>
-            <div style="float:right">
-                <button type="button" class="btn btn-success btn-sm" @onclick="()=>CreateOrder()">Lưu</button>
-            </div>
+            <button type="button" class="btn btn-success btn-xs" style="position:absolute;right:10px" @onclick="()=>CreateOrder()">Lưu</button>
         </div>
         <div class="card-body">
             <div class="callout callout-danger" style="text-align:center">
@@ -281,6 +284,7 @@
                 </tfoot>
             </table>
         </div>
+    </div>
     </div>
 </section>
 

@@ -24,7 +24,7 @@
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-6">
-                            <div class="alert alert-primary">
+                            <div class="p-3 bg-light text-dark" style="height:100%">
                                 <div><lable>Ngày tạo: </lable> @Model.CreateDate.ToString(Configuration["DateTimeFormat"])</div>
                                 @if (Model.ConfirmDate != null)
                                 {
@@ -48,7 +48,7 @@
                             </div>
                         </div>
                         <div class="col-6">
-                            <div class="alert alert-info">
+                            <div class="p-3 bg-light text-dark" style="height:100%">
                                 <div><lable>Khách hàng: </lable> @Model.CustomerName</div>
                                 <div><lable>Điện thoại: </lable> @Model.CustomerPhone</div>
                                 <div><lable>Địa chỉ: </lable> @Model.CustomerAddress</div>
@@ -62,7 +62,7 @@
                         @if (Model.SendDate == null || (Delivery != null && Delivery.OrderId != Guid.Empty))
                         {
                             <div class="col-12">
-                                <div class="alert alert-success mt-3">
+                                <div class="p-3 bg-light text-dark mt-3">
                                     @if (Delivery != null && Delivery.OrderId != Guid.Empty)
                                     {
                                         <div class="row mb-3">

@@ -14,10 +14,14 @@
 @inject IWarehouseApiClient WarehouseApiClient;
 @inject NavigationManager Navigation
 
-<h1>Quản lý Nhập kho</h1>
+<section class="content-header">
+    <div class="container-fluid">
+        <h1 class="m-0">Quản lý Tồn kho</h1>
+    </div>
+</section>
 
-<div class="row">
-    <div class="col">
+<section class="content">
+    <div class="container-fluid">
         <section>
             @if (ListProducts == null)
             {
@@ -79,7 +83,7 @@
         </section>
     </div>
     <InventoryInput @ref="InventoryInputControl"></InventoryInput>
-</div>
+</section>
 
 
 @code {

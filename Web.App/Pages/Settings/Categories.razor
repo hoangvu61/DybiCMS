@@ -12,60 +12,67 @@
 @inject IToastService ToastService;
 @inject IWarehouseApiClient WarehouseApiClient;
 
-<h1>Quản lý Danh mục Sản phẩm</h1>
-<section>
-    @if (ListCategories == null)
-    {
-        <LoadingIndicator></LoadingIndicator>
-    }
-    else
-    {
-        <div class="card card-outline card-info">
-            <div class="card-header">
-                <h3 class="card-title">Danh sách Danh mục Sản phẩm</h3>
-            </div>
-            <div class="card-body">
-                <table class="table table-sm table-striped table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Tên</th>
-                            <th>Mô tả</th>
-                            <th>Lên Website</th>
-                            <th style="width:75px">
-                                <button class="btn btn-primary btn-xs" @onclick="() => CreateDialog.Show()">Thêm</button>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var item in ListCategories)
-                        {
+<section class="content-header">
+    <div class="container-fluid">
+        <h1 class="m-0">Quản lý Danh mục Sản phẩm</h1>
+    </div>
+</section>
+
+<section class="content">
+    <div class="container-fluid">
+        @if (ListCategories == null)
+        {
+            <LoadingIndicator></LoadingIndicator>
+        }
+        else
+        {
+            <div class="card card-outline card-info">
+                <div class="card-header">
+                    <h3 class="card-title">Danh sách Danh mục Sản phẩm</h3>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm table-striped table-bordered">
+                        <thead>
                             <tr>
-                                <td>@item.Title</td>
-                                <td>@item.Describe</td>
-                                <td class="form-switch" style="text-align: center; padding-left: 30px;">
-                                    <input type="checkbox" checked="@item.IsPuslished" class="form-check-input" role="switch" @onchange="@((e) => {item.IsPuslished = bool.Parse(e.Value.ToString()); CheckboxChanged(item);})"></input>
-                                </td>
-                                <td>
-                                    <button class="btn btn-success btn-xs" @onclick="() => UpdateDialog.Show(item)">Sửa</button>
-                                    <button class="btn btn-danger btn-xs" @onclick="() => OnDelete(item.Id)">Xóa</button>
-                                </td>
+                                <th>Tên</th>
+                                <th>Mô tả</th>
+                                <th>Lên Website</th>
+                                <th style="width:75px">
+                                    <button class="btn btn-primary btn-xs" @onclick="() => CreateDialog.Show()">Thêm</button>
+                                </th>
                             </tr>
-                        }
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in ListCategories)
+                            {
+                                <tr>
+                                    <td>@item.Title</td>
+                                    <td>@item.Describe</td>
+                                    <td class="form-switch" style="text-align: center; padding-left: 30px;">
+                                        <input type="checkbox" checked="@item.IsPuslished" class="form-check-input" role="switch" @onchange="@((e) => {item.IsPuslished = bool.Parse(e.Value.ToString()); CheckboxChanged(item);})"></input>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-success btn-xs" @onclick="() => UpdateDialog.Show(item)">Sửa</button>
+                                        <button class="btn btn-danger btn-xs" @onclick="() => OnDelete(item.Id)">Xóa</button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </div>
 
-        <Confirmation ConfirmationMessage="Bạn có chắc chắn xóa?"
-                    ConfirmationTitle="Xóa danh mục"
-                    @ref="DeleteConfirmation"
-                    ConfirmationChanged="OnConfirmDelete">
-        </Confirmation>
+            <Confirmation ConfirmationMessage="Bạn có chắc chắn xóa?"
+                        ConfirmationTitle="Xóa danh mục"
+                        @ref="DeleteConfirmation"
+                        ConfirmationChanged="OnConfirmDelete">
+            </Confirmation>
 
-        <CategoryCreate @ref="CreateDialog" ListCategories="ListCategories" CloseEventCallbak="RefreshList"></CategoryCreate>
-        <CategoryUpdate @ref="UpdateDialog" ListCategories="ListCategories" CloseEventCallbak="RefreshList"></CategoryUpdate>
-        <CategoryPublish @ref="PublishDialog" ListCategories="ListCategories" CloseEventCallbak="RefreshList"></CategoryPublish>
-    }
+            <CategoryCreate @ref="CreateDialog" ListCategories="ListCategories" CloseEventCallbak="RefreshList"></CategoryCreate>
+            <CategoryUpdate @ref="UpdateDialog" ListCategories="ListCategories" CloseEventCallbak="RefreshList"></CategoryUpdate>
+            <CategoryPublish @ref="PublishDialog" ListCategories="ListCategories" CloseEventCallbak="RefreshList"></CategoryPublish>
+        }
+    </div>
 </section>
 
 @code {

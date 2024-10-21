@@ -15,116 +15,122 @@
 @inject IWarehouseApiClient WarehouseApiClient;
 @inject GlobalVariables Global;
 
-<h1>Quản lý Nhập kho</h1>
+<section class="content-header">
+    <div class="container-fluid">
+        <h1 class="m-0">Quản lý Nhập kho</h1>
+    </div>
+</section>
 
-<section>
-    @if (Model == null)
-    {
-        <LoadingIndicator></LoadingIndicator>
-    }
-    else
-    {
-        <div class="card card-outline card-info mb-3">
-            <div class="card-header">
-                <h3 class="card-title">@Model.TypeName</h3>
-                <button class="btn btn-danger btn-sm" style="float:right" @onclick='()=>{ DeleteConfirmation.SetTitle("Xóa phiếu nhập kho"); DeleteConfirmation.Show();}'>Xóa</button>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col" style="border-right:1px dotted #ccc">
-                        <div><label class="form-label">Mã nhập kho:</label> @Model.InputCode</div>
-                        <div><label class="form-label">Ngày nhập kho:</label> @Model.CreateDate.ToString("dd/MM/yyyy hh:mm")</div>
-                        <div><label class="form-label">Kho nhập:</label> @Model.WarehouseName</div>
-                        <div><label class="form-label">Loại kho:</label> @Model.WarehouseType</div>
-                        @if (Model.Type == 1)
-                        {
-                            <div><label class="form-label">Nhà cung cấp:</label> @Model.SourceName</div>
-                        }
-                        else if (Model.Type == 2)
-                        {
-                            <div><label class="form-label">Nơi sản xuất:</label> @Model.SourceName</div>
-                        }
-                        else if (Model.Type == 3)
-                        {
-                            <div><label class="form-label">Từ kho:</label> @Model.SourceName</div>
-                        }
-                        else if (Model.Type == 4)
-                        {
-                            <div><label class="form-label">Mã đơn hàng:</label> @Model.SourceName</div>
-                        }
-                    </div>
-                    <div class="col">
-                        @if (Model.Type == 1)
-                        {
-                            <div><label class="form-label">Tổng tiền:</label> @Model.TotalPrice.ToString("N0") <sup>đ</sup></div>
-                            @if (Model.Debt > 0)
+<section class="content">
+    <div class="container-fluid">
+        @if (Model == null)
+        {
+            <LoadingIndicator></LoadingIndicator>
+        }
+        else
+        {
+            <div class="card card-outline card-info mb-3">
+                <div class="card-header">
+                    <h3 class="card-title">@Model.TypeName</h3>
+                    <button class="btn btn-danger btn-xs" style="position:absolute; float:right:10px" @onclick='()=>{ DeleteConfirmation.SetTitle("Xóa phiếu nhập kho"); DeleteConfirmation.Show();}'>Xóa</button>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col" style="border-right:1px dotted #ccc">
+                            <div><label class="form-label">Mã nhập kho:</label> @Model.InputCode</div>
+                            <div><label class="form-label">Ngày nhập kho:</label> @Model.CreateDate.ToString("dd/MM/yyyy hh:mm")</div>
+                            <div><label class="form-label">Kho nhập:</label> @Model.WarehouseName</div>
+                            <div><label class="form-label">Loại kho:</label> @Model.WarehouseType</div>
+                            @if (Model.Type == 1)
                             {
-                                <div>
-                                    <label class="form-label">Thanh toán:</label> @((Model.TotalPrice - Model.Debt).ToString("N0")) <sup>đ</sup>
-                                    <label class="form-label">Nợ:</label> @Model.Debt.ToString("N0") <sup>đ</sup>
-                                </div>
+                                <div><label class="form-label">Nhà cung cấp:</label> @Model.SourceName</div>
                             }
-                        }
-                        <div><label class="form-label">Ghi chú:</label> @Model.Note</div>
+                            else if (Model.Type == 2)
+                            {
+                                <div><label class="form-label">Nơi sản xuất:</label> @Model.SourceName</div>
+                            }
+                            else if (Model.Type == 3)
+                            {
+                                <div><label class="form-label">Từ kho:</label> @Model.SourceName</div>
+                            }
+                            else if (Model.Type == 4)
+                            {
+                                <div><label class="form-label">Mã đơn hàng:</label> @Model.SourceName</div>
+                            }
+                        </div>
+                        <div class="col">
+                            @if (Model.Type == 1)
+                            {
+                                <div><label class="form-label">Tổng tiền:</label> @Model.TotalPrice.ToString("N0") <sup>đ</sup></div>
+                                @if (Model.Debt > 0)
+                                {
+                                    <div>
+                                        <label class="form-label">Thanh toán:</label> @((Model.TotalPrice - Model.Debt).ToString("N0")) <sup>đ</sup>
+                                        <label class="form-label">Nợ:</label> @Model.Debt.ToString("N0") <sup>đ</sup>
+                                    </div>
+                                }
+                            }
+                            <div><label class="form-label">Ghi chú:</label> @Model.Note</div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="card card-outline card-primary">
-            <div class="card-header">
-                <h3 class="card-title">Danh sách Vật tư / Hàng hóa</h3>
-            </div>
-            <div class="card-body">
-                <table class="table table-sm table-striped table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Mã</th>
-                            <th>Tên</th>
-                            <th>Danh mục</th>
-                            <th>Đơn giá</th>
-                            <th>Số lượng</th>
-                            <th style="width:@(Global.GetConfig("PhuongPhapTinhGiaXuatKho") == "2"? "200px":"70px")">
-                                <button @onclick="() => ProductListDialog.Show()" class="btn btn-primary btn-xs">Thêm</button>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @if(ListProducts != null)
-                        {
-                            foreach (var item in ListProducts)
+            <div class="card card-outline card-primary">
+                <div class="card-header">
+                    <h3 class="card-title">Danh sách Vật tư / Hàng hóa</h3>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Mã</th>
+                                <th>Tên</th>
+                                <th>Danh mục</th>
+                                <th>Đơn giá</th>
+                                <th>Số lượng</th>
+                                <th style="width:@(Global.GetConfig("PhuongPhapTinhGiaXuatKho") == "2"? "200px":"70px")">
+                                    <button @onclick="() => ProductListDialog.Show()" class="btn btn-primary btn-xs">Thêm</button>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if(ListProducts != null)
                             {
-                                <tr>
-                                    <td>@item.Code</td>
-                                    <td>@item.Title</td>
-                                    <td>@item.CategoryName</td>
-                                    <td style="text-align:right">@item.Price.ToString("N0") <sup>đ</sup></td>
-                                    <td style="text-align:right">@item.Quantity.ToString("N0")</td>
-                                    <td style="text-align:center;">
-                                        @if (Global.GetConfig("PhuongPhapTinhGiaXuatKho") == "2")
-                                        {
-                                            <button class="btn btn-success btn-xs" style="margin-right:5px" @onclick="()=>ProductCodeCreateDialog.Show(Model.Id, item, Web.Models.Enums.WarehouseIOType.Input)">Seri (@item.SeriCount.ToString("N0")/@item.Quantity.ToString("N0"))</button>
-                                        }
-                                        <button class="btn btn-danger btn-xs" @onclick="()=> OnDelete(item.Id)">Xóa</button>
-                                    </td>
-                                </tr>
+                                foreach (var item in ListProducts)
+                                {
+                                    <tr>
+                                        <td>@item.Code</td>
+                                        <td>@item.Title</td>
+                                        <td>@item.CategoryName</td>
+                                        <td style="text-align:right">@item.Price.ToString("N0") <sup>đ</sup></td>
+                                        <td style="text-align:right">@item.Quantity.ToString("N0")</td>
+                                        <td style="text-align:center;">
+                                            @if (Global.GetConfig("PhuongPhapTinhGiaXuatKho") == "2")
+                                            {
+                                                <button class="btn btn-success btn-xs" style="margin-right:5px" @onclick="()=>ProductCodeCreateDialog.Show(Model.Id, item, Web.Models.Enums.WarehouseIOType.Input)">Seri (@item.SeriCount.ToString("N0")/@item.Quantity.ToString("N0"))</button>
+                                            }
+                                            <button class="btn btn-danger btn-xs" @onclick="()=> OnDelete(item.Id)">Xóa</button>
+                                        </td>
+                                    </tr>
+                                }
                             }
-                        }
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </div>
 
-        <Confirmation ConfirmationMessage="Bạn có chắc chắn xóa?"
-                    ConfirmationTitle="Xóa phiếu nhập kho"
-                    @ref="DeleteConfirmation"
-                    ConfirmationChanged="OnConfirmDelete">
-        </Confirmation>
+            <Confirmation ConfirmationMessage="Bạn có chắc chắn xóa?"
+                        ConfirmationTitle="Xóa phiếu nhập kho"
+                        @ref="DeleteConfirmation"
+                        ConfirmationChanged="OnConfirmDelete">
+            </Confirmation>
 
-        <WarehouseProductListPopup @ref="ProductListDialog" EventCallbak="SelectProduct" AllowAddProduct="true"></WarehouseProductListPopup>
-        <InputProductCreate @ref="ProductInputCreateDialog" InputId="Model.Id" OnAddProduct="AddProduct"></InputProductCreate>
-        <ProductCodeCreate @ref="ProductCodeCreateDialog" CloseEventCallback="UpdateCode"></ProductCodeCreate>
-    }
+            <WarehouseProductListPopup @ref="ProductListDialog" EventCallbak="SelectProduct" AllowAddProduct="true"></WarehouseProductListPopup>
+            <InputProductCreate @ref="ProductInputCreateDialog" InputId="Model.Id" OnAddProduct="AddProduct"></InputProductCreate>
+            <ProductCodeCreate @ref="ProductCodeCreateDialog" CloseEventCallback="UpdateCode"></ProductCodeCreate>
+        }
+    </div>
 </section>
 
 @code {

@@ -85,8 +85,6 @@ input[type=number] {text-align: right}
 .sidebar .menu-group-title:hover, .sidebar span.nav-link:hover {background-color: rgba(255, 255, 255, 0.1);color: white;}
 .sidebar .menu-group-title{justify-content: space-between;}
 
-section {margin-top: 30px}
-
 hr{background:#fff}
 
 .small-box {position:relative}
@@ -120,3 +118,6 @@ hr{background:#fff}
 .ql-align .ql-picker-label{padding-top:0px !important}
 .ql-formats .btn-img{padding-top:0px !important}
 .ql-formats .btn-code {width: 24px !important;border: 1px solid !important;padding: 0px !important;font-size: 12px;height: 18px !important;margin-top: 3px;font-weight: 600;}
+
+.submenu-open {padding-left:25px}
+.form-check{padding-left:2.5em !important}

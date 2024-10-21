@@ -13,245 +13,251 @@
 @inject IToastService ToastService;
 @inject IOrderApiClient OrderApiClient;
 
-<h1>Quản lý đơn hàng</h1>
-
-<section class="my-4">
-    <div class="mb-3">
-        <button type="button" class="btn btn-info position-relative btn-xs" style="margin-right:10px" @onclick="@(() => Click("Moi"))">
-            Mới
-            @if (NewMetaData.TotalCount > 0)
-            {
-                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                    @NewMetaData.TotalCount
-                </span>
-            }
-        </button>
-        <button type="button" class="btn btn-secondary position-relative btn-xs" style="margin-right:10px" @onclick="@(() => Click("XacNhan"))">
-            Đã xác nhận
-            @if (ConfirmMetaData.TotalCount > 0)
-            {
-                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                    @ConfirmMetaData.TotalCount
-                </span>
-            }
-        </button>
-        <button type="button" class="btn btn-primary position-relative btn-xs" style="margin-right:10px" @onclick="@(() => Click("Gui"))">
-            Đã gửi
-            @if (SendMetaData.TotalCount > 0)
-            {
-                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                    @SendMetaData.TotalCount
-                </span>
-            }
-        </button>
-        <button type="button" class="btn btn-success position-relative btn-xs" style="margin-right:10px" @onclick="@(() => Click("Nhan"))">
-            Đã nhận
-            @if (ReceiveMetaData.TotalCount > 0)
-            {
-                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                    @ReceiveMetaData.TotalCount
-                </span>
-            }
-        </button>
-        <button type="button" class="btn btn-danger position-relative btn-xs" style="margin-right:10px" @onclick="@(() => Click("Tra"))">
-            Đã hủy
-            @if (CancelMetaData.TotalCount > 0)
-            {
-                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                    @CancelMetaData.TotalCount
-                </span>
-            }
-        </button>
+<section class="content-header">
+    <div class="container-fluid">
+        <h1 class="m-0">Quản lý đơn hàng</h1>
     </div>
+</section>
 
-    <table class="table table-sm table-striped table-bordered" style="display:@(Toggle["Moi"] ? "" : "none")">
-        <thead>
-            <tr>
-                <th style="width:260px">Mã đơn</th>
-                <th>Khách hàng</th>
-                <th>Số điện thoại</th>
-                <th>Địa chỉ</th>
-                <th>Tổng tiền</th>
-                <th style="width:75px">Ngày tạo</th>
-                <th style="width:40px"></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var order in NewOrders)
-            {
-                <tr>
-                    <td>@order.Id</td>
-                    <td>@order.CustomerName</td>
-                    <td class="text-center">@order.CustomerPhone</td>
-                    <td>@order.CustomerAddress</td>
-                    <td style="text-align:right">@order.TotalPrice.ToString("N0")</td>
-                    <td class="text-center">@order.Date.ToString("dd/MM/yyyy")</td>
-                    <td>
-                        <button class="btn btn-info btn-xs" @onclick="() => OrderDetailDialog.Show(order.Id)">Xem</button>
-                    </td>
-                </tr>
-            }
-        </tbody>
-        <tfoot>
-            <tr>
-                <td colspan="7">
-                    <Pagination MetaData="NewMetaData" Spread="2" SelectedPage="SelectedPageNew"></Pagination>
-                </td>
-            </tr>
-        </tfoot>
-    </table>
-    <table class="table table-sm table-striped table-bordered" style="display:@(Toggle["XacNhan"] ? "" : "none")">
-        <thead>
-            <tr>
-                <th style="width:260px">Mã đơn</th>
-                <th>Khách hàng</th>
-                <th>Số điện thoại</th>
-                <th>Địa chỉ</th>
-                <th>Tổng tiền</th>
-                <th style="width:100px">Ngày xác nhận</th>
-                <th style="width:40px"></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var order in ConfirmOrders)
-            {
-                <tr>
-                    <td>@order.Id</td>
-                    <td>@order.CustomerName</td>
-                    <td class="text-center">@order.CustomerPhone</td>
-                    <td>@order.CustomerAddress</td>
-                    <td style="text-align:right">@order.TotalPrice.ToString("N0")</td>
-                    <td class="text-center">@order.Date.ToString("dd/MM/yyyy")</td>
-                    <td>
-                        <button class="btn btn-info btn-xs" @onclick="() => OrderDetailDialog.Show(order.Id)">Xem</button>
-                    </td>
-                </tr>
-            }
-        </tbody>
-        <tfoot>
-            <tr>
-                <td colspan="7">
-                    <Pagination MetaData="ConfirmMetaData" Spread="2" SelectedPage="SelectedPageConfirm"></Pagination>
-                </td>
-            </tr>
-        </tfoot>
-    </table>
-    <table class="table table-sm table-striped table-bordered" style="display:@(Toggle["Gui"] ? "" : "none")">
-        <thead>
-            <tr>
-                <th style="width:260px">Mã đơn</th>
-                <th>Khách hàng</th>
-                <th>Số điện thoại</th>
-                <th>Địa chỉ</th>
-                <th>Tổng tiền</th>
-                <th style="width:75px">Ngày gửi</th>
-                <th style="width:40px"></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var order in SendOrders)
-            {
-                <tr>
-                    <td>@order.Id</td>
-                    <td>@order.CustomerName</td>
-                    <td class="text-center">@order.CustomerPhone</td>
-                    <td>@order.CustomerAddress</td>
-                    <td style="text-align:right">@order.TotalPrice.ToString("N0")</td>
-                    <td class="text-center">@order.Date.ToString("dd/MM/yyyy")</td>
-                    <td>
-                        <button class="btn btn-info btn-xs" @onclick="() => OrderDetailDialog.Show(order.Id)">Xem</button>
-                    </td>
-                </tr>
-            }
-        </tbody>
-        <tfoot>
-            <tr>
-                <td colspan="7">
-                    <Pagination MetaData="SendMetaData" Spread="2" SelectedPage="SelectedPageSend"></Pagination>
-                </td>
-            </tr>
-        </tfoot>
-    </table>
-    <table class="table table-sm table-striped table-bordered" style="display:@(Toggle["Nhan"] ? "" : "none")">
-        <thead>
-            <tr>
-                <th style="width:260px">Mã đơn</th>
-                <th>Khách hàng</th>
-                <th>Số điện thoại</th>
-                <th>Địa chỉ</th>
-                <th>Tổng tiền</th>
-                <th style="width:75px">Ngày nhận</th>
-                <th style="width:40px"></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var order in ReceiveOrders)
-            {
-                <tr>
-                    <td>@order.Id</td>
-                    <td>@order.CustomerName</td>
-                    <td class="text-center">@order.CustomerPhone</td>
-                    <td>@order.CustomerAddress</td>
-                    <td style="text-align:right">@order.TotalPrice.ToString("N0")</td>
-                    <td class="text-center">@order.Date.ToString("dd/MM/yyyy")</td>
-                    <td>
-                        <button class="btn btn-info btn-xs" @onclick="() => OrderDetailDialog.Show(order.Id)">Xem</button>
-                    </td>
-                </tr>
-            }
-        </tbody>
-        <tfoot>
-            <tr>
-                <td colspan="7">
-                    <Pagination MetaData="ReceiveMetaData" Spread="2" SelectedPage="SelectedPageReceive"></Pagination>
-                </td>
-            </tr>
-        </tfoot>
-    </table>
-    <table class="table table-sm table-striped table-bordered" style="display:@(Toggle["Tra"] ? "" : "none")">
-        <thead>
-            <tr>
-                <th style="width:260px">Mã đơn</th>
-                <th>Khách hàng</th>
-                <th>Số điện thoại</th>
-                <th>Địa chỉ</th>
-                <th>Tổng tiền</th>
-                <th style="width:75px">Ngày trả</th>
-                <th style="width:40px"></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var order in CancelOrders)
-            {
-                <tr>
-                    <td>@order.Id</td>
-                    <td>@order.CustomerName</td>
-                    <td class="text-center">@order.CustomerPhone</td>
-                    <td>@order.CustomerAddress</td>
-                    <td style="text-align:right">@order.TotalPrice.ToString("N0")</td>
-                    <td class="text-center">@order.Date.ToString("dd/MM/yyyy")</td>
-                    <td>
-                        <button class="btn btn-info btn-xs" @onclick="() => OrderDetailDialog.Show(order.Id)">Xem</button>
-                    </td>
-                </tr>
-            }
-        </tbody>
-        <tfoot>
-            <tr>
-                <td colspan="7">
-                    <Pagination MetaData="CancelMetaData" Spread="2" SelectedPage="SelectedPageCancel"></Pagination>
-                </td>
-            </tr>
-        </tfoot>
-    </table>
+<section class="content">
+    <div class="container-fluid">
+        <div class="mb-3">
+            <button type="button" class="btn btn-info position-relative btn-xs" style="margin-right:10px" @onclick="@(() => Click("Moi"))">
+                Mới
+                @if (NewMetaData.TotalCount > 0)
+                {
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                        @NewMetaData.TotalCount
+                    </span>
+                }
+            </button>
+            <button type="button" class="btn btn-secondary position-relative btn-xs" style="margin-right:10px" @onclick="@(() => Click("XacNhan"))">
+                Đã xác nhận
+                @if (ConfirmMetaData.TotalCount > 0)
+                {
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                        @ConfirmMetaData.TotalCount
+                    </span>
+                }
+            </button>
+            <button type="button" class="btn btn-primary position-relative btn-xs" style="margin-right:10px" @onclick="@(() => Click("Gui"))">
+                Đã gửi
+                @if (SendMetaData.TotalCount > 0)
+                {
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                        @SendMetaData.TotalCount
+                    </span>
+                }
+            </button>
+            <button type="button" class="btn btn-success position-relative btn-xs" style="margin-right:10px" @onclick="@(() => Click("Nhan"))">
+                Đã nhận
+                @if (ReceiveMetaData.TotalCount > 0)
+                {
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                        @ReceiveMetaData.TotalCount
+                    </span>
+                }
+            </button>
+            <button type="button" class="btn btn-danger position-relative btn-xs" style="margin-right:10px" @onclick="@(() => Click("Tra"))">
+                Đã hủy
+                @if (CancelMetaData.TotalCount > 0)
+                {
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                        @CancelMetaData.TotalCount
+                    </span>
+                }
+            </button>
+        </div>
 
-    <Confirmation ConfirmationMessage="Bạn có chắc chắn xóa?"
-                  ConfirmationTitle="Xóa đơn hàng"
-                  @ref="DeleteConfirmation"
-                  ConfirmationChanged="OnConfirmDelete">
-    </Confirmation>
+        <table class="table table-sm table-striped table-bordered" style="display:@(Toggle["Moi"] ? "" : "none")">
+            <thead>
+                <tr>
+                    <th style="width:260px">Mã đơn</th>
+                    <th>Khách hàng</th>
+                    <th>Số điện thoại</th>
+                    <th>Địa chỉ</th>
+                    <th>Tổng tiền</th>
+                    <th style="width:75px">Ngày tạo</th>
+                    <th style="width:40px"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var order in NewOrders)
+                {
+                    <tr>
+                        <td>@order.Id</td>
+                        <td>@order.CustomerName</td>
+                        <td class="text-center">@order.CustomerPhone</td>
+                        <td>@order.CustomerAddress</td>
+                        <td style="text-align:right">@order.TotalPrice.ToString("N0")</td>
+                        <td class="text-center">@order.Date.ToString("dd/MM/yyyy")</td>
+                        <td>
+                            <button class="btn btn-info btn-xs" @onclick="() => OrderDetailDialog.Show(order.Id)">Xem</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="7">
+                        <Pagination MetaData="NewMetaData" Spread="2" SelectedPage="SelectedPageNew"></Pagination>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+        <table class="table table-sm table-striped table-bordered" style="display:@(Toggle["XacNhan"] ? "" : "none")">
+            <thead>
+                <tr>
+                    <th style="width:260px">Mã đơn</th>
+                    <th>Khách hàng</th>
+                    <th>Số điện thoại</th>
+                    <th>Địa chỉ</th>
+                    <th>Tổng tiền</th>
+                    <th style="width:100px">Ngày xác nhận</th>
+                    <th style="width:40px"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var order in ConfirmOrders)
+                {
+                    <tr>
+                        <td>@order.Id</td>
+                        <td>@order.CustomerName</td>
+                        <td class="text-center">@order.CustomerPhone</td>
+                        <td>@order.CustomerAddress</td>
+                        <td style="text-align:right">@order.TotalPrice.ToString("N0")</td>
+                        <td class="text-center">@order.Date.ToString("dd/MM/yyyy")</td>
+                        <td>
+                            <button class="btn btn-info btn-xs" @onclick="() => OrderDetailDialog.Show(order.Id)">Xem</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="7">
+                        <Pagination MetaData="ConfirmMetaData" Spread="2" SelectedPage="SelectedPageConfirm"></Pagination>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+        <table class="table table-sm table-striped table-bordered" style="display:@(Toggle["Gui"] ? "" : "none")">
+            <thead>
+                <tr>
+                    <th style="width:260px">Mã đơn</th>
+                    <th>Khách hàng</th>
+                    <th>Số điện thoại</th>
+                    <th>Địa chỉ</th>
+                    <th>Tổng tiền</th>
+                    <th style="width:75px">Ngày gửi</th>
+                    <th style="width:40px"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var order in SendOrders)
+                {
+                    <tr>
+                        <td>@order.Id</td>
+                        <td>@order.CustomerName</td>
+                        <td class="text-center">@order.CustomerPhone</td>
+                        <td>@order.CustomerAddress</td>
+                        <td style="text-align:right">@order.TotalPrice.ToString("N0")</td>
+                        <td class="text-center">@order.Date.ToString("dd/MM/yyyy")</td>
+                        <td>
+                            <button class="btn btn-info btn-xs" @onclick="() => OrderDetailDialog.Show(order.Id)">Xem</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="7">
+                        <Pagination MetaData="SendMetaData" Spread="2" SelectedPage="SelectedPageSend"></Pagination>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+        <table class="table table-sm table-striped table-bordered" style="display:@(Toggle["Nhan"] ? "" : "none")">
+            <thead>
+                <tr>
+                    <th style="width:260px">Mã đơn</th>
+                    <th>Khách hàng</th>
+                    <th>Số điện thoại</th>
+                    <th>Địa chỉ</th>
+                    <th>Tổng tiền</th>
+                    <th style="width:75px">Ngày nhận</th>
+                    <th style="width:40px"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var order in ReceiveOrders)
+                {
+                    <tr>
+                        <td>@order.Id</td>
+                        <td>@order.CustomerName</td>
+                        <td class="text-center">@order.CustomerPhone</td>
+                        <td>@order.CustomerAddress</td>
+                        <td style="text-align:right">@order.TotalPrice.ToString("N0")</td>
+                        <td class="text-center">@order.Date.ToString("dd/MM/yyyy")</td>
+                        <td>
+                            <button class="btn btn-info btn-xs" @onclick="() => OrderDetailDialog.Show(order.Id)">Xem</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="7">
+                        <Pagination MetaData="ReceiveMetaData" Spread="2" SelectedPage="SelectedPageReceive"></Pagination>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+        <table class="table table-sm table-striped table-bordered" style="display:@(Toggle["Tra"] ? "" : "none")">
+            <thead>
+                <tr>
+                    <th style="width:260px">Mã đơn</th>
+                    <th>Khách hàng</th>
+                    <th>Số điện thoại</th>
+                    <th>Địa chỉ</th>
+                    <th>Tổng tiền</th>
+                    <th style="width:75px">Ngày trả</th>
+                    <th style="width:40px"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var order in CancelOrders)
+                {
+                    <tr>
+                        <td>@order.Id</td>
+                        <td>@order.CustomerName</td>
+                        <td class="text-center">@order.CustomerPhone</td>
+                        <td>@order.CustomerAddress</td>
+                        <td style="text-align:right">@order.TotalPrice.ToString("N0")</td>
+                        <td class="text-center">@order.Date.ToString("dd/MM/yyyy")</td>
+                        <td>
+                            <button class="btn btn-info btn-xs" @onclick="() => OrderDetailDialog.Show(order.Id)">Xem</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="7">
+                        <Pagination MetaData="CancelMetaData" Spread="2" SelectedPage="SelectedPageCancel"></Pagination>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
 
-    <OrderDetail @ref="OrderDetailDialog" EventCallback="GetOrers"></OrderDetail>
+        <Confirmation ConfirmationMessage="Bạn có chắc chắn xóa?"
+                      ConfirmationTitle="Xóa đơn hàng"
+                      @ref="DeleteConfirmation"
+                      ConfirmationChanged="OnConfirmDelete">
+        </Confirmation>
+
+        <OrderDetail @ref="OrderDetailDialog" EventCallback="GetOrers"></OrderDetail>
+    </div>
 </section>
 @code {
     private Dictionary<string, bool> Toggle;

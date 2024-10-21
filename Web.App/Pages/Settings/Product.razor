@@ -1,4 +1,4 @@
-﻿@page "/settings/products/{Id}"
+﻿@page "/settings/product/{Id}"
 @attribute [Authorize]
 
 @using Blazored.TextEditor
@@ -18,230 +18,236 @@
 @inject IWarehouseApiClient WarehouseApiClient;
 @inject IWebsiteApiClient WebsiteApiClient;
 
- @if (Model== null)
+@if (Model== null)
 {
     <LoadingIndicator></LoadingIndicator>
 }
 else
 {
-    <h1 class="m-0">@Model.Title</h1>
+    <section class="content-header">
+        <div class="container-fluid">
+            <h1 class="m-0">Sản phẩm: @Model.Title</h1>
+        </div>
+    </section>
 
-    <section class="product-section content">
-        <SEOItem @ref="SEOItemControl" LanguageCode="@Model.LanguageCode" ItemId="@Model.Id"></SEOItem>
+    <section class="content">
+        <div class="container-fluid">
+        
+            <SEOItem @ref="SEOItemControl" LanguageCode="@Model.LanguageCode" ItemId="@Model.Id"></SEOItem>
 
-        <EditForm Model="Model" OnValidSubmit="HandleSubmit">
-            <DataAnnotationsValidator></DataAnnotationsValidator>
-            <div class="card card-outline card-info mt-3">
-                <div class="card-header">
-                    <h3 class="card-title">@Model.Title</h3>
-                    <div style="float:right">
-                        <button type="submit" class="btn btn-success btn-sm">Lưu</button>
+            <EditForm Model="Model" OnValidSubmit="HandleSubmit">
+                <DataAnnotationsValidator></DataAnnotationsValidator>
+                <div class="card card-outline card-info mt-3">
+                    <div class="card-header">
+                        <h3 class="card-title">@Model.Title</h3>
+                        <button type="submit" class="btn btn-success btn-sm" style="position:absolute; right:10px">Lưu</button>
                     </div>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-7">
-                            <div class="info-box bg-light mb-2">
-                                <div class="info-box-content">
-                                    <span class="info-box-text text-center text-muted" style="text-align:left !important"><lable>Ngày tạo: </lable> @Model.CreateDate.ToString(Configuration["DateTimeFormat"])</span>
-                                    <span class="info-box-text text-center text-muted" style="text-align:left !important"><lable>Lượt xem: </lable> @Model.View</span>
-                                </div>
-                            </div>
-                            <div class="form-group mb-2">
-                                <div class="input-group input-group-xs" style="font-weight:bold">
-                                    <span class="input-group-text">Tiêu đề</span>
-                                    <InputText class="form-control" @bind-Value="Model.Title"></InputText>
-                                </div>
-                                <ValidationMessage For="()=> Model.Title"></ValidationMessage>
-                            </div>
-                            <div class="form-group mb-2">
-                                <div class="input-group input-group-xs" style="font-weight:bold">
-                                    <span class="input-group-text">Mã sản phẩm</span>
-                                    <InputText class="form-control" @bind-Value="Model.Code"></InputText>
-                                </div>
-                                <ValidationMessage For="()=> Model.Code"></ValidationMessage>
-                            </div>
-                            <div class="form-group mb-2">
-                                <div class="input-group input-group-xs">
-                                    <span class="input-group-text">Danh mục</span>
-                                    <InputSelect class="form-select" ValueExpression="@(()=>Model.CategoryId)"
-                                                Value="@Model.CategoryId"
-                                                ValueChanged="@((Guid value) => OnCategoryChanged(value))">
-                                        @foreach (var category in Categories)
-                                        {
-                                            <option value="@category.Id">@category.Title</option>
-                                        }
-                                    </InputSelect>
-                                    <button class="btn btn-outline-secondary" type="button" @onclick="() => CreateCategory.Show()">+</button>
-                                </div>
-                                <ValidationMessage For="()=>Model.CategoryId"></ValidationMessage>
-                            </div>
-                            <div class="form-group mb-2">
-                                <div class="input-group input-group-xs">
-                                    <span class="input-group-text">Giá</span>
-                                    <InputNumber class="form-control" @bind-Value="Model.Price" @bind-Value:format="N0"></InputNumber>
-                                </div>
-                            </div>
-                            <div class="from-group mb-2">
-                                <label>Giảm giá:</label>
-                                <div class="form-check form-check-inline">
-                                    @foreach (var discount in DataSource.DiscountTypes)
-                                    {
-                                        <input name="discount" type="radio" class="form-check-input" @onchange="@(() => {Model.DiscountType = discount.Key;})" checked="@(Model.DiscountType == discount.Key)" />
-                                        @discount.Value
-                                    }
-                                </div>
-                                @if (Model.DiscountType > 0)
-                                {
-                                    <div class="input-group input-group-xs mb-3">
-                                        @if (Model.DiscountType == 1 || Model.DiscountType == 2)
-                                        {
-                                            <span class="input-group-text">Giảm</span>
-                                        }
-                                        else if (Model.DiscountType == 3)
-                                        {
-                                            <span class="input-group-text">Giá bán</span>
-                                        }
-                                        <InputNumber class="form-control" @bind-Value="Model.Discount" @bind-Value:format="N0"></InputNumber>
-                                        <ValidationMessage For="()=>Model.Discount"></ValidationMessage>
-                                        @if (Model.DiscountType == 1)
-                                        {
-                                            <span class="input-group-text">(%) Còn @((Model.Price - (Model.Discount * Model.Price / 100)).ToString("N0"))</span>
-                                        }
-                                        else if (Model.DiscountType == 2)
-                                        {
-                                            <span class="input-group-text">Còn @((Model.Price - Model.Discount).ToString("N0"))</span>
-                                        }
-                                    </div>
-                                }
-                            </div>
-                            <div class="form-group mb-2">
-                                <div class="input-group input-group-xs mb-1">
-                                    <span class="input-group-text">Thứ tự</span>
-                                    <InputNumber class="form-control" @bind-Value="Model.Order" @bind-Value:format="N0"></InputNumber>
-                                </div>
-                                <div class="row">
-                                    <div class="col"><label class="form-check-label">Hoạt dộng:</label></div>
-                                    <div class="col" style="text-align:right"><input type="checkbox" checked="@Model.IsPuslished" class="form-check-input" role="switch" @onchange="@((e) => {Model.IsPuslished = bool.Parse(e.Value.ToString()); ApplyChanged();})" /></div>
-                                </div>
-                            </div>
-                            <div class="form-group mb-2">
-                                <div class="tags">
-                                    <label>Tags: </label>
-                                    @foreach (var tag in Model.Tags)
-                                    {
-                                        <span class="tag">
-                                            @tag <img src="remove.png" @onclick="() => Model.Tags.Remove(tag)" />
-                                        </span>
-                                    }
-                                    <div class="input-group input-group-xs" style="margin:0 !important">
-                                        <span class="input-group-text">Thêm Tag:</span>
-                                        <input class="form-control" value="@Tag" @onchange="OnTagChange" />
-                                        @if (FilterTags != null && FilterTags.Any())
-                                        {
-                                            <ul class="auto-list-group">
-                                                @foreach (var tag in FilterTags)
-                                                {
-                                                    <li class="auto-list-group-item" @onclick="() => SelectTag(tag)">
-                                                        @tag
-                                                    </li>
-                                                }
-                                            </ul>
-                                        }
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-7">
+                                <div class="info-box bg-light mb-2">
+                                    <div class="info-box-content">
+                                        <span class="info-box-text text-center text-muted" style="text-align:left !important"><lable>Ngày tạo: </lable> @Model.CreateDate.ToString(Configuration["DateTimeFormat"])</span>
+                                        <span class="info-box-text text-center text-muted" style="text-align:left !important"><lable>Lượt xem: </lable> @Model.View</span>
                                     </div>
                                 </div>
+                                <div class="form-group mb-2">
+                                    <div class="input-group input-group-xs" style="font-weight:bold">
+                                        <span class="input-group-text">Tiêu đề</span>
+                                        <InputText class="form-control" @bind-Value="Model.Title"></InputText>
+                                    </div>
+                                    <ValidationMessage For="()=> Model.Title"></ValidationMessage>
+                                </div>
+                                <div class="form-group mb-2">
+                                    <div class="input-group input-group-xs" style="font-weight:bold">
+                                        <span class="input-group-text">Mã sản phẩm</span>
+                                        <InputText class="form-control" @bind-Value="Model.Code"></InputText>
+                                    </div>
+                                    <ValidationMessage For="()=> Model.Code"></ValidationMessage>
+                                </div>
+                                <div class="form-group mb-2">
+                                    <div class="input-group input-group-xs">
+                                        <span class="input-group-text">Danh mục</span>
+                                        <InputSelect class="form-select" ValueExpression="@(()=>Model.CategoryId)"
+                                                    Value="@Model.CategoryId"
+                                                    ValueChanged="@((Guid value) => OnCategoryChanged(value))">
+                                            @foreach (var category in Categories)
+                                            {
+                                                <option value="@category.Id">@category.Title</option>
+                                            }
+                                        </InputSelect>
+                                        <button class="btn btn-outline-secondary" type="button" @onclick="() => CreateCategory.Show()">+</button>
+                                    </div>
+                                    <ValidationMessage For="()=>Model.CategoryId"></ValidationMessage>
+                                </div>
+                                <div class="form-group mb-2">
+                                    <div class="input-group input-group-xs">
+                                        <span class="input-group-text">Giá</span>
+                                        <InputNumber class="form-control" @bind-Value="Model.Price" @bind-Value:format="N0"></InputNumber>
+                                    </div>
+                                </div>
+                                <div class="from-group mb-2">
+                                    <label>Giảm giá:</label>
+                                    <div class="form-check form-check-inline">
+                                        @foreach (var discount in DataSource.DiscountTypes)
+                                        {
+                                            <input name="discount" type="radio" class="form-check-input" @onchange="@(() => {Model.DiscountType = discount.Key;})" checked="@(Model.DiscountType == discount.Key)" />
+                                            @discount.Value
+                                        }
+                                    </div>
+                                    @if (Model.DiscountType > 0)
+                                    {
+                                        <div class="input-group input-group-xs mb-3">
+                                            @if (Model.DiscountType == 1 || Model.DiscountType == 2)
+                                            {
+                                                <span class="input-group-text">Giảm</span>
+                                            }
+                                            else if (Model.DiscountType == 3)
+                                            {
+                                                <span class="input-group-text">Giá bán</span>
+                                            }
+                                            <InputNumber class="form-control" @bind-Value="Model.Discount" @bind-Value:format="N0"></InputNumber>
+                                            <ValidationMessage For="()=>Model.Discount"></ValidationMessage>
+                                            @if (Model.DiscountType == 1)
+                                            {
+                                                <span class="input-group-text">(%) Còn @((Model.Price - (Model.Discount * Model.Price / 100)).ToString("N0"))</span>
+                                            }
+                                            else if (Model.DiscountType == 2)
+                                            {
+                                                <span class="input-group-text">Còn @((Model.Price - Model.Discount).ToString("N0"))</span>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                                <div class="form-group mb-2">
+                                    <div class="input-group input-group-xs mb-1">
+                                        <span class="input-group-text">Thứ tự</span>
+                                        <InputNumber class="form-control" @bind-Value="Model.Order" @bind-Value:format="N0"></InputNumber>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col"><label class="form-check-label">Hoạt dộng:</label></div>
+                                        <div class="col" style="text-align:right"><input type="checkbox" checked="@Model.IsPuslished" class="form-check-input" role="switch" @onchange="@((e) => {Model.IsPuslished = bool.Parse(e.Value.ToString()); ApplyChanged();})" /></div>
+                                    </div>
+                                </div>
+                                <div class="form-group mb-2">
+                                    <div class="tags">
+                                        <label>Tags: </label>
+                                        @foreach (var tag in Model.Tags)
+                                        {
+                                            <span class="tag">
+                                                @tag <img src="remove.png" @onclick="() => Model.Tags.Remove(tag)" />
+                                            </span>
+                                        }
+                                        <div class="input-group input-group-xs" style="margin:0 !important">
+                                            <span class="input-group-text">Thêm Tag:</span>
+                                            <input class="form-control" value="@Tag" @onchange="OnTagChange" />
+                                            @if (FilterTags != null && FilterTags.Any())
+                                            {
+                                                <ul class="auto-list-group">
+                                                    @foreach (var tag in FilterTags)
+                                                    {
+                                                        <li class="auto-list-group-item" @onclick="() => SelectTag(tag)">
+                                                            @tag
+                                                        </li>
+                                                    }
+                                                </ul>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group mb-2">
+                                    <label>Mô tả ngắn:</label>
+                                    <InputTextArea @bind-Value="Model.Brief" class="form-control form-control-sm" style="height:200px"></InputTextArea>
+                                    <ValidationMessage For="()=> Model.Brief"></ValidationMessage>
+                                </div>
                             </div>
-                            <div class="form-group mb-2">
-                                <label>Mô tả ngắn:</label>
-                                <InputTextArea @bind-Value="Model.Brief" class="form-control form-control-sm" style="height:200px"></InputTextArea>
-                                <ValidationMessage For="()=> Model.Brief"></ValidationMessage>
+                            <div class="col-md-5">
+                                <div class="form-group">
+                                    <label for="InputFileLogo">Hình:</label>
+                                    <InputFile id="InputFileLogo" type="file" OnChange="LogoChange" accept="image/png, image/jpeg, image/gif, image/webp"></InputFile>
+                                    @if (Model.Image != null && !string.IsNullOrEmpty(Model.Image.FileName))
+                                    {
+                                        <img src="@(BackendApiUrl + "/" + Model.Image.FullPath + "?DummyId=" + DateTime.Now.Ticks)" asp-append-version="true" width="100%" />
+                                    }
+                                </div>
+                                <ImageList ItemId="Model.Id"></ImageList>
+                                <AttributeList @ref="ProductAttributeListControl" ProductId="Model.Id" LanguageCode="@Model.LanguageCode" CategoryId="Model.CategoryId"></AttributeList>
                             </div>
-                        </div>
-                        <div class="col-md-5">
-                            <div class="form-group">
-                                <label for="InputFileLogo">Hình:</label>
-                                <InputFile id="InputFileLogo" type="file" OnChange="LogoChange" accept="image/png, image/jpeg, image/gif, image/webp"></InputFile>
-                                @if (Model.Image != null && !string.IsNullOrEmpty(Model.Image.FileName))
-                                {
-                                    <img src="@(BackendApiUrl + "/" + Model.Image.FullPath + "?DummyId=" + DateTime.Now.Ticks)" asp-append-version="true" width="100%" />
-                                }
-                            </div>
-                            <ImageList ItemId="Model.Id"></ImageList>
-                            <AttributeList @ref="ProductAttributeListControl" ProductId="Model.Id" LanguageCode="@Model.LanguageCode" CategoryId="Model.CategoryId"></AttributeList>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label>Mô tả chi tiết:</label>
-                                <BlazoredTextEditor @ref="@QuillHtml">
-                                    <ToolbarContent>
-                                        <select class="ql-header">
-                                            <option selected=""></option>
-                                            <option value="2"></option>
-                                            <option value="3"></option>
-                                            <option value="4"></option>
-                                            <option value="5"></option>
-                                        </select>
-                                        <span class="ql-formats">
-                                            <select class="ql-size">
-                                                <option value="small"></option>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>Mô tả chi tiết:</label>
+                                    <BlazoredTextEditor @ref="@QuillHtml">
+                                        <ToolbarContent>
+                                            <select class="ql-header">
                                                 <option selected=""></option>
-                                                <option value="large"></option>
-                                                <option value="huge"></option>
+                                                <option value="2"></option>
+                                                <option value="3"></option>
+                                                <option value="4"></option>
+                                                <option value="5"></option>
                                             </select>
-                                        </span>
-                                        <span class="ql-formats">
-                                            <button class="ql-bold"></button>
-                                            <button class="ql-italic"></button>
-                                            <button class="ql-underline"></button>
-                                            <button class="ql-strike"></button>
-                                        </span>
-                                        <span class="ql-formats">
-                                            <select class="ql-color"></select>
-                                            <select class="ql-background"></select>
-                                        </span>
-                                        <span class="ql-formats">
-                                            <button class="ql-list" value="ordered"></button>
-                                            <button class="ql-list" value="bullet"></button>
-                                            <button class="ql-indent" value="-1"></button>
-                                            <button class="ql-indent" value="+1"></button>
-                                            <select class="ql-align">
-                                                <option selected=""></option>
-                                                <option value="center"></option>
-                                                <option value="right"></option>
-                                                <option value="justify"></option>
-                                            </select>
-                                        </span>
-                                        <span class="ql-formats">
-                                            <button class="ql-link"></button>
-                                        </span>
+                                            <span class="ql-formats">
+                                                <select class="ql-size">
+                                                    <option value="small"></option>
+                                                    <option selected=""></option>
+                                                    <option value="large"></option>
+                                                    <option value="huge"></option>
+                                                </select>
+                                            </span>
+                                            <span class="ql-formats">
+                                                <button class="ql-bold"></button>
+                                                <button class="ql-italic"></button>
+                                                <button class="ql-underline"></button>
+                                                <button class="ql-strike"></button>
+                                            </span>
+                                            <span class="ql-formats">
+                                                <select class="ql-color"></select>
+                                                <select class="ql-background"></select>
+                                            </span>
+                                            <span class="ql-formats">
+                                                <button class="ql-list" value="ordered"></button>
+                                                <button class="ql-list" value="bullet"></button>
+                                                <button class="ql-indent" value="-1"></button>
+                                                <button class="ql-indent" value="+1"></button>
+                                                <select class="ql-align">
+                                                    <option selected=""></option>
+                                                    <option value="center"></option>
+                                                    <option value="right"></option>
+                                                    <option value="justify"></option>
+                                                </select>
+                                            </span>
+                                            <span class="ql-formats">
+                                                <button class="ql-link"></button>
+                                            </span>
 
-                                        <span class="ql-formats">
-                                            <button type="button" class="btn btn-img" @onclick="InsertImageClick">
-                                                <img src="imageicon.png" style="border:hidden;width:20px;height:18px" />
-                                            </button>
-                                            <button type="button" class="btn btn-img" @onclick="InsertVideoClick">
-                                                <img src="videoicon.png" style="border:hidden;width:20px;height:18px" />
-                                            </button>
-                                        </span>
-                                        <span class="ql-formats">
-                                            <button type="button" class="btn btn-code" @onclick="ShowHTMLClick">&lt;/&gt;</button>
-                                        </span>
-                                    </ToolbarContent>
-                                    <EditorContent>
-                                        @* @((MarkupString)Model.Content)*@
-                                    </EditorContent>
-                                </BlazoredTextEditor>
+                                            <span class="ql-formats">
+                                                <button type="button" class="btn btn-img" @onclick="InsertImageClick">
+                                                    <img src="imageicon.png" style="border:hidden;width:20px;height:18px" />
+                                                </button>
+                                                <button type="button" class="btn btn-img" @onclick="InsertVideoClick">
+                                                    <img src="videoicon.png" style="border:hidden;width:20px;height:18px" />
+                                                </button>
+                                            </span>
+                                            <span class="ql-formats">
+                                                <button type="button" class="btn btn-code" @onclick="ShowHTMLClick">&lt;/&gt;</button>
+                                            </span>
+                                        </ToolbarContent>
+                                        <EditorContent>
+                                            @* @((MarkupString)Model.Content)*@
+                                        </EditorContent>
+                                    </BlazoredTextEditor>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </EditForm>
+            </EditForm>
             
-        <ImageSelector @ref="ImageManagerControl" ImageSelected="InsertImage"></ImageSelector>
-        <HTMLEdit @ref="EditHTML" TextChanged="ApplyHTML"></HTMLEdit>
-        <EmbedVideoInsert @ref="VideoInsertControl" InsertVideo="InsertVideo"></EmbedVideoInsert>
-        <CategoryCreate @ref="CreateCategory" CloseEventCallbak="LoadCategories"></CategoryCreate>
+            <ImageSelector @ref="ImageManagerControl" ImageSelected="InsertImage"></ImageSelector>
+            <HTMLEdit @ref="EditHTML" TextChanged="ApplyHTML"></HTMLEdit>
+            <EmbedVideoInsert @ref="VideoInsertControl" InsertVideo="InsertVideo"></EmbedVideoInsert>
+            <CategoryCreate @ref="CreateCategory" CloseEventCallbak="LoadCategories"></CategoryCreate>
+        
+        </div>
     </section>
 }
 

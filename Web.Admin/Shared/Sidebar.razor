@@ -27,7 +27,7 @@
                             <i class="fas fa-angle-left right"></i>
                         </p>
                     </a>
-                    <ul class="nav nav-treeview">
+                    <ul class="nav nav-treeview submenu-open">
                         <li class="nav-item">
                             <a href="/companyinfo" class="nav-link">
                                 <i class="nav-icon fas fa-info"></i>
@@ -104,7 +104,7 @@
                             <i class="fas fa-angle-left right"></i>
                         </p>
                     </a>
-                    <ul class="nav nav-treeview">
+                    <ul class="nav nav-treeview submenu-open)">
                         <li class="nav-item">
                             <a href="/moduleconfiglist" class="nav-link">
                                 <i class="nav-icon far fa-plus-square"></i>
@@ -140,33 +140,33 @@
                 <AuthorizeView Roles="Admin">
                     <li class="nav-item @(Menu["HeThong"] ? "menu-open" : "")">
                         <a class="nav-link" @onclick="@(() => Click("HeThong"))">
-                        <i class="bi bi-sliders2"></i>
-                        <p>
-                            Hệ thống
-                            <i class="fas fa-angle-left right"></i>
-                        </p>
-                    </a>
-                    <ul class="nav nav-treeview">
-                        <li class="nav-item">
-                            <a href="/companylist" class="nav-link">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>Website</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="/modulelist" class="nav-link">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>Module</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="/templatelist" class="nav-link">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>Template</p>
-                            </a>
-                        </li>
-                    </ul>
-                </li>
+                            <i class="bi bi-sliders2"></i>
+                            <p>
+                                Hệ thống
+                                <i class="fas fa-angle-left right"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="/companylist" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Website</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="/modulelist" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Module</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="/templatelist" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Template</p>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
                 </AuthorizeView>
             </ul>
         </nav>

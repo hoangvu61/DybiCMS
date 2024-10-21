@@ -18,47 +18,55 @@
 @inject IDebtApiClient DebtApiClient;
 @inject GlobalVariables Global;
 
-<h1 class="text-center">Phần mềm quản lý Bán hàng - Xuất nhập kho</h1>
-<section>
-    <div class="row mb-5">
-        <div class="col">
-            <!-- small box -->
-            <div class="small-box bg-warning">
-                <div class="inner">
-                    <h3>@NewOrder</h3>
-                    <p>Đơn hàng mới</p>
-                </div>
-                <div class="icon">
-                    <span class="oi oi-cart"></span>
-                </div>
-                <a href="/Sales/Orders" class="small-box-footer">Chi tiết <span class="oi oi-arrow-circle-right"></span></a>
-            </div>
-        </div>
-        <div class="col">
-            <!-- small box -->
-            <div class="small-box bg-danger">
-                <div class="inner">
-                    <h3>@Inventory</h3>
-                    <p>Hàng tồn sắp hết</p>
-                </div>
-                <div class="icon">
-                    <span class="oi oi-bell"></span>
-                </div>
-                <a href="/warehouses/Inventories?IsAlertEmpty=true" class="small-box-footer">Chi tiết <span class="oi oi-arrow-circle-right"></span></a>
-            </div>
-        </div>
-        <div class="col">
-            <!-- small box -->
-            <div class="small-box bg-primary" style="height:100%">
-                <a class="button" href="sales/ordercreate">
-                    <i class="oi oi-plus"></i>
-                    <span class="small-box-footer">Tạo đơn hàng</span>
-                </a>
-            </div>
-        </div>
+<PageTitle>Trang quản trị</PageTitle>
+
+<section class="content-header">
+    <div class="container-fluid">
+        <h1 class="m-0">Phần mềm quản lý Bán hàng - Xuất nhập kho</h1>
     </div>
+</section>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col">
+                <!-- small box -->
+                <div class="small-box bg-warning">
+                    <div class="inner">
+                        <h3>@NewOrder</h3>
+                        <p>Đơn hàng mới</p>
+                    </div>
+                    <div class="icon">
+                        <span class="oi oi-cart"></span>
+                    </div>
+                    <a href="/Sales/Orders" class="small-box-footer">Chi tiết <span class="oi oi-arrow-circle-right"></span></a>
+                </div>
+            </div>
+            <div class="col">
+                <!-- small box -->
+                <div class="small-box bg-danger">
+                    <div class="inner">
+                        <h3>@Inventory</h3>
+                        <p>Hàng tồn sắp hết</p>
+                    </div>
+                    <div class="icon">
+                        <span class="oi oi-bell"></span>
+                    </div>
+                    <a href="/warehouses/Inventories?IsAlertEmpty=true" class="small-box-footer">Chi tiết <span class="oi oi-arrow-circle-right"></span></a>
+                </div>
+            </div>
+            <div class="col">
+                <!-- small box -->
+                <div class="small-box bg-primary">
+                    <a class="button" href="sales/ordercreate">
+                        <i class="oi oi-plus"></i>
+                        <span class="small-box-footer">Tạo đơn hàng</span>
+                    </a>
+                </div>
+            </div>
+        </div>
     
-    <div class="row">
+        <div class="row">
         <div class="col-9">
             <h2>Tình hình tài chính</h2>
 
@@ -165,6 +173,7 @@
                 </div>
             }
         </div>
+    </div>
     </div>
 </section>
 <SetConfig @ref="SetConfigDialog"></SetConfig>

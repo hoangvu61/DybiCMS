@@ -1,11 +1,5 @@
-﻿@using Microsoft.AspNetCore.Authorization;
-@using Microsoft.AspNetCore.Components.Authorization
-@using Web.App.Services;
-@using Web.Models;
-@using Web.Models.Enums;
-@using Web.Models.SeedWork;
+﻿@using Web.App.Pages.Components
 
-@attribute [Authorize]
 <!-- Main Sidebar Container -->
 <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Sidebar -->
@@ -15,70 +9,141 @@
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                 <!-- Add icons to the links using the .nav-icon class
                      with font-awesome or any other icon font library -->
-                
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                        <span class="oi oi-home" aria-hidden="true"></span> Trang chủ
+                    </NavLink>
+                </li>
+                <li>
+                    <hr />
+                </li>
                 <li class="nav-item @(Menu["BanHang"] ? "menu-open" : "")">
                     <a class="nav-link" @onclick="@(() => Click("BanHang"))">
-                        <i class="nav-icon fas fa-th"></i>
+                        <i class="bi bi-sliders2"></i>
                         <p>
-                            Bán hàng 
-                            <i class="fas fa-angle-left right"></i>
+                            Bán hàng <i class="fas fa-angle-left right"></i>
                         </p>
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
-                            <a href="/sales/ordercreate" class="nav-link">
-                                <i class="nav-icon fas fa-info"></i>
+                            <NavLink class="nav-link" href="sales/ordercreate">
+                                <i class="oi oi-plus nav-icon"></i>
                                 <p>Tạo đơn hàng</p>
-                            </a>
+                            </NavLink>
                         </li>
                         <li class="nav-item">
-                            <a href="/sales/orders" class="nav-link">
-                                <i class="nav-icon fas fa-sitemap"></i>
-                                <p>Danh sách đơn hàng</p>
-                            </a>
+                            <NavLink class="nav-link" href="sales/orders">
+                                <i class="oi oi-cart nav-icon"></i> <p>Danh sách đơn hàng</p>
+                            </NavLink>
                         </li>
                         <li class="nav-item">
-                            <a href="/sales/customers" class="nav-link">
-                                <i class="nav-icon fas fa-edit"></i>
-                                <p>Khách hàng</p>
-                            </a>
+                            <NavLink class="nav-link" href="sales/customers">
+                                <i class="oi oi-people nav-icon"></i> <p>Khách hàng</p>
+                            </NavLink>
                         </li>
                     </ul>
                 </li>
                 <li class="nav-item @(Menu["KhoHang"] ? "menu-open" : "")">
                     <a class="nav-link" @onclick="@(() => Click("KhoHang"))">
-                        <i class="nav-icon fas fa-cog"></i>
+                        <i class="bi bi-sliders2"></i>
                         <p>
-                            Kho hàng
-                            <i class="fas fa-angle-left right"></i>
+                            Kho hàng <i class="fas fa-angle-left right"></i>
                         </p>
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
-                            <a href="/warehouses/inputs" class="nav-link">
-                                <i class="nav-icon far fa-plus-square"></i>
-                                <p>Nhập kho</p>
-                            </a>
+                            <NavLink class="nav-link" href="warehouses/inputs">
+                                <span class="oi oi-account-login nav-icon"></span> Nhập kho
+                            </NavLink>
                         </li>
-                        <li class="nav-item">
-                            <a href="/warehouses/outputs" class="nav-link">
-                                <i class="nav-icon fas fa-bars"></i>
-                                <p>Xuất kho</p>
-                            </a>
+                        <li>
+                            <NavLink class="nav-link" href="warehouses/outputs">
+                                <span class="oi oi-account-logout nav-icon"></span> Xuất kho
+                            </NavLink>
                         </li>
-                        <li class="nav-item">
-                            <a href="/warehouses/inventories" class="nav-link">
-                                <i class="nav-icon fas fa-list"></i>
-                                <p>Tồn kho</p>
-                            </a>
+                        <li>
+                            <NavLink class="nav-link" href="warehouses/inventories">
+                                <span class="oi oi-inbox nav-icon"></span> Tồn kho
+                            </NavLink>
                         </li>
-                        <li class="nav-item">
-                            <a href="/warehouses/findproduct" class="nav-link">
-                                <i class="nav-icon fas fa-link"></i>
-                                <p>Tìm hàng hóa</p>
-                            </a>
+                        <li>
+                            <NavLink class="nav-link" href="warehouses/findproduct">
+                                <span class="oi oi-magnifying-glass nav-icon"></span> Tìm hàng hóa
+                            </NavLink>
                         </li>
                     </ul>
+                </li>
+                <li class="nav-item @(Menu["CongNo"] ? "menu-open" : "")">
+                    <a class="nav-link" @onclick="@(() => Click("CongNo"))">
+                        <i class="bi bi-sliders2"></i>
+                        <p>
+                            Công nợ <i class="fas fa-angle-left right"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <NavLink class="nav-link" href="debts/accountspayable">
+                                <span class="oi oi-dollar nav-icon"></span> Nợ phải trả
+                            </NavLink>
+                        </li>
+                        <li class="nav-item">
+                            <NavLink class="nav-link" href="debts/accountsreceivable">
+                                <span class="oi oi-dollar nav-icon"></span> Nợ phải thu
+                            </NavLink>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="nav-item @(Menu["CaiDat"] ? "menu-open" : "")">
+                    <a class="nav-link" @onclick="@(() => Click("CaiDat"))">
+                        <i class="bi bi-sliders2"></i>
+                        <p>
+                            Cài đặt <i class="fas fa-angle-left right"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <NavLink class="nav-link" href="settings/categories">
+                                <span class="oi oi-list-rich nav-icon"></span> DM sản phẩm
+                            </NavLink>
+                        </li>
+                        <li class="nav-item">
+                            <NavLink class="nav-link" href="settings/products">
+                                <span class="oi oi-list-rich nav-icon"></span> Sản phẩm
+                            </NavLink>
+                        </li>
+                        <li class="nav-item">
+                            <NavLink class="nav-link" href="settings/warehouses">
+                                <span class="oi oi-list nav-icon"></span> Kho
+                            </NavLink>
+                        </li>
+                        <li class="nav-item">
+                            <NavLink class="nav-link" href="settings/suppliers">
+                                <span class="oi oi-list nav-icon"></span> Nhà cung cấp
+                            </NavLink>
+                        </li>
+                        <li class="nav-item">
+                            <NavLink class="nav-link" href="settings/factories">
+                                <span class="oi oi-list nav-icon"></span> Nơi sản xuất
+                            </NavLink>
+                            <hr />
+                            <span class="nav-link" @onclick="() => SetConfigDialog.Show()">
+                                <span class="oi oi-cog nav-icon"></span> Cấu hình hệ thống
+                            </span>
+                            <NavLink class="nav-link" href="settings/attributeorders">
+                                <span class="oi oi-cog nav-icon"></span> Thuộc tính đơn hàng
+                            </NavLink>
+                        </li>
+                    </ul>
+                </li>
+
+                <li>
+                    <hr />
+                </li>
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="/logout">
+                        Đăng xuất
+                    </NavLink>
                 </li>
             </ul>
         </nav>
@@ -87,10 +152,15 @@
     <!-- /.sidebar -->
 </aside>
 
+<SetConfig @ref="SetConfigDialog"></SetConfig>
 @code {
+    private bool collapseNavMenu = true;
+    private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
     private Dictionary<string, bool> Menu;
 
-    protected override async Task OnInitializedAsync()
+    protected SetConfig SetConfigDialog { set; get; }
+
+    protected override void OnInitialized()
     {
         Menu = new Dictionary<string, bool>();
         Menu["BanHang"] = false;
@@ -99,7 +169,11 @@
         Menu["CaiDat"] = false;
     }
 
-    protected async Task Click(string key)
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+    protected void Click(string key)
     {
         var flag = Menu[key];
         Menu[key] = !flag;

@@ -13,65 +13,71 @@
 @inject IToastService ToastService;
 @inject IWarehouseApiClient WarehouseApiClient;
 
-<h1>Quản lý sản phẩm</h1>
+<section class="content-header">
+    <div class="container-fluid">
+        <h1 class="m-0">Quản lý sản phẩm</h1>
+    </div>
+</section>
 
-<section>
-    @if (ListProducts == null)
-    {
-        <LoadingIndicator></LoadingIndicator>
-    }
-    else
-    {
-        <div class="card card-outline card-info">
-            <div class="card-header">
-                <h3 class="card-title">Danh sách sản phẩm</h3>
-            </div>
-            <div class="card-body">
-                <ProductSearch @ref="ProductSearchControl" OnSearch="SearchProduct"></ProductSearch>
-                <table class="table table-sm table-striped table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Mã</th>
-                            <th>Tên</th>
-                            <th>Danh mục</th>
-                            <th class="text-center" style="width:75px">
-                                <button @onclick="() => CreateDialog.Show()" class="btn btn-primary btn-xs">Thêm</button>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var item in ListProducts)
-                        {
+<section class="content">
+    <div class="container-fluid">
+        @if (ListProducts == null)
+        {
+            <LoadingIndicator></LoadingIndicator>
+        }
+        else
+        {
+            <div class="card card-outline card-info">
+                <div class="card-header">
+                    <h3 class="card-title">Danh sách sản phẩm</h3>
+                </div>
+                <div class="card-body">
+                    <ProductSearch @ref="ProductSearchControl" OnSearch="SearchProduct"></ProductSearch>
+                    <table class="table table-sm table-striped table-bordered">
+                        <thead>
                             <tr>
-                                <td>@item.Code</td>
-                                <td>@item.Title</td>
-                                <td>@item.CategoryName</td>
-                                <td>
-                                    <a href="/settings/products/@item.Id" class="btn btn-primary btn-xs">Xem</a>
-                                    <button class="btn btn-danger btn-xs" @onclick="()=> OnDelete(item.Id)">Xóa</button>
+                                <th>Mã</th>
+                                <th>Tên</th>
+                                <th>Danh mục</th>
+                                <th class="text-center" style="width:75px">
+                                    <button @onclick="() => CreateDialog.Show()" class="btn btn-primary btn-xs">Thêm</button>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in ListProducts)
+                            {
+                                <tr>
+                                    <td>@item.Code</td>
+                                    <td>@item.Title</td>
+                                    <td>@item.CategoryName</td>
+                                    <td>
+                                        <a href="/settings/product/@item.Id" class="btn btn-primary btn-xs">Xem</a>
+                                        <button class="btn btn-danger btn-xs" @onclick="()=> OnDelete(item.Id)">Xóa</button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="9">
+                                    <Pagination MetaData="MetaData" Spread="2" SelectedPage="SelectedPage"></Pagination>
                                 </td>
                             </tr>
-                        }
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <td colspan="9">
-                                <Pagination MetaData="MetaData" Spread="2" SelectedPage="SelectedPage"></Pagination>
-                            </td>
-                        </tr>
-                    </tfoot>
-                </table>
+                        </tfoot>
+                    </table>
+                </div>
             </div>
-        </div>
 
-        <Confirmation ConfirmationMessage="Bạn có chắc chắn xóa?"
-                    ConfirmationTitle="Xóa sản phẩm"
-                    @ref="DeleteConfirmation"
-                    ConfirmationChanged="OnConfirmDelete">
-        </Confirmation>
+            <Confirmation ConfirmationMessage="Bạn có chắc chắn xóa?"
+                        ConfirmationTitle="Xóa sản phẩm"
+                        @ref="DeleteConfirmation"
+                        ConfirmationChanged="OnConfirmDelete">
+            </Confirmation>
 
-        <ProductCreate @ref="CreateDialog" CloseEventCallbak="RefreshList"></ProductCreate>
-    }
+            <ProductCreate @ref="CreateDialog" CloseEventCallbak="RefreshList"></ProductCreate>
+        }
+    </div>
 </section>
 
 @code {

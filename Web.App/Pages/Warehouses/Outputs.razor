@@ -13,73 +13,79 @@
 @inject IToastService ToastService;
 @inject IWarehouseApiClient WarehouseApiClient;
 
-<h1>Quản lý Xuất kho</h1>
+<section class="content-header">
+    <div class="container-fluid">
+        <h1 class="m-0">Quản lý Xuất kho</h1>
+    </div>
+</section>
 
-<section>
-    @if (ListInputs == null)
-    {
-        <LoadingIndicator></LoadingIndicator>
-    }
-    else
-    {
-        <div class="card card-outline card-info">
-            <div class="card-header">
-                <h3 class="card-title">Danh sách Xuất kho</h3>
-            </div>
-            <div class="card-body">
-                <OutputSearch OnSearch="SearchOutput"></OutputSearch>
-                <table class="table table-sm table-striped table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Đến</th>
-                            <th>Từ</th>
-                            <th>Ngày</th>
-                            <th>Tổng sản phẩm</th>
-                            <th style="width:75px">
-                                <button @onclick="() => CreateDialog.Show()" class="btn btn-primary btn-xs">Thêm</button>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var item in ListInputs)
-                        {
+<section class="content">
+    <div class="container-fluid">
+        @if (ListInputs == null)
+        {
+            <LoadingIndicator></LoadingIndicator>
+        }
+        else
+        {
+            <div class="card card-outline card-info">
+                <div class="card-header">
+                    <h3 class="card-title">Danh sách Xuất kho</h3>
+                </div>
+                <div class="card-body">
+                    <OutputSearch OnSearch="SearchOutput"></OutputSearch>
+                    <table class="table table-sm table-striped table-bordered">
+                        <thead>
                             <tr>
-                                <td>
-                                    @item.TypeName<br />
-                                    Đến: @item.ToName
-                                </td>
-                                <td>
-                                    @item.WarehouseType<br />
-                                    @item.WarehouseName
-                                </td>
-                                <td style="text-align:center">@item.CreateDate.ToString("dd/MM/yyyy hh:mm")</td>
-                                <td style="text-align:right">@item.ProductCount.ToString("N0")</td>
-                                <td style="text-align:center">
-                                    <a href="/warehouses/outputs/@item.Id" class="btn btn-primary btn-xs">Xem</a>
-                                    <button class="btn btn-danger btn-xs" @onclick="()=> OnDelete(item.Id)">Xóa</button>
+                                <th>Đến</th>
+                                <th>Từ</th>
+                                <th>Ngày</th>
+                                <th>Tổng sản phẩm</th>
+                                <th style="width:75px">
+                                    <button @onclick="() => CreateDialog.Show()" class="btn btn-primary btn-xs">Thêm</button>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in ListInputs)
+                            {
+                                <tr>
+                                    <td>
+                                        @item.TypeName<br />
+                                        Đến: @item.ToName
+                                    </td>
+                                    <td>
+                                        @item.WarehouseType<br />
+                                        @item.WarehouseName
+                                    </td>
+                                    <td style="text-align:center">@item.CreateDate.ToString("dd/MM/yyyy hh:mm")</td>
+                                    <td style="text-align:right">@item.ProductCount.ToString("N0")</td>
+                                    <td style="text-align:center">
+                                        <a href="/warehouses/outputs/@item.Id" class="btn btn-primary btn-xs">Xem</a>
+                                        <button class="btn btn-danger btn-xs" @onclick="()=> OnDelete(item.Id)">Xóa</button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="9">
+                                    <Pagination MetaData="MetaData" Spread="2" SelectedPage="SelectedPage"></Pagination>
                                 </td>
                             </tr>
-                        }
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <td colspan="9">
-                                <Pagination MetaData="MetaData" Spread="2" SelectedPage="SelectedPage"></Pagination>
-                            </td>
-                        </tr>
-                    </tfoot>
-                </table>
+                        </tfoot>
+                    </table>
+                </div>
             </div>
-        </div>
 
-        <Confirmation ConfirmationMessage="Bạn có chắc chắn xóa?"
-                    ConfirmationTitle="Xóa phiếu xuất kho"
-                    @ref="DeleteConfirmation"
-                    ConfirmationChanged="OnConfirmDelete">
-        </Confirmation>
+            <Confirmation ConfirmationMessage="Bạn có chắc chắn xóa?"
+                        ConfirmationTitle="Xóa phiếu xuất kho"
+                        @ref="DeleteConfirmation"
+                        ConfirmationChanged="OnConfirmDelete">
+            </Confirmation>
 
-        <OutputCreate @ref="CreateDialog"></OutputCreate>
-    }
+            <OutputCreate @ref="CreateDialog"></OutputCreate>
+        }
+    </div>>
 </section>
 
 @code {
