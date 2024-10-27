@@ -202,10 +202,32 @@ namespace Web.Models.Enums
             }
         };
 
-        public static Dictionary<int, string> DebtType = new Dictionary<int, string>()
+        public static Dictionary<int, string> DebtTypes = new Dictionary<int, string>()
         {
             { 1, "Nợ" },
             { 2, "Trả nợ" }
+        };
+
+        public static Dictionary<string, string> BarCodeTypes = new Dictionary<string, string>()
+        {
+            { "EAN_8", "Mã EAN-8, có 8 chữ số - Sử dụng trong các sản phẩm kích thước nhỏ như mỹ phẩm." },
+            { "EAN_13", "Mã EAN-13, có 13 chữ số - Sử dụng phổ biến trên sản phẩm bán lẻ quốc tế." },
+            { "UPC_A", "Mã UPC-A, có 12 chữ số - Sử dụng trên sản phẩm bán lẻ tại Mỹ." },
+            { "UPC_E", "Mã UPC-E, có 8 chữ số - Sử dụng cho sản phẩm bán lẻ nhỏ tại Mỹ." },
+            { "CODE_39", "Mã Code 39 - Sử dụng trong sản xuất và quân đội." },
+            { "CODE_93", "Mã Code 93 - Tương tự Code 39 nhưng ngắn gọn hơn." },
+            { "CODE_128", "Mã Code 128 - Phổ biến trong vận chuyển, hậu cần và bán lẻ." },
+            { "ITF", "Mã Interleaved 2 of 5 (ITF) - Thường được dùng trong lĩnh vực vận chuyển và kho hàng." },
+            { "MSI", "Mã MSI - Sử dụng trong ngành bán lẻ và quản lý kho." },
+            { "RSS_14", "Mã RSS 14 - Chủ yếu dùng cho các gói sản phẩm nhỏ." },
+            { "RSS_EXPANDED", "Mã RSS Expanded - Sử dụng để mã hóa nhiều dữ liệu hơn trong một mã vạch nhỏ." },
+            { "QR_CODE", "Mã QR (Quick Response) - Sử dụng phổ biến trong thanh toán, liên kết website, mạng xã hội, và thông tin sản phẩm." },
+            { "DATA_MATRIX", "Mã Data Matrix - Sử dụng trong các ứng dụng công nghiệp, y tế, và vận chuyển." },
+            { "AZTEC", "Mã Aztec - Phổ biến trong vé tàu điện ngầm và máy bay vì có thể quét tốt ở kích thước nhỏ." },
+            { "PDF_417", "Mã PDF417 - Sử dụng trong thẻ căn cước, hộ chiếu, và vé máy bay. Lưu trữ được lượng lớn thông tin." },
+            { "MAXICODE", "MaxiCode - Được UPS sử dụng trong vận chuyển và quản lý hàng hóa." },
+            { "CODABAR", "Mã Codabar - Được sử dụng trong các hệ thống quản lý thư viện, ngân hàng máu, và vận chuyển." },
+            { "PHARMA_CODE", "Mã PharmaCode - Sử dụng chủ yếu trong ngành dược phẩm." }
         };
     }
 }

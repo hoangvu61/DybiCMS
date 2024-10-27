@@ -10,5 +10,7 @@ namespace Web.Models
 
         [AllowNull]
         public Guid? CategoryId { get; set; }
+
+        public bool RequiredCode { get; set; }
     }
 }

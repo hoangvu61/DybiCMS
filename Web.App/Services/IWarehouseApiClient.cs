@@ -80,10 +80,15 @@ namespace Web.App.Services
         Task<PagedList<WarehouseProductDto>> GetProducts(ProductListSearch paging);
         Task<ProductDetailDto> GetProductById(string id);
         Task<ProductDetailDto> GetProductByCode(string code);
-        Task<bool> CreateProduct(WarehouseProductDto request);
+        Task<string> CreateProduct(WarehouseProductDto request);
         Task<bool> UpdateProduct(ProductDetailDto request);
         Task<bool> UpdateProductCategory(Guid itemId, Guid categoryId);
         Task<bool> DeleteProduct(Guid id);
+
+        Task<List<string>> SeriesByProduct(Guid productId);
+        Task<List<string>> ImageCodesByProduct(Guid productId, string type);
+        Task<bool> AddSearies(Guid productId, int number);
+        Task<bool> DeleteSearies(Guid productId, string series);
         #endregion
 
         #region report

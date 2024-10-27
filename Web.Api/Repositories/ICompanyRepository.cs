@@ -14,7 +14,7 @@ namespace Web.Api.Repositories
         Task<bool> UpdateWebConfig(Guid id, WebConfigRequest request);
         Task<Company> Update(Company company);
         Task<WebConfig> UpdateWebConfig(WebConfig config);
-        Task<bool> Delete(Company company);
+        Task<bool> Delete(Guid companyId);
         Task<int> Copy(Guid sourceCompany, Guid targetCompany);
 
         Task<List<CompanyDomain>> GetDomains(Guid companyId);

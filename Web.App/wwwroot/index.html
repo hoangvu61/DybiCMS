@@ -50,6 +50,8 @@
     <script src="_content/Blazored.TextEditor/quill-blot-formatter.min.js"></script>
     <script src="_content/Blazored.TextEditor/Blazored-BlazorQuill.js"></script>
     <script src="_content/MudBlazor/MudBlazor.min.js"></script>
+    <!--<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>-->
 
     <!--<script>
         $(document).on('DOMSubtreeModified', function () {
@@ -69,7 +71,22 @@
                 element.focus();
             }
         }
+
+        function printComponent(componentSelector) {
+            var elementToPrint = document.querySelector(componentSelector);
+            if (elementToPrint) {
+                var printWindow = window.open('', '_blank');
+                printWindow.document.open();
+                printWindow.document.write('<html><head><title>Print</title></head><body>');
+                printWindow.document.write(elementToPrint.innerHTML);
+                printWindow.document.write('</body></html>');
+                printWindow.document.close();
+                printWindow.print();
+                printWindow.close();
+            }
+        }
     </script>
+
 </body>
 
 </html>

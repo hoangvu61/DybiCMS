@@ -57,6 +57,44 @@ namespace Web.Api.Repositories
         }
         #endregion
 
+        #region
+        public async Task<List<string>> GetProductCodes(Guid companyId, Guid productId)
+        {
+            return await _context.ItemProductSeries.Where(e => e.Product.Item.CompanyId == companyId && e.ProductId == productId).Select(e => e.Seri).ToListAsync();
+        }
+        public async Task<bool> CheckExistProductCode(Guid companyId, string code)
+        {
+            var checkProductCode = await _context.ItemProducts.Where(e => e.Item.CompanyId == companyId && e.Code == code).AnyAsync();
+            var checkProductSearies = await _context.ItemProductSeries.Where(e => e.Product.Item.CompanyId == companyId && e.Seri == code).AnyAsync();
+            var checInputProductSearies = await _context.WarehouseInputProductCodes.Where(e => e.InputProduct.Input.Warehouse.CompanyId == companyId && e.ProductCode == code).AnyAsync();
+            return checkProductCode || checkProductSearies || checInputProductSearies;
+        }
+        public async Task<List<ItemProductSeri>> CreateProductCode(Guid productId, List<string> series)
+        {
+            var itemProductSeries = new List<ItemProductSeri>();
+            foreach(var seri in series)
+            {
+                itemProductSeries.Add(new ItemProductSeri()
+                {
+                    ProductId = productId,
+                    Seri = seri
+                });
+            }    
+            _context.ItemProductSeries.AddRange(itemProductSeries);
+            await _context.SaveChangesAsync();
+            return itemProductSeries;
+        }
+        public async Task<int> DeleteProductCode(Guid productId, string seri)
+        {
+            var productCode = await _context.ItemProductSeries.Where(e => e.ProductId == productId && e.Seri == seri).FirstOrDefaultAsync();
+            if (productCode == null) return 1;
+
+            _context.ItemProductSeries.Remove(productCode);
+            await _context.SaveChangesAsync();
+            return 0;
+        }
+        #endregion
+
         #region warehouse
         public async Task<List<Warehouse>> GetWarehouses(Guid companyId)
         {

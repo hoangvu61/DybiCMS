@@ -35,5 +35,6 @@ namespace Web.Api.Entities
         public ItemCategory Category { get; set; }
         public WarehouseInventory? Inventory { get; set; }
         public virtual ICollection<WarehouseInputProduct> WarehouseInputs { get; set; }
+        public virtual ICollection<ItemProductSeri> Series { get; set; }
     }
 }

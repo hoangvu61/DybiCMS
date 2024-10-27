@@ -28,7 +28,7 @@
                             <div class="form-group">
                                 <div class="input-group input-group-sm mb-3">
                                     <span class="input-group-text">Loại danh mục</span>
-                                    <InputSelect class="form-control form-control-sm" ValueExpression="@(()=>Model.Type)"
+                                    <InputSelect class="form-select form-control-sm" ValueExpression="@(()=>Model.Type)"
                                              Value="@Model.Type"
                                              ValueChanged="@((string value) => TypeChange(value))">
                                         <option value="">Chọn loại danh mục</option>
@@ -47,7 +47,7 @@
                             <div class="form-group">
                                  <div class="input-group input-group-sm mb-3">
                                     <span class="input-group-text">Danh mục cha</span>
-                                    <InputSelect class="form-control form-control-sm" ValueExpression="@(()=>Model.ParentId)"
+                                    <InputSelect class="form-select form-control-sm" ValueExpression="@(()=>Model.ParentId)"
                                              Value="@Model.ParentId"
                                                  ValueChanged="@((Guid? value) => CategoryChange(Model.ParentId))">
                                         <option value="">Chọn danh mục cha</option>
@@ -71,7 +71,7 @@
                         <div class="form-group">
                             <div class="input-group input-group-sm mb-3">
                                 <span class="input-group-text">Trang dách sách</span>
-                                <InputSelect class="form-control form-control-sm" @bind-Value="Model.ComponentList">
+                                <InputSelect class="form-select form-control-sm" @bind-Value="Model.ComponentList">
                                     @if (Components != null)
                                     {
                                         <option value="">Chọn trang</option>
@@ -87,7 +87,7 @@
                         <div class="form-group">
                             <div class="input-group input-group-sm mb-3">
                                 <span class="input-group-text">Trang chi tiết</span>
-                                <InputSelect class="form-control form-control-sm" @bind-Value="Model.ComponentDetail">
+                                <InputSelect class="form-select form-control-sm" @bind-Value="Model.ComponentDetail">
                                     @if (Components != null)
                                     {
                                         <option value="">Chọn trang</option>

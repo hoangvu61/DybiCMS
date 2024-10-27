@@ -206,22 +206,14 @@ namespace Web.Api.Controllers
         [Route("{companyid}")]
         public async Task<IActionResult> Delete([FromRoute] Guid companyid)
         {
-            var company = await _companyRepository.GetCompany(companyid);
-            if (company == null) return NotFound($"{companyid} is not found");
-
-            var result = await _companyRepository.Delete(company);
+            var result = await _companyRepository.Delete(companyid);
             if (result)
             {
                 var fileHelper = new FileHelper(env.ContentRootPath, companyid.ToString());
                 fileHelper.DeleteFolder();
             } 
                 
-            return Ok(new CompanyDto()
-            {
-                Id = company.Id,
-                CreateDate = company.CreateDate,
-                TaxCode = company.TaxCode,
-            });
+            return Ok(new CompanyDto() { Id = companyid });
         }
         #endregion
 

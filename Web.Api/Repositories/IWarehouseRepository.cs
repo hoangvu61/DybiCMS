@@ -13,6 +13,13 @@ namespace Web.Api.Repositories
         Task<WarehouseConfig> SetConfig(Guid companyId, string key, string? value);
         #endregion
 
+        #region
+        Task<List<string>> GetProductCodes(Guid companyId, Guid productId);
+        Task<bool> CheckExistProductCode(Guid companyId, string code);
+        Task<List<ItemProductSeri>> CreateProductCode(Guid productId, List<string> listSeries);
+        Task<int> DeleteProductCode(Guid productId, string series);
+        #endregion
+
         #region warehouse
         Task<List<Warehouse>> GetWarehouses(Guid companyId);
         Task<Warehouse?> GetWarehouse(Guid id);

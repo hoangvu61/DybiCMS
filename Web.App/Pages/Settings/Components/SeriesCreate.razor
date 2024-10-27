@@ -1,0 +1,80 @@
+﻿@using Web.App.Services;
+@using Web.Models;
+@using System.IO;
+@inject IToastService ToastService;
+@inject IWarehouseApiClient WarehouseApiClient;
+@inject IJSRuntime JS
+
+@if (ShowDialog)
+{
+    <div class="modal fade show d-block" id="assignModel" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <EditForm Model="Model" OnValidSubmit="HandleSubmit">
+                <DataAnnotationsValidator></DataAnnotationsValidator>
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Tạo series</h5>
+                        <button type="button" class="close" data-dismiss="modal" @onclick="()=>Hide()" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group mb-3">
+                            <div><label class="input-group-text">Sản phẩm:</label> @Model.Title @(!string.IsNullOrEmpty(Model.Code) ? "(Mã: " + Model.Code + ")" : "")</div>
+                            <div><label class="input-group-text">Danh mục:</label> @Model.CategoryName</div>
+                            <ValidationMessage For="()=> Model.Code"></ValidationMessage>
+                        </div>
+                        <div class="form-group mb-3">
+                            <div class="input-group input-group-xs">
+                                <label class="input-group-text">Loại mã</label>
+                                <InputNumber class="form-control" @bind-Value="NunberOfSeries"></InputNumber>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-xs" @onclick="()=>Hide()" data-dismiss="modal">Đóng</button>
+                        <button type="submit" class="btn btn-primary btn-xs">Tạo series</button>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@code {
+    protected bool ShowDialog { get; set; }
+
+    private WarehouseProductDto Model { set; get; } = new WarehouseProductDto();
+    private int NunberOfSeries { set; get; }
+
+    [Parameter]
+    public EventCallback Callback { get; set; }
+
+    public void Show(WarehouseProductDto model)
+    {
+        ShowDialog = true;
+        Model = model;
+        StateHasChanged();
+    }
+
+    private void Hide()
+    {
+        ShowDialog = false;
+        StateHasChanged();
+    }
+
+    protected async Task HandleSubmit()
+    {
+        var result = await WarehouseApiClient.AddSearies(Model.Id, NunberOfSeries);
+        if (result)
+        {
+            ShowDialog = false;
+            await Callback.InvokeAsync();
+            ToastService.ShowInfo($"Tạo thành công {NunberOfSeries} series");
+        }
+        else
+        {
+            ToastService.ShowError($"Tạo series không thành công");
+        }
+    }
+}

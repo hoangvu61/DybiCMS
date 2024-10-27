@@ -75,6 +75,9 @@ namespace Web.Api.Data
             modelBuilder.Entity<ItemAttribute>()
                 .HasKey(m => new { m.ItemId, m.AttributeId, m.LanguageCode });
 
+            
+            modelBuilder.Entity<ItemProductSeri>()
+                .HasKey(m => new { m.ProductId, m.Seri });
             modelBuilder.Entity<ItemProductAddOn>()
                 .HasKey(m => new { m.ProductId, m.ProductAddOnId });
             
@@ -165,6 +168,7 @@ namespace Web.Api.Data
         public DbSet<ItemArticle> ItemArticles { get; set; }
         public DbSet<ItemMedia> ItemMedias { get; set; }
         public DbSet<ItemProduct> ItemProducts { get; set; }
+        public DbSet<ItemProductSeri> ItemProductSeries { get; set; }
         public DbSet<ItemProductAddOn> ItemProductAddOns { get; set; }
         public DbSet<ItemProductGroupon> ItemProductGroupons { get; set; }
         public DbSet<ItemEvent> ItemEvents { get; set; }

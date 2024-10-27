@@ -99,7 +99,7 @@
     protected async Task HandleSubmit()
     {
         var result = await WarehouseApiClient.CreateProduct(Model);
-        if (result)
+        if (string.IsNullOrEmpty(result))
         {
             ShowDialog = false;
             await CloseEventCallbak.InvokeAsync(Model);
@@ -107,7 +107,7 @@
         }
         else
         {
-            ToastService.ShowError("Thêm Sản phẩm không thành công");
+            ToastService.ShowError(result);
         }
     }
 

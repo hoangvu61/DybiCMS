@@ -1,0 +1,140 @@
+﻿@page "/settings/productcodes"
+@attribute [Authorize]
+
+@using Web.App.Components
+@using Web.App.Pages.Components
+@using Web.App.Pages.Settings.Components
+@using Microsoft.AspNetCore.Authorization;
+@using Web.App.Services;
+@using Web.Models;
+@using Web.Models.SeedWork;
+@using Microsoft.Extensions.Configuration
+
+@inject IToastService ToastService;
+@inject IWarehouseApiClient WarehouseApiClient;
+
+<section class="content-header">
+    <div class="container-fluid">
+        <h1 class="m-0">Quản lý Series</h1>
+    </div>
+</section>
+
+<section class="content">
+    <div class="container-fluid">
+        @if (ListProducts == null)
+        {
+            <LoadingIndicator></LoadingIndicator>
+        }
+        else
+        {
+            <div class="card card-outline card-info">
+                <div class="card-header">
+                    <h3 class="card-title">Danh sách Series</h3>
+                </div>
+                <div class="card-body">
+                    <ProductSearch @ref="ProductSearchControl" OnSearch="SearchProduct"></ProductSearch>
+                    <table class="table table-sm table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Mã</th>
+                                <th>Tên</th>
+                                <th>Danh mục</th>
+                                <th>Số lượng </th>
+                                <th class="text-center" style="width:60px">
+                                    <button @onclick="() => ProductListDialog.Show()" class="btn btn-primary btn-xs">Thêm</button>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in ListProducts)
+                            {
+                                <tr>
+                                    <td>@item.Code</td>
+                                    <td>@item.Title</td>
+                                    <td>@item.CategoryName</td>
+                                    <td>@item.CountSeries</td>
+                                    <td>
+                                        <button class="btn btn-primary btn-xs" @onclick="@(() => SeriesPrintDialog.Show(item))">In</button>
+                                        <button class="btn btn-info btn-xs" @onclick="@(() => SeriesViewDialog.Show(item))">Xem</button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="9">
+                                    <Pagination MetaData="MetaData" Spread="2" SelectedPage="SelectedPage"></Pagination>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+            <WarehouseProductListPopup @ref="ProductListDialog" EventCallbak="AddProduct" AllowAddProduct="true"></WarehouseProductListPopup>
+            <SeriesCreate @ref="SeriesCreateDialog" Callback="RefreshList"></SeriesCreate>
+            <SeriesView @ref="SeriesViewDialog" Callback="RefreshList"></SeriesView>
+            <SeriesPrint @ref="SeriesPrintDialog"></SeriesPrint>
+        }
+    </div>
+</section>
+
+@code {
+    private WarehouseProductListPopup ProductListDialog { set; get; }
+    private SeriesCreate SeriesCreateDialog { set; get; }
+    private SeriesView SeriesViewDialog { set; get; }
+    private SeriesPrint SeriesPrintDialog { set; get; }
+
+    private const int PageSize = 20;
+    private List<WarehouseProductDto> ListProducts;
+    private Guid DeleteId { set; get; }
+
+    private ProductSearch ProductSearchControl { set; get; }
+    private ProductListSearch ProductListSearch = new ProductListSearch();
+    public MetaData MetaData { get; set; } = new MetaData();
+
+    [CascadingParameter]
+    private Error Error { set; get; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        ProductListSearch.PageSize = PageSize;
+        ProductListSearch.RequiredCode = true;
+        await RefreshList();
+    }
+
+    public async Task RefreshList()
+    {
+        try
+        {
+            var pagingResponse = await WarehouseApiClient.GetProducts(ProductListSearch);
+            ListProducts = pagingResponse.Items;
+            MetaData = pagingResponse.MetaData;
+
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Error.ProcessError(ex);
+        }
+    }
+
+    public void AddProduct(WarehouseProductDto product)
+    {
+        SeriesCreateDialog.Show(product);
+    }
+
+    public async Task SearchProduct(ProductListSearch productListSearch)
+    {
+        ProductListSearch = productListSearch;
+        ProductListSearch.PageSize = PageSize;
+        ProductListSearch.RequiredCode = true;
+        await RefreshList();
+    }
+
+    private async Task SelectedPage(int page)
+    {
+        ProductListSearch.PageNumber = page;
+        await RefreshList();
+    }
+}

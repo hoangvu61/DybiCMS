@@ -27,7 +27,7 @@
                     <div class="modal-body">
                         <div class="form-group">
                             <label for="Name">Loại:</label>
-                            <InputSelect class="form-control form-control-sm" ValueExpression="@(()=>Model.Type)"
+                            <InputSelect class="form-select form-control-sm" ValueExpression="@(()=>Model.Type)"
                                      Value="@Model.Type"
                                      ValueChanged="@((string value) => OnTypeChanged(value))">
                                  @foreach (var type in DataSource.MenuTypes)
@@ -42,7 +42,7 @@
                             {
                                 <div class="input-group input-group-sm mb-3">
                                     <span class="input-group-text">Danh mục</span>
-                                    <InputSelect class="form-control form-control-sm" ValueExpression="@(()=>Model.Id)"
+                                    <InputSelect class="form-select form-control-sm" ValueExpression="@(()=>Model.Id)"
                                                  Value="@Model.Id"
                                                  ValueChanged="@((Guid value) => OnCategoryChanged(value))">
                                         <option value="">Chọn danh mục</option>

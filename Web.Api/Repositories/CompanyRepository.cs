@@ -111,14 +111,23 @@ namespace Web.Api.Repositories
             return config;
         }    
 
-        public async Task<bool> Delete(Company company)
+        public async Task<bool> Delete(Guid companyId)
         {
-            _context.Companies.Remove(company);
+            var warehouseInputFromSuppliers = await _context.WarehouseInputFromSuppliers.Where(e => e.Supplier.CompanyId == companyId).ToListAsync();
+            _context.WarehouseInputFromSuppliers.RemoveRange(warehouseInputFromSuppliers);
+            var warehouseInputFromFactories = await _context.WarehouseInputFromFactories.Where(e => e.Factory.CompanyId == companyId).ToListAsync();
+            _context.WarehouseInputFromFactories.RemoveRange(warehouseInputFromFactories);
+
+            var warehouseOutputToSuppliers = await _context.WarehouseOutputToSuppliers.Where(e => e.Supplier.CompanyId == companyId).ToListAsync();
+            _context.WarehouseOutputToSuppliers.RemoveRange(warehouseOutputToSuppliers);
+            var warehouseOutputToFactories = await _context.WarehouseOutputToFactories.Where(e => e.Factory.CompanyId == companyId).ToListAsync();
+            _context.WarehouseOutputToFactories.RemoveRange(warehouseOutputToFactories);
+
             try
             {
                 await _context.SaveChangesAsync();
             }
-            catch
+            catch (Exception ex)
             {
                 return false;
             }

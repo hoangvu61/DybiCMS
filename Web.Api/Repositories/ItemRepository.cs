@@ -673,9 +673,11 @@ namespace Web.Api.Repositories
         public async Task<PagedList<ItemProduct>> GetProducts(Guid companyId, ProductListSearch productSearch)
         {
             var query = _context.ItemProducts
-                    .Include(e => e.Item)
-                    .Include(e => e.Item.ItemLanguages)
+                    .Include(e => e.Series)
+                    .Include(e => e.Item).ThenInclude(e => e.ItemLanguages)
                     .Where(e => e.Item.CompanyId == companyId);
+
+            if (productSearch.RequiredCode) query = query.Where(e => e.Series.Count > 0);
 
             if (!string.IsNullOrEmpty(productSearch.Key))
             {
@@ -719,6 +721,16 @@ namespace Web.Api.Repositories
                    .Where(e => e.Item.CompanyId == companyId && e.ItemId == id);
             return await query.FirstOrDefaultAsync();
         }
+
+        public async Task<ItemProduct> CheckExistProductCode(Guid companyId, Guid id)
+        {
+            var query = _context.ItemProducts
+                   .Include(e => e.Item).ThenInclude(i => i.Tags)
+                   .Include(e => e.Item).ThenInclude(i => i.ItemLanguages)
+                   .Where(e => e.Item.CompanyId == companyId && e.ItemId == id);
+            return await query.FirstOrDefaultAsync();
+        }
+
         public async Task<ItemLanguage> GetProduct(Guid companyId, string code, string language)
         {
             var productId = await _context.WarehouseInputProductCodes.Where(e => e.ProductCode == code).Select(e => e.ProductId).FirstOrDefaultAsync();

@@ -15,5 +15,7 @@ namespace Web.Models
         [AllowNull]
         public string? CategoryName { get; set; }
         public FileData? Image { get; set; }
+
+        public int CountSeries { get; set; }
     }
 }

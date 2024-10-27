@@ -326,7 +326,7 @@ namespace Web.App.Services
         }
         #endregion
 
-        #region 
+        #region  Ton kho
         public async Task<PagedList<WarehouseInventoryDto>> GetInventories(WarehouseInventorySearch search)
         {
             var queryStringParam = new Dictionary<string, string>
@@ -450,7 +450,8 @@ namespace Web.App.Services
             var queryStringParam = new Dictionary<string, string>
             {
                 ["pageNumber"] = paging.PageNumber.ToString(),
-                ["pageSize"] = paging.PageSize.ToString()
+                ["pageSize"] = paging.PageSize.ToString(),
+                ["requiredCode"] = paging.RequiredCode.ToString(),
             };
 
             if (paging.CategoryId != null && paging.CategoryId != Guid.Empty)
@@ -473,10 +474,17 @@ namespace Web.App.Services
             var result = await _httpClient.GetFromJsonAsync<ProductDetailDto>($"/api/contents/products/codes/{endCode}/vi");
             return result;
         }
-        public async Task<bool> CreateProduct(WarehouseProductDto request)
+        public async Task<string> CreateProduct(WarehouseProductDto request)
         {
             var result = await _httpClient.PostAsJsonAsync($"/api/warehouses/products", request);
-            return result.IsSuccessStatusCode;
+            if (!result.IsSuccessStatusCode)
+            {
+                var stringData = await result.Content.ReadAsStringAsync();
+                var resultData = JsonConvert.DeserializeObject<ResponseErrorDto>(stringData);
+                if (resultData != null) return resultData.Detail;
+                return "Thêm Sản phẩm không thành công";
+            }
+            return string.Empty;
         }
         public async Task<bool> UpdateProduct(ProductDetailDto request)
         {
@@ -493,6 +501,29 @@ namespace Web.App.Services
         public async Task<bool> DeleteProduct(Guid id)
         {
             var result = await _httpClient.DeleteAsync($"/api/contents/products/{id}");
+            return result.IsSuccessStatusCode;
+        }
+
+        public async Task<List<string>> SeriesByProduct(Guid productId)
+        {
+            var result = await _httpClient.GetFromJsonAsync<List<string>>($"/api/warehouses/products/{productId}/series");
+            return result;
+        }
+        public async Task<List<string>> ImageCodesByProduct(Guid productId, string type)
+        {
+            var result = await _httpClient.GetFromJsonAsync<List<string>>($"/api/warehouses/products/{productId}/series/barcodes/{type}");
+            return result;
+        }
+        public async Task<bool> AddSearies(Guid productId, int number)
+        {
+            string url = $"/api/warehouses/products/{productId}/{number}";
+            var result = await _httpClient.PostAsync(url, null);
+            return result.IsSuccessStatusCode;
+        }
+        public async Task<bool> DeleteSearies(Guid productId, string seri)
+        {
+            string url = $"/api/warehouses/products/{productId}/delete/{seri}";
+            var result = await _httpClient.DeleteAsync(url);
             return result.IsSuccessStatusCode;
         }
         #endregion

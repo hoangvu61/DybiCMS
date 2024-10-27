@@ -1,10 +1,9 @@
-﻿using Azure.Core;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel.Design;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.Net;
 using Web.Api.Entities;
 using Web.Api.Extensions;
@@ -12,6 +11,8 @@ using Web.Api.Repositories;
 using Web.Models;
 using Web.Models.Enums;
 using Web.Models.SeedWork;
+using ZXing;
+using ZXing.Rendering;
 
 namespace Web.Api.Controllers
 {
@@ -1342,6 +1343,7 @@ namespace Web.Api.Controllers
                 Id = e.ItemId,
                 Code = e.Code,
                 CategoryId = e.CategoryId,
+                CountSeries = e.Series.Count,
                 Title = e.Item.ItemLanguages.Where(e => e.LanguageCode == languageCode).Select(e => e.Title).FirstOrDefault() ?? string.Empty,
                 Image = new FileData() { FileName = e.Item.Image, Type = FileType.ProductImage, Folder = user.CompanyId.ToString() },
             }).ToList();
@@ -1404,6 +1406,232 @@ namespace Web.Api.Controllers
             await _itemRepository.CreateProduct(item, null, null, null);
 
             return Ok();
+        }
+
+        [HttpGet]
+        [Route("products/{productId}/series")]
+        public async Task<IActionResult> GetSeriesByProduct([FromRoute] Guid productId)
+        {
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Unauthorized();
+
+            var searies = await _warehouseRepository.GetProductCodes(user.CompanyId, productId);
+            
+            return Ok(searies);
+        }
+
+        [HttpGet]
+        [Route("products/{productId}/series/barcodes/{type}")]
+        public async Task<IActionResult> GetBarCodesByProduct([FromRoute] Guid productId, string type)
+        {
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Unauthorized();
+
+            var fotmat = BarcodeFormat.CODE_128;
+            var width = 300;
+            var height = 100;
+            switch (type)
+            {
+                case "EAN_8":
+                    fotmat = BarcodeFormat.EAN_8;
+                    width = 300;
+                    height = 100;
+                    break;
+                case "EAN_13": 
+                    fotmat = BarcodeFormat.EAN_13;
+                    width = 300;
+                    height = 100;
+                    break;
+                case "UPC_A": 
+                    fotmat = BarcodeFormat.UPC_A;
+                    width = 300;
+                    height = 100;
+                    break;
+                case "UPC_E": 
+                    fotmat = BarcodeFormat.UPC_E;
+                    width = 300;
+                    height = 100; 
+                    break;
+                case "CODE_39": 
+                    fotmat = BarcodeFormat.CODE_39;
+                    width = 300;
+                    height = 100; 
+                    break;
+                case "CODE_93": 
+                    fotmat = BarcodeFormat.CODE_93;
+                    width = 300;
+                    height = 100;
+                    break;
+                case "CODE_128": 
+                    fotmat = BarcodeFormat.CODE_128;
+                    width = 300;
+                    height = 100;
+                    break;
+                case "ITF": 
+                    fotmat = BarcodeFormat.ITF;
+                    width = 300;
+                    height = 100; 
+                    break;
+                case "MSI": 
+                    fotmat = BarcodeFormat.MSI;
+                    width = 300;
+                    height = 100; 
+                    break;
+                case "RSS_14": 
+                    fotmat = BarcodeFormat.RSS_14;
+                    width = 300;
+                    height = 100; 
+                    break;
+                case "RSS_EXPANDED": 
+                    fotmat = BarcodeFormat.RSS_EXPANDED;
+                    width = 300;
+                    height = 100; 
+                    break;
+                case "QR_CODE": 
+                    fotmat = BarcodeFormat.QR_CODE;
+                    width = 250;
+                    height = 250; 
+                    break;
+                case "DATA_MATRIX": 
+                    fotmat = BarcodeFormat.DATA_MATRIX;
+                    width = 250;
+                    height = 250; 
+                    break;
+                case "AZTEC": 
+                    fotmat = BarcodeFormat.AZTEC;
+                    width = 250;
+                    height = 250; 
+                    break;
+                case "PDF_417": 
+                    fotmat = BarcodeFormat.PDF_417;
+                    width = 250;
+                    height = 250; 
+                    break;
+                case "MAXICODE": 
+                    fotmat = BarcodeFormat.MAXICODE;
+                    width = 250;
+                    height = 250;
+                    break;
+                case "CODABAR": 
+                    fotmat = BarcodeFormat.CODABAR;
+                    width = 300;
+                    height = 100; 
+                    break;
+                case "PHARMA_CODE": 
+                    fotmat = BarcodeFormat.PHARMA_CODE;
+                    width = 300;
+                    height = 100; 
+                    break;
+            }    
+
+            var images = new List<string>();
+            var searies = await _warehouseRepository.GetProductCodes(user.CompanyId, productId);
+            foreach (var code in searies)
+            {
+                try
+                {
+                    // Tạo mã vạch
+                    var barcodeWriter = new BarcodeWriterPixelData
+                    {
+                        Format = fotmat,
+                        Options = new ZXing.Common.EncodingOptions
+                        {
+                            Width = width,
+                            Height = height,
+                            Margin = 1
+                        },
+                    };
+                    var pixelData = barcodeWriter.Write(code);
+
+                    // Chuyển đổi dữ liệu pixel thành Bitmap
+                    using (var bitmap = new Bitmap(pixelData.Width, pixelData.Height, PixelFormat.Format32bppRgb))
+                    {
+                        var bitmapData = bitmap.LockBits(new Rectangle(0, 0, pixelData.Width, pixelData.Height), ImageLockMode.WriteOnly, PixelFormat.Format32bppRgb);
+                        try
+                        {
+                            // Sao chép dữ liệu pixel vào Bitmap
+                            System.Runtime.InteropServices.Marshal.Copy(pixelData.Pixels, 0, bitmapData.Scan0, pixelData.Pixels.Length);
+                        }
+                        finally
+                        {
+                            bitmap.UnlockBits(bitmapData);
+                        }
+
+                        // Chuyển đổi Bitmap thành chuỗi Base64
+                        var barcodeBase64 = ConvertToBase64(bitmap);
+                        images.Add(barcodeBase64);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    return Problem(ex.Message);
+                }
+            }
+            
+            return Ok(images);
+        }
+
+        [HttpPost]
+        [Route("products/{productId}/{number}")]
+        public async Task<IActionResult> AddSearies([FromRoute] Guid productId,[FromRoute] int number)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Unauthorized();
+
+            var category = await _itemRepository.GetProduct(user.CompanyId, productId);
+            if (category == null) return ValidationProblem($"Sản phẩn [{productId}] không tồn tại");
+
+            var series = new List<string>();
+            for (var i = 0; i < number; i++)
+            {
+                var checkExistCode = false;
+                var seri = string.Empty;
+                do
+                {
+                    seri = Guid.NewGuid().ToString();
+                    checkExistCode = await _warehouseRepository.CheckExistProductCode(user.CompanyId, seri);
+                } while (checkExistCode);
+                series.Add(seri);
+            }
+
+            var result = await _warehouseRepository.CreateProductCode(productId, series);
+
+            return Ok(result.Select(e => e.Seri).ToList());
+        }
+
+        [HttpDelete]
+        [Route("products/{productId}/delete/{seri}")]
+        public async Task<IActionResult> DeleteSearies([FromRoute] Guid productId, [FromRoute] string seri)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var userId = User.GetUserId();
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Unauthorized();
+
+            var category = await _itemRepository.GetProduct(user.CompanyId, productId);
+            if (category == null) return ValidationProblem($"Sản phẩn [{productId}] không tồn tại");
+
+            if (!string.IsNullOrEmpty(seri))
+            {
+                var checkExistCode = await _warehouseRepository.CheckExistProductCode(user.CompanyId, seri);
+                if (!checkExistCode) return ValidationProblem($"Searies [{seri}] đã tồn tại");
+            }
+
+            var resultData = await _warehouseRepository.DeleteProductCode(productId, seri);
+            switch (resultData)
+            {
+                case 0: return Ok(resultData);
+                case 1: return ValidationProblem($"[1] Không tồn tại số series {seri}");
+            }
+            return Ok(resultData);
         }
         #endregion
 
@@ -1516,5 +1744,12 @@ namespace Web.Api.Controllers
             return Ok(data);
         }
         #endregion
+
+        private string ConvertToBase64(Bitmap bitmap)
+        {
+            using var memoryStream = new MemoryStream();
+            bitmap.Save(memoryStream, System.Drawing.Imaging.ImageFormat.Png);
+            return $"data:image/png;base64,{Convert.ToBase64String(memoryStream.ToArray())}";
+        }
     }
 }

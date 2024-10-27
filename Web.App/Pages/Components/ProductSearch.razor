@@ -50,7 +50,7 @@
 
     private async Task TextChange()
     {
-        if (Model.Key.Length > 3)
+        if (!string.IsNullOrEmpty(Model.Key) && Model.Key.Length > 3)
             await OnSearch.InvokeAsync(Model);
     }
 

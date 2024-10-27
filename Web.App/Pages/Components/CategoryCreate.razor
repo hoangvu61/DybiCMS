@@ -21,7 +21,7 @@
                         <div class="form-group">
                             <div class="input-group input-group-xs mb-2">
                                 <span class="input-group-text">Danh mục cha</span>
-                                <InputSelect class="form-control" @bind-Value="Model.ParentId">
+                                <InputSelect class="form-select" @bind-Value="Model.ParentId">
                                     <option value="">Chọn danh mục cha</option>
                                     @foreach (var category in ListCategories)
                                     {

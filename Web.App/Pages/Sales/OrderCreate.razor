@@ -430,7 +430,7 @@
 
         if (string.IsNullOrEmpty(Model.CustomerPhone) || string.IsNullOrEmpty(Model.CustomerName)) ToastService.ShowWarning("Vui lòng nhập thông tin khách hàng");
         else if (Model.Products.Count == 0) ToastService.ShowWarning("Vui lòng chọn ít nhất 1 sản phẩm");
-        else if (string.IsNullOrEmpty(Model.CustomerAddress)) ToastService.ShowWarning("Vui lòng nhập địa chỉ giao hàng");
+        else if (!Model.IsDelivery && string.IsNullOrEmpty(Model.CustomerAddress)) ToastService.ShowWarning("Vui lòng nhập địa chỉ giao hàng");
         else
         {
             var result = await OrderApiClient.CreateOrder(Model);
