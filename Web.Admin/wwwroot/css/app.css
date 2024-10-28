@@ -121,3 +121,7 @@ a, .btn-link {
 .ql-formats .btn-code {width: 24px !important;border: 1px solid !important;padding: 0px !important;font-size: 12px;height: 18px !important;margin-top: 3px;font-weight: 600;}
 
 .submenu-open {padding-left:25px}
+.dropzone { width: 100%; height: 150px;border: 2px dashed #ccc;display: flex; align-items: center;justify-content: center;color: #777;cursor: pointer;position: relative;text-align: center;}
+.dropzone input[type="file"] {opacity: 0;position: absolute;top: 0;left: 0;width: 100%;height: 100%;cursor: pointer;}
+.dropzone label { position: absolute;pointer-events: none;}
+.dropzone:hover { border-color: #333; background-color: #f9f9f9;}
