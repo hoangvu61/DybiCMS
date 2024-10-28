@@ -162,7 +162,7 @@
                 </div>
             </EditForm>
 
-            <ImageSelector @ref="ImageManagerControl" ImageSelected="InsertImage"></ImageSelector>
+            <ImageSelector @ref="ImageManagerControl" ImageSelected="InsertImage" ImageAddAlt="AddAlt"></ImageSelector>
             <EmbedVideoInsert @ref="VideoInsertControl" InsertVideo="InsertVideo"></EmbedVideoInsert>
             <HTMLEdit @ref="EditHTML" TextChanged="ApplyHTML"></HTMLEdit>
         }
@@ -239,14 +239,20 @@
         }
     }
 
-    protected async Task InsertImageClick()
+    protected void InsertImageClick()
     {
         ImageManagerControl.Show(true);
     }
 
-    protected async Task InsertImage(ImageSelected img)
+    protected async Task InsertImage(string src)
     {
-        await this.QuillHtml.InsertImage(img.URL);
+        await this.QuillHtml.InsertImage(src);
+        StateHasChanged();
+    }
+
+    protected async Task AddAlt(ImageSelected img)
+    {
+        //await this.QuillHtml.InsertImage(img.URL);
 
         var currentImageURL = $"<img src=\"{img.URL}\" alt=\"{img.URL}\">";
         var newImageURL = string.Empty;
@@ -264,7 +270,7 @@
         ImageManagerControl.Show(false);
     }
 
-    protected async Task InsertVideoClick()
+    protected void InsertVideoClick()
     {
         VideoInsertControl.Show(true);
     }

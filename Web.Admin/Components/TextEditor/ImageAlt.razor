@@ -43,12 +43,12 @@
     private ImageSelected Image { get; set; } = new ImageSelected();
     private bool ShowHTML = false;
 
-    public async void Show(string url)
+    public void Show(string url)
     {
         Image.URL = url;
         ShowHTML = true;
     }
-    public async void Hide()
+    public void Hide()
     {
         ShowHTML = false;
     }

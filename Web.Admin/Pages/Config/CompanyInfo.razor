@@ -222,7 +222,7 @@
                 
                 </div>
             </div>
-            <ImageSelector @ref="ImageManagerControl" ImageSelected="InsertImage"></ImageSelector>
+            <ImageSelector @ref="ImageManagerControl" ImageSelected="InsertImage" ImageAddAlt="AddAlt"></ImageSelector>
             <EmbedVideoInsert @ref="VideoInsertControl" InsertVideo="InsertVideo"></EmbedVideoInsert>
             <HTMLEdit @ref="EditHTML" TextChanged="ApplyHTML"></HTMLEdit>
         }
@@ -318,19 +318,25 @@
         StateHasChanged();
     }
 
-    protected async Task InsertImageClick()
+    protected void InsertImageClick()
     {
         ImageManagerControl.Show(true);
     }
 
-    protected async Task InsertImage(ImageSelected img)
+    protected async Task InsertImage(string imgsrc)
     {
-        await this.QuillHtml.InsertImage(img.URL);
+        await this.QuillHtml.InsertImage(imgsrc);
 
+        StateHasChanged();
+    }
+    protected async Task AddAlt(ImageSelected img)
+    {
+        //await this.QuillHtml.InsertImage(img.URL);
         var currentImageURL = $"<img src=\"{img.URL}\" alt=\"{img.URL}\">";
         var newImageURL = string.Empty;
         if (!string.IsNullOrEmpty(img.ALT)) newImageURL = $"<img src=\"{img.URL}\" alt=\"{img.ALT}\">";
         else newImageURL = $"<img src=\"{img.URL}\" alt=\"{Model.FullName}\">";
+
         if (!string.IsNullOrEmpty(newImageURL))
         {
             Model.AboutUs = await this.QuillHtml.GetHTML();
@@ -342,7 +348,7 @@
         ImageManagerControl.Show(false);
     }
 
-    protected async Task InsertVideoClick()
+    protected void InsertVideoClick()
     {
         VideoInsertControl.Show(true);
     }

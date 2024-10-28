@@ -243,8 +243,8 @@ else
             </EditForm>
             <ProductAddOnList ItemId="Model.Id"></ProductAddOnList>
             <ProductRelatedList ItemId="Model.Id"></ProductRelatedList>
-            
-            <ImageSelector @ref="ImageManagerControl" ImageSelected="InsertImage"></ImageSelector>
+
+            <ImageSelector @ref="ImageManagerControl" ImageSelected="InsertImage" ImageAddAlt="AddAlt"></ImageSelector>
             <HTMLEdit @ref="EditHTML" TextChanged="ApplyHTML"></HTMLEdit>
             <EmbedVideoInsert @ref="VideoInsertControl" InsertVideo="InsertVideo"></EmbedVideoInsert>
             <CategoryCreate @ref="CreateCategory" LanguageCode="@LanguageCode" CloseEventCallbak="LoadCategories" Type="PRO"></CategoryCreate>
@@ -290,7 +290,7 @@ else
         }
         else
         {
-            LoadData(LanguageCode);
+            await LoadData(LanguageCode);
         }
     }
 
@@ -301,7 +301,7 @@ else
         Tags = await ContentApiClient.GetTags();
         StateHasChanged();
 
-        await ApplyHTML(Model.Content);
+        if (!string.IsNullOrEmpty(Model.Content)) await ApplyHTML(Model.Content);
 
         await SEOItemControl.Load();
     }
@@ -349,15 +349,20 @@ else
         }
     }
 
-    protected async Task InsertImageClick()
+    protected void InsertImageClick()
     {
         ImageManagerControl.Show(true);
     }
 
-    protected async Task InsertImage(ImageSelected img)
+    protected async Task InsertImage(string imgsrc)
     {
-        await this.QuillHtml.InsertImage(img.URL);
+        await this.QuillHtml.InsertImage(imgsrc);
 
+        StateHasChanged();
+    }
+    protected async Task AddAlt(ImageSelected img)
+    {
+        //await this.QuillHtml.InsertImage(img.URL);
         var currentImageURL = $"<img src=\"{img.URL}\" alt=\"{img.URL}\">";
         var newImageURL = string.Empty;
         if (!string.IsNullOrEmpty(img.ALT)) newImageURL = $"<img src=\"{img.URL}\" alt=\"{img.ALT}\">";
@@ -374,7 +379,7 @@ else
         ImageManagerControl.Show(false);
     }
 
-    protected async Task InsertVideoClick()
+    protected void InsertVideoClick()
     {
         VideoInsertControl.Show(true);
     }
@@ -384,7 +389,7 @@ else
         // Model.Content += embedVideo;
 
         await this.QuillHtml.InsertImage("DybiEmbedVideoInsert");
-        
+
         Model.Content = await this.QuillHtml.GetHTML();
         Model.Content = Model.Content.Replace("<img src=\"DybiEmbedVideoInsert\" alt=\"DybiEmbedVideoInsert\">", embedVideo);
 
@@ -403,6 +408,8 @@ else
             {
                 await stream.ReadAsync(buf); // copy the stream to the buffer
             }
+
+            if (Model.Image == null) Model.Image = new FileData();
             Model.Image.Base64data = Convert.ToBase64String(buf);
             Model.Image.ContentType = file.ContentType;
             Model.Image.FileName = file.Name;
