@@ -504,20 +504,20 @@ namespace Web.App.Services
             return result.IsSuccessStatusCode;
         }
 
-        public async Task<List<string>> SeriesByProduct(Guid productId)
+        public async Task<List<ProductSeriDto>> SeriesByProduct(Guid productId)
         {
-            var result = await _httpClient.GetFromJsonAsync<List<string>>($"/api/warehouses/products/{productId}/series");
+            var result = await _httpClient.GetFromJsonAsync<List<ProductSeriDto>>($"/api/warehouses/products/{productId}/series");
             return result;
         }
-        public async Task<List<string>> ImageCodesByProduct(Guid productId, string type)
+        public async Task<List<ProductSeriDto>> ImageCodesByProduct(string productId)
         {
-            var result = await _httpClient.GetFromJsonAsync<List<string>>($"/api/warehouses/products/{productId}/series/barcodes/{type}");
+            var result = await _httpClient.GetFromJsonAsync<List<ProductSeriDto>>($"/api/warehouses/products/{productId}/series/barcodes");
             return result;
         }
-        public async Task<bool> AddSearies(Guid productId, int number)
+        public async Task<bool> AddSearies(ProductSeriCreateRequest request)
         {
-            string url = $"/api/warehouses/products/{productId}/{number}";
-            var result = await _httpClient.PostAsync(url, null);
+            string url = $"/api/warehouses/products/{request.Id}/series";
+            var result = await _httpClient.PostAsJsonAsync(url, request);
             return result.IsSuccessStatusCode;
         }
         public async Task<bool> DeleteSearies(Guid productId, string seri)

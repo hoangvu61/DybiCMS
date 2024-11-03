@@ -14,9 +14,9 @@ namespace Web.Api.Repositories
         #endregion
 
         #region
-        Task<List<string>> GetProductCodes(Guid companyId, Guid productId);
+        Task<List<ItemProductSeri>> GetProductCodes(Guid companyId, Guid productId);
         Task<bool> CheckExistProductCode(Guid companyId, string code);
-        Task<List<ItemProductSeri>> CreateProductCode(Guid productId, List<string> listSeries);
+        Task<List<ItemProductSeri>> CreateProductCode(Guid productId, string type, List<string> listSeries);
         Task<int> DeleteProductCode(Guid productId, string series);
         #endregion
 

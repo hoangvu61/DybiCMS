@@ -1,0 +1,138 @@
+﻿@page "/Sales/OrderPrint/{Id}"
+@attribute [Authorize]
+@layout NullLayout
+
+@using Microsoft.AspNetCore.Authorization;
+@using Web.App.Components
+@using Web.App.Services;
+@using Web.Models;
+@using System.IO;
+@using Web.Models.Enums
+@inject IToastService ToastService;
+@inject IWarehouseApiClient WarehouseApiClient;
+@inject IOrderApiClient OrderApiClient;
+@inject IJSRuntime JS
+
+@if (Model != null)
+{
+    <div class="container mt-5">
+        <div class="invoice-header">
+            <h1>Hóa đơn bán hàng</h1>
+            <p>Mã đơn hang: @Model.Id | Ngày tạo: @Model.CreateDate.ToString("dd/MM/yyyy")</p>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-12 text-md-end">
+                <h5>Khách hàng:</h5>
+                <p>
+                    @Model.CustomerName<br>
+                    @if(!string.IsNullOrEmpty(Model.CustomerAddress)) 
+                    {
+                        @Model.CustomerAddress<br>
+                    }
+                    @Model.CustomerPhone
+                </p>
+            </div>
+        </div>
+
+        <table class="table table-bordered">
+            <thead class="table-light">
+                <tr>
+                    <th>Mô tả</th>
+                    <th>Số lượng</th>
+                    <th>Đơn giá</th>
+                    <th>Thành tiền</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var product in Products)
+                {
+                    <tr>
+                        <td>@product.Name</td>
+                        <td class="text-center">@product.Quantity.ToString("N0")</td>
+                        <td class="text-right">@product.Price.ToString("N0")</td>
+                        <td class="text-right">@product.TotalCost.ToString("N0")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="row">
+            <div class="col-md-6 offset-md-6">
+                <table class="table">
+                    <tbody>
+                        @if (Model.DiscountType > 0)
+                        {
+                            <tr>
+                                <td class="text-end">Tạm tính:</td>
+                                <td class="text-end">@Products.Sum(e => e.TotalCost).ToString("N0")</td>
+                            </tr>
+                            @if (Model.DiscountType == 3)
+                            {
+                                <tr class="total-row">
+                                    <td class="text-end">Giảm giá:</td>
+                                    <td class="text-end">@(Products.Sum(e => e.TotalCost) - Model.Discount).ToString("N0")</td>
+                                </tr>
+                                <tr class="total-row">
+                                    <td class="text-end">Tổng tiền:</td>
+                                    <td class="text-end">@Model.Discount.ToString("N0")</td>
+                                </tr>
+                            }
+                            else if (Model.DiscountType == 2)
+                            {
+                                <tr class="total-row">
+                                    <td class="text-end">Giảm giá:</td>
+                                    <td class="text-end">@Model.Discount.ToString("N0")</td>
+                                </tr>
+                                <tr class="total-row">
+                                    <td class="text-end">Tổng tiền:</td>
+                                    <td class="text-end">@((Products.Sum(e => e.TotalCost) - Model.Discount).ToString("N0"))</td>
+                                </tr>
+                            }
+                            else if (Model.DiscountType == 1)
+                            {
+                                <tr class="total-row">
+                                    <td class="text-end">Giảm giá:</td>
+                                    <td class="text-end">@((Products.Sum(e => e.TotalCost) * Model.Discount / 100).ToString("N0")) (@Model.Discount %)</td>
+                                </tr>
+                                <tr class="total-row">
+                                    <td class="text-end">Tổng tiền:</td>
+                                    <td class="text-end">@((Products.Sum(e => e.TotalCost) - (Products.Sum(e => e.TotalCost) * Model.Discount / 100)).ToString("N0"))</td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr class="total-row">
+                                <td class="text-end">Tổng tiền:</td>
+                                <td class="text-end">@Products.Sum(e => e.TotalCost).ToString("N0")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <p class="text-center mt-5"><em>Thank you for your business!</em></p>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string Id { set; get; }
+
+    private OrderDetailDto Model { get; set; } = new OrderDetailDto();
+    private OrderDeliveryDto Delivery { get; set; }
+    private List<OrderProductDto> Products { set; get; } = new List<OrderProductDto>();
+
+    protected async override Task OnInitializedAsync()
+    {
+        if (!string.IsNullOrEmpty(Id))
+        {
+            Model.Id = Guid.Parse(Id);
+            Model = await OrderApiClient.GetOrder(Model.Id);
+            Delivery = await OrderApiClient.GetOrderDelivery(Model.Id);
+            Products = await OrderApiClient.GetOrderProducts(Model.Id);
+        }
+    }
+}

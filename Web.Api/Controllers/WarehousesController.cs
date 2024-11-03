@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Library;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -12,7 +13,6 @@ using Web.Models;
 using Web.Models.Enums;
 using Web.Models.SeedWork;
 using ZXing;
-using ZXing.Rendering;
 
 namespace Web.Api.Controllers
 {
@@ -25,13 +25,19 @@ namespace Web.Api.Controllers
         private readonly IWarehouseRepository _warehouseRepository;
         private readonly IItemRepository _itemRepository;
         private readonly IOrderRepository _orderRepository;
-
-        public WarehousesController(UserManager<User> userManager, IWarehouseRepository warehouseRepository, IItemRepository itemRepository, IOrderRepository orderRepository)
+        private readonly ICompanyRepository _companyRepository;
+        public WarehousesController(
+            UserManager<User> userManager, 
+            IWarehouseRepository warehouseRepository, 
+            IItemRepository itemRepository, 
+            IOrderRepository orderRepository,
+            ICompanyRepository companyRepository)
         {
             _warehouseRepository = warehouseRepository;
             _userManager = userManager;
             _itemRepository = itemRepository;
             _orderRepository = orderRepository;
+            _companyRepository = companyRepository;
         }
 
         #region config
@@ -1417,13 +1423,18 @@ namespace Web.Api.Controllers
             if (user == null) return Unauthorized();
 
             var searies = await _warehouseRepository.GetProductCodes(user.CompanyId, productId);
+            var dtos = searies.Select(e => new ProductSeriDto
+            {
+                Seri = e.Seri,
+                Type = e.Type
+            });
             
             return Ok(searies);
         }
 
         [HttpGet]
-        [Route("products/{productId}/series/barcodes/{type}")]
-        public async Task<IActionResult> GetBarCodesByProduct([FromRoute] Guid productId, string type)
+        [Route("products/{productId}/series/barcodes")]
+        public async Task<IActionResult> GetBarCodesByProduct([FromRoute] Guid productId)
         {
             var userId = User.GetUserId();
             var user = await _userManager.FindByIdAsync(userId);
@@ -1432,106 +1443,57 @@ namespace Web.Api.Controllers
             var fotmat = BarcodeFormat.CODE_128;
             var width = 300;
             var height = 100;
-            switch (type)
-            {
-                case "EAN_8":
-                    fotmat = BarcodeFormat.EAN_8;
-                    width = 300;
-                    height = 100;
-                    break;
-                case "EAN_13": 
-                    fotmat = BarcodeFormat.EAN_13;
-                    width = 300;
-                    height = 100;
-                    break;
-                case "UPC_A": 
-                    fotmat = BarcodeFormat.UPC_A;
-                    width = 300;
-                    height = 100;
-                    break;
-                case "UPC_E": 
-                    fotmat = BarcodeFormat.UPC_E;
-                    width = 300;
-                    height = 100; 
-                    break;
-                case "CODE_39": 
-                    fotmat = BarcodeFormat.CODE_39;
-                    width = 300;
-                    height = 100; 
-                    break;
-                case "CODE_93": 
-                    fotmat = BarcodeFormat.CODE_93;
-                    width = 300;
-                    height = 100;
-                    break;
-                case "CODE_128": 
-                    fotmat = BarcodeFormat.CODE_128;
-                    width = 300;
-                    height = 100;
-                    break;
-                case "ITF": 
-                    fotmat = BarcodeFormat.ITF;
-                    width = 300;
-                    height = 100; 
-                    break;
-                case "MSI": 
-                    fotmat = BarcodeFormat.MSI;
-                    width = 300;
-                    height = 100; 
-                    break;
-                case "RSS_14": 
-                    fotmat = BarcodeFormat.RSS_14;
-                    width = 300;
-                    height = 100; 
-                    break;
-                case "RSS_EXPANDED": 
-                    fotmat = BarcodeFormat.RSS_EXPANDED;
-                    width = 300;
-                    height = 100; 
-                    break;
-                case "QR_CODE": 
-                    fotmat = BarcodeFormat.QR_CODE;
-                    width = 250;
-                    height = 250; 
-                    break;
-                case "DATA_MATRIX": 
-                    fotmat = BarcodeFormat.DATA_MATRIX;
-                    width = 250;
-                    height = 250; 
-                    break;
-                case "AZTEC": 
-                    fotmat = BarcodeFormat.AZTEC;
-                    width = 250;
-                    height = 250; 
-                    break;
-                case "PDF_417": 
-                    fotmat = BarcodeFormat.PDF_417;
-                    width = 250;
-                    height = 250; 
-                    break;
-                case "MAXICODE": 
-                    fotmat = BarcodeFormat.MAXICODE;
-                    width = 250;
-                    height = 250;
-                    break;
-                case "CODABAR": 
-                    fotmat = BarcodeFormat.CODABAR;
-                    width = 300;
-                    height = 100; 
-                    break;
-                case "PHARMA_CODE": 
-                    fotmat = BarcodeFormat.PHARMA_CODE;
-                    width = 300;
-                    height = 100; 
-                    break;
-            }    
-
-            var images = new List<string>();
+            
+            var dtos = new List<ProductSeriDto>();
             var searies = await _warehouseRepository.GetProductCodes(user.CompanyId, productId);
             foreach (var code in searies)
             {
+                var dto = new ProductSeriDto()
+                {
+                    Seri = code.Seri,
+                    Type = code.Type
+                };
+
+                switch (dto.Type)
+                {
+                    case "EAN_8":
+                        fotmat = BarcodeFormat.EAN_8;
+                        width = 300;
+                        height = 100;
+                        break;
+                    case "EAN_13":
+                        fotmat = BarcodeFormat.EAN_13;
+                        width = 300;
+                        height = 100;
+                        break;
+                    case "UPC_A":
+                        fotmat = BarcodeFormat.UPC_A;
+                        width = 300;
+                        height = 100;
+                        break;
+                    case "CODE_128":
+                        fotmat = BarcodeFormat.CODE_128;
+                        width = 300;
+                        height = 100;
+                        break;
+                    case "QR_CODE":
+                        fotmat = BarcodeFormat.QR_CODE;
+                        width = 250;
+                        height = 250;
+                        break;
+                }
+
                 try
                 {
+                    var content = dto.Seri;
+                    if (fotmat == BarcodeFormat.QR_CODE)
+                    {
+                        var domains = await _companyRepository.GetDomains(user.CompanyId);
+                        var domain = domains.Where(e => !e.Domain.StartsWith("www") && !e.Domain.StartsWith("localhost")).Select(e => e.Domain).FirstOrDefault();
+                        if (!string.IsNullOrEmpty(domain))
+                            content = $"https://{domain}/scan.aspx?seri={dto.Type}";
+                    } 
+
                     // Tạo mã vạch
                     var barcodeWriter = new BarcodeWriterPixelData
                     {
@@ -1543,7 +1505,7 @@ namespace Web.Api.Controllers
                             Margin = 1
                         },
                     };
-                    var pixelData = barcodeWriter.Write(code);
+                    var pixelData = barcodeWriter.Write(content);
 
                     // Chuyển đổi dữ liệu pixel thành Bitmap
                     using (var bitmap = new Bitmap(pixelData.Width, pixelData.Height, PixelFormat.Format32bppRgb))
@@ -1560,8 +1522,8 @@ namespace Web.Api.Controllers
                         }
 
                         // Chuyển đổi Bitmap thành chuỗi Base64
-                        var barcodeBase64 = ConvertToBase64(bitmap);
-                        images.Add(barcodeBase64);
+                        dto.ImageBase64 = ConvertToBase64(bitmap);
+                        dtos.Add(dto);
                     }
                 }
                 catch (Exception ex)
@@ -1570,12 +1532,12 @@ namespace Web.Api.Controllers
                 }
             }
             
-            return Ok(images);
+            return Ok(dtos);
         }
 
         [HttpPost]
-        [Route("products/{productId}/{number}")]
-        public async Task<IActionResult> AddSearies([FromRoute] Guid productId,[FromRoute] int number)
+        [Route("products/{productId}/series")]
+        public async Task<IActionResult> AddSearies([FromRoute] Guid productId, [FromBody] ProductSeriCreateRequest request)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -1587,20 +1549,30 @@ namespace Web.Api.Controllers
             var category = await _itemRepository.GetProduct(user.CompanyId, productId);
             if (category == null) return ValidationProblem($"Sản phẩn [{productId}] không tồn tại");
 
+            var domains = await _companyRepository.GetDomains(user.CompanyId);
+            var domain = domains.Where(e => !e.Domain.StartsWith("www") && !e.Domain.StartsWith("localhost")).Select(e => e.Domain).FirstOrDefault();
+
             var series = new List<string>();
-            for (var i = 0; i < number; i++)
+            for (var i = 0; i < request.NunberOfSeries; i++)
             {
                 var checkExistCode = false;
                 var seri = string.Empty;
                 do
                 {
-                    seri = Guid.NewGuid().ToString();
+                    switch(request.Type)
+                    {
+                        case "QR_CODE": seri = $"https://{domain}/scan.aspx?seri={Guid.NewGuid().ToString()}"; break;
+                        case "EAN_13": seri = GenerateRandomCode.GenerateRandomEAN(request.EANContryCode ?? "893", 13); break;
+                        case "EAN_8": seri = GenerateRandomCode.GenerateRandomEAN(request.EANContryCode ?? "893", 8); break;
+                        case "CODE_128": seri = GenerateRandomCode.GenerateRandomCode128(request.CODE128Set == null ? 'B' : request.CODE128Set[0], 10); break;
+                        case "UPC_A": seri = GenerateRandomCode.GenerateRandomUPCA(); break;
+                    }    
                     checkExistCode = await _warehouseRepository.CheckExistProductCode(user.CompanyId, seri);
                 } while (checkExistCode);
                 series.Add(seri);
             }
 
-            var result = await _warehouseRepository.CreateProductCode(productId, series);
+            var result = await _warehouseRepository.CreateProductCode(productId, request.Type, series);
 
             return Ok(result.Select(e => e.Seri).ToList());
         }

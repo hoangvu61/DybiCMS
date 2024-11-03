@@ -168,6 +168,8 @@ namespace Web.Api.Controllers
                 CancelDate = order.CancelDate,
                 SendDate = order.SendDate,
                 ReceiveDate = order.ReceiveDate,
+                Discount = order.Discount,
+                DiscountType = order.DiscountType,
                 Note = order.Note,
             };
             return Ok(orderDto);
@@ -194,6 +196,8 @@ namespace Web.Api.Controllers
                 CustomerName = request.CustomerName,
                 CustomerPhone = request.CustomerPhone,
                 CustomerAddress= request.CustomerAddress,
+                DiscountType = request.DiscountType,
+                Discount = request.Discount,
                 Products = new List<OrderProduct>()
             };
 
@@ -208,7 +212,7 @@ namespace Web.Api.Controllers
                     CompanyId = user.CompanyId,
                     CustomerName = request.CustomerName,
                     CustomerPhone = request.CustomerPhone,
-                    CustomerAddress = request.CustomerAddress,
+                    CustomerAddress = request.CustomerAddress
                 };
             }
 
@@ -225,14 +229,15 @@ namespace Web.Api.Controllers
 
             if (request.Attributes != null)
             {
+                var attributes = request.Attributes.Where(e => !string.IsNullOrEmpty(e.Value));
                 order.Attributes = new List<OrderAttribute>();
-                foreach (var attribute in request.Attributes)
+                foreach (var attribute in attributes)
                 {
                     order.Attributes.Add(new OrderAttribute
                     {
                         CompanyId = user.CompanyId,
                         AttributeId = attribute.Id,
-                        Value = attribute.Value,
+                        Value = attribute.Value ?? string.Empty,
                         LanguageCode = "vi",
                     });
                 }
@@ -244,7 +249,7 @@ namespace Web.Api.Controllers
                 {
                     DeliveryId = request.Delivery.DeliveryId,
                     DeliveryFee = request.Delivery.DeliveryFee,
-                    DeliveryCode = request.Delivery.DeliveryCode,
+                    DeliveryCode = request.Delivery.DeliveryCode ?? string.Empty,
                     COD = request.Delivery.COD,
                     DeliveryNote = request.Delivery.DeliveryNote
                 };

@@ -241,8 +241,8 @@ else
                     </div>
                 </div>
             </EditForm>
-            
-            <ImageSelector @ref="ImageManagerControl" ImageSelected="InsertImage"></ImageSelector>
+
+            <ImageSelector @ref="ImageManagerControl" ImageSelected="InsertImage" ImageAddAlt="AddAlt"></ImageSelector>
             <HTMLEdit @ref="EditHTML" TextChanged="ApplyHTML"></HTMLEdit>
             <EmbedVideoInsert @ref="VideoInsertControl" InsertVideo="InsertVideo"></EmbedVideoInsert>
             <CategoryCreate @ref="CreateCategory" CloseEventCallbak="LoadCategories"></CategoryCreate>
@@ -362,14 +362,17 @@ else
         }
     }
 
-    protected async Task InsertImageClick()
+    protected void InsertImageClick()
     {
         ImageManagerControl.Show(true);
     }
-    protected async Task InsertImage(ImageSelected img)
+    protected async Task InsertImage(string imgsrc)
     {
-        await this.QuillHtml.InsertImage(img.URL);
-
+        await this.QuillHtml.InsertImage(imgsrc);
+        StateHasChanged();
+    }
+    protected async Task AddAlt(ImageSelected img)
+    {
         var currentImageURL = $"<img src=\"{img.URL}\" alt=\"{img.URL}\">";
         var newImageURL = string.Empty;
         if (!string.IsNullOrEmpty(img.ALT)) newImageURL = $"<img src=\"{img.URL}\" alt=\"{img.ALT}\">";
@@ -388,15 +391,11 @@ else
 
     protected async Task InsertVideoClick()
     {
+        await this.QuillHtml.InsertImage("DybiEmbedVideoInsert");
         VideoInsertControl.Show(true);
     }
     protected async Task InsertVideo(string embedVideo)
     {
-        // Model.Content = await this.QuillHtml.GetHTML();
-        // Model.Content += embedVideo;
-
-        await this.QuillHtml.InsertImage("DybiEmbedVideoInsert");
-        
         Model.Content = await this.QuillHtml.GetHTML();
         Model.Content = Model.Content.Replace("<img src=\"DybiEmbedVideoInsert\" alt=\"DybiEmbedVideoInsert\">", embedVideo);
 

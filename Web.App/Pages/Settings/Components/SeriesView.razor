@@ -9,7 +9,7 @@
 @if (ShowDialog)
 {
     <div class="modal fade show d-block" id="assignModel" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
+        <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel">Xem series</h5>
@@ -23,14 +23,17 @@
                         <div><label>Danh mục:</label> @Model.CategoryName</div>
                     </div>
                     <hr />
-                    <div class="alert alert-secondary" role="alert">
-                        @foreach (var seri in Series)
-                        {
-                            <span class="badge bg-info position-relative m-2">
-                                @seri <span @onclick="@(() => OnDelete(@seri))" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="cursor:pointer">x</span>
-                            </span>
-                        }
-                    </div>
+                    @foreach (var type in Series.Select(e => e.Type).Distinct().ToList())
+                    {
+                        <div class="alert alert-secondary" role="alert">
+                            @foreach (var seri in Series.Where(e => e.Type == type).ToList())
+                            {
+                                <span class="badge bg-info position-relative m-2">
+                                    @seri <span @onclick="@(() => OnDelete(@seri.Seri))" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="cursor:pointer">x</span>
+                                </span>
+                            }
+                        </div>
+                    }
                 </div>
             </div>
         </div>
@@ -49,7 +52,7 @@
     protected bool ShowDialog { get; set; }
 
     private WarehouseProductDto Model { set; get; } = new WarehouseProductDto();
-    private List<string> Series { set; get; } = new List<string>();
+    private List<ProductSeriDto> Series { set; get; } = new List<ProductSeriDto>();
 
     [Parameter]
     public EventCallback Callback { get; set; }

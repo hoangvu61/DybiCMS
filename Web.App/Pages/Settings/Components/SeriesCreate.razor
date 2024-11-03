@@ -1,6 +1,7 @@
 ﻿@using Web.App.Services;
 @using Web.Models;
 @using System.IO;
+@using Web.Models.Enums
 @inject IToastService ToastService;
 @inject IWarehouseApiClient WarehouseApiClient;
 @inject IJSRuntime JS
@@ -9,8 +10,6 @@
 {
     <div class="modal fade show d-block" id="assignModel" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
-            <EditForm Model="Model" OnValidSubmit="HandleSubmit">
-                <DataAnnotationsValidator></DataAnnotationsValidator>
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="exampleModalLabel">Tạo series</h5>
@@ -18,25 +17,65 @@
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
-                    <div class="modal-body">
-                        <div class="form-group mb-3">
-                            <div><label class="input-group-text">Sản phẩm:</label> @Model.Title @(!string.IsNullOrEmpty(Model.Code) ? "(Mã: " + Model.Code + ")" : "")</div>
-                            <div><label class="input-group-text">Danh mục:</label> @Model.CategoryName</div>
-                            <ValidationMessage For="()=> Model.Code"></ValidationMessage>
-                        </div>
-                        <div class="form-group mb-3">
-                            <div class="input-group input-group-xs">
-                                <label class="input-group-text">Loại mã</label>
-                                <InputNumber class="form-control" @bind-Value="NunberOfSeries"></InputNumber>
+                    
+                    <EditForm Model="Model" OnValidSubmit="HandleSubmit">
+                        <DataAnnotationsValidator></DataAnnotationsValidator>
+                        <div class="modal-body">
+                            <div><label>Sản phẩm:</label> @Product.Title @(!string.IsNullOrEmpty(Product.Code) ? "(Mã: " + Product.Code + ")" : "")</div>
+                            <div><label>Danh mục:</label> @Product.CategoryName</div>
+                            <hr />
+                            <div class="form-group mb-3">
+                                <div class="input-group input-group-xs">
+                                    <label class="input-group-text">Số lượng</label>
+                                    <InputNumber class="form-control" @bind-Value="Model.NunberOfSeries"></InputNumber>
+                                </div>
                             </div>
+                            <div class="form-group mb-3">
+                                <div class="input-group input-group-xs">
+                                    <label class="input-group-text">Loại mã</label>
+                                    <InputSelect class="form-select" @bind-Value="Model.Type">
+                                        @foreach (var type in DataSource.BarCodeTypes)
+                                        {
+                                            <option value="@type.Key">@type.Value</option>
+                                        }
+                                    </InputSelect>
+                                </div>
+                            </div>
+                            @if (Model.Type == "EAN_13" || Model.Type == "EAN_8")
+                            {
+                                <div class="form-group mb-3">
+                                    <div class="input-group input-group-xs">
+                                        <label class="input-group-text">Quốc gia</label>
+                                        <InputSelect class="form-select" @bind-Value="Model.EANContryCode">
+                                            @foreach (var type in DataSource.BarCodeCountryCodes)
+                                            {
+                                                @if (type.Key.Contains('-')) continue;
+                                                <option value="@type.Key">@type.Value</option>
+                                            }
+                                        </InputSelect>
+                                    </div>
+                                </div>
+                            }
+                        @if (Model.Type == "CODE_128")
+                            {
+                                <div class="form-group mb-3">
+                                    <div class="input-group input-group-xs">
+                                        <label class="input-group-text">Set</label>
+                                        <InputSelect class="form-select" @bind-Value="Model.CODE128Set">
+                                            <option value="A">A</option>
+                                            <option value="B">B</option>
+                                            <option value="C">C</option>
+                                        </InputSelect>
+                                    </div>
+                                </div>
+                            }
                         </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary btn-xs" @onclick="()=>Hide()" data-dismiss="modal">Đóng</button>
-                        <button type="submit" class="btn btn-primary btn-xs">Tạo series</button>
-                    </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary btn-xs" @onclick="()=>Hide()" data-dismiss="modal">Đóng</button>
+                            <button type="submit" class="btn btn-primary btn-xs">Tạo series</button>
+                        </div>
+                    </EditForm>
                 </div>
-            </EditForm>
         </div>
     </div>
 }
@@ -44,8 +83,8 @@
 @code {
     protected bool ShowDialog { get; set; }
 
-    private WarehouseProductDto Model { set; get; } = new WarehouseProductDto();
-    private int NunberOfSeries { set; get; }
+    private ProductSeriCreateRequest Model { get; set; } = new ProductSeriCreateRequest();
+    private WarehouseProductDto Product { set; get; } = new WarehouseProductDto();
 
     [Parameter]
     public EventCallback Callback { get; set; }
@@ -53,7 +92,8 @@
     public void Show(WarehouseProductDto model)
     {
         ShowDialog = true;
-        Model = model;
+        Product = model;
+        Model.Id = model.Id;
         StateHasChanged();
     }
 
@@ -65,12 +105,12 @@
 
     protected async Task HandleSubmit()
     {
-        var result = await WarehouseApiClient.AddSearies(Model.Id, NunberOfSeries);
+        var result = await WarehouseApiClient.AddSearies(Model);
         if (result)
         {
             ShowDialog = false;
             await Callback.InvokeAsync();
-            ToastService.ShowInfo($"Tạo thành công {NunberOfSeries} series");
+            ToastService.ShowInfo($"Tạo thành công {Model.Type} series");
         }
         else
         {

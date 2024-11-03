@@ -22,7 +22,6 @@
                     <EditForm Model="Model" OnValidSubmit="HandleSubmit">
                         <DataAnnotationsValidator></DataAnnotationsValidator>
                         <div class="modal-body">
-
                             <div class="form-group">
                                 <InputText class="form-control form-control-sm" @bind-Value="Model.Domain" readonly="readonly"></InputText>
                                 <ValidationMessage For="()=> Model.Domain"></ValidationMessage>
@@ -34,7 +33,7 @@
                                         <option value="@item">@item</option>
                                     }
                                 </InputSelect>
-                            <ValidationMessage For="()=> Model.LanguageCode"></ValidationMessage>
+                                <ValidationMessage For="()=> Model.LanguageCode"></ValidationMessage>
                             </div>
                         </div>
                         <div class="modal-footer">
@@ -58,11 +57,9 @@
     [Parameter]
     public EventCallback<bool> CloseEventCallbak { get; set; }
 
-    public async void Show(Guid companyId, string domain)
+    public async void Show(CompanyDomainDto model)
     {
-        Model.CompanyId = companyId;
-        Model.Domain = domain;
-        Model = await CompanyApiClient.GetDomain(Model.Domain);
+        Model = model;
         Languages = await CompanyApiClient.GetLanguageList(Model.CompanyId);
         ShowDialog = true;
         StateHasChanged();

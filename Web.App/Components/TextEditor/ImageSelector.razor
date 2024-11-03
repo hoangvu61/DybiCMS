@@ -119,7 +119,8 @@
     // ImageSelected is an EventCallback that will
     // notify the parent component when an image is selected
     // passing the url of the image to the parent component
-    [Parameter] public EventCallback<ImageSelected> ImageSelected { get; set; }
+    [Parameter] public EventCallback<string> ImageSelected { get; set; }
+    [Parameter] public EventCallback<ImageSelected> ImageAddAlt { get; set; }
     private bool ShowFileManager = false;
 
     private List<FileData> Images { get; set; }
@@ -285,12 +286,14 @@
 
     private async Task SelectImage(string url)
     {
-        ImageAltControlt.Show(BackendApiUrl + "/" + url);
+        var fullURL = BackendApiUrl + "/" + url;
+        await ImageSelected.InvokeAsync(fullURL);
+        ImageAltControlt.Show(fullURL);
     }
 
     private async Task SelectImageAddAlt(ImageSelected img)
     {
-        await ImageSelected.InvokeAsync(img);
+        await ImageAddAlt.InvokeAsync(img);
         ShowFileManager = false;
     }
 

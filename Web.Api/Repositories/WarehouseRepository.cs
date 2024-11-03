@@ -58,9 +58,9 @@ namespace Web.Api.Repositories
         #endregion
 
         #region
-        public async Task<List<string>> GetProductCodes(Guid companyId, Guid productId)
+        public async Task<List<ItemProductSeri>> GetProductCodes(Guid companyId, Guid productId)
         {
-            return await _context.ItemProductSeries.Where(e => e.Product.Item.CompanyId == companyId && e.ProductId == productId).Select(e => e.Seri).ToListAsync();
+            return await _context.ItemProductSeries.Where(e => e.Product.Item.CompanyId == companyId && e.ProductId == productId).ToListAsync();
         }
         public async Task<bool> CheckExistProductCode(Guid companyId, string code)
         {
@@ -69,7 +69,7 @@ namespace Web.Api.Repositories
             var checInputProductSearies = await _context.WarehouseInputProductCodes.Where(e => e.InputProduct.Input.Warehouse.CompanyId == companyId && e.ProductCode == code).AnyAsync();
             return checkProductCode || checkProductSearies || checInputProductSearies;
         }
-        public async Task<List<ItemProductSeri>> CreateProductCode(Guid productId, List<string> series)
+        public async Task<List<ItemProductSeri>> CreateProductCode(Guid productId, string type, List<string> series)
         {
             var itemProductSeries = new List<ItemProductSeri>();
             foreach(var seri in series)
@@ -77,7 +77,8 @@ namespace Web.Api.Repositories
                 itemProductSeries.Add(new ItemProductSeri()
                 {
                     ProductId = productId,
-                    Seri = seri
+                    Seri = seri,
+                    Type = type
                 });
             }    
             _context.ItemProductSeries.AddRange(itemProductSeries);

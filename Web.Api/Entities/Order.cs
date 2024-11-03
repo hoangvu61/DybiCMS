@@ -43,6 +43,10 @@ namespace Web.Api.Entities
         [AllowNull]
         public DateTime? CancelDate { get; set; }
 
+        public decimal Discount { get; set; }
+
+        public int DiscountType { get; set; }
+
         [AllowNull]
         [MaxLength(300)]
         public string? Note { get; set; }

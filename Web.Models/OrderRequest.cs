@@ -15,6 +15,8 @@ namespace Web.Models
 
         public string? Note { get; set; }
         public bool IsDelivery { get; set; }
+        public decimal Discount { get; set; }
+        public int DiscountType { get; set; }
 
         public OrderDeliveryRequest Delivery { get; set; }
         public OrderDebtDto? Debt { get; set; }

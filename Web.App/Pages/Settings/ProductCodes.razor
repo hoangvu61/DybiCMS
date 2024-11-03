@@ -40,7 +40,7 @@
                                 <th>Tên</th>
                                 <th>Danh mục</th>
                                 <th>Số lượng </th>
-                                <th class="text-center" style="width:60px">
+                                <th class="text-center" style="width:65px">
                                     <button @onclick="() => ProductListDialog.Show()" class="btn btn-primary btn-xs">Thêm</button>
                                 </th>
                             </tr>
@@ -54,7 +54,7 @@
                                     <td>@item.CategoryName</td>
                                     <td>@item.CountSeries</td>
                                     <td>
-                                        <button class="btn btn-primary btn-xs" @onclick="@(() => SeriesPrintDialog.Show(item))">In</button>
+                                        <a class="btn btn-primary btn-xs" href="/settings/product/@item.Id/series" target="_blank">In</a>
                                         <button class="btn btn-info btn-xs" @onclick="@(() => SeriesViewDialog.Show(item))">Xem</button>
                                     </td>
                                 </tr>
@@ -74,7 +74,6 @@
             <WarehouseProductListPopup @ref="ProductListDialog" EventCallbak="AddProduct" AllowAddProduct="true"></WarehouseProductListPopup>
             <SeriesCreate @ref="SeriesCreateDialog" Callback="RefreshList"></SeriesCreate>
             <SeriesView @ref="SeriesViewDialog" Callback="RefreshList"></SeriesView>
-            <SeriesPrint @ref="SeriesPrintDialog"></SeriesPrint>
         }
     </div>
 </section>
@@ -83,7 +82,6 @@
     private WarehouseProductListPopup ProductListDialog { set; get; }
     private SeriesCreate SeriesCreateDialog { set; get; }
     private SeriesView SeriesViewDialog { set; get; }
-    private SeriesPrint SeriesPrintDialog { set; get; }
 
     private const int PageSize = 20;
     private List<WarehouseProductDto> ListProducts;
@@ -119,17 +117,17 @@
         }
     }
 
-    public void AddProduct(WarehouseProductDto product)
-    {
-        SeriesCreateDialog.Show(product);
-    }
-
     public async Task SearchProduct(ProductListSearch productListSearch)
     {
         ProductListSearch = productListSearch;
         ProductListSearch.PageSize = PageSize;
         ProductListSearch.RequiredCode = true;
         await RefreshList();
+    }
+
+    public void AddProduct(WarehouseProductDto product)
+    {
+        SeriesCreateDialog.Show(product);
     }
 
     private async Task SelectedPage(int page)

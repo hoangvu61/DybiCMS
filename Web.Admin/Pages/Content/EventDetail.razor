@@ -270,17 +270,13 @@
         ImageManagerControl.Show(false);
     }
 
-    protected void InsertVideoClick()
+    protected async Task InsertVideoClick()
     {
+        await this.QuillHtml.InsertImage("DybiEmbedVideoInsert");
         VideoInsertControl.Show(true);
     }
     protected async Task InsertVideo(string embedVideo)
     {
-        // Model.Content = await this.QuillHtml.GetHTML();
-        // Model.Content += embedVideo;
-
-        await this.QuillHtml.InsertImage("DybiEmbedVideoInsert");
-
         Model.Content = await this.QuillHtml.GetHTML();
         Model.Content = Model.Content.Replace("<img src=\"DybiEmbedVideoInsert\" alt=\"DybiEmbedVideoInsert\">", embedVideo);
 

@@ -85,9 +85,9 @@ namespace Web.App.Services
         Task<bool> UpdateProductCategory(Guid itemId, Guid categoryId);
         Task<bool> DeleteProduct(Guid id);
 
-        Task<List<string>> SeriesByProduct(Guid productId);
-        Task<List<string>> ImageCodesByProduct(Guid productId, string type);
-        Task<bool> AddSearies(Guid productId, int number);
+        Task<List<ProductSeriDto>> SeriesByProduct(Guid productId);
+        Task<List<ProductSeriDto>> ImageCodesByProduct(string productId);
+        Task<bool> AddSearies(ProductSeriCreateRequest request);
         Task<bool> DeleteSearies(Guid productId, string series);
         #endregion
 

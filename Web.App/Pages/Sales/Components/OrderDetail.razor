@@ -93,7 +93,7 @@
                             </div>
                         }
                     </div>
-                    <table class="table table-sm table-striped table-bordered">
+                    <table class="table table-sm table-striped table-bordered mt-3">
                         <thead>
                             <tr>
                                 <th colspan="2">Sản phẩm</th>
@@ -142,6 +142,7 @@
                     </table>
                 </div>
                 <div class="modal-footer">
+                    <a class="btn btn-primary btn-xs" href="/sales/orderprint/@Model.Id" target="_blank">In</a>
                     @if (Model.ConfirmDate == null)
                     {
                         <button type="submit" class="btn btn-success btn-xs" @onclick="() => OnConfirm(Model.Id)">Xác nhận</button>
@@ -154,12 +155,9 @@
                     }
                     else
                     {
-                        @if (Model.ReceiveDate == null)
+                        @if (Model.ReceiveDate == null && Model.ReceiveDate == null)
                         {
                             <button type="submit" class="btn btn-success btn-xs" @onclick="() => OnReceive(Model.Id)">Nhận</button>
-                        }
-                        @if (Model.CancelDate == null)
-                        {
                             <button type="submit" class="btn btn-success btn-xs" @onclick="() => OnCancel(Model.Id)">Trả</button>
                         }
                     }

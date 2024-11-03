@@ -1,7 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.CodeAnalysis;
-
-namespace Web.Models
+﻿namespace Web.Models
 {
     public class OrderDetailDto
     {
@@ -15,6 +12,8 @@ namespace Web.Models
         public DateTime? SendDate { get; set; }
         public DateTime? ReceiveDate { get; set; }
         public DateTime? CancelDate { get; set; }
+        public decimal Discount { get; set; }
+        public int DiscountType { get; set; }
         public string? Note { get; set; }
     }
 }

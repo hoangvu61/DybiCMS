@@ -14,5 +14,9 @@ namespace Web.Api.Entities
         [MaxLength(50)]
         [Required]
         public string Seri { get; set; }
+
+        [MaxLength(15)]
+        [Required]
+        public string Type { get; set; }
     }
 }

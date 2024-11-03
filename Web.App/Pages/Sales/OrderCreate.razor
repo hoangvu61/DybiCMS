@@ -71,7 +71,7 @@
             </div>
             @if (Model.IsDelivery)
             {
-                <div class="row mb-2">
+                <div class="mb-2">
                     <div class="input-group input-group-xs">
                         <label class="input-group-text">Địa chỉ:</label>
                         <InputText class="form-control" tabindex="3" @bind-Value="Model.CustomerAddress" />
@@ -252,6 +252,36 @@
                         <td style="text-align:right">@Model.Products.Sum(e => e.TotalCost).ToString("N0")</td>
                         <td></td>
                     </tr>
+                    <tr>
+                        <td style="text-align:right" colspan="3">Giảm giá:</td>
+                        <td style="text-align:right">
+                            <InputSelect class="form-select" @bind-Value="@Model.DiscountType">
+                                @foreach (var type in DataSource.DiscountTypes)
+                                {
+                                    <option value="@type.Key">@type.Value</option>
+                                }
+                            </InputSelect>
+                        </td>
+                            @if(Model.DiscountType != 1)
+                            {
+                                <td style="text-align:right">
+                                    <input class="form-control input-xs text-right" @bind="formattedDiscount" @bind:event="oninput" @onkeyup="DiscountChange" @onchange="DiscountChange" />
+                                </td>
+                            }
+                            else
+                            {
+                                <td style="text-align:right">
+                                    <div class="input-group input-group-xs">
+                                        <input class="form-control input-xs text-right" @bind="formattedDiscount" @bind:event="oninput" @onkeyup="DiscountChange" @onchange="DiscountChange" />
+                                        <span class="input-group-text">%</span>
+                                        <span class="input-group-text">=</span>
+                                        <span class="input-group-text text-right">@Discount.ToString("N0")</span>
+                                    </div>
+                                </td>
+                            }
+
+                        <td></td>
+                    </tr>
                     @if (Model.Delivery != null && Model.Delivery.DeliveryFee > 0)
                     {
                         <tr>
@@ -261,7 +291,15 @@
                         </tr>
                         <tr>
                             <td style="text-align:right" colspan="3">Tổng phải trả:</td>
-                            <td style="text-align:right;color:blue;font-weight:600" colspan="2">@((Model.Products.Sum(e => e.TotalCost) + Model.Delivery.DeliveryFee).ToString("N0"))</td>
+                            <td style="text-align:right;color:blue;font-weight:600" colspan="2">@((Model.Products.Sum(e => e.TotalCost) - Discount + Model.Delivery.DeliveryFee).ToString("N0"))</td>
+                            <td></td>
+                        </tr>
+                    }
+                    else
+                    {
+                        <tr>
+                            <td style="text-align:right" colspan="3">Tổng cộng:</td>
+                            <td style="text-align:right;color:blue;font-weight:600" colspan="2">@((Model.Products.Sum(e => e.TotalCost) - Discount).ToString("N0"))</td>
                             <td></td>
                         </tr>
                     }
@@ -269,7 +307,7 @@
                         <td style="text-align:right" colspan="3">Khách trả:</td>
                         <td></td>
                         <td>
-                            <input type="number" class="form-control input-xs" @bind="CustomerPay" @bind:event="oninput" @onkeyup="PaymentChange" @onchange="PaymentChange" />
+                            <input class="form-control input-xs text-right" @bind="formattedCustomerPay" @bind:event="oninput" @onkeyup="PaymentChange" @onchange="PaymentChange" />
                         </td>
                         <td></td>
                     </tr>
@@ -292,7 +330,38 @@
 
 @code {
     private string BackendApiUrl { get; set; }
+
+    private decimal Discount { get; set; }
+    private string formattedDiscount
+    {
+        get => Model.Discount.ToString("N0"); // Định dạng số với "N0"
+        set
+        {
+            if (value == "") Model.Discount = 0;
+            else
+            {
+                // Thử chuyển đổi từ chuỗi người dùng nhập thành số
+                if (decimal.TryParse(value, System.Globalization.NumberStyles.AllowThousands, null, out var result))
+                {
+                    Model.Discount = result;
+                }
+            }
+        }
+    }
+
     private decimal CustomerPay { get; set; }
+    private string formattedCustomerPay
+    {
+        get => CustomerPay.ToString("N0"); // Định dạng số với "N0"
+        set
+        {
+            // Thử chuyển đổi từ chuỗi người dùng nhập thành số
+            if (decimal.TryParse(value, System.Globalization.NumberStyles.AllowThousands, null, out var result))
+            {
+                CustomerPay = result;
+            }
+        }
+    }
 
     private OrderRequest Model { set; get; } = new OrderRequest();
     private List<CustomerDto> Customers { set; get; }
@@ -365,12 +434,23 @@
         Customers.Clear();
     }
 
+    private async Task DiscountChange()
+    {
+        if (Model.DiscountType > 0)
+        {
+            if (Model.DiscountType == 1) Discount = Model.Products.Sum(e => e.TotalCost) * Model.Discount / 100;
+            else if (Model.DiscountType == 2) Discount = Model.Discount;
+            else if (Model.DiscountType == 3) Discount = Model.Products.Sum(e => e.TotalCost) - Model.Discount;
+        }
+        CustomerPay = Model.Products.Sum(e => e.TotalCost) - Discount + Model.Delivery.DeliveryFee;
+    }
+
     private async Task PaymentChange()
     {
         if (CustomerPay > 0)
         {
             if (Model.Debt == null) Model.Debt = new OrderDebtDto();
-            Model.Debt.Debit = Model.Products.Sum(e => e.TotalCost) + Model.Delivery.DeliveryFee - CustomerPay;
+            Model.Debt.Debit = Model.Products.Sum(e => e.TotalCost) - Discount + Model.Delivery.DeliveryFee - CustomerPay;
         }
     }
 
@@ -430,14 +510,14 @@
 
         if (string.IsNullOrEmpty(Model.CustomerPhone) || string.IsNullOrEmpty(Model.CustomerName)) ToastService.ShowWarning("Vui lòng nhập thông tin khách hàng");
         else if (Model.Products.Count == 0) ToastService.ShowWarning("Vui lòng chọn ít nhất 1 sản phẩm");
-        else if (!Model.IsDelivery && string.IsNullOrEmpty(Model.CustomerAddress)) ToastService.ShowWarning("Vui lòng nhập địa chỉ giao hàng");
+        else if (Model.IsDelivery && string.IsNullOrEmpty(Model.CustomerAddress)) ToastService.ShowWarning("Vui lòng nhập địa chỉ giao hàng");
         else
         {
             var result = await OrderApiClient.CreateOrder(Model);
             if (string.IsNullOrEmpty(result))
             {
                 ToastService.ShowInfo("Tạo đơn hàng thành công");
-                NavigationManager.NavigateTo("sales/orders");
+                NavigationManager.NavigateTo("sales/orders?status=Nhan");
             }
             else ToastService.ShowError(result);
         }

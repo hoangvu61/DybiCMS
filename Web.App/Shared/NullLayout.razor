@@ -1,0 +1,13 @@
+﻿@inherits LayoutComponentBase
+@using Blazored.Toast.Configuration;
+@using Microsoft.AspNetCore.Components.Authorization;
+@using Web.App.Pages
+
+<AuthorizeView>
+    <Authorized>
+        @Body
+    </Authorized>
+    <NotAuthorized>
+        <Login></Login>
+    </NotAuthorized>
+</AuthorizeView>

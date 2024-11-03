@@ -38,7 +38,7 @@
                                         <td>@item.Domain</td>
                                         <td>@item.LanguageCode</td>
                                         <td style="text-align:right">
-                                            <button class="btn btn-success btn-xs" @onclick="()=> OpenUpdatePopup(item.CompanyId, item.Domain)">Sửa</button>
+                                            <button class="btn btn-success btn-xs" @onclick="()=> UpdateCompanyDomain.Show(item)">Sửa</button>
                                             <button class="btn btn-danger btn-xs" @onclick="()=> OnDelete(item.Domain)">Xóa</button>
                                         </td>
                                     </tr>
@@ -106,10 +106,6 @@
     public void OpenCreatePopup()
     {
         CreateCompanyDomain.Show(CompanyId);
-    }
-    public void OpenUpdatePopup(Guid conpanyId, string domain)
-    {
-        UpdateCompanyDomain.Show(CompanyId, domain);
     }
 
     public void OnDelete(string name)
