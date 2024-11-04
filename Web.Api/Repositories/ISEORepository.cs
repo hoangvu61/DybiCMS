@@ -16,5 +16,6 @@ namespace Web.Api.Repositories
         Task<SEO> UpdateSEO(SEO seo);
         Task<bool> DeleteSEO(List<SEO> seos);
         Task<bool> DeleteSEO(SEO seo);
+        Task<bool> DeleteSEO(Guid companyId, Guid itemId);
     }
 }

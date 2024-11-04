@@ -1,6 +1,7 @@
 namespace Web.Api.Entities
 {
     using System;
+    using System.ComponentModel;
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
 
@@ -16,6 +17,9 @@ namespace Web.Api.Entities
         [MaxLength(10)]
         [Column(TypeName = "VARCHAR")]
         public string Type { get; set; }
+
+        [DefaultValue(true)]
+        public bool SEO { get; set; }
 
         public Guid? ParentId { get; set; }
         [ForeignKey("ParentId")]

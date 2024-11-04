@@ -83,5 +83,13 @@ namespace Web.Api.Repositories
             await _context.SaveChangesAsync();
             return true;
         }
+
+        public async Task<bool> DeleteSEO(Guid companyId, Guid itemId)
+        {
+            var seos = await _context.SEOs.Where(e => e.CompanyId == companyId && e.ItemId == itemId).ToListAsync();
+            _context.SEOs.RemoveRange(seos);
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }

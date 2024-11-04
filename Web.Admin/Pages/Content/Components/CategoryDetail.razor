@@ -15,7 +15,10 @@
 @if (ShowBox && Model != null)
 {
     <LanguageOption CurrentLanguage="@Model.LanguageCode" SelectLanguage="LoadData"></LanguageOption>
-    <SEOItem @ref="SEOItemControl" LanguageCode="@Model.LanguageCode" ItemId="@Model.Id"></SEOItem>
+    @if (Model.SEO)
+    {
+        <SEOItem @ref="SEOItemControl" LanguageCode="@Model.LanguageCode" ItemId="@Model.Id"></SEOItem>
+    }
     <EditForm Model="Model" OnValidSubmit="HandleSubmit">
         <DataAnnotationsValidator></DataAnnotationsValidator>
         <div class="card card-outline card-info">
@@ -33,7 +36,7 @@
                         <div class="info-box bg-light">
                             <div class="info-box-content">
                                 <span class="info-box-text text-center text-muted" style="text-align:left !important"><lable>Loại danh mục: </lable> @DataSource.CategoryTypes.First(e => e.Key == Model.Type).Value</span>
-                                @if(@Components.Any(e => e.ComponentName == Model.ComponentList))
+                                @if (@Components.Any(e => e.ComponentName == Model.ComponentList))
                                 {
                                     <span class="info-box-text text-center text-muted" style="text-align:left !important"><lable>Trang Danh sách: </lable> @Components.First(e => e.ComponentName == Model.ComponentList).Describe </span>
                                 }
@@ -70,15 +73,17 @@
                             <ValidationMessage For="()=>Model.ParentId"></ValidationMessage>
                         </div>
                         <div class="form-group">
-                            <div class="form-group">
-                                <div class="input-group input-group-sm mb-3">
-                                    <span class="input-group-text" id="inputGroup-sizing-sm">Thứ tự</span>
-                                    <InputNumber class="form-control" @bind-Value="Model.Order"></InputNumber>
-                                </div>
+                            <div class="input-group input-group-sm mb-3">
+                                <span class="input-group-text" id="inputGroup-sizing-sm">Thứ tự</span>
+                                <InputNumber class="form-control" @bind-Value="Model.Order"></InputNumber>
                             </div>
-                            <div class="row form-switch" style="padding:0">
+                            <div class="row form-switch mb-3" style="padding:0">
                                 <div class="col"><label class="form-check-label">Hoạt động:</label></div>
                                 <div class="col" style="text-align:right;padding:0"><input type="checkbox" checked="@Model.IsPuslished" class="form-check-input" role="switch" @onchange="@((e) => {Model.IsPuslished = bool.Parse(e.Value.ToString()); ApplyChanged();})"></input></div>
+                            </div>
+                            <div class="row form-switch" style="padding:0">
+                                <div class="col"><label class="form-check-label">SEO danh mục:</label></div>
+                                <div class="col" style="text-align:right;padding:0"><input type="checkbox" checked="@Model.SEO" class="form-check-input" role="switch" @onchange="@((e) => {Model.SEO = bool.Parse(e.Value.ToString());})"></input></div>
                             </div>
                         </div>
                         

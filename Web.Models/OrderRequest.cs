@@ -4,6 +4,7 @@ namespace Web.Models
 {
     public class OrderRequest
     {
+        public Guid Id { get; set; }
         public Guid CustomerId { get; set; }
 
         [Required(ErrorMessage = "Vui lòng nhập tên khách hàng")]

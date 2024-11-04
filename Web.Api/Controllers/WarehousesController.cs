@@ -1270,7 +1270,8 @@ namespace Web.Api.Controllers
                 Category = new ItemCategory()
                 {
                     Type = categoryType,
-                    ParentId = request.ParentId
+                    ParentId = request.ParentId,
+                    SEO = false
                 },
                 ItemLanguages = new List<ItemLanguage>() { languageItem }
             };

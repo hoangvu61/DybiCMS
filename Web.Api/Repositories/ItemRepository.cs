@@ -328,8 +328,9 @@ namespace Web.Api.Repositories
                 }
                 if (item.Category.CategoryComponent.ComponentList != request.ComponentList)
                     item.Category.CategoryComponent.ComponentList = request.ComponentList;
-            }   
+            }
 
+            item.Category.SEO = request.SEO;
             item.Order = request.Order;
             if (request.Image != null && !string.IsNullOrEmpty(request.Image.FileName))
                 item.Image = request.Image.FileName;

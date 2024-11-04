@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Web.Api.Data;
 
@@ -11,9 +12,11 @@ using Web.Api.Data;
 namespace Web.Api.Migrations
 {
     [DbContext(typeof(WebDbContext))]
-    partial class WebDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241022075943_8.23.2")]
+    partial class _8232
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -760,9 +763,6 @@ namespace Web.Api.Migrations
                     b.Property<Guid?>("ParentId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<bool>("SEO")
-                        .HasColumnType("bit");
-
                     b.Property<string>("Type")
                         .IsRequired()
                         .HasMaxLength(10)
@@ -937,6 +937,21 @@ namespace Web.Api.Migrations
                     b.ToTable("ItemProductAddOns");
                 });
 
+            modelBuilder.Entity("Web.Api.Entities.ItemProductCode", b =>
+                {
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.HasKey("ProductId");
+
+                    b.ToTable("ItemProductCodes");
+                });
+
             modelBuilder.Entity("Web.Api.Entities.ItemProductGroupon", b =>
                 {
                     b.Property<Guid>("Id")
@@ -960,25 +975,6 @@ namespace Web.Api.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ItemProductGroupons");
-                });
-
-            modelBuilder.Entity("Web.Api.Entities.ItemProductSeri", b =>
-                {
-                    b.Property<Guid>("ProductId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Seri")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasMaxLength(15)
-                        .HasColumnType("nvarchar(15)");
-
-                    b.HasKey("ProductId", "Seri");
-
-                    b.ToTable("ItemProductSeries");
                 });
 
             modelBuilder.Entity("Web.Api.Entities.ItemRelated", b =>
@@ -1274,12 +1270,6 @@ namespace Web.Api.Migrations
                         .IsRequired()
                         .HasMaxLength(30)
                         .HasColumnType("nvarchar(30)");
-
-                    b.Property<decimal>("Discount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("DiscountType")
-                        .HasColumnType("int");
 
                     b.Property<string>("Note")
                         .HasMaxLength(300)
@@ -2849,22 +2839,22 @@ namespace Web.Api.Migrations
                     b.Navigation("ProductAddOn");
                 });
 
-            modelBuilder.Entity("Web.Api.Entities.ItemProductGroupon", b =>
+            modelBuilder.Entity("Web.Api.Entities.ItemProductCode", b =>
                 {
                     b.HasOne("Web.Api.Entities.ItemProduct", "Product")
                         .WithMany()
-                        .HasForeignKey("Id")
+                        .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("Web.Api.Entities.ItemProductSeri", b =>
+            modelBuilder.Entity("Web.Api.Entities.ItemProductGroupon", b =>
                 {
                     b.HasOne("Web.Api.Entities.ItemProduct", "Product")
-                        .WithMany("Series")
-                        .HasForeignKey("ProductId")
+                        .WithMany()
+                        .HasForeignKey("Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -3639,8 +3629,6 @@ namespace Web.Api.Migrations
             modelBuilder.Entity("Web.Api.Entities.ItemProduct", b =>
                 {
                     b.Navigation("Inventory");
-
-                    b.Navigation("Series");
 
                     b.Navigation("WarehouseInputs");
                 });

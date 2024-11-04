@@ -190,6 +190,7 @@ namespace Web.Api.Controllers
 
             var order = new Order
             {
+                Id = request.Id,
                 CompanyId = user.CompanyId,
                 CreateDate = DateTime.Now,
                 Note = request.Note,

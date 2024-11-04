@@ -448,6 +448,7 @@ namespace Web.Api.Controllers
                 ComponentDetail = category.CategoryComponent?.ComponentDetail ?? string.Empty,
                 ComponentList = category.CategoryComponent?.ComponentList ?? string.Empty,
                 ParentId = category.ParentId,
+                SEO = category.SEO,
                 View = itemLanguage.Item.View,
                 CreateDate = itemLanguage.Item.CreateDate,
                 IsPuslished = itemLanguage.Item.IsPublished,
@@ -481,6 +482,7 @@ namespace Web.Api.Controllers
                 {
                     Type = request.Type,
                     ParentId = request.ParentId,
+                    SEO = request.SEO,
                     CategoryComponent = new ItemCategoryComponent
                     {
                         ComponentList = request.ComponentList,
@@ -492,7 +494,8 @@ namespace Web.Api.Controllers
             await _itemRepository.CreateItem(item);
 
             // SEO
-            await CrerateSEO(user.CompanyId, item.Category.CategoryComponent.ComponentList, "scat", languageItem);
+            if (item.Category.SEO)
+                await CrerateSEO(user.CompanyId, item.Category.CategoryComponent.ComponentList, "scat", languageItem);
 
             return Ok();
         }
@@ -519,17 +522,21 @@ namespace Web.Api.Controllers
 
             await _itemRepository.UpdateCategory(request);
 
-            if (category.CategoryComponent != null)
+            if (request.SEO)
             {
-                var languageItem = new ItemLanguage
+                if (category.CategoryComponent != null)
                 {
-                    ItemId = id,
-                    LanguageCode = request.LanguageCode,
-                    Title = request.Title,
-                    Brief = request.Brief
-                };
-                await UpdateSEO(user.CompanyId, category.CategoryComponent.ComponentList, "scat", languageItem);
+                    var languageItem = new ItemLanguage
+                    {
+                        ItemId = id,
+                        LanguageCode = request.LanguageCode,
+                        Title = request.Title,
+                        Brief = request.Brief
+                    };
+                    await UpdateSEO(user.CompanyId, category.CategoryComponent.ComponentList, "scat", languageItem);
+                }
             }
+            else await _seoRepository.DeleteSEO(user.CompanyId, id);
 
             return Ok(request);
         }

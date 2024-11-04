@@ -373,6 +373,7 @@
     protected async override Task OnInitializedAsync()
     {
         BackendApiUrl = Configuration["BackendApiUrl"];
+        Model.Id = Guid.NewGuid();
         Model.Products = new List<OrderProductDto>();
         Model.Delivery = new OrderDeliveryRequest();
 
@@ -517,7 +518,19 @@
             if (string.IsNullOrEmpty(result))
             {
                 ToastService.ShowInfo("Tạo đơn hàng thành công");
-                NavigationManager.NavigateTo("sales/orders?status=Nhan");
+                if (!Model.IsDelivery)
+                {
+                    NavigationManager.NavigateTo("sales/orders?status=Nhan");
+
+                    // // xuất kho - trừ tồn kho
+                    // var output = new WarehouseOutputRequest()
+                    // {
+                    //     Id = Guid.NewGuid(),
+                    //     Type = 1,
+                    //     ToId = Model.Id,
+                    // }
+                }
+                else NavigationManager.NavigateTo("sales/orders?status=Moi");
             }
             else ToastService.ShowError(result);
         }

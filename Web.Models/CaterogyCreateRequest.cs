@@ -24,5 +24,7 @@ namespace Web.Models
         public string Title { get; set; }
 
         public Guid? ParentId { get; set; }
+
+        public bool SEO { get; set; } = true;
     }
 }

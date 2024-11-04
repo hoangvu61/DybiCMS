@@ -36,6 +36,7 @@ namespace Web.Models
         public int Order { get; set; }
 
         public bool IsPuslished { get; set; }
+        public bool SEO { get; set; }
 
         public DateTime CreateDate { get; set; }
 
