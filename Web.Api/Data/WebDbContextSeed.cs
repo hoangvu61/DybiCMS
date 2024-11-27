@@ -151,7 +151,7 @@ namespace Web.Api.Data
 
             if (!context.Roles.Any(e => e.Name == "Product"))
             {
-                context.Roles.Add(new Role { Name = "Product", NormalizedName = "PRODUCT", Id = Guid.NewGuid(), ConcurrencyStamp = Guid.NewGuid().ToString(), Description = "Product" });
+                context.Roles.Add(new Role { Name = "Product", NormalizedName = "PRODUCT", Id = Guid.NewGuid(), ConcurrencyStamp = Guid.NewGuid().ToString(), Description = "Quản lý sản phẩm" });
                 await context.SaveChangesAsync();
             }
             if (!context.Roles.Any(e => e.Name == "Admin"))
@@ -161,34 +161,34 @@ namespace Web.Api.Data
             }
             if (!context.Roles.Any(e => e.Name == "Document"))
             {
-                context.Roles.Add(new Role { Name = "Document", NormalizedName = "DOCUMENT", Id = Guid.NewGuid(), ConcurrencyStamp = Guid.NewGuid().ToString(), Description = "Document" });
+                context.Roles.Add(new Role { Name = "Document", NormalizedName = "DOCUMENT", Id = Guid.NewGuid(), ConcurrencyStamp = Guid.NewGuid().ToString(), Description = "Quản lý tài liệu" });
                 await context.SaveChangesAsync();
             }
             if (!context.Roles.Any(e => e.Name == "Video"))
             {
-                context.Roles.Add(new Role { Name = "Video", NormalizedName = "VIDEO", Id = Guid.NewGuid(), ConcurrencyStamp = Guid.NewGuid().ToString(), Description = "Video" });
+                context.Roles.Add(new Role { Name = "Video", NormalizedName = "VIDEO", Id = Guid.NewGuid(), ConcurrencyStamp = Guid.NewGuid().ToString(), Description = "Quản lý Video" });
                 await context.SaveChangesAsync();
             }
             if (!context.Roles.Any(e => e.Name == "Picture"))
             {
-                context.Roles.Add(new Role { Name = "Picture", NormalizedName = "PICTURE", Id = Guid.NewGuid(), ConcurrencyStamp = Guid.NewGuid().ToString(), Description = "Picture" });
+                context.Roles.Add(new Role { Name = "Picture", NormalizedName = "PICTURE", Id = Guid.NewGuid(), ConcurrencyStamp = Guid.NewGuid().ToString(), Description = "Quản lý hình ảnh" });
                 await context.SaveChangesAsync();
             }
             if (!context.Roles.Any(e => e.Name == "Audio"))
             {
-                context.Roles.Add(new Role { Name = "Audio", NormalizedName = "AUDIO", Id = Guid.NewGuid(), ConcurrencyStamp = Guid.NewGuid().ToString(), Description = "Audio" });
+                context.Roles.Add(new Role { Name = "Audio", NormalizedName = "AUDIO", Id = Guid.NewGuid(), ConcurrencyStamp = Guid.NewGuid().ToString(), Description = "Quản lý Audio" });
                 await context.SaveChangesAsync();
             }
 
             if (!context.Roles.Any(e => e.Name == "Event"))
             {
-                context.Roles.Add(new Role { Name = "Event", NormalizedName = "EVENT", Id = Guid.NewGuid(), ConcurrencyStamp = Guid.NewGuid().ToString(), Description = "Event" });
+                context.Roles.Add(new Role { Name = "Event", NormalizedName = "EVENT", Id = Guid.NewGuid(), ConcurrencyStamp = Guid.NewGuid().ToString(), Description = "Quản lý sự kiện" });
                 await context.SaveChangesAsync();
             }
 
             if (!context.Roles.Any(e => e.Name == "Config"))
             {
-                context.Roles.Add(new Role { Name = "Config", NormalizedName = "CONFIG", Id = Guid.NewGuid(), ConcurrencyStamp = Guid.NewGuid().ToString(), Description = "Config" });
+                context.Roles.Add(new Role { Name = "Config", NormalizedName = "CONFIG", Id = Guid.NewGuid(), ConcurrencyStamp = Guid.NewGuid().ToString(), Description = "Cấu hình website" });
                 await context.SaveChangesAsync();
             }
 
