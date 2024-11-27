@@ -24,5 +24,8 @@ namespace Web.Models
 
         public decimal Discount { get; set; }
         public decimal DiscountType { get; set; } = 0;
+
+        public Guid CreateBy { get; set; }
+        public string Link { get; set; }
     }
 }

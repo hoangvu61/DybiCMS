@@ -1,0 +1,117 @@
+﻿@using Web.Admin.Services;
+@using Web.Models;
+@using Web.Admin.Components;
+@using Web.Models.SeedWork;
+
+@inject IToastService ToastService;
+@inject IUserApiClient UserApiClient;
+
+<div class="card card-outline card-info">
+    <div class="card-header">
+        <h3 class="card-title">
+            <i class="fas fa-user"></i>
+            Thông tin cơ bản
+        </h3>
+    </div>
+    <div class="card-body">
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                    <th>UserName</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th style="text-align:right">
+                        <button class="btn btn-primary btn-xs" @onclick="()=> CreateUserChild.Show()">Thêm</button>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Users)
+                {
+                    <tr>
+                        <td>@item.UserName</td>
+                        <td>@item.FirstName @item.LastName</td>
+                        <td>@item.Email</td>
+                        <td>@item.Phone</td>
+                        <td style="text-align:right">
+                            <button class="btn btn-primary btn-xs" @onclick="()=> UpdateUserChildRole.Show(item.Id, item.UserName)">Phân quyền</button>
+                            <button class="btn btn-success btn-xs" @onclick="()=> UpdateUserChildPassword.Show(item)">Đổi mật khẩu</button>
+                            <button class="btn btn-info btn-xs" @onclick="()=> UpdateUserChild.Show(item)">Sửa</button>
+                            <button class="btn btn-danger btn-xs" @onclick="()=> OnDelete(item.Id)">Xóa</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<Confirmation ConfirmationMessage="Bạn có chắc chắn xóa?"
+            ConfirmationTitle="Xóa tài khoản"
+            @ref="DeleteConfirmation"
+            ConfirmationChanged="OnConfirmDelete">
+</Confirmation>
+
+<UserChildCreate @ref="CreateUserChild" CloseEventCallbak="RefreshList"></UserChildCreate>
+<UserChildUpdate @ref="UpdateUserChild" CloseEventCallbak="RefreshList"></UserChildUpdate>
+<UserChildPasswordUpdate @ref="UpdateUserChildPassword" CloseEventCallbak="RefreshList"></UserChildPasswordUpdate>
+<UserChildRoleUpdate @ref="UpdateUserChildRole" CloseEventCallbak="RefreshList"></UserChildRoleUpdate>
+
+@code {
+    protected bool ShowDialog { get; set; }
+
+    private List<CompanyUserDto> Users = new List<CompanyUserDto>();
+    private Guid DeleteUserId { set; get; }
+
+    protected Confirmation DeleteConfirmation { set; get; }
+    protected UserChildCreate CreateUserChild { set; get; }
+    protected UserChildUpdate UpdateUserChild { set; get; }
+    protected UserChildPasswordUpdate UpdateUserChildPassword { set; get; }
+    protected UserChildRoleUpdate UpdateUserChildRole { set; get; }
+
+    [CascadingParameter]
+    private Error Error { set; get; }
+
+    [Parameter]
+    public EventCallback CloseEventCallbak { get; set; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        await RefreshList();
+        StateHasChanged();
+    }
+
+    public async Task RefreshList()
+    {
+        try
+        {
+            Users = await UserApiClient.GetChildren();
+        }
+        catch (Exception ex)
+        {
+            Error.ProcessError(ex);
+        }
+    }
+
+    public void OnDelete(Guid id)
+    {
+        DeleteUserId = id;
+        DeleteConfirmation.Show();
+    }
+
+    public async Task OnConfirmDelete(bool deleteConfirmed)
+    {
+        if (deleteConfirmed)
+        {
+            var result = await UserApiClient.DeleteChild(DeleteUserId);
+            if (string.IsNullOrEmpty(result))
+            {
+                ToastService.ShowInfo("Xóa tài khoản thành công");
+            }
+            else ToastService.ShowError(result);
+
+            await RefreshList();
+        }
+    }
+}

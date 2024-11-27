@@ -310,12 +310,13 @@ namespace Web.Api.Repositories
             await _context.SaveChangesAsync();
             return true;
         }
-        public async Task<bool> UpdateCategory(CategoryDetailDto request)
+        public async Task<bool> UpdateCategory(Guid userId, CategoryDetailDto request)
         {
             var item = await _context.Items
                 .Include(e => e.Category)
                 .Include(e => e.Category.CategoryComponent)
                 .FirstOrDefaultAsync(e => e.Id == request.Id);
+
             if (item == null) return false;
             if (item.Category == null) return false;
             if (item.Category.CategoryComponent != null)
@@ -330,6 +331,8 @@ namespace Web.Api.Repositories
                     item.Category.CategoryComponent.ComponentList = request.ComponentList;
             }
 
+            item.LastUpdateBy = userId;
+            item.LastUpdateDate = DateTime.Now;
             item.Category.SEO = request.SEO;
             item.Order = request.Order;
             if (request.Image != null && !string.IsNullOrEmpty(request.Image.FileName))
@@ -464,7 +467,7 @@ namespace Web.Api.Repositories
             await _context.SaveChangesAsync();
             return item;
         }
-        public async Task<bool> UpdateArticle(ArticleDetailDto request)
+        public async Task<bool> UpdateArticle(Guid userId, ArticleDetailDto request)
         {
             var item = await _context.Items.Include(e => e.Article)
                 .Include(e => e.Tags)
@@ -488,8 +491,10 @@ namespace Web.Api.Repositories
                     TagName = tag,
                     Slug = ConvertToUnSign(tag.Trim())
                 });
-            }    
+            }
 
+            item.LastUpdateBy = userId;
+            item.LastUpdateDate = DateTime.Now;
             item.Article.DisplayDate = request.DisplayDate;
             item.Article.HTML = request.HTML;
             item.Order = request.Order;
@@ -603,7 +608,7 @@ namespace Web.Api.Repositories
                 .Where(e => e.Item.CompanyId == companyId && e.ItemId == id);
             return await query.FirstOrDefaultAsync();
         }
-        public async Task<bool> UpdateMedia(MediaDetailDto request)
+        public async Task<bool> UpdateMedia(Guid userId, MediaDetailDto request)
         {
             var item = await _context.Items.Include(e => e.Media)
                 .FirstOrDefaultAsync(e => e.Id == request.Id);
@@ -614,6 +619,8 @@ namespace Web.Api.Repositories
             item.Media.Embed = request.Embed;
             item.Order = request.Order;
             item.IsPublished = request.IsPublished;
+            item.LastUpdateBy = userId;
+            item.LastUpdateDate = DateTime.Now;
             if (request.Image != null && !string.IsNullOrEmpty(request.Image.FileName))
                 item.Image = request.Image.FileName;
             _context.Items.Update(item);
@@ -796,7 +803,7 @@ namespace Web.Api.Repositories
             await _context.SaveChangesAsync();
             return item;
         }
-        public async Task<bool> UpdateProduct(ProductDetailDto request)
+        public async Task<bool> UpdateProduct(Guid userId, ProductDetailDto request)
         {
             var item = await _context.Items.Include(e => e.Product)
                 .Include(e => e.Tags)
@@ -831,6 +838,9 @@ namespace Web.Api.Repositories
                     Slug = ConvertToUnSign(tag.Trim())
                 });
             }
+
+            item.LastUpdateBy = userId;
+            item.LastUpdateDate = DateTime.Now;
 
             _context.Items.Update(item);
 
@@ -978,7 +988,7 @@ namespace Web.Api.Repositories
                 .Where(e => e.Item.CompanyId == companyId && e.ItemId == id);
             return await query.FirstOrDefaultAsync();
         }
-        public async Task<bool> UpdateEvent(EventDetailDto request)
+        public async Task<bool> UpdateEvent(Guid userId, EventDetailDto request)
         {
             var item = await _context.Items.Include(e => e.Event)
                 .FirstOrDefaultAsync(e => e.Id == request.Id);
@@ -987,6 +997,8 @@ namespace Web.Api.Repositories
             item.Event.StartDate = request.StartDate;
             item.Event.Place = request.Place;
 
+            item.LastUpdateBy = userId;
+            item.LastUpdateDate = DateTime.Now;
             item.Order = request.Order;
             if (request.Image != null && !string.IsNullOrEmpty(request.Image.FileName))
                 item.Image = request.Image.FileName;

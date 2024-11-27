@@ -19,5 +19,7 @@ namespace Web.Models
         public string Target { get; set; }
         public string Embed { get; set; }
         public string Type { get; set; }
+        public Guid CreateBy { get; set; }
+        public string Link { get; set; }
     }
 }

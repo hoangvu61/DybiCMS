@@ -42,7 +42,7 @@ namespace Web.Api.Repositories
         Task<ItemCategory?> GetCategory(Guid companyId, Guid id);
         Task<bool> UpdateCategory(WarehouseCategoryDto request, string languageCode);
         Task<bool> PublishCategory(WarehouseCategoryDto request);
-        Task<bool> UpdateCategory(CategoryDetailDto request);
+        Task<bool> UpdateCategory(Guid id, CategoryDetailDto request);
         Task<bool> UpdateParentCategory(Guid companyId, Guid id, Guid? parentId);
         Task<bool> DeleteCategory(ItemCategory category);
 
@@ -51,7 +51,7 @@ namespace Web.Api.Repositories
         Task<List<ItemArticle>> GetArticles(Guid companyId, List<Guid> itemIds);
         Task<ItemArticle> GetArticle(Guid companyId, Guid id);
         Task<Item> CreateArticle(Item item, List<Guid> relatedItems);
-        Task<bool> UpdateArticle(ArticleDetailDto request);
+        Task<bool> UpdateArticle(Guid userId, ArticleDetailDto request);
         Task<bool> UpdateArticleCategory(Guid companyId, Guid id, Guid categoryId);
         Task<bool> UpdateArticleType(Guid companyId, Guid id, string type);
         Task<bool> DeleteArticle(ItemArticle article);
@@ -59,7 +59,7 @@ namespace Web.Api.Repositories
         Task<int> CountMedias(Guid companyId, Guid categoryId);
         Task<PagedList<ItemMedia>> GetMedias(Guid companyId, MediaListSearch linkSearch);
         Task<ItemMedia> GetMedia(Guid companyId, Guid id);
-        Task<bool> UpdateMedia(MediaDetailDto request);
+        Task<bool> UpdateMedia(Guid userId, MediaDetailDto request);
         Task<bool> UpdateMediaCategory(Guid companyId, Guid id, Guid categoryId);
         Task<bool> DeleteMedia(ItemMedia media);
 
@@ -70,7 +70,7 @@ namespace Web.Api.Repositories
         Task<ItemLanguage> GetProduct(Guid companyId, string code, string language);
         Task<bool> CheckExistProductCode(Guid companyId, string code);
         Task<Item> CreateProduct(Item item, List<ItemAttributeDto> Attributes, List<Guid> relatedItems, List<ProductAddOnDto> addOnProducts);
-        Task<bool> UpdateProduct(ProductDetailDto request);
+        Task<bool> UpdateProduct(Guid userId, ProductDetailDto request);
         Task<bool> UpdateProductCategory(Guid companyId, Guid id, Guid categoryId);
         Task<bool> DeleteProduct(ItemProduct product);
         Task<List<ItemProductAddOn>> GetProductAddOns(Guid companyId, Guid itemId);
@@ -82,7 +82,7 @@ namespace Web.Api.Repositories
         Task<PagedList<ItemEvent>> GetEvents(Guid companyId, EventListSearch articleSearch);
         Task<List<ItemEvent>> GetEvents(Guid companyId, List<Guid> itemIds);
         Task<ItemEvent> GetEvent(Guid companyId, Guid id);
-        Task<bool> UpdateEvent(EventDetailDto request);
+        Task<bool> UpdateEvent(Guid userId, EventDetailDto request);
         Task<bool> DeleteEvent(ItemEvent article);
     }
 }

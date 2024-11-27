@@ -1,4 +1,7 @@
-﻿@using Web.Admin.Components;
+﻿@using Microsoft.AspNetCore.Authorization;
+@using Microsoft.AspNetCore.Components.Authorization;
+@using System.Security.Claims
+@using Web.Admin.Components;
 @using Web.Admin.Components.TextEditor
 @using Web.Admin.Services;
 @using Web.Models;
@@ -25,9 +28,19 @@
             <div class="card-header">
                 <h3 class="card-title">@Model.Title</h3>
                 <div style="float:right">
-                    <button type="submit" class="btn btn-success btn-xs">Lưu</button>
                     <button type="button" class="btn btn-primary btn-xs" @onclick="()=> OpenCreatePopup()">Thêm danh mục con</button>
+                    @if (UserId == Model.CreateBy)
+                    {
+                    <button type="submit" class="btn btn-success btn-xs">Lưu</button>
                     <button type="button" class="btn btn-danger btn-xs" @onclick="() => DeleteConfirmation.Show()">Xóa</button>
+                    } @* else {
+                        <AuthorizeView Roles="ActionByThemself">
+                            <NotAuthorized>
+                                <button type="submit" class="btn btn-success btn-xs">Lưu</button>
+                                <button type="button" class="btn btn-danger btn-xs" @onclick="() => DeleteConfirmation.Show()">Xóa</button>
+                            </NotAuthorized>
+                        </AuthorizeView>
+                    } *@
                 </div>
             </div>
             <div class="card-body">
@@ -186,6 +199,7 @@
 @code {
     private string BackendApiUrl { get; set; }
     private Guid CategoryId { get; set; }
+    private Guid UserId { set; get; }
 
     protected bool ShowBox { get; set; }
     private CategoryDetailDto Model { get; set; }
@@ -208,6 +222,9 @@
     [Parameter]
     public string LanguageCode { set; get; }
 
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
     protected async override Task OnInitializedAsync()
     {
         Components = await TemplateApiClient.GetComponents();
@@ -215,6 +232,10 @@
 
     public async Task LoadData(string language)
     {
+        var authState = await authenticationStateTask;
+        var userId = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!string.IsNullOrEmpty(userId)) UserId = Guid.Parse(userId);
+
         BackendApiUrl = Configuration["BackendApiUrl"];
         Model = await ContentApiClient.GetCategory(CategoryId, language);
         var categories = await ContentApiClient.GetCategories(Model.Type);

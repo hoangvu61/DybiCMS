@@ -24,6 +24,12 @@ namespace Web.Api.Repositories
             var seo = await _context.SEOs.FirstOrDefaultAsync(e => e.ItemId == itemId && e.CompanyId == companyId && e.LanguageCode == language);
             return seo;
         }
+
+        public async Task<List<SEO>> GetSEOs(Guid companyId, List<Guid> itemIds)
+        {
+            var seos = await _context.SEOs.Where(e => e.CompanyId == companyId && itemIds.Contains(e.ItemId ?? Guid.Empty)).ToListAsync();
+            return seos;
+        }
         public async Task<List<SEO>> GetSEOWithoutItems(Guid companyId)
         {
             var seos = await _context.SEOs.Where(e => e.CompanyId == companyId && e.ItemId == null).ToListAsync();

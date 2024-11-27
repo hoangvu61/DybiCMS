@@ -111,6 +111,11 @@ namespace Web.Api.Repositories
             var query = _context.Users.Where(e => e.CompanyId == companyId);
             return await query.ToListAsync();
         }
+        public async Task<List<User>> GetUsers(Guid companyId, Guid userId)
+        {
+            var query = _context.Users.Where(e => e.CompanyId == companyId && e.CreateBy == userId);
+            return await query.ToListAsync();
+        }
         public async Task<User> GetUser(Guid companyId, Guid userId)
         {
             var query = _context.Users.Where(e => e.Id == userId && e.CompanyId == companyId);
@@ -130,9 +135,22 @@ namespace Web.Api.Repositories
         }
         public async Task<User> DeleteUser(User user)
         {
+            var items = await _context.Items.Where(e => e.CreateBy == user.Id).ToListAsync();
+            foreach (var item in items)
+            {
+                item.CreateBy = user.CreateBy ?? Guid.Empty;
+            }
+            _context.Items.UpdateRange(items);
+
             _context.Users.Remove(user);
             await _context.SaveChangesAsync();
             return user;
+        }
+
+        public async Task<List<Role>> GetRoles()
+        {
+            var query = _context.Roles;
+            return await query.ToListAsync();
         }
     }
 }

@@ -347,7 +347,10 @@ namespace Web.Api.Controllers
                 IsPublished = true,
                 Order = 0,
                 View = 0,
+                CreateBy = user.Id,
                 CreateDate = DateTime.Now,
+                LastUpdateBy = user.Id,
+                LastUpdateDate = DateTime.Now,
                 Review = new ItemReview()
                 {
                     ReviewFor = request.ReviewFor,
@@ -451,6 +454,7 @@ namespace Web.Api.Controllers
                 SEO = category.SEO,
                 View = itemLanguage.Item.View,
                 CreateDate = itemLanguage.Item.CreateDate,
+                CreateBy = itemLanguage.Item.CreateBy,
                 IsPuslished = itemLanguage.Item.IsPublished,
                 Order = itemLanguage.Item.Order,
                 Image = new FileData { FileName = itemLanguage.Item.Image, Type = FileType.CategoryImage, Folder = user.CompanyId.ToString() },
@@ -477,7 +481,10 @@ namespace Web.Api.Controllers
                 IsPublished = true,
                 Order = 20,
                 View = 0,
+                CreateBy = user.Id,
                 CreateDate = DateTime.Now,
+                LastUpdateBy = user.Id,
+                LastUpdateDate = DateTime.Now,
                 Category = new ItemCategory()
                 {
                     Type = request.Type,
@@ -520,7 +527,7 @@ namespace Web.Api.Controllers
                 await fileHelper.Save();
             }
 
-            await _itemRepository.UpdateCategory(request);
+            await _itemRepository.UpdateCategory(user.Id, request);
 
             if (request.SEO)
             {
@@ -607,13 +614,20 @@ namespace Web.Api.Controllers
                 View = e.Item.View,
                 Image = new FileData() { FileName = e.Item.Image, Type = FileType.ArticleImage, Folder = user.CompanyId.ToString() },
                 //CategoryNames = e.Category.Item.ItemLanguages.ToDictionary(d => d.LanguageCode, d => d.Title),
-                Titles = e.Item.ItemLanguages.ToDictionary(d => d.LanguageCode, d => d.Title)
+                Titles = e.Item.ItemLanguages.ToDictionary(d => d.LanguageCode, d => d.Title),
+                CreateBy = e.Item.CreateBy
             }).ToList();
+            
             var categoryIds = articleDtos.Select(e => e.CategoryId).Distinct().ToList();
             var categoryLanguages = await _itemRepository.GetItemLanguages(user.CompanyId, categoryIds);
-            foreach(var dto in articleDtos)
+
+            var itemIds = articleDtos.Select(e => e.Id).Distinct().ToList();
+            var seos = await _seoRepository.GetSEOs(user.CompanyId, itemIds);
+
+            foreach (var dto in articleDtos)
             {
                 dto.CategoryNames = categoryLanguages.Where(e => e.ItemId == dto.CategoryId).ToDictionary(d => d.LanguageCode, d => d.Title);
+                dto.Link = seos.Where(e => e.ItemId == dto.Id).FirstOrDefault()?.SeoUrl ?? string.Empty;
             }    
 
             return Ok(new PagedList<ArticleDto>(articleDtos,
@@ -678,7 +692,10 @@ namespace Web.Api.Controllers
                 IsPublished = true,
                 Order = request.Order,
                 View = 0,
+                CreateBy = user.Id,
                 CreateDate = DateTime.Now,
+                LastUpdateBy = user.Id,
+                LastUpdateDate = DateTime.Now,
                 Article = new ItemArticle()
                 {
                     DisplayDate = request.DisplayDate,
@@ -738,7 +755,7 @@ namespace Web.Api.Controllers
                 await fileHelper.Save();
             }
 
-            await _itemRepository.UpdateArticle(request);
+            await _itemRepository.UpdateArticle(user.Id, request);
 
             // SEO
             if (category.CategoryComponent != null)
@@ -870,13 +887,20 @@ namespace Web.Api.Controllers
                 Embed = e.Embed,
                 Type = e.Type,
                 Image = new FileData() { FileName = e.Item.Image, Type = FileType.MediaImage, Folder = user.CompanyId.ToString() },
-                Titles = e.Item.ItemLanguages.ToDictionary(d => d.LanguageCode, d => d.Title)
+                Titles = e.Item.ItemLanguages.ToDictionary(d => d.LanguageCode, d => d.Title),
+                CreateBy = e.Item.CreateBy
             }).ToList();
+
             var categoryIds = linkDtos.Select(e => e.CategoryId).Distinct().ToList();
             var categoryLanguages = await _itemRepository.GetItemLanguages(user.CompanyId, categoryIds);
+
+            var itemIds = linkDtos.Select(e => e.Id).Distinct().ToList();
+            var seos = await _seoRepository.GetSEOs(user.CompanyId, itemIds);
+
             foreach (var dto in linkDtos)
             {
                 dto.CategoryNames = categoryLanguages.Where(e => e.ItemId == dto.CategoryId).ToDictionary(d => d.LanguageCode, d => d.Title);
+                dto.Link = seos.Where(e => e.ItemId == dto.Id).FirstOrDefault()?.SeoUrl ?? dto.Url;
             }
 
             return Ok(new PagedList<MediaDto>(linkDtos,
@@ -940,7 +964,10 @@ namespace Web.Api.Controllers
                 IsPublished = true,
                 Order = request.Order,
                 View = 0,
+                CreateBy = user.Id,
                 CreateDate = DateTime.Now,
+                LastUpdateBy = user.Id,
+                LastUpdateDate = DateTime.Now,
                 Media = new ItemMedia()
                 {
                     Target = request.Target,
@@ -997,7 +1024,10 @@ namespace Web.Api.Controllers
                     IsPublished = true,
                     Order = 50,
                     View = 0,
+                    CreateBy = user.Id,
                     CreateDate = DateTime.Now,
+                    LastUpdateBy = user.Id,
+                    LastUpdateDate = DateTime.Now,
                     Image = fileHelper.File.FileName,
                     Media = new ItemMedia()
                     {
@@ -1068,7 +1098,7 @@ namespace Web.Api.Controllers
                 await fileHelper.Save();
             }
 
-            await _itemRepository.UpdateMedia(request);
+            await _itemRepository.UpdateMedia(user.Id, request);
 
             // SEO
             var languageItem = new ItemLanguage
@@ -1149,18 +1179,25 @@ namespace Web.Api.Controllers
                 IsPublished = e.Item.IsPublished,
                 Order = e.Item.Order,
                 View = e.Item.View,
+                CreateBy = e.Item.CreateBy,
                 Image = new FileData() { FileName = e.Item.Image, Type = FileType.ProductImage, Folder = user.CompanyId.ToString() },
                 Titles = e.Item.ItemLanguages.ToDictionary(d => d.LanguageCode, d => d.Title),
                 Code =e.Code,
                 Discount = e.Discount,
                 DiscountType = e.DiscountType,
-                Price = e.Price
+                Price = e.Price,
             }).ToList();
+
             var categoryIds = productDtos.Select(e => e.CategoryId).Distinct().ToList();
             var categoryLanguages = await _itemRepository.GetItemLanguages(user.CompanyId, categoryIds);
+
+            var itemIds = productDtos.Select(e => e.Id).Distinct().ToList();
+            var seos = await _seoRepository.GetSEOs(user.CompanyId, itemIds);
+
             foreach (var dto in productDtos)
             {
                 dto.CategoryNames = categoryLanguages.Where(e => e.ItemId == dto.CategoryId).ToDictionary(d => d.LanguageCode, d => d.Title);
+                dto.Link = seos.Where(e => e.ItemId == dto.Id).FirstOrDefault()?.SeoUrl ?? string.Empty;
             }
 
             return Ok(new PagedList<ProductDto>(productDtos,
@@ -1264,7 +1301,10 @@ namespace Web.Api.Controllers
                 IsPublished = true,
                 Order = request.Order,
                 View = 0,
+                CreateBy = user.Id,
                 CreateDate = DateTime.Now,
+                LastUpdateBy = user.Id,
+                LastUpdateDate = DateTime.Now,
                 Product = new ItemProduct()
                 {
                     CategoryId = request.CategoryId,
@@ -1335,7 +1375,7 @@ namespace Web.Api.Controllers
             }
 
             if (!string.IsNullOrEmpty(request.Code)) request.Code = ConvertToUnSign(request.Code.Trim());
-            await _itemRepository.UpdateProduct(request);
+            await _itemRepository.UpdateProduct(user.Id, request);
 
             // SEO
             if (category.CategoryComponent != null)
@@ -1518,9 +1558,18 @@ namespace Web.Api.Controllers
                 IsPublished = e.Item.IsPublished,
                 Order = e.Item.Order,
                 View = e.Item.View,
+                CreateBy = e.Item.CreateBy,
                 Image = new FileData() { FileName = e.Item.Image, Type = FileType.EventImage, Folder = user.CompanyId.ToString() },
                 Titles = e.Item.ItemLanguages.ToDictionary(d => d.LanguageCode, d => d.Title)
             }).ToList();
+
+            var itemIds = eventDtos.Select(e => e.Id).Distinct().ToList();
+            var seos = await _seoRepository.GetSEOs(user.CompanyId, itemIds);
+
+            foreach (var dto in eventDtos)
+            {
+                dto.Link = seos.Where(e => e.ItemId == dto.Id).FirstOrDefault()?.SeoUrl ?? string.Empty;
+            }
 
             return Ok(new PagedList<EventDto>(eventDtos,
                        events.MetaData.TotalCount,
@@ -1577,7 +1626,10 @@ namespace Web.Api.Controllers
                 IsPublished = true,
                 Order = 0,
                 View = 0,
+                CreateBy = user.Id,
                 CreateDate = DateTime.Now,
+                LastUpdateBy = user.Id,
+                LastUpdateDate = DateTime.Now,
                 Event = new ItemEvent()
                 {
                     StartDate = request.StartDate,
@@ -1613,7 +1665,7 @@ namespace Web.Api.Controllers
                 await fileHelper.Save();
             }
 
-            await _itemRepository.UpdateEvent(request);
+            await _itemRepository.UpdateEvent(user.Id, request);
 
             var languageItem = new ItemLanguage
             {

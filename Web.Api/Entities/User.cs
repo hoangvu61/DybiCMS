@@ -14,10 +14,13 @@ namespace Web.Api.Entities
         [Required]
         public string LastName { get; set; }
 
+        public Guid? CreateBy { get; set; }
+
         [Required]
         public Guid CompanyId { get; set; }
 
         [ForeignKey("CompanyId")]
         public Company Company { get; set; }
+
     }
 }

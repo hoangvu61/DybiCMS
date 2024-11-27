@@ -4,7 +4,6 @@ namespace Web.Api.Entities
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Diagnostics.CodeAnalysis;
-    using System.Net.Mail;
 
     public partial class Item
     {
@@ -23,6 +22,15 @@ namespace Web.Api.Entities
 
         [Required]
         public DateTime CreateDate { get; set; }
+
+        [Required]
+        public Guid CreateBy { get; set; }
+
+        [Required]
+        public DateTime LastUpdateDate { get; set; }
+
+        [Required]
+        public Guid LastUpdateBy { get; set; }
 
         public bool IsPublished { get; set; }
 

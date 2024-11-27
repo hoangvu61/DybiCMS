@@ -2,6 +2,8 @@
 @attribute [Authorize]
 
 @using Microsoft.AspNetCore.Authorization;
+@using Microsoft.AspNetCore.Components.Authorization;
+@using System.Security.Claims
 @using Web.Admin.Components;
 @using Web.Admin.Pages.Admin.Components;
 @using Web.Admin.Pages.Content.Components;
@@ -15,6 +17,7 @@
 @inject IToastService ToastService;
 @inject IContentApiClient ContentApiClient
 @inject ICompanyApiClient CompanyApiClient;
+@inject NavigationManager NavigationManager;
 
 <section class="content-header">
     <div class="container-fluid">
@@ -56,9 +59,9 @@
                                 <th>Danh mục</th>
                                 <th>Tên</th>
                                 <th>Url</th>
-                                <th style="text-align:center">Thứ tự</th>
+                                <th style="text-align:center;width:100px">Thứ tự</th>
                                 <th style="text-align:center">Hiển thị</th>
-                                <th style="text-align:right">
+                                <th style="text-align:right;width:150px">
                                     <button class="btn btn-primary btn-sm" @onclick="()=> MediaVideoCreateDialog.Show()">Thêm</button>
                                 </th>
                             </tr>
@@ -128,7 +131,7 @@
                                             @item.Url
                                         }
                                     </td>
-                                    <td style="text-align: center;width:100px">
+                                    <td style="text-align: center">
                                         <div class="input-group input-group-sm mb-3">
                                             <button class="btn btn-outline-secondary" @onclick="@((e) => {item.Order--; OrderChanged(item.Id, item.Order);})">&lt;</button>
                                             <span class="form-control">@item.Order</span>
@@ -138,9 +141,25 @@
                                     <td class="form-switch" style="text-align: center; padding-left: 30px;">
                                         <input type="checkbox" checked="@item.IsPuslished" class="form-check-input" role="switch" @onchange="@((e) => {item.IsPuslished= bool.Parse(e.Value.ToString()); ApplyChanged(item.Id);})"></input>
                                     </td>
-                                    <td style="text-align:right;width:100px">
-                                        <a href="/medialvideodetail/@item.Id" class="btn btn-success btn-sm">Sửa</a>
-                                        <button class="btn btn-danger btn-sm" @onclick="()=> OnDelete(item.Id)">Xóa</button>
+                                    <td style="text-align:right">
+                                        @if (!string.IsNullOrEmpty(item.Link))
+                                        {
+                                            <a href="https://@(Domain + item.Link)" class="btn btn-primary btn-sm mr-1" target="_blank">Xem</a>
+                                        }
+                                        @if (UserId == item.CreateBy)
+                                        {
+                                            <a href="/medialvideodetail/@item.Id" class="btn btn-info btn-sm">Sửa</a>
+                                            <button class="btn btn-danger btn-sm" @onclick="()=> OnDelete(item.Id)">Xóa</button>
+                                        }
+                                        else
+                                        {
+                                            <AuthorizeView Roles="ActionByThemself">
+                                                <NotAuthorized>
+                                                    <a href="/medialvideodetail/@item.Id" class="btn btn-info btn-sm">Sửa</a>
+                                                    <button class="btn btn-danger btn-sm" @onclick="()=> OnDelete(item.Id)">Xóa</button>
+                                                </NotAuthorized>
+                                            </AuthorizeView>
+                                        }
                                     </td>
                                 </tr>
                             }
@@ -176,6 +195,8 @@
 
     private List<MediaDto> Videos;
 
+    private Guid UserId { set; get; }
+    private string Domain { set; get; }
     private Guid DeleteId { set; get; }
     private string BackendApiUrl { get; set; }
 
@@ -184,8 +205,17 @@
 
     private string LanguageCode { set; get; }
 
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+        
     protected override async Task OnInitializedAsync()
     {
+        var authState = await authenticationStateTask;
+        var userId = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!string.IsNullOrEmpty(userId)) UserId = Guid.Parse(userId);
+        else NavigationManager.NavigateTo("/logout", true);
+        Domain = authState.User.FindFirst(ClaimTypes.Webpage)?.Value;
+
         BackendApiUrl = Configuration["BackendApiUrl"];
 
         var languages = await CompanyApiClient.GetLanguageList(Guid.Empty);

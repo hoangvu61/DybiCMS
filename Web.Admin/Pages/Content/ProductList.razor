@@ -2,6 +2,8 @@
 @attribute [Authorize]
 
 @using Microsoft.AspNetCore.Authorization;
+@using Microsoft.AspNetCore.Components.Authorization;
+@using System.Security.Claims;
 @using Web.Admin.Components;
 @using Web.Admin.Pages.Content.Components;
 @using Web.Admin.Services;
@@ -13,6 +15,7 @@
 @inject IToastService ToastService;
 @inject IContentApiClient ContentApiClient;
 @inject ICompanyApiClient CompanyApiClient;
+@inject NavigationManager NavigationManager;
 
 <section class="content-header">
     <div class="container-fluid">
@@ -118,9 +121,25 @@
                                     <td class="form-switch" style="text-align: center; padding-left: 30px;">
                                         <input type="checkbox" checked="@item.IsPublished" class="form-check-input" role="switch" @onchange="@((e) => {item.IsPublished= bool.Parse(e.Value.ToString()); ApplyChanged(item.Id);})"></input>
                                     </td>
-                                    <td style="text-align:right;width:100px">
-                                        <a href="/ProductDetail/@item.Id" class="btn btn-primary btn-sm">Xem</a>
-                                        <button class="btn btn-danger btn-sm" @onclick="()=> OnDelete(item.Id)">Xóa</button>
+                                    <td style="text-align:right;width:150px">
+                                        @if (!string.IsNullOrEmpty(item.Link))
+                                        {
+                                            <a href="https://@(Domain + item.Link)" class="btn btn-primary btn-sm mr-1" target="_blank">Xem</a>
+                                        }
+                                        @if (UserId == item.CreateBy)
+                                        {
+                                            <a href="/ProductDetail/@item.Id" class="btn btn-info btn-sm">Sửa</a>
+                                            <button class="btn btn-danger btn-sm" @onclick="()=> OnDelete(item.Id)">Xóa</button>
+                                        }
+                                        else
+                                        {
+                                            <AuthorizeView Roles="ActionByThemself">
+                                                <NotAuthorized>
+                                                    <a href="/ProductDetail/@item.Id" class="btn btn-info btn-sm">Sửa</a>
+                                                    <button class="btn btn-danger btn-sm" @onclick="()=> OnDelete(item.Id)">Xóa</button>
+                                                </NotAuthorized>
+                                            </AuthorizeView>
+                                        }
                                     </td>
                                 </tr>
                             }
@@ -153,6 +172,8 @@
     private Guid DeleteId { set; get; }
     private bool ChangeOrderFlag { set; get; }
     private List<string> Languages { get; set; }
+    private Guid UserId { set; get; }
+    private string Domain { set; get; }
 
     private ProductSearch ProductSearchControl { set; get; }
     private ProductListSearch ProductListSearch = new ProductListSearch();
@@ -161,10 +182,19 @@
     private string BackendApiUrl { get; set; }
 
     [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    [CascadingParameter]
     private Error Error { set; get; }
 
     protected override async Task OnInitializedAsync()
     {
+        var authState = await authenticationStateTask;
+        var userId = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!string.IsNullOrEmpty(userId)) UserId = Guid.Parse(userId);
+        else NavigationManager.NavigateTo("/logout", true);
+        Domain = authState.User.FindFirst(ClaimTypes.Webpage)?.Value;
+
         BackendApiUrl = Configuration["BackendApiUrl"];
         Languages = await CompanyApiClient.GetLanguageList(Guid.Empty);
         ProductListSearch.PageSize = PageSize;

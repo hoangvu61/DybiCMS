@@ -178,9 +178,10 @@ namespace Web.Api.Repositories
             return dto;
         }
 
-        public async Task<Company> GetCompany(Guid id)
+        public async Task<Company?> GetCompany(Guid id)
         {
-            return await _context.Companies.FindAsync(id);
+            var company = await _context.Companies.Include(e => e.CompanyDetails).FirstOrDefaultAsync(e => e.Id == id);
+            return company;
         }
         public async Task<WebConfig> GetWebConfig(Guid id)
         {

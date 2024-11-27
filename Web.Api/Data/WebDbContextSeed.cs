@@ -186,6 +186,18 @@ namespace Web.Api.Data
                 await context.SaveChangesAsync();
             }
 
+            if (!context.Roles.Any(e => e.Name == "Config"))
+            {
+                context.Roles.Add(new Role { Name = "Config", NormalizedName = "CONFIG", Id = Guid.NewGuid(), ConcurrencyStamp = Guid.NewGuid().ToString(), Description = "Config" });
+                await context.SaveChangesAsync();
+            }
+
+            if (!context.Roles.Any(e => e.Name == "ActionByThemself"))
+            {
+                context.Roles.Add(new Role { Name = "ActionByThemself", NormalizedName = "ACTIONBYTHEMSELF", Id = Guid.NewGuid(), ConcurrencyStamp = Guid.NewGuid().ToString(), Description = "Không có quyền trên nội dung không phải do mình tạo ra" });
+                await context.SaveChangesAsync();
+            }
+
             //var tags = await context.ItemTags.Where(e => e.TagName.Contains(",")).ToListAsync();
             //foreach(var tag in tags)
             //{

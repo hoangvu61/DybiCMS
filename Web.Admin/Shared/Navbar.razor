@@ -1,4 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization;
+@using System.Security.Claims
 
 <nav class="main-header navbar navbar-expand navbar-white navbar-light">
     <!-- Left navbar links -->
@@ -18,17 +19,29 @@
             <a class="nav-link" data-toggle="dropdown" href="#">
                  <AuthorizeView>
                     <Authorized>
-                        @context.User.Identity.Name
+                        @UserFullName
                     </Authorized>
                     <NotAuthorized>                        
                     </NotAuthorized>
                 </AuthorizeView>
             </a>
             <div class="dropdown-menu dropdown-menu-right">
-                <a href="#" class="dropdown-item">Thông tin cá nhân</a>
+                <a href="/profile" class="dropdown-item">Thông tin cá nhân</a>
                 <div class="dropdown-divider"></div>
                 <a href="/logout" class="dropdown-item">Đăng xuất</a>
             </div>
         </li>
     </ul>
 </nav>
+
+@code {
+    private string UserFullName { get; set; }
+
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await authenticationStateTask;
+        UserFullName = authState.User.FindFirst(ClaimTypes.GivenName)?.Value;
+    }
+}

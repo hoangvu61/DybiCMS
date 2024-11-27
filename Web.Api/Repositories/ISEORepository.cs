@@ -6,6 +6,7 @@ namespace Web.Api.Repositories
     {
         Task<List<SEO>> GetAllSEOs(Guid companyId);
         Task<SEO> GetSEO(Guid companyId, Guid itemId, string language);
+        Task<List<SEO>> GetSEOs(Guid companyId, List<Guid> itemIds);
         Task<List<SEO>> GetSEOWithoutItems(Guid companyId);
         Task<SEO> GetSEOWithoutItem(Guid companyId, Guid id);
         

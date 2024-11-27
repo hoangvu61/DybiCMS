@@ -1,10 +1,13 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
+using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Web.Api.Entities;
+using Web.Api.Repositories;
 using Web.Models;
 
 namespace Web.Api.Controllers
@@ -16,14 +19,17 @@ namespace Web.Api.Controllers
         private readonly IConfiguration _configuration;
         private readonly SignInManager<User> _signInManager;
         private readonly UserManager<User> _userManager;
+        private readonly ICompanyRepository _companyRepository;
 
         public LoginController(IConfiguration configuration,
                                UserManager<User> userManager,
-                               SignInManager<User> signInManager)
+                               SignInManager<User> signInManager,
+                               ICompanyRepository companyRepository)
         {
             _configuration = configuration;
             _signInManager = signInManager;
             _userManager = userManager;
+            _companyRepository = companyRepository;
         }
 
         [HttpPost]
@@ -39,13 +45,26 @@ namespace Web.Api.Controllers
             var claims = new List<Claim>()
             {
                 new Claim(ClaimTypes.Name, login.UserName),
-                new Claim("UserId", user.Id.ToString())
+                new Claim(ClaimTypes.GivenName, $"{user.FirstName} {user.LastName}"),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
             };
+
             var roles = await _signInManager.UserManager.GetRolesAsync(user);
             foreach (var role in roles)
             {
                 claims.Add(new Claim(ClaimTypes.Role, role));
             }
+
+            var company = await _companyRepository.GetCompany(user.CompanyId);
+            if (company != null && company.CompanyDetails != null)
+            {
+                var detail = company.CompanyDetails.FirstOrDefault();
+                if (detail != null) claims.Add(new Claim(ClaimTypes.System, detail.DisplayName));
+            }    
+
+            var domains = await _companyRepository.GetDomains(user.CompanyId);
+            var domain = domains.Where(e => !e.Domain.StartsWith("www") && !e.Domain.StartsWith("localhost")).FirstOrDefault();
+            if (domain != null && !string.IsNullOrEmpty(domain.Domain)) claims.Add(new Claim(ClaimTypes.Webpage, domain.Domain));
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSecurityKey"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

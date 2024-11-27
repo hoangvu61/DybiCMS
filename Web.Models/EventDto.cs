@@ -17,5 +17,8 @@ namespace Web.Models
 
         public int View { get; set; }
         public string Place { get; set; }
+
+        public Guid CreateBy { get; set; }
+        public string Link { get; set; }
     }
 }

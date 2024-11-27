@@ -8,7 +8,7 @@ namespace Web.Api.Repositories
     {
         Task<PagedList<CompanyDto>> GetCompanyList(PagingParameters paging);
         Task<WebInfoDto> GetWebInfo(Guid id, string languageCode);
-        Task<Company> GetCompany(Guid id);
+        Task<Company?> GetCompany(Guid id);
         Task<WebConfig> GetWebConfig(Guid id);
         Task<int> UpdateWebInfo(Guid id, WebInfoRequest request);
         Task<bool> UpdateWebConfig(Guid id, WebConfigRequest request);

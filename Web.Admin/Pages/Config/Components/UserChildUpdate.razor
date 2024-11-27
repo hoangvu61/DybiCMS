@@ -1,0 +1,100 @@
+﻿@using Web.Admin.Services;
+@using Web.Models;
+
+@inject IToastService ToastService;
+@inject IUserApiClient UserApiClient;
+
+@if (ShowDialog && Model != null)
+{
+    <div class="modal fade show d-block" id="assignModel" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <EditForm Model="Model" OnValidSubmit="HandleSubmit">
+                <DataAnnotationsValidator></DataAnnotationsValidator>
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Sửa tài khoản</h5>
+                        <button type="button" class="close" data-dismiss="modal" @onclick="()=>Hide()" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <div class="input-group input-group-sm mb-3" style="font-weight:bold">
+                                <span class="input-group-text">Tài khoản</span>
+                                <InputText class="form-control form-control-sm" @bind-Value="Model.UserName" readonly="readonly"></InputText>
+                            </div>
+                            <ValidationMessage For="()=> Model.UserName"></ValidationMessage>
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group input-group-sm mb-3" style="font-weight:bold">
+                                <span class="input-group-text">Họ</span>
+                                <InputText class="form-control form-control-sm" @bind-Value="Model.FirstName"></InputText>
+                            </div>
+                            <ValidationMessage For="()=> Model.FirstName"></ValidationMessage>
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group input-group-sm mb-3" style="font-weight:bold">
+                                <span class="input-group-text">Tên</span>
+                                <InputText class="form-control form-control-sm" @bind-Value="Model.LastName"></InputText>
+                            </div>
+                            <ValidationMessage For="()=> Model.LastName"></ValidationMessage>
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group input-group-sm mb-3" style="font-weight:bold">
+                                <span class="input-group-text">Email</span>
+                                <InputText class="form-control form-control-sm" @bind-Value="Model.Email"></InputText>
+                            </div>
+                            <ValidationMessage For="()=> Model.Email"></ValidationMessage>
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group input-group-sm mb-3" style="font-weight:bold">
+                                <span class="input-group-text">Điện thoại</span>
+                                <InputText class="form-control form-control-sm" @bind-Value="Model.Phone"></InputText>
+                            </div>
+                            <ValidationMessage For="()=> Model.Phone"></ValidationMessage>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-xs" @onclick="()=>Hide()" data-dismiss="modal">Đóng</button>
+                        <button type="submit" class="btn btn-primary btn-xs">Lưu</button>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@code {
+    protected bool ShowDialog { get; set; }
+    private Guid CompanyId { set; get; }
+
+    private CompanyUserDto Model { set; get; }
+
+    [Parameter]
+    public EventCallback CloseEventCallbak { get; set; }
+
+    public async Task Show(CompanyUserDto user)
+    {
+        ShowDialog = true;
+        Model = user;
+        StateHasChanged();
+    }
+
+    private void Hide()
+    {
+        ShowDialog = false;
+        StateHasChanged();
+    }
+
+    protected async Task HandleSubmit()
+    {
+        var result = await UserApiClient.UpdateChild(Model);
+        if (string.IsNullOrEmpty(result))
+        {
+            ShowDialog = false;
+            await CloseEventCallbak.InvokeAsync();
+            ToastService.ShowInfo("Sửa tài khoản thành công");
+        }
+        else ToastService.ShowError(result);
+    }
+}

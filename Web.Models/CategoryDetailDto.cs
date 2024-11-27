@@ -39,6 +39,7 @@ namespace Web.Models
         public bool SEO { get; set; }
 
         public DateTime CreateDate { get; set; }
+        public Guid CreateBy { get; set; }
 
         public FileData? Image { get; set; }
     }

@@ -1,0 +1,105 @@
+﻿@page "/profile"
+@attribute [Authorize]
+
+@using Microsoft.AspNetCore.Authorization;
+@using Web.Admin.Components;
+@using Web.Admin.Components.TextEditor;
+@using Web.Admin.Pages.Config.Components
+@using Web.Admin.Services;
+@using Web.Models;
+@using Web.Models.Enums;
+@using Microsoft.Extensions.Configuration
+@using Blazored.TextEditor
+
+@inject IToastService ToastService;
+@inject IUserApiClient UserApiClient;
+
+<section class="content-header">
+    <div class="container-fluid">
+        <h1 class="m-0">Thông tin cá nhân</h1>
+    </div>
+</section>
+
+<section class="content">
+    <div class="container-fluid">
+        @if (Model == null)
+        {
+            <LoadingIndicator></LoadingIndicator>
+        }
+        else
+        {
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card card-outline card-info">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-edit"></i>
+                                Thông tin cơ bản
+                            </h3>
+                        </div>
+                        <EditForm Model="Model" OnValidSubmit="HandleSubmit">
+                            <DataAnnotationsValidator></DataAnnotationsValidator>
+                            <div class="card-body">
+                                <div class="form-group mb-3">
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text">Họ</span>
+                                        <InputText @bind-Value="Model.FirstName" class="form-control"></InputText>
+                                    </div>
+                                    <ValidationMessage For="()=> Model.FirstName"></ValidationMessage>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text">Tên</span>
+                                        <InputText @bind-Value="Model.LastName" class="form-control"></InputText>
+                                    </div>
+                                    <ValidationMessage For="()=> Model.LastName"></ValidationMessage>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text">Email</span>
+                                        <InputText @bind-Value="Model.Email" class="form-control"></InputText>
+                                    </div>
+                                    <ValidationMessage For="()=> Model.Email"></ValidationMessage>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text">Số điện thoại</span>
+                                        <InputText @bind-Value="Model.Phone" class="form-control"></InputText>
+                                    </div>
+                                    <ValidationMessage For="()=> Model.Phone"></ValidationMessage>
+                                </div>
+                            </div>
+                            <div class="card-footer" style="text-align:right">
+                                <button type="submit" class="btn btn-info btn-xs">Lưu</button>
+                            </div>
+                        </EditForm>
+                    </div>
+                    <ProfileChangePassword />
+                </div>
+                <div class="col-md-6">
+                    <UserChildren />
+                </div>
+            </div>
+        }
+    </div>
+</section>
+
+
+@code {
+    private MyUserDto Model { get; set; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        Model = await UserApiClient.GetMyUser();
+    }
+
+    protected async Task HandleSubmit()
+    {
+        var result = await UserApiClient.UpdateMyUser(Model);
+        if (string.IsNullOrEmpty(result))
+        {
+            ToastService.ShowInfo("Cập nhật thông tin thành công");
+        }
+        else ToastService.ShowError(result);
+    }
+}

@@ -35,16 +35,16 @@
                         <div class="form-group">
                             <div class="input-group input-group-sm mb-3" style="font-weight:bold">
                                 <span class="input-group-text">Họ</span>
-                                <InputText class="form-control form-control-sm" @bind-Value="Model.LastName"></InputText>
+                                <InputText class="form-control form-control-sm" @bind-Value="Model.FirstName"></InputText>
                             </div>
-                            <ValidationMessage For="()=> Model.LastName"></ValidationMessage>
+                            <ValidationMessage For="()=> Model.FirstName"></ValidationMessage>
                         </div>
                         <div class="form-group">
                             <div class="input-group input-group-sm mb-3" style="font-weight:bold">
                                 <span class="input-group-text">Tên</span>
-                                <InputText class="form-control form-control-sm" @bind-Value="Model.FirstName"></InputText>
+                                <InputText class="form-control form-control-sm" @bind-Value="Model.LastName"></InputText>
                             </div>
-                            <ValidationMessage For="()=> Model.FirstName"></ValidationMessage>
+                            <ValidationMessage For="()=> Model.LastName"></ValidationMessage>
                         </div>
                         <div class="form-group">
                             <div class="input-group input-group-sm mb-3" style="font-weight:bold">
@@ -101,6 +101,20 @@
                                     <InputCheckbox @bind-Value="Model.EventManage" class="form-check-input"></InputCheckbox>
                                     <label class="form-check-label">Quản lý sự kiện</label>
                                     <ValidationMessage For="()=> Model.EventManage"></ValidationMessage>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="form-check">
+                                    <InputCheckbox @bind-Value="Model.ConfigManage" class="form-check-input"></InputCheckbox>
+                                    <label class="form-check-label">Cấu hình website</label>
+                                    <ValidationMessage For="()=> Model.ConfigManage"></ValidationMessage>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="form-check">
+                                    <InputCheckbox @bind-Value="Model.ActionByThemselfManage" class="form-check-input"></InputCheckbox>
+                                    <label class="form-check-label">Chỉ quản lý nội dung do mình tạo ra</label>
+                                    <ValidationMessage For="()=> Model.ActionByThemselfManage"></ValidationMessage>
                                 </div>
                             </div>
                         </div>

@@ -19,5 +19,8 @@ namespace Web.Models
         public FileData? Image { get; set; }
 
         public int View { get; set; }
+
+        public Guid CreateBy { get; set; }
+        public string Link { get; set; }
     }
 }

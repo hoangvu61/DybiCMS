@@ -96,6 +96,7 @@
                         </li>
                     </ul>
                 </li>
+                <AuthorizeView Roles="Config">
                 <li class="nav-item @(Menu["CauHinh"] ? "menu-open" : "")">
                     <a class="nav-link" @onclick="@(() => Click("CauHinh"))">
                         <i class="nav-icon fas fa-cog"></i>
@@ -137,6 +138,7 @@
                         </li>
                     </ul>
                 </li>
+                </AuthorizeView>
                 <AuthorizeView Roles="Admin">
                     <li class="nav-item @(Menu["HeThong"] ? "menu-open" : "")">
                         <a class="nav-link" @onclick="@(() => Click("HeThong"))">

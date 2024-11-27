@@ -11,7 +11,7 @@ namespace Web.Api.Extensions
 
             var identity = (ClaimsIdentity)user.Identity;
             IEnumerable<Claim> claims = identity.Claims;
-            return claims.FirstOrDefault(s => s.Type == "UserId")?.Value;
+            return claims.FirstOrDefault(s => s.Type == ClaimTypes.NameIdentifier)?.Value;
         }
     }
 }

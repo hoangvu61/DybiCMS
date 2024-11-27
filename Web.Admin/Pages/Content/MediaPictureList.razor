@@ -2,6 +2,8 @@
 @attribute [Authorize]
 
 @using Microsoft.AspNetCore.Authorization;
+@using Microsoft.AspNetCore.Components.Authorization;
+@using System.Security.Claims
 @using Web.Admin.Components;
 @using Web.Admin.Pages.Admin.Components;
 @using Web.Admin.Pages.Content.Components;
@@ -15,6 +17,7 @@
 @inject IToastService ToastService;
 @inject IContentApiClient ContentApiClient
 @inject ICompanyApiClient CompanyApiClient;
+@inject NavigationManager NavigationManager;
 
 <section class="content-header">
     <div class="container-fluid">
@@ -84,9 +87,22 @@
                                         </span>
                                         <span class="info-box-text form-switch" style="padding-left: 40px;">
                                             <input type="checkbox" checked="@item.IsPuslished" class="form-check-input" role="switch" @onchange="@((e) => {item.IsPuslished= bool.Parse(e.Value.ToString()); ApplyChanged(item.Id);})"></input>
-                                            <button type="button" class="btn" @onclick="() => OnDelete(item.Id)" style="color:red;padding:0px">
-                                                <i class="fas fa-times"></i>
-                                            </button>
+                                            @if (UserId == item.CreateBy)
+                                            {
+                                                <button type="button" class="btn" @onclick="() => OnDelete(item.Id)" style="color:red;padding:0px">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            }
+                                            else
+                                            {
+                                                <AuthorizeView Roles="ActionByThemself">
+                                                    <NotAuthorized>
+                                                        <button type="button" class="btn" @onclick="() => OnDelete(item.Id)" style="color:red;padding:0px">
+                                                            <i class="fas fa-times"></i>
+                                                        </button>
+                                                    </NotAuthorized>
+                                                </AuthorizeView>
+                                            }
                                         </span>
                                     </div>
                                 </div>
@@ -119,6 +135,7 @@
 
     private List<MediaDto> Pictures;
 
+    private Guid UserId { set; get; }
     private Guid DeleteId { set; get; }
     private string BackendApiUrl { get; set; }
 
@@ -127,8 +144,16 @@
 
     private string LanguageCode { set; get; }
 
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
+        var authState = await authenticationStateTask;
+        var userId = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!string.IsNullOrEmpty(userId)) UserId = Guid.Parse(userId);
+        else NavigationManager.NavigateTo("/logout", true);
+
         BackendApiUrl = Configuration["BackendApiUrl"];
 
         var languages = await CompanyApiClient.GetLanguageList(Guid.Empty);
