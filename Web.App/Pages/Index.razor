@@ -67,113 +67,125 @@
         </div>
     
         <div class="row">
-        <div class="col-9">
-            <h2>Tình hình tài chính</h2>
+            <div class="col-9">
+                <h2>Tình hình tài chính</h2>
 
-            <MudChart ChartType="ChartType.Line" ChartSeries="@Series" XAxisLabels="@XAxisLabels" Width="100%" Height="350px"></MudChart>
+                <MudChart ChartType="ChartType.Line" ChartSeries="@Series" XAxisLabels="@XAxisLabels" Width="100%" Height="350px"></MudChart>
 
-            @if (COGS != null && COGS.Any())
-            {
-                <table class="table table-sm table-striped table-bordered">
-                    <thead>
-                        <tr>
-                            <th></th>
-                            <th>Giá vốn hàng hóa</th>
-                            <th>Doanh thu</th>
-                            <th>Lợi nhuận gộp</th>
-                            <th>Chi phí</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @for (int i = MinId; i <= COGS.Last().Id; i++)
-                        {
+                @if (COGS != null && COGS.Any())
+                {
+                    <table class="table table-sm table-striped table-bordered">
+                        <thead>
                             <tr>
-                                <td>@COGS.First(e => e.Id == i).Title</td>
-                                <td style="text-align:right">@COGS.First(e => e.Id == i).TotalAmount.ToString("N0")<sup>đ</sup></td>
-                                <td style="text-align:right">@Revenue.First(e => e.Id == i).TotalAmount.ToString("N0")<sup>đ</sup></td>
-                                <td style="text-align:right">@GrossProfit.First(e => e.Id == i).TotalAmount.ToString("N0")<sup>đ</sup></td>
-                                <td style="text-align:right">@Expensive.First(e => e.Id == i).TotalAmount.ToString("N0")<sup>đ</sup></td>
+                                <th></th>
+                                <th>Giá vốn hàng hóa</th>
+                                <th>Doanh thu</th>
+                                <th>Lợi nhuận gộp</th>
+                                <th>Chi phí</th>
                             </tr>
-                        }
-                    </tbody>
-                </table>
-            }
+                        </thead>
+                        <tbody>
+                            @for (int i = MinId; i <= COGS.Last().Id; i++)
+                            {
+                                <tr>
+                                    @if (Revenue != null && COGS.Any(e => e.Id == i))
+                                    {
+                                        <td>@COGS.Where(e => e.Id == i).Select(e => e.Title).FirstOrDefault()</td>
+                                        <td style="text-align:right">@COGS.Where(e => e.Id == i).Select(e => e.TotalAmount.ToString("N0")).FirstOrDefault()<sup>đ</sup></td>
+                                    }
+                                    @if (Revenue != null && Revenue.Any(e => e.Id == i))
+                                    {
+                                        <td style="text-align:right">@Revenue.Where(e => e.Id == i).Select(e => e.TotalAmount.ToString("N0")).FirstOrDefault()<sup>đ</sup></td>
+                                    }
+                                    @if (GrossProfit != null && GrossProfit.Any(e => e.Id == i))
+                                    {
+                                        <td style="text-align:right">@GrossProfit.Where(e => e.Id == i).Select(e => e.TotalAmount.ToString("N0")).FirstOrDefault()<sup>đ</sup></td>
+                                    }
+                                    @if (Expensive != null && Expensive.Any(e => e.Id == i))
+                                    {
+                                        <td style="text-align:right">@Expensive.Where(e => e.Id == i).Select(e => e.TotalAmount.ToString("N0")).FirstOrDefault()<sup>đ</sup></td>
+                                    }
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+            <div class="col-3">
+                @if (StatisticInStage != null)
+                {
+                    <div class="card mt-3 mb-5">
+                        <div class="card-header bg-info">Thống kê trong kỳ</div>
+                        <table class="table table-sm table-striped mb-0">
+                            <tbody>
+                                <tr>
+                                    <td>Giá vốn hàng hóa</td>
+                                    <td style="text-align:right">@StatisticInStage.CostofGoodsSold.ToString("N0")<sup>đ</sup></td>
+                                </tr>
+                                <tr>
+                                    <td>Doanh thu</td>
+                                    <td style="text-align:right">@StatisticInStage.Revenue.ToString("N0")<sup>đ</sup></td>
+                                </tr>
+                                <tr>
+                                    <td>Lợi nhuận gộp</td>
+                                    <td style="text-align:right">@StatisticInStage.GrossProfit.ToString("N0")<sup>đ</sup></td>
+                                </tr>
+                                <tr>
+                                    <td>Chí phí</td>
+                                    <td style="text-align:right">@StatisticInStage.Expenses.ToString("N0")<sup>đ</sup></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                }
+
+                @if (StatisticTotal != null)
+                {
+                    <div class="card mb-5">
+                        <div class="card-header bg-info">Đến thời điểm hiện tại</div>
+                        <table class="table table-sm table-striped mb-0">
+                            <tbody>
+                                <tr>
+                                    <td>Giá vốn hàng hóa</td>
+                                    <td style="text-align:right">@StatisticTotal.CostofGoodsSold.ToString("N0")<sup>đ</sup></td>
+                                </tr>
+                                <tr>
+                                    <td>Doanh thu</td>
+                                    <td style="text-align:right">@StatisticTotal.Revenue.ToString("N0")<sup>đ</sup></td>
+                                </tr>
+                                <tr>
+                                    <td>Lợi nhuận gộp</td>
+                                    <td style="text-align:right">@StatisticTotal.GrossProfit.ToString("N0")<sup>đ</sup></td>
+                                </tr>
+                                <tr>
+                                    <td>Chí phí</td>
+                                    <td style="text-align:right">@StatisticTotal.Expenses.ToString("N0")<sup>đ</sup></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                }
+
+                @if (Debts != null)
+                {
+                    <div class="card mt-3 mb-5">
+                        <div class="card-header bg-info">Công nợ</div>
+                        <table class="table table-sm table-striped mb-0">
+                            <tbody>
+                                <tr>
+                                    <td>Nợ phải thu</td>
+                                    <td style="text-align:right">@Debts.AccountsReceivable.ToString("N0")<sup>đ</sup></td>
+                                </tr>
+                                <tr>
+                                    <td>Nợ phải trả</td>
+                                    <td style="text-align:right">@Debts.AccountsPayable.ToString("N0")<sup>đ</sup></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
         </div>
-        <div class="col-3">
-            @if (StatisticInStage != null)
-            {
-                <div class="card mt-3 mb-5">
-                    <div class="card-header bg-info">Thống kê trong kỳ</div>
-                    <table class="table table-sm table-striped mb-0">
-                        <tbody>
-                            <tr>
-                                <td>Giá vốn hàng hóa</td>
-                                <td style="text-align:right">@StatisticInStage.CostofGoodsSold.ToString("N0")<sup>đ</sup></td>
-                            </tr>
-                            <tr>
-                                <td>Doanh thu</td>
-                                <td style="text-align:right">@StatisticInStage.Revenue.ToString("N0")<sup>đ</sup></td>
-                            </tr>
-                            <tr>
-                                <td>Lợi nhuận gộp</td>
-                                <td style="text-align:right">@StatisticInStage.GrossProfit.ToString("N0")<sup>đ</sup></td>
-                            </tr>
-                            <tr>
-                                <td>Chí phí</td>
-                                <td style="text-align:right">@StatisticInStage.Expenses.ToString("N0")<sup>đ</sup></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            }
-
-            @if (StatisticTotal != null)
-            {
-                <div class="card mb-5">
-                    <div class="card-header bg-info">Đến thời điểm hiện tại</div>
-                    <table class="table table-sm table-striped mb-0">
-                        <tbody>
-                            <tr>
-                                <td>Giá vốn hàng hóa</td>
-                                <td style="text-align:right">@StatisticTotal.CostofGoodsSold.ToString("N0")<sup>đ</sup></td>
-                            </tr>
-                            <tr>
-                                <td>Doanh thu</td>
-                                <td style="text-align:right">@StatisticTotal.Revenue.ToString("N0")<sup>đ</sup></td>
-                            </tr>
-                            <tr>
-                                <td>Lợi nhuận gộp</td>
-                                <td style="text-align:right">@StatisticTotal.GrossProfit.ToString("N0")<sup>đ</sup></td>
-                            </tr>
-                            <tr>
-                                <td>Chí phí</td>
-                                <td style="text-align:right">@StatisticTotal.Expenses.ToString("N0")<sup>đ</sup></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            }
-
-            @if (Debts != null)
-            {
-                <div class="card mt-3 mb-5">
-                    <div class="card-header bg-info">Công nợ</div>
-                    <table class="table table-sm table-striped mb-0">
-                        <tbody>
-                            <tr>
-                                <td>Nợ phải thu</td>
-                                <td style="text-align:right">@Debts.AccountsReceivable.ToString("N0")<sup>đ</sup></td>
-                            </tr>
-                            <tr>
-                                <td>Nợ phải trả</td>
-                                <td style="text-align:right">@Debts.AccountsPayable.ToString("N0")<sup>đ</sup></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            }
-        </div>
-    </div>
     </div>
 </section>
 <SetConfig @ref="SetConfigDialog"></SetConfig>

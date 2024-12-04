@@ -256,13 +256,14 @@
     private List<OrderDto> ReceiveOrders = new List<OrderDto>();
     private List<OrderDto> CancelOrders = new List<OrderDto>();
 
+    private const int PageSize = 20;
     private Guid DeleteId { set; get; }
 
-    private PagingParameters NewOrderPaging { set; get; } = new PagingParameters(20);
-    private PagingParameters ConfirmOrderPaging { set; get; } = new PagingParameters(20);
-    private PagingParameters SendOrderPaging { set; get; } = new PagingParameters(20);
-    private PagingParameters ReceiveOrderPaging { set; get; } = new PagingParameters(20);
-    private PagingParameters CancelOrderPaging { set; get; } = new PagingParameters(20);
+    private PagingParameters NewOrderPaging { set; get; } = new PagingParameters(PageSize);
+    private PagingParameters ConfirmOrderPaging { set; get; } = new PagingParameters(PageSize);
+    private PagingParameters SendOrderPaging { set; get; } = new PagingParameters(PageSize);
+    private PagingParameters ReceiveOrderPaging { set; get; } = new PagingParameters(PageSize);
+    private PagingParameters CancelOrderPaging { set; get; } = new PagingParameters(PageSize);
     public MetaData NewMetaData { get; set; } = new MetaData();
     public MetaData ConfirmMetaData { get; set; } = new MetaData();
     public MetaData SendMetaData { get; set; } = new MetaData();

@@ -56,7 +56,7 @@ namespace Web.Admin.Services
                 ["pageSize"] = paging.PageSize.ToString()
             };
             string url = QueryHelpers.AddQueryString($"/api/orders/receives", queryStringParam);
-            var result = await _httpClient.GetFromJsonAsync<PagedList<OrderDto>>($"/api/orders/receives");
+            var result = await _httpClient.GetFromJsonAsync<PagedList<OrderDto>>(url);
             return result;
         }
         public async Task<PagedList<OrderDto>> GetCancelOrders(PagingParameters paging)
@@ -67,7 +67,7 @@ namespace Web.Admin.Services
                 ["pageSize"] = paging.PageSize.ToString()
             };
             string url = QueryHelpers.AddQueryString($"/api/orders/cancels", queryStringParam);
-            var result = await _httpClient.GetFromJsonAsync<PagedList<OrderDto>>($"/api/orders/cancels");
+            var result = await _httpClient.GetFromJsonAsync<PagedList<OrderDto>>(url);
             return result;
         }
         public async Task<OrderDetailDto> GetOrder(Guid id)

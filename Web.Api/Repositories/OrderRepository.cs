@@ -355,7 +355,7 @@ namespace Web.Api.Repositories
                     case "2":
                         var quy = DateTime.Now.Month / 3;
                         var mid = DateTime.Now.Month % 3;
-                        if (mid == 0) quy = quy + 1;
+                        if (mid > 0) quy = quy + 1;
                         var thangDauQuy = quy * 3 - 2;
                         fromDate = new DateTime(DateTime.Now.Year, thangDauQuy, 1);
                         break;
@@ -423,11 +423,14 @@ namespace Web.Api.Repositories
 
                             for (var i = fromMonth; i <= toMonth; i += 3)
                             {
+                                var quy = i / 3;
+                                var mid = i % 3;
+                                if (mid > 0) quy = quy + 1;
                                 var stageAmount = new MoneyAccountingDto
                                 {
                                     Id = data.Count + 1,
-                                    Title = $"Quí {i / 3 + 1} Năm {fromYear}",
-                                    Date = $"Quí {i / 3 + 1}/{fromYear}"
+                                    Title = $"Quí {quy} Năm {fromYear}",
+                                    Date = $"Quí {quy} Năm {fromYear}"
                                 };
                                 var fromDate = new DateTime(fromYear, i, 1);
                                 var toDate = fromDate.AddMonths(3).AddMilliseconds(-1);
@@ -480,7 +483,7 @@ namespace Web.Api.Repositories
                     case "2":
                         var quy = DateTime.Now.Month / 3;
                         var mid = DateTime.Now.Month % 3;
-                        if (mid == 0) quy = quy + 1;
+                        if (mid > 0) quy = quy + 1;
                         var thangDauQuy = quy * 3 - 2;
                         fromDate = new DateTime(DateTime.Now.Year, thangDauQuy, 1);
                         break;
@@ -547,12 +550,15 @@ namespace Web.Api.Repositories
 
                             for (var i = fromMonth; i <= toMonth; i += 3)
                             {
-                                var stageAmount = new MoneyAccountingDto
-                                {
+                                var quy = i / 3;
+                                var mid = i % 3;
+                                if (mid > 0) quy = quy + 1;
+                                var stageAmount = new MoneyAccountingDto { 
                                     Id = data.Count + 1,
-                                    Title = $"Quí {i / 3 + 1} Năm {fromYear}",
-                                    Date = $"Quí {i / 3 + 1}/{fromYear}"
+                                    Title = $"Quí {quy} Năm {fromYear}",
+                                    Date = $"Quí {quy} Năm {fromYear}"
                                 };
+
                                 var fromDate = new DateTime(fromYear, i, 1);
                                 var toDate = fromDate.AddMonths(3).AddMilliseconds(-1);
                                 stageAmount.TotalAmount = await _context.Orders.CountAsync(e => e.CompanyId == companyId && e.ReceiveDate != null && fromDate <= e.ReceiveDate && e.ReceiveDate <= toDate);
@@ -602,7 +608,7 @@ namespace Web.Api.Repositories
                     case "2":
                         var quy = DateTime.Now.Month / 3;
                         var mid = DateTime.Now.Month % 3;
-                        if (mid == 0) quy = quy + 1;
+                        if (mid > 0) quy = quy + 1;
                         var thangDauQuy = quy * 3 - 2;
                         fromDate = new DateTime(DateTime.Now.Year, thangDauQuy, 1);
                         break;
@@ -669,12 +675,16 @@ namespace Web.Api.Repositories
 
                             for (var i = fromMonth; i <= toMonth; i += 3)
                             {
+                                var quy = i / 3;
+                                var mid = i % 3;
+                                if (mid > 0) quy = quy + 1;
                                 var stageAmount = new MoneyAccountingDto
                                 {
                                     Id = data.Count + 1,
-                                    Title = $"Quí {i / 3 + 1} Năm {fromYear}",
-                                    Date = $"Quí {i / 3 + 1}/{fromYear}"
+                                    Title = $"Quí {quy} Năm {fromYear}",
+                                    Date = $"Quí {quy} Năm {fromYear}"
                                 };
+
                                 var fromDate = new DateTime(fromYear, i, 1);
                                 var toDate = fromDate.AddMonths(3).AddMilliseconds(-1);
                                 stageAmount.TotalAmount = await _context.Orders.CountAsync(e => e.CompanyId == companyId && e.CancelDate != null && fromDate <= e.CancelDate && e.CancelDate <= toDate);

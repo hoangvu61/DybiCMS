@@ -1122,7 +1122,7 @@ namespace Web.Api.Repositories
                     case "2":
                         var quy = DateTime.Now.Month / 3;
                         var mid = DateTime.Now.Month % 3;
-                        if (mid == 0) quy = quy + 1;
+                        if (mid > 0) quy = quy + 1;
                         var thangDauQuy = quy * 3 - 2;
                         fromDate = new DateTime(DateTime.Now.Year, thangDauQuy, 1);
                         break;
@@ -1190,12 +1190,16 @@ namespace Web.Api.Repositories
 
                             for (var i = fromMonth; i <= toMonth; i += 3)
                             {
+                                var quy = i / 3;
+                                var mid = i % 3;
+                                if (mid > 0) quy = quy + 1;
                                 var stageAmount = new MoneyAccountingDto
                                 {
                                     Id = data.Count + 1,
-                                    Title = $"Quí {i / 3 + 1} Năm {fromYear}",
-                                    Date = $"Quí {i / 3 + 1}/{fromYear}"
+                                    Title = $"Quí {quy} Năm {fromYear}",
+                                    Date = $"Quí {quy} Năm {fromYear}"
                                 };
+
                                 var fromDate = new DateTime(fromYear, i, 1);
                                 var toDate = fromDate.AddMonths(3).AddMilliseconds(-1);
                                 var result = await _context.WarehouseInputs.Where(e => e.Warehouse.CompanyId == companyId && (e.Warehouse.Type == 152 || e.Warehouse.Type == 156) && fromDate <= e.CreateDate && e.CreateDate <= toDate).Select(e => e.Products.Sum(e => e.Price * e.Quantity)).ToListAsync();
@@ -1218,6 +1222,7 @@ namespace Web.Api.Repositories
                                 Title = $"Năm {fromYear}",
                                 Date = $"{fromYear}"
                             };
+
                             var fromDate = new DateTime(fromYear, fromMonth, 1);
                             var toDate = new DateTime(fromYear, toMonth, DateTime.DaysInMonth(fromYear, toMonth));
                             var result = await _context.WarehouseInputs.Where(e => e.Warehouse.CompanyId == companyId && (e.Warehouse.Type == 152 || e.Warehouse.Type == 156) && fromDate <= e.CreateDate && e.CreateDate <= toDate).Select(e => e.Products.Sum(e => e.Price * e.Quantity)).ToListAsync();
@@ -1247,7 +1252,7 @@ namespace Web.Api.Repositories
                     case "2":
                         var quy = DateTime.Now.Month / 3;
                         var mid = DateTime.Now.Month % 3;
-                        if (mid == 0) quy = quy + 1;
+                        if (mid > 0) quy = quy + 1;
                         var thangDauQuy = quy * 3 - 2;
                         fromDate = new DateTime(DateTime.Now.Year, thangDauQuy, 1);
                         break;
@@ -1329,12 +1334,16 @@ namespace Web.Api.Repositories
 
                             for (var i = fromMonth; i <= toMonth; i += 3)
                             {
+                                var quy = i / 3;
+                                var mid = i % 3;
+                                if (mid > 0) quy = quy + 1;
                                 var stageAmount = new MoneyAccountingDto
                                 {
                                     Id = data.Count + 1,
-                                    Title = $"Quí {i / 3 + 1} Năm {fromYear}",
-                                    Date = $"Quí {i / 3 + 1}/{fromYear}"
+                                    Title = $"Quí {quy} Năm {fromYear}",
+                                    Date = $"Quí {quy} Năm {fromYear}"
                                 };
+
                                 var fromDate = new DateTime(fromYear, i, 1);
                                 var toDate = fromDate.AddMonths(3).AddMilliseconds(-1);
 
