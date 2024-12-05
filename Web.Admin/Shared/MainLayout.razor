@@ -30,24 +30,3 @@
         </NotAuthorized>
     </AuthorizeView>
 </div>
-
-@inject NavigationManager Navigation
-@inject IAuthService AuthService;
-
-@code {
-    protected override async Task OnInitializedAsync()
-    {
-        // Get the current URI
-        var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
-
-        // Parse the query string
-        var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
-
-        // Retrieve the value of the 'query' parameter
-        if (query.TryGetValue("token", out var paramValue))
-        {
-            var token = paramValue.ToString();
-            await AuthService.Login(token);
-        }
-    }
-}

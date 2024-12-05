@@ -68,7 +68,7 @@ namespace Web.Api.Controllers
             {
                 if (!string.IsNullOrEmpty(webconfig.WebIcon))
                 {
-                    var webicon = new FileData() { FileName = webconfig.WebIcon , Type = Models.Enums.FileType.WebIcon, Folder = user.CompanyId.ToString() }.FilePath;
+                    var webicon = new FileData() { FileName = webconfig.WebIcon , Type = Models.Enums.FileType.WebIcon, Folder = user.CompanyId.ToString() }.FullPath;
                     claims.Add(new Claim(ClaimTypes.Thumbprint, webicon));
                 }
             }

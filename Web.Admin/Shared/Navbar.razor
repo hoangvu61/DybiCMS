@@ -3,6 +3,8 @@
 @using Web.Admin.Services
 
 @inject IAuthService AuthService;
+@inject IConfiguration Configuration;
+@inject IJSRuntime JSRuntime
 
 <nav class="main-header navbar navbar-expand navbar-white navbar-light">
     <!-- Left navbar links -->
@@ -45,16 +47,30 @@
 @code {
     private string UserFullName { get; set; }
     private string Domain { get; set; }
+    private string WebIcon { get; set; }
     private string Token { get; set; }
+    private string BackendApiUrl { get; set; }
 
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
     protected override async Task OnInitializedAsync()
     {
-        Token = await AuthService.GetToken();
+        BackendApiUrl = Configuration["BackendApiUrl"];
 
+        Token = await AuthService.GetToken();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
         var authState = await authenticationStateTask;
         UserFullName = authState.User.FindFirst(ClaimTypes.GivenName)?.Value;
         Domain = authState.User.FindFirst(ClaimTypes.Webpage)?.Value;
+        WebIcon = authState.User.FindFirst(ClaimTypes.Thumbprint)?.Value;
+
+        if (firstRender)
+        {
+            // Set an initial favicon dynamically when the page loads
+            await JSRuntime.InvokeVoidAsync("changeFavicon", BackendApiUrl + "/" + WebIcon);
+        }
     }
 }

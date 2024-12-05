@@ -50,15 +50,17 @@
     <script src="_content/Blazored.TextEditor/quill-blot-formatter.min.js"></script>
     <script src="_content/Blazored.TextEditor/Blazored-BlazorQuill.js"></script>
 
-    <!--<script>
-        $(document).on('DOMSubtreeModified', function () {
-            $(".sidebar .nav-link").click(function () {
-                if ($(this).parent().hasClass("menu-open"))
-                    $(this).parent().removeClass("menu-open");
-                else $(this).parent().addClass("menu-open");
-            });
-        });
-    </script>-->
+    <script>
+        function changeFavicon(faviconUrl) {
+            let link = document.querySelector("link[rel~='icon']");
+            if (!link) {
+                link = document.createElement("link");
+                link.rel = "icon";
+                document.head.appendChild(link);
+            }
+            link.href = faviconUrl;
+        }
+    </script>
     <script src="_framework/blazor.webassembly.js"></script>
 
 </body>
