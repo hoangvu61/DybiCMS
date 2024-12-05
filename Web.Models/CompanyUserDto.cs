@@ -37,5 +37,6 @@ namespace Web.Models
         public bool EventManage { get; set; } = false;
         public bool ConfigManage { get; set; } = false;
         public bool ActionByThemselfManage { get; set; } = false;
+        public bool WarehouseManage { get; set; } = false;
     }
 }

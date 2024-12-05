@@ -103,6 +103,27 @@
                                     <ValidationMessage For="()=> Model.EventManage"></ValidationMessage>
                                 </div>
                             </div>
+                            <div class="col-6">
+                                <div class="form-check">
+                                    <InputCheckbox @bind-Value="Model.ConfigManage" class="form-check-input"></InputCheckbox>
+                                    <label class="form-check-label">Cấu hình website</label>
+                                    <ValidationMessage For="()=> Model.ConfigManage"></ValidationMessage>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="form-check">
+                                    <InputCheckbox @bind-Value="Model.ActionByThemselfManage" class="form-check-input"></InputCheckbox>
+                                    <label class="form-check-label">Chỉ quản lý nội dung do mình tạo ra</label>
+                                    <ValidationMessage For="()=> Model.ActionByThemselfManage"></ValidationMessage>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="form-check">
+                                    <InputCheckbox @bind-Value="Model.WarehouseManage" class="form-check-input"></InputCheckbox>
+                                    <label class="form-check-label">Quản lý Bán hàng, Xuất nhập kho</label>
+                                    <ValidationMessage For="()=> Model.WarehouseManage"></ValidationMessage>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer">

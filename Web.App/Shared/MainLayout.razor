@@ -2,30 +2,52 @@
 @using Blazored.Toast.Configuration;
 @using Microsoft.AspNetCore.Components.Authorization;
 @using Web.App.Pages
+@using Web.App.Services
 
 <BlazoredToasts Position="ToastPosition.BottomRight" Timeout="5" IconType="IconType.FontAwesome" ErrorIcon="fa fa-times"
     InfoIcon="fa fa-info" SuccessIcon="fa fa-check" WarningIcon="fa fa-exclamation" />
 <div class="wrapper">
-<AuthorizeView>
-    <Authorized>
-    <!-- Navbar -->
-    <Navbar />
-    <!-- /.navbar -->
+    <AuthorizeView>
+            <Authorized>
+            <!-- Navbar -->
+            <Navbar />
+            <!-- /.navbar -->
 
-    <Sidebar />
+            <Sidebar />
 
-    <div class="content-wrapper">@Body</div>
+            <div class="content-wrapper">@Body</div>
 
-    <!-- /.content-wrapper -->
-    <footer class="main-footer">
-                <strong>Phát triển bởi <a href="https://dybiweb.com">dybiweb.com</a>.</strong>
-        <div class="float-right d-none d-sm-inline-block">
-            <b>Version</b> 8.2.1
-        </div>
-    </footer>
-    </Authorized>
-    <NotAuthorized>
-        <Login></Login>
-    </NotAuthorized>
-</AuthorizeView>
+            <!-- /.content-wrapper -->
+            <footer class="main-footer">
+                        <strong>Phát triển bởi <a href="https://dybiweb.com">dybiweb.com</a>.</strong>
+                <div class="float-right d-none d-sm-inline-block">
+                    <b>Version</b> 8.2.1
+                </div>
+            </footer>
+            </Authorized>
+            <NotAuthorized>
+                <Login></Login>
+            </NotAuthorized>
+    </AuthorizeView>
 </div>
+
+@inject NavigationManager Navigation
+@inject IAuthService AuthService;
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        // Get the current URI
+        var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
+
+        // Parse the query string
+        var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
+
+        // Retrieve the value of the 'query' parameter
+        if (query.TryGetValue("token", out var paramValue))
+        {
+            var token = paramValue.ToString();
+            await AuthService.Login(token);
+        }
+    }
+}

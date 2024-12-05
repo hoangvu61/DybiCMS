@@ -9,6 +9,7 @@ using System.Text;
 using Web.Api.Entities;
 using Web.Api.Repositories;
 using Web.Models;
+using Web.Models.SeedWork;
 
 namespace Web.Api.Controllers
 {
@@ -36,11 +37,11 @@ namespace Web.Api.Controllers
         public async Task<IActionResult> Login([FromBody] LoginRequest login)
         {
             var user = await _userManager.FindByNameAsync(login.UserName);
-            if (user == null) return BadRequest(new LoginResponse { Successful = false, Error = "Username or password are invalid." });
+            if (user == null) return BadRequest(new LoginResponse { Successful = false, Error = "Tài khoản hoặc mật khẩu không đúng." });
 
             var result = await _signInManager.PasswordSignInAsync(login.UserName, login.Password, login.IsPeristant, false);
 
-            if (!result.Succeeded) return BadRequest(new LoginResponse { Successful = false, Error = "Username or password are invalid." });
+            if (!result.Succeeded) return BadRequest(new LoginResponse { Successful = false, Error = "Tài khoản hoặc mật khẩu không đúng." });
 
             var claims = new List<Claim>()
             {
@@ -60,7 +61,17 @@ namespace Web.Api.Controllers
             {
                 var detail = company.CompanyDetails.FirstOrDefault();
                 if (detail != null) claims.Add(new Claim(ClaimTypes.System, detail.DisplayName));
-            }    
+            }
+
+            var webconfig = await _companyRepository.GetWebConfig(user.CompanyId);
+            if (webconfig != null)
+            {
+                if (!string.IsNullOrEmpty(webconfig.WebIcon))
+                {
+                    var webicon = new FileData() { FileName = webconfig.WebIcon , Type = Models.Enums.FileType.WebIcon, Folder = user.CompanyId.ToString() }.FilePath;
+                    claims.Add(new Claim(ClaimTypes.Thumbprint, webicon));
+                }
+            }
 
             var domains = await _companyRepository.GetDomains(user.CompanyId);
             var domain = domains.Where(e => !e.Domain.StartsWith("www") && !e.Domain.StartsWith("localhost")).FirstOrDefault();

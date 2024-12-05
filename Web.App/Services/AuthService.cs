@@ -41,6 +41,14 @@ namespace Web.App.Services
             return loginResponse;
         }
 
+        public async Task Login(string token)
+        {
+            await _localStorage.SetItemAsync("authToken", token);
+            //((ApiAuthenticationStateProvider)_authenticationStateProvider).MarkUserAsAuthenticated(loginRequest.UserName);
+            ((ApiAuthenticationStateProvider)_authenticationStateProvider).MarkUserAsAuthenticated(token);
+            _httpClient.httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        }
+
         public async Task Logout()
         {
             await _localStorage.RemoveItemAsync("authToken");
@@ -52,6 +60,11 @@ namespace Web.App.Services
         {
             var result = await _httpClient.PostAsJsonAsync("/api/signup", request);
             return result.IsSuccessStatusCode;
+        }
+
+        public async Task<string> GetToken()
+        {
+            return await _localStorage.GetItemAsync<string>("authToken");
         }
     }
 }

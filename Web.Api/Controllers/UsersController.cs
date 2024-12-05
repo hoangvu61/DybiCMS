@@ -342,7 +342,8 @@ namespace Web.Api.Controllers
                 PictureManage = await _userManager.IsInRoleAsync(obj, "Picture"),
                 EventManage = await _userManager.IsInRoleAsync(obj, "Event"),
                 ConfigManage = await _userManager.IsInRoleAsync(obj, "Config"),
-                ActionByThemselfManage = await _userManager.IsInRoleAsync(obj, "ActionByThemself")
+                ActionByThemselfManage = await _userManager.IsInRoleAsync(obj, "ActionByThemself"),
+                WarehouseManage = await _userManager.IsInRoleAsync(obj, "Warehouse")
             });
         }
 
@@ -391,6 +392,8 @@ namespace Web.Api.Controllers
             //    await _userManager.AddToRoleAsync(u, "Admin");
             if (request.ProductManage)
                 await _userManager.AddToRoleAsync(u, "Product");
+            if (request.WarehouseManage)
+                await _userManager.AddToRoleAsync(u, "Warehouse");
             if (request.DocumentManage)
                 await _userManager.AddToRoleAsync(u, "Document");
             if (request.VideoManage)
@@ -434,6 +437,12 @@ namespace Web.Api.Controllers
                 await _userManager.AddToRoleAsync(obj, "Product");
             else if(checkManageProduct)
                 await _userManager.RemoveFromRoleAsync(obj, "Product");
+
+            var checkManageWarehouse = await _userManager.IsInRoleAsync(obj, "Warehouse");
+            if (request.WarehouseManage && !checkManageWarehouse)
+                await _userManager.AddToRoleAsync(obj, "Warehouse");
+            else if (checkManageWarehouse)
+                await _userManager.RemoveFromRoleAsync(obj, "Warehouse");
 
             var checkManageDocument = await _userManager.IsInRoleAsync(obj, "Document");
             if (request.DocumentManage && !checkManageDocument)

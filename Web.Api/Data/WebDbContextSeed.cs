@@ -154,6 +154,11 @@ namespace Web.Api.Data
                 context.Roles.Add(new Role { Name = "Product", NormalizedName = "PRODUCT", Id = Guid.NewGuid(), ConcurrencyStamp = Guid.NewGuid().ToString(), Description = "Quản lý sản phẩm" });
                 await context.SaveChangesAsync();
             }
+            if (!context.Roles.Any(e => e.Name == "Warehouse"))
+            {
+                context.Roles.Add(new Role { Name = "Warehouse", NormalizedName = "WAREHOUSE", Id = Guid.NewGuid(), ConcurrencyStamp = Guid.NewGuid().ToString(), Description = "Quản lý Bán hàng - Xuất - Nhập kho" });
+                await context.SaveChangesAsync();
+            }
             if (!context.Roles.Any(e => e.Name == "Admin"))
             {
                 context.Roles.Add(new Role { Name = "Admin", NormalizedName = "ADMIN", Id = Guid.NewGuid(), ConcurrencyStamp = Guid.NewGuid().ToString(), Description = "Admin" });

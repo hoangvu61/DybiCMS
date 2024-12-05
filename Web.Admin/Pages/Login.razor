@@ -78,6 +78,23 @@
     private string Error = "";
     private LoginRequest LoginModel = new LoginRequest();
 
+    protected override async Task OnInitializedAsync()
+    {
+        // Get the current URI
+        var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+
+        // Parse the query string
+        var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
+
+        // Retrieve the value of the 'query' parameter
+        if (query.TryGetValue("token", out var paramValue))
+        {
+            var token = paramValue.ToString();
+            await AuthService.Login(token);
+            NavigationManager.NavigateTo("/", true);
+        }
+    }
+
     private async Task HandleLogin()
     {
         ShowErrors = false;

@@ -34,11 +34,20 @@ namespace Web.Admin.Services
             {
                 return loginResponse;
             }
+            await Login(loginResponse.Token);
             await _localStorage.SetItemAsync("authToken", loginResponse.Token);
             //((ApiAuthenticationStateProvider)_authenticationStateProvider).MarkUserAsAuthenticated(loginRequest.UserName);
             ((ApiAuthenticationStateProvider)_authenticationStateProvider).MarkUserAsAuthenticated(loginResponse.Token);
             _httpClient.httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", loginResponse.Token);
             return loginResponse;
+        }
+
+        public async Task Login(string token)
+        {
+            await _localStorage.SetItemAsync("authToken", token);
+            //((ApiAuthenticationStateProvider)_authenticationStateProvider).MarkUserAsAuthenticated(loginRequest.UserName);
+            ((ApiAuthenticationStateProvider)_authenticationStateProvider).MarkUserAsAuthenticated(token);
+            _httpClient.httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
         }
 
         public async Task Logout()
@@ -52,6 +61,11 @@ namespace Web.Admin.Services
         {
             var result = await _httpClient.PostAsJsonAsync("/api/signup", request);
             return result.IsSuccessStatusCode;
+        }
+
+        public async Task<string> GetToken()
+        {
+            return await _localStorage.GetItemAsync<string>("authToken");
         }
     }
 }

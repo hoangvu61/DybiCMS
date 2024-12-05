@@ -1,5 +1,8 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization;
 @using System.Security.Claims
+@using Web.Admin.Services
+
+@inject IAuthService AuthService;
 
 <nav class="main-header navbar navbar-expand navbar-white navbar-light">
     <!-- Left navbar links -->
@@ -10,6 +13,11 @@
         <li class="nav-item d-none d-sm-inline-block">
             <a href="/" class="nav-link">Trang chủ</a>
         </li>
+        <AuthorizeView Roles="Warehouse">
+            <li class="nav-item d-none d-sm-inline-block">
+                <a href="https://app.@Domain/login?token=@Token" class="nav-link" target="_blank">Quản lý Xuất/Nhập kho</a>
+            </li>
+        </AuthorizeView>
     </ul>
 
     <!-- Right navbar links -->
@@ -36,12 +44,17 @@
 
 @code {
     private string UserFullName { get; set; }
+    private string Domain { get; set; }
+    private string Token { get; set; }
 
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
     protected override async Task OnInitializedAsync()
     {
+        Token = await AuthService.GetToken();
+
         var authState = await authenticationStateTask;
         UserFullName = authState.User.FindFirst(ClaimTypes.GivenName)?.Value;
+        Domain = authState.User.FindFirst(ClaimTypes.Webpage)?.Value;
     }
 }
