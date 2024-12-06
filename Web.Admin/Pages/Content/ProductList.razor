@@ -47,8 +47,8 @@
                                 <th style="text-align:right">Giá</th>
                                 <th style="text-align:center">lượt xem</th>
                                 <th style="text-align:center;width:75px">Thứ tự</th>
-                                <th style="text-align:center">Sử dụng</th>
-                                <th style="text-align:right">
+                                <th style="text-align:center;width:70px">Sử dụng</th>
+                                <th style="text-align:right;width:150px">
                                     <a href="/ProductCreate" class="btn btn-primary btn-sm">Thêm</a>
                                 </th>
                             </tr>
@@ -112,8 +112,8 @@
                                             @item.Price.ToString("N0")
                                         }
                                     </td>
-                                    <td style="text-align:center">
-                                        @item.View
+                                    <td style="text-align:right">
+                                        @item.View.ToString("N0")
                                     </td>
                                     <td style="text-align: center">
                                         <input class="form-control form-control-sm" type="number" @bind="item.Order" @bind:event="oninput" @onkeyup="@(() => OrderChanged(item))" @onchange="@(() => OrderChanged(item))" />

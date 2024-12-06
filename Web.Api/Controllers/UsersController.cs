@@ -30,7 +30,7 @@ namespace Web.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAllUsers()
         {
             var users = await _userRepository.GetUserList();
             var userdtos = users.Select(x => new UserDto()
@@ -42,6 +42,183 @@ namespace Web.Api.Controllers
             return Ok(userdtos);
         }
 
+        [HttpGet]
+        [Route("roles")]
+        public async Task<IActionResult> GetAllRoles()
+        {
+            var roles = await _userRepository.GetRoles();
+            var roleDtos = roles.Select(x => new RoleDto()
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Description = x.Description
+            });
+
+            return Ok(roleDtos);
+        }
+
+        #region admin
+        [HttpGet]
+        [Route("{companyid}")]
+        public async Task<IActionResult> GetUsers(Guid companyid)
+        {
+            var users = await _userRepository.GetUsers(companyid);
+            var dtos = users.Select(e => new CompanyUserDto
+            {
+                Id = e.Id,
+                Email = e.Email,
+                FirstName = e.FirstName,
+                LastName = e.LastName,
+                Phone = e.PhoneNumber,
+                UserName = e.UserName
+            });
+            return Ok(dtos);
+        }
+
+        [HttpGet]
+        [Route("{companyid}/{userid}")]
+        public async Task<IActionResult> GetUser(Guid companyid, Guid userid)
+        {
+            var user = await _userRepository.GetUser(companyid, userid);
+            if (user == null) return ValidationProblem($"{companyid}.{userid} không tồn tại");
+            return Ok(new CompanyUserDto()
+            {
+                Id = user.Id,
+                Email = user.Email,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Phone = user.PhoneNumber,
+                UserName = user.UserName
+            });
+        }
+
+        [HttpPost]
+        [Route("{companyid}")]
+        public async Task<IActionResult> CreateUser(Guid companyid, [FromBody] CompanyUserDto request)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            if (string.IsNullOrEmpty(request.UserName)) return ValidationProblem("Tài khoản không được để trống");
+            else request.UserName = request.UserName.Trim();
+            if (string.IsNullOrEmpty(request.Password)) return ValidationProblem("Mật khẩu không được để trống");
+            else request.Password = request.Password.Trim();
+
+            var company = await _companyRepository.GetCompany(companyid);
+            if (company == null) return ValidationProblem($"Company {companyid} không tồn tại");
+
+            var checkUserNameExist = await _userManager.FindByNameAsync(request.UserName);
+            if (checkUserNameExist != null) return ValidationProblem($"{request.UserName} đã tồn tại");
+
+            var u = new User
+            {
+                Id = request.Id,
+                CompanyId = companyid,
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                Email = request.Email,
+                NormalizedEmail = request.Email.ToUpper(),
+                PhoneNumber = request.Phone,
+                UserName = request.UserName,
+                NormalizedUserName = request.UserName,
+                SecurityStamp = Guid.NewGuid().ToString()
+            };
+            u.PasswordHash = _passwordHasher.HashPassword(u, password: request.Password);
+
+            try
+            {
+                await _userRepository.CreateUser(u);
+            }
+            catch (Exception ex)
+            {
+                return ValidationProblem(ex.Message);
+            }
+
+            return Ok(request);
+        }
+
+        [HttpPut]
+        [Route("{companyid}/{userid}")]
+        public async Task<IActionResult> UpdateUser(Guid companyid, Guid userid, [FromBody] CompanyUserDto request)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var obj = await _userRepository.GetUser(companyid, userid);
+            if (obj == null) return ValidationProblem($"{companyid}.{userid} không tồn tại");
+
+            obj.Email = request.Email;
+            obj.NormalizedEmail = request.Email.ToUpper();
+            obj.FirstName = request.FirstName;
+            obj.LastName = request.LastName;
+            obj.PhoneNumber = request.Phone;
+
+            if (!string.IsNullOrEmpty(request.Password))
+                obj.PasswordHash = _passwordHasher.HashPassword(obj, password: request.Password);
+
+            var result = await _userRepository.UpdateUser(obj);
+            return Ok(request);
+        }
+
+        [HttpDelete]
+        [Route("{companyid}/{user}")]
+        public async Task<IActionResult> DeleteUser([FromRoute] Guid companyid, [FromRoute] Guid user)
+        {
+            var obj = await _userRepository.GetUser(companyid, user);
+            if (obj == null) return ValidationProblem($"{companyid}.{user} không tồn tại");
+
+            await _userRepository.DeleteUser(obj);
+            return Ok(user);
+        }
+
+        [HttpGet]
+        [Route("{companyid}/{userid}/roles")]
+        public async Task<IActionResult> GetUserRoles(Guid companyid, Guid userid)
+        {
+            var user = await _userRepository.GetUser(companyid, userid);
+            if (user == null) return ValidationProblem($"{companyid}.{userid} không tồn tại");
+
+            var roles = await _userManager.GetRolesAsync(user);
+            return Ok(roles);
+        }
+
+        [HttpPut]
+        [Route("{companyid}/{userid}/roles")]
+        public async Task<IActionResult> UpdateUserPermissionUser(Guid companyid, Guid userid, [FromBody] UserRoleDto request)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var user = await _userRepository.GetUser(companyid, userid);
+            if (user == null) return ValidationProblem($"{companyid}.{userid} không tồn tại");
+
+            var checkManage = await _userManager.IsInRoleAsync(user, request.RoleName);
+            if (request.IsAllow && !checkManage)
+                await _userManager.AddToRoleAsync(user, request.RoleName);
+            else if (checkManage)
+                await _userManager.RemoveFromRoleAsync(user, request.RoleName);
+
+            var result = await _userRepository.UpdateUser(user);
+
+            return Ok(request);
+        }
+
+        [HttpPut]
+        [Route("{companyid}/{userid}/changepassword")]
+        public async Task<IActionResult> UpdateUserPassword(Guid companyid, Guid userid, [FromBody] TitleStringDto request)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var user = await _userRepository.GetUser(companyid, userid);
+            if (user == null) return ValidationProblem($"{companyid}.{userid} không tồn tại");
+
+            if (!string.IsNullOrEmpty(request.Title))
+                user.PasswordHash = _passwordHasher.HashPassword(user, password: request.Title);
+
+            var result = await _userRepository.UpdateUser(user);
+
+            return Ok(request);
+        }
+        #endregion
+
+        #region config 
         [HttpGet]
         [Route("my")]
         public async Task<IActionResult> GeMytUser()
@@ -197,7 +374,7 @@ namespace Web.Api.Controllers
 
         [HttpPut]
         [Route("my/users/{userId}/permission")]
-        public async Task<IActionResult> UpdatePermissionUser(Guid userId, [FromBody] MyUserRoleDto request)
+        public async Task<IActionResult> UpdatePermissionUser(Guid userId, [FromBody] UserRoleDto request)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
@@ -221,7 +398,7 @@ namespace Web.Api.Controllers
 
         [HttpPut]
         [Route("my/users/{userId}/changepassword")]
-        public async Task<IActionResult> UpdatePasswordUser(Guid userId, [FromBody] TitleStringDto request)
+        public async Task<IActionResult> UpdateChildPassword(Guid userId, [FromBody] TitleStringDto request)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
@@ -303,202 +480,7 @@ namespace Web.Api.Controllers
 
             return Ok(request);
         }
+        #endregion
 
-        [HttpGet]
-        [Route("{companyid}")]
-        public async Task<IActionResult> GetMyUsers(Guid companyid)
-        {
-            var users = await _userRepository.GetUsers(companyid);
-            var dtos = users.Select(e => new CompanyUserDto
-            {
-                Id = e.Id,
-                Email = e.Email,
-                FirstName = e.FirstName,
-                LastName = e.LastName,
-                Phone = e.PhoneNumber,
-                UserName = e.UserName
-            });
-            return Ok(dtos);
-        }
-
-        [HttpGet]
-        [Route("{companyid}/{user}")]
-        public async Task<IActionResult> GetUser(Guid companyid, Guid user)
-        {
-            var obj = await _userRepository.GetUser(companyid, user);
-            if (obj == null) return NotFound($"{companyid}.{user} không tồn tại");
-            return Ok(new CompanyUserDto()
-            {
-                Id = obj.Id,
-                Email = obj.Email,
-                FirstName = obj.FirstName,
-                LastName = obj.LastName,
-                Phone = obj.PhoneNumber,
-                UserName = obj.UserName,
-                ProductManage = await _userManager.IsInRoleAsync(obj, "Product"),
-                AudioManage = await _userManager.IsInRoleAsync(obj, "Audio"),
-                VideoManage = await _userManager.IsInRoleAsync(obj, "Video"),
-                DocumentManage = await _userManager.IsInRoleAsync(obj, "Document"),
-                PictureManage = await _userManager.IsInRoleAsync(obj, "Picture"),
-                EventManage = await _userManager.IsInRoleAsync(obj, "Event"),
-                ConfigManage = await _userManager.IsInRoleAsync(obj, "Config"),
-                ActionByThemselfManage = await _userManager.IsInRoleAsync(obj, "ActionByThemself"),
-                WarehouseManage = await _userManager.IsInRoleAsync(obj, "Warehouse")
-            });
-        }
-
-        [HttpPost]
-        [Route("{companyid}")]
-        public async Task<IActionResult> CreateUser(Guid companyid, [FromBody] CompanyUserDto request)
-        {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-
-            if (string.IsNullOrEmpty(request.UserName)) return ValidationProblem("Tài khoản không được để trống");
-            else request.UserName = request.UserName.Trim();
-            if (string.IsNullOrEmpty(request.Password)) return ValidationProblem("Mật khẩu không được để trống");
-            else request.Password = request.Password.Trim();
-
-            var company = await _companyRepository.GetCompany(companyid);
-            if (company == null) return ValidationProblem($"Company {companyid} không tồn tại");
-
-            var checkUserNameExist = await _userManager.FindByNameAsync(request.UserName);
-            if (checkUserNameExist != null) return ValidationProblem($"{request.UserName} đã tồn tại");
-
-            var u = new User
-            {
-                Id = request.Id,
-                CompanyId = companyid,
-                FirstName = request.FirstName,
-                LastName = request.LastName,
-                Email = request.Email,
-                NormalizedEmail = request.Email.ToUpper(),
-                PhoneNumber = request.Phone,
-                UserName = request.UserName,
-                NormalizedUserName = request.UserName,
-                SecurityStamp = Guid.NewGuid().ToString()
-            };
-            u.PasswordHash = _passwordHasher.HashPassword(u, password: request.Password);
-
-            try
-            {
-                await _userRepository.CreateUser(u);
-            }
-            catch (Exception ex)
-            {
-                return ValidationProblem(ex.Message);
-            }
-
-            //if (u.UserName == "admin")
-            //    await _userManager.AddToRoleAsync(u, "Admin");
-            if (request.ProductManage)
-                await _userManager.AddToRoleAsync(u, "Product");
-            if (request.WarehouseManage)
-                await _userManager.AddToRoleAsync(u, "Warehouse");
-            if (request.DocumentManage)
-                await _userManager.AddToRoleAsync(u, "Document");
-            if (request.VideoManage)
-                await _userManager.AddToRoleAsync(u, "Video");
-            if (request.PictureManage)
-                await _userManager.AddToRoleAsync(u, "Picture");
-            if (request.AudioManage)
-                await _userManager.AddToRoleAsync(u, "Audio");
-            if (request.EventManage)
-                await _userManager.AddToRoleAsync(u, "Event");
-            if (request.ConfigManage)
-                await _userManager.AddToRoleAsync(u, "Config");
-            if (request.ActionByThemselfManage)
-                await _userManager.AddToRoleAsync(u, "ActionByThemself");
-
-            return Ok(request);
-        }
-
-        [HttpPut]
-        [Route("{companyid}/{user}")]
-        public async Task<IActionResult> UpdateUser(Guid companyid, Guid user, [FromBody] CompanyUserDto request)
-        {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-
-            var obj = await _userRepository.GetUser(companyid, user);
-            if (obj == null) return ValidationProblem($"{companyid}.{user} không tồn tại");
-
-            obj.Email = request.Email;
-            obj.NormalizedEmail = request.Email.ToUpper();
-            obj.FirstName = request.FirstName;
-            obj.LastName = request.LastName;
-            obj.PhoneNumber = request.Phone;
-
-            if (!string.IsNullOrEmpty(request.Password))
-                obj.PasswordHash = _passwordHasher.HashPassword(obj, password: request.Password);
-
-            var result = await _userRepository.UpdateUser(obj);
-
-            var checkManageProduct = await _userManager.IsInRoleAsync(obj, "Product");
-            if (request.ProductManage && !checkManageProduct)
-                await _userManager.AddToRoleAsync(obj, "Product");
-            else if(checkManageProduct)
-                await _userManager.RemoveFromRoleAsync(obj, "Product");
-
-            var checkManageWarehouse = await _userManager.IsInRoleAsync(obj, "Warehouse");
-            if (request.WarehouseManage && !checkManageWarehouse)
-                await _userManager.AddToRoleAsync(obj, "Warehouse");
-            else if (checkManageWarehouse)
-                await _userManager.RemoveFromRoleAsync(obj, "Warehouse");
-
-            var checkManageDocument = await _userManager.IsInRoleAsync(obj, "Document");
-            if (request.DocumentManage && !checkManageDocument)
-                await _userManager.AddToRoleAsync(obj, "Document");
-            else if (checkManageDocument)
-                await _userManager.RemoveFromRoleAsync(obj, "Document");
-
-            var checkManageVideo = await _userManager.IsInRoleAsync(obj, "Video");
-            if (request.VideoManage && !checkManageVideo)
-                await _userManager.AddToRoleAsync(obj, "Video");
-            else if (checkManageVideo)
-                await _userManager.RemoveFromRoleAsync(obj, "Video");
-
-            var checkManagePicture = await _userManager.IsInRoleAsync(obj, "Picture");
-            if (request.PictureManage && !checkManagePicture)
-                await _userManager.AddToRoleAsync(obj, "Picture");
-            else if (checkManagePicture)
-                await _userManager.RemoveFromRoleAsync(obj, "Picture");
-
-            var checkManageAudio = await _userManager.IsInRoleAsync(obj, "Audio");
-            if (request.AudioManage && !checkManageAudio)
-                await _userManager.AddToRoleAsync(obj, "Audio");
-            else if (checkManageAudio)
-                await _userManager.RemoveFromRoleAsync(obj, "Audio");
-
-            var checkManageEvent = await _userManager.IsInRoleAsync(obj, "Event");
-            if (request.EventManage && !checkManageEvent)
-                await _userManager.AddToRoleAsync(obj, "Event");
-            else if (checkManageEvent)
-                await _userManager.RemoveFromRoleAsync(obj, "Event");
-
-            var checkManageConfig = await _userManager.IsInRoleAsync(obj, "Config");
-            if (request.ConfigManage && !checkManageConfig)
-                await _userManager.AddToRoleAsync(obj, "Config");
-            else if (checkManageConfig)
-                await _userManager.RemoveFromRoleAsync(obj, "Config");
-
-            var checkManageActionByThemself = await _userManager.IsInRoleAsync(obj, "ActionByThemself");
-            if (request.ActionByThemselfManage && !checkManageActionByThemself)
-                await _userManager.AddToRoleAsync(obj, "ActionByThemself");
-            else if (checkManageActionByThemself)
-                await _userManager.RemoveFromRoleAsync(obj, "ActionByThemself");
-
-            return Ok(request);
-        }
-
-
-        [HttpDelete]
-        [Route("{companyid}/{user}")]
-        public async Task<IActionResult> DeleteUser([FromRoute] Guid companyid, [FromRoute] Guid user)
-        {
-            var obj = await _userRepository.GetUser(companyid, user);
-            if (obj == null) return ValidationProblem($"{companyid}.{user} không tồn tại");
-
-            await _userRepository.DeleteUser(obj);
-            return Ok(user);
-        }
     }
 }

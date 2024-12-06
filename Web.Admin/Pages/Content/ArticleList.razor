@@ -45,8 +45,8 @@
                                 <th style="text-align:center">Hình</th>
                                 <th style="text-align:center">Ngày</th>
                                 <th style="text-align:center">lượt xem</th>
-                                <th style="text-align:center">Thứ tự</th>
-                                <th style="text-align:center;width:100px">Sử dụng</th>
+                                <th style="text-align:center;min-width:75px">Thứ tự</th>
+                                <th style="text-align:center;width:70px">Sử dụng</th>
                                 <th style="text-align:right;width:150px">
                                     <a href="/ArticleCreate" class="btn btn-primary btn-sm">Thêm</a>
                                 </th>
@@ -86,8 +86,8 @@
                                     </td>
                                     <td style="text-align:center"><img src="@(BackendApiUrl + "/" + item.Image.FullPath + "?DummyId=" + DateTime.Now.Ticks)" asp-append-version="true" width="50px" /></td>
                                     <td style="text-align:center">@item.DisplayDate.ToString(Configuration["DateTimeFormat"])</td>
-                                    <td style="text-align:center">
-                                        @item.View
+                                    <td style="text-align:right">
+                                        @item.View.ToString("N0")
                                     </td>
                                     <td style="text-align: center">
                                         <div class="input-group input-group-sm mb-3">
@@ -96,7 +96,7 @@
                                             <button class="btn btn-outline-secondary" @onclick="@((e) => {item.Order++; OrderChanged(item.Id, item.Order);})">&gt;</button>
                                         </div>
                                     </td>
-                                    <td class="form-switch" style="text-align: center; padding-left: 30px;">
+                                    <td class="form-switch" style="text-align: center;">
                                         <input type="checkbox" checked="@item.IsPublished" class="form-check-input" role="switch" @onchange="@((e) => {item.IsPublished= bool.Parse(e.Value.ToString()); ApplyChanged(item.Id);})"></input>
                                     </td>
                                     <td style="text-align:right">

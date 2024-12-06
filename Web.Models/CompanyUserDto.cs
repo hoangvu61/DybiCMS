@@ -28,15 +28,5 @@ namespace Web.Models
         [MaxLength(15, ErrorMessage = "Số điện thoại không thể dài hơn 15 ký tự")]
         [Required(ErrorMessage = "Vui lòng nhập số điện tho")]
         public string Phone { get; set; }
-
-        public bool ProductManage { get; set; } = false;
-        public bool DocumentManage { get; set; } = false;
-        public bool VideoManage { get; set; } = false;
-        public bool PictureManage { get; set; } = false;
-        public bool AudioManage { get; set; } = false;
-        public bool EventManage { get; set; } = false;
-        public bool ConfigManage { get; set; } = false;
-        public bool ActionByThemselfManage { get; set; } = false;
-        public bool WarehouseManage { get; set; } = false;
     }
 }

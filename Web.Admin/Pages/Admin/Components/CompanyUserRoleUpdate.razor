@@ -32,10 +32,6 @@
                         </div>
                     }
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary btn-xs" @onclick="()=>Hide()" data-dismiss="modal">Đóng</button>
-                    <button type="submit" class="btn btn-primary btn-xs">Lưu</button>
-                </div>
             </div>
         </div>
     </div>
@@ -46,19 +42,21 @@
 
     private List<RoleDto> FullRoles { set; get; }
     private List<string> UserRoles { set; get; }
+    private Guid CompanyId { set; get; }
     private Guid UserId { set; get; }
     private string UserName { set; get; }
 
     [Parameter]
-    public EventCallback CloseEventCallbak { get; set; }
+    public EventCallback<bool> CloseEventCallback { get; set; }
 
-    public async Task Show(Guid userId, string userName)
+    public async Task Show(Guid companyId, Guid userId, string userName)
     {
         ShowDialog = true;
+        CompanyId = companyId;
         UserId = userId;
         UserName = userName;
-        FullRoles = await UserApiClient.GetMyPermission();
-        UserRoles = await UserApiClient.GetChildPermission(userId);
+        FullRoles = await UserApiClient.GetRoles();
+        UserRoles = await UserApiClient.GetUserRoles(companyId, userId);
 
         StateHasChanged();
     }
@@ -72,10 +70,10 @@
     private async Task Onchange(string name, bool check, string description)
     {
         var request = new UserRoleDto { RoleName = name, IsAllow = check };
-        var result = await UserApiClient.UpdateChildRole(UserId, request);
+        var result = await UserApiClient.UpdateUserRole(CompanyId, UserId, request);
         if (string.IsNullOrEmpty(result))
         {
-            await CloseEventCallbak.InvokeAsync();
+            await CloseEventCallback.InvokeAsync(false);
             var flag = check ? "bật" : "tắt";
             ToastService.ShowInfo($"Đã {flag} chức năng {description}");
         }

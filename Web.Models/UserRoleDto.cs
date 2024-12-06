@@ -1,6 +1,6 @@
 ﻿namespace Web.Models
 {
-    public class MyUserRoleDto
+    public class UserRoleDto
     {
         public string RoleName { get; set; }
 

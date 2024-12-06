@@ -18,6 +18,11 @@ namespace Web.Admin.Services
             var result = await _httpClient.GetFromJsonAsync<List<UserDto>>($"/api/users");
             return result;
         }
+        public async Task<List<RoleDto>> GetRoles()
+        {
+            var result = await _httpClient.GetFromJsonAsync<List<RoleDto>>($"/api/users/roles");
+            return result;
+        }
 
         public async Task<List<CompanyUserDto>> GetUserByCompany(Guid companyid)
         {
@@ -28,6 +33,35 @@ namespace Web.Admin.Services
         {
             var result = await _httpClient.GetFromJsonAsync<CompanyUserDto>($"/api/users/{companyid}/{userId}");
             return result;
+        }
+        public async Task<List<string>> GetUserRoles(Guid companyid, Guid userId)
+        {
+            var result = await _httpClient.GetFromJsonAsync<List<string>>($"/api/users/{companyid}/{userId}/roles");
+            return result;
+        }
+        public async Task<string> UpdateUserRole(Guid companyid, Guid userId, UserRoleDto request)
+        {
+            var result = await _httpClient.PutAsJsonAsync($"/api/users/{companyid}/{userId}/roles", request);
+            if (!result.IsSuccessStatusCode)
+            {
+                var stringData = await result.Content.ReadAsStringAsync();
+                var resultData = JsonConvert.DeserializeObject<ResponseErrorDto>(stringData);
+                if (resultData == null) return stringData;
+                return resultData.Detail;
+            }
+            return string.Empty;
+        }
+        public async Task<string> UpdateUserPassword(Guid companyid, TitleStringDto request)
+        {
+            var result = await _httpClient.PutAsJsonAsync($"/api/users/{companyid}/{request.Id}/changepassword", request);
+            if (!result.IsSuccessStatusCode)
+            {
+                var stringData = await result.Content.ReadAsStringAsync();
+                var resultData = JsonConvert.DeserializeObject<ResponseErrorDto>(stringData);
+                if (resultData == null) return stringData;
+                return resultData.Detail;
+            }
+            return string.Empty;
         }
         public async Task<bool> CreateUser(Guid companyid, CompanyUserDto request)
         {
@@ -138,7 +172,7 @@ namespace Web.Admin.Services
             var result = await _httpClient.GetFromJsonAsync<List<string>>($"/api/users/my/users/{userId}/roles");
             return result;
         }
-        public async Task<string> UpdateChildRole(Guid userId, MyUserRoleDto request)
+        public async Task<string> UpdateChildRole(Guid userId, UserRoleDto request)
         {
             var result = await _httpClient.PutAsJsonAsync($"/api/users/my/users/{userId}/permission", request);
             if (!result.IsSuccessStatusCode)

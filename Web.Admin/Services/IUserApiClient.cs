@@ -5,6 +5,7 @@ namespace Web.Admin.Services
     public interface IUserApiClient
     {
         Task<List<UserDto>> GetUsers();
+        Task<List<RoleDto>> GetRoles();
 
         Task<MyUserDto> GetMyUser();
         Task<List<RoleDto>> GetMyPermission();
@@ -16,6 +17,9 @@ namespace Web.Admin.Services
         Task<bool> CreateUser(Guid companyid, CompanyUserDto request);
         Task<bool> UpdateUser(Guid companyid, CompanyUserDto request);
         Task<bool> DeleteUser(Guid companyid, Guid userId);
+        Task<List<string>> GetUserRoles(Guid companyid, Guid userId);
+        Task<string> UpdateUserRole(Guid companyid, Guid userId, UserRoleDto request);
+        Task<string> UpdateUserPassword(Guid companyid, TitleStringDto request);
 
         Task<List<CompanyUserDto>> GetChildren();
         Task<string> CreateChild(CompanyUserDto request);
@@ -23,6 +27,6 @@ namespace Web.Admin.Services
         Task<string> UpdateChildPasword(TitleStringDto request);
         Task<string> DeleteChild(Guid userId);
         Task<List<string>> GetChildPermission(Guid userId);
-        Task<string> UpdateChildRole(Guid userId, MyUserRoleDto request);
+        Task<string> UpdateChildRole(Guid userId, UserRoleDto request);
     }
 }
