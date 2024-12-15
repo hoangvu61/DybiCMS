@@ -16,8 +16,8 @@
                     else
                     {
                         <tr data-widget="expandable-table" aria-expanded="true">
-                             <td style="@node.Style">
-                                <i class="expandable-table-caret fas fa-caret-right fa-fw" @onclick="() => OnClick(node.Id)"></i>
+                            <td style="@node.Style" @onclick="() => OnClick(node.Id)">
+                                <i class="expandable-table-caret fas fa-caret-right fa-fw"></i>
                                 @node.Text
                             </td>
                         </tr>
