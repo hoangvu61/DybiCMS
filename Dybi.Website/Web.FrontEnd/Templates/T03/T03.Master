@@ -1,0 +1,246 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" Inherits="Web.Asp.UI.VITTemplate" %>
+<%@ Import Namespace="Web.Asp.Provider" %>
+<%@ Import Namespace="Library" %>
+<%@ Register TagPrefix="VIT" Namespace="Web.Asp.Controls" Assembly="Web.Asp" %>
+
+<!DOCTYPE html>
+<html lang="<%=Config.Language %>">
+    <head runat="server">
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+        <!-- bootstrap core css -->
+        <link rel="stylesheet" type="text/css" href="/Templates/T03/css/bootstrap.min.css" />
+
+        <!-- fonts style -->
+        <link href='https://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet'>
+
+        <!-- font awesome style -->
+        <link href="/Templates/T03/css/font-awesome.min.css" rel="stylesheet" />
+
+        <!-- Custom styles for this template -->
+        <link href="/Templates/T03/css/T03.css" rel="stylesheet" />
+        <!-- responsive style -->
+        <link href="/Templates/T03/css/responsive.css" rel="stylesheet" />
+        <!-- jQery -->
+        <script src="/Templates/T18/js/jquery-1.9.1.min.js"></script>
+        <script type="text/javascript" src="/Templates/T03/js/bootstrap.bundle.min.js"></script>
+        <script src="/Includes/capchar.js"></script>
+
+        <asp:ContentPlaceHolder ID="HeadContent" runat="server">
+        </asp:ContentPlaceHolder>
+    </head>
+    <body class="bg-light-subtle">
+        <%if(!string.IsNullOrEmpty(Config.Background)){%>
+        <style>
+            .breadcrumb_section,.cart, .carousel-indicators button.active, .about_section {background:<%=Config.Background%>25}
+            nav.navbar, nav.navbar .dropdown-menu, .btn.btn-light, .carousel-indicators [data-bs-target] {background:<%=Config.Background%>}
+            nav.navbar .dropdown-menu a:hover{color:<%=Config.Background%> !important}
+            #zalo-vr .phone-vr-img-circle {background-color: <%=Config.Background%>;}
+            #zalo-vr .phone-vr-circle-fill {box-shadow: 0 0 0 0 <%=Config.Background%>;background-color: <%=Config.Background%>90;}
+            .product_section .relatied .product-item, .product_section .addons .product-item,.cart {border-color:<%=Config.Background%>}
+            .form-check-input, .slider_section .img-box, .product-item:hover .box{border: 1px solid <%=Config.Background%>}
+        </style>
+        <%} %>
+        <%if(!string.IsNullOrEmpty(Config.FontColor)){%>
+        <style>
+            nav.navbar li, nav.navbar a, nav.navbar a.active, .btn.btn-light {color:<%=Config.FontColor%> !important}
+        </style>
+        <%} %>
+        
+        <nav class="navbar navbar-expand-lg">
+            <div class="container">
+                <div class="navbar-brand">
+                    <a href="/">
+                        <img src="<%=HREF.DomainStore + this.Company.Image.FullPath %>" alt="<%=this.Company.FullName %>"/>
+                    </a>
+                    <ul style="list-style-type:none; margin:0px">
+                        <li><%=this.Company.Branches[0].Address %></li>
+                        <li>MST: <b><%=Company.TaxCode%></b> | SĐT: <a href="tel:<%=this.Company.Branches[0].Phone %>"><b><%=this.Company.Branches[0].Phone %></b></a></li>
+                    </ul>
+                </div>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <div class="me-auto mb-2 mb-lg-0"></div>
+                    <ul class="navbar-nav d-flex">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/">Trang chủ</a>
+                        </li>
+                        <%foreach (var item in Menu)
+                        {%>
+                            <%if (item.Type == "Link")
+                            {%>
+                                <li class="nav-item">
+                                <%if (!String.IsNullOrEmpty(item.Url)) {%>
+                                    <a class="nav-link" href="<%=item.Url%>"><%=item.Title%></a>
+			                    <%} else {%>
+                                    <a class="nav-link" href="<%=HREF.LinkComponent(item.Component, item.Title.ConvertToUnSign(), true, "sMid", item.Id)%>"><%=item.Title%></a>
+                                <%} %>
+                                </li>
+                            <%} else if (item.Type == "Article"){%>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="<%=HREF.LinkComponent(item.Component, item.Title.ConvertToUnSign(), true, "sArt", item.Id)%>"><%=item.Title%></a>
+			                    </li>	
+                            <%} else if (item.Type == "Links"){%>
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <%=item.Title%>
+                                    </a>
+				                    <ul class="dropdown-menu">
+				                    <%foreach (var child in item.Children) {%>
+					                    <li>
+                                        <%if (!String.IsNullOrEmpty(child.Url)){%>
+                                            <a class="dropdown-item" href="<%=child.Url%>"><%=child.Title%></a>
+					                    <%} else {%>
+                                            <a class="dropdown-item" href="<%=HREF.LinkComponent(child.Component, child.Title.ConvertToUnSign(), true, "sMid", child.Id)%>"><%=child.Title%></a>
+                                        <%} %>
+					                    </li>
+				                    <%} %>
+				                    </ul>
+                                </li>
+		                    <%} else if (item.Type == "Articles") {%>
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" title="<%=item.Title%>"><%=item.Title%></a>
+					                <ul class="dropdown-menu">
+					                    <%foreach (var child in item.Children)
+					                    {%>
+						                    <li>
+                                                <a class="dropdown-item" href="<%=HREF.LinkComponent(child.Component, child.Title.ConvertToUnSign(), true, "sArt", child.Id)%>"><%=child.Title%></a>
+ 						                    </li>
+					                    <%} %>
+				                    </ul>
+                                </li>
+		                    <%} else if (item.Type == "Category") {%>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="<%=HREF.LinkComponent(item.Component, item.Title.ConvertToUnSign(), true, "sCat", item.Id)%>"><%=item.Title%></a>
+			                    </li>
+                            <%} else if (item.Type == "Categories") {%>
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" title="<%=item.Title%>"><%=item.Title%></a>
+                                    <ul class="dropdown-menu">
+					                    <%foreach (var child in item.Children)
+					                    {%>
+						                    <li>
+                                                <a class="dropdown-item" href="<%=HREF.LinkComponent(child.Component, child.Title.ConvertToUnSign(), true, "sCat", child.Id)%>"><%=child.Title%></a>
+						                    </li>
+					                    <%} %>
+				                    </ul>
+                                </li>
+		                    <%} %>
+                        <%} %>
+                        <li class="nav-item">
+                            <a class="nav-link" href="<%=HREF.LinkComponent("Contact","lien-he",true)%>">Liên hệ</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+	    <!-- Header -->
+	    <header>
+            <VIT:Position runat="server" ID="psTop" SkinName="Empty"></VIT:Position>
+            <%if (HREF.CurrentComponent == "contact")
+            { %>
+            <section class="breadcrumb_section">
+                <nav class="container" style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='%236c757d'/%3E%3C/svg%3E&#34;);" aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/">Trang chủ</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Liên hệ</li>   
+                    </ol>
+                </nav>
+            </section>
+            <%} else if (HREF.CurrentComponent == "aboutus")
+            { %>
+            <section class="breadcrumb_section">
+                <nav class="container" style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='%236c757d'/%3E%3C/svg%3E&#34;);" aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/">Trang chủ</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Giới thiệu</li>   
+                    </ol>
+                </nav>
+            </section>
+            <%} %>
+	    </header>
+	    <!-- /Header -->
+			
+	    <!-- Content -->
+	    <main>
+			<asp:ContentPlaceHolder ID="MainContent" runat="server"></asp:ContentPlaceHolder>
+
+            <aside style="display:">
+                <span class="cart" <%=GioHang.Count > 0 ? "style='display:block'" : "style='display:none'" %>">
+                    <a href="/cart/don-hang" title="Giỏ hàng" target="_blank"><img src="/Includes/img/cart_color.png" alt="Giỏ hàng"/></a>
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                    <%=GioHang.Sum(e => e.Quantity) %>
+                    </span>
+                </span>
+            </aside>
+	    </main>
+	    <!-- /Content -->
+
+	    <!-- Footer -->
+	    <footer class="footer_section">
+            <div class="container">
+			    <h5 class="company"><%=Company.FullName %></h5>
+                <div style="clear:both"></div>
+                <hr />
+                <div class="row info">
+                    <div class="col-12 col-lg-6 col-sm-6">
+                        <%foreach(var branch in Company.Branches){ %>
+                            <div>
+                                <label><%=branch.Name %>:</label> <%=branch.Address %>
+                            </div>
+                        <%} %>
+                        <div>
+                            <label>Email:</label>
+                            <a href="mailto:<%=Company.Branches[0].Email %>">
+                                <%=Company.Branches[0].Email %>
+                            </a>
+                        </div>
+                        <div>
+                            <label>Điện thoại:</label>
+                            <a href="mailto:<%=Company.Branches[0].Phone %>">
+                                <%=Company.Branches[0].Phone %>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-6 col-sm-6">
+                        <div class="row">
+                            <div class="col-12 col-md-6">
+                                <VIT:Position runat="server" ID="psBottom" SkinName="Empty"></VIT:Position>  
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <VIT:Position runat="server" ID="psBottom2" SkinName="Empty"></VIT:Position> 
+                            </div>
+                        </div>
+                    
+                    </div>
+                </div>
+                <hr />
+                <div class="copyright_section">
+                    <div class="container text-center">
+                        <div class="copyright_text">
+                            Bản quyền <%=Company.PublishDate == null ? Company.CreateDate.Year : Company.PublishDate.Value.Year %> thuộc về
+                            <a href="/"><%=Company.FullName %></a> 
+                             - Phát riển bởi <a target="_blank" href="<%=SettingsManager.AppSettings.DomainPublic %>" class="link"><%=SettingsManager.AppSettings.Copyright %></a>
+                        </div>
+                        <div class="develop_text">
+                        <%if (!string.IsNullOrEmpty(Company.TaxCode)) {  %>
+                            Mã số doanh nghiệp: <%= Company.TaxCode%> do <%= Company.TaxCodePlace%>
+                            <%if (Company.PublishDate != null)
+                            { %>
+                             cấp ngày <%=Company.PublishDate.Value.ToString("dd/MM/yyyy") %>
+                            <%} %>
+                        <%} %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+	    </footer>
+
+        <VIT:Position runat="server" ID="psBottom3" SkinName="Empty"></VIT:Position>
+    </body>
+</html>

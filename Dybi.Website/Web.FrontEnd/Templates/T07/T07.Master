@@ -1,0 +1,271 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" Inherits="Web.Asp.UI.VITTemplate" %>
+
+<%@ Register Assembly="Web.Asp" Namespace="Web.Asp.Controls" TagPrefix="VIT" %>
+<%@ Import Namespace="Library" %>
+<%@ Import Namespace="Library.Web" %>
+<%@ Import Namespace="Web.Asp.Provider" %>
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="<%=Config.Language %>">
+<head runat="server">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="/Templates/T07/style/css.css" />
+    <link href="/Templates/T07/style/comment.css" rel="stylesheet" />
+
+    <script type="text/javascript" src="/Templates/T07/js/jquery-3.6.4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script src="/Includes/library.js"></script>
+    <asp:ContentPlaceHolder ID="HeadContent" runat="server"></asp:ContentPlaceHolder>
+</head>
+<body class="css_body">
+    
+        <%if(!string.IsNullOrEmpty(Config.Background)){%>
+        <style>
+            .top_hea, .foot_3, .n_dv_spec, .seemore_bt a, .giuseart-nav, .h_t_cont, .btn-t13, .btn_ct, .gsc-search-button-v2{background:<%= Config.Background%>}
+            .t_h, nav a, .post4title, .info_news_h span{color:<%= Config.Background%>}
+            .client_section .box{background: linear-gradient(to right, <%= Config.Background%> 115px, #ffffff 115px);}
+        </style>
+        <%} %>
+        <%if(!string.IsNullOrEmpty(Config.FontColor)){%>
+        <style>
+            .top_hea, .foot_3, .n_dv_spec, .seemore_bt a,.h_t_cont,.btn-t13, .btn_ct, .gsc-search-button-v2{color:<%= Config.FontColor%> }
+        </style>
+        <%} %>
+
+        <%if(HREF.CurrentComponent == "home"){ %>
+            <h1 style="position:absolute; top:-1000px;"><%=Company.FullName%></h1>
+            <h2 style="position:absolute; top:-1000px;"><%=Company.DisplayName%></h2>
+            <h2 style="position:absolute; top:-1000px;"><%=Company.JobTitle%></h2>
+        <%} %>
+
+        <div id="wrapper">
+            <header id="header">
+        <section class="top_hea">
+          <div class="min_wrap">
+            <i class="fas fa-phone-volume"></i>
+            Điện thoại: <a href="tel:<%=Company.Branches[0].Phone %>" title="<%=Company.Branches[0].Phone %>"><%=Company.Branches[0].Phone %></a>
+          </div>
+        </section>
+        <!-- End .top_hea -->
+        <section class="banner min_wrap">
+            <nav class="navbar" style="font-size: 18px !important;background:#fff">
+	<div class="container-fluid">
+		<!-- Brand and toggle get grouped for better mobile display -->
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+				<span class="glyphicon glyphicon-menu-hamburger btn-lg"></span>
+			</button>
+			<a class="navbar-brand" href="/" title="#">
+              <img src="<%=HREF.DomainStore + Company.Image.FullPath %>" alt="<%=Company.FullName %>" height="60px"/>
+            </a>
+		</div>
+	
+		<!-- Collect the nav links, forms, and other content for toggling -->
+		<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right" style="margin-top:18px">
+                <li id="mnuHome"><a href="/" title="Trang chủ">Trang chủ</a></li>
+                <li id="mnuAbouteUs">
+                    <a href="<%=HREF.LinkComponent("AboutUs", "gioi-thieu", true) %>">Giới thiệu</a>
+                </li>
+                <%foreach (var item in this.Menu)
+			    {%>
+                    <%if (item.Type == "Link")
+                    {%>
+                        <li>
+                        <%if (!String.IsNullOrEmpty(item.Url)) {%>
+                            <a href="<%=item.Url%>"><%=item.Title%></a>
+					    <%} else {%>
+                            <a href="<%=HREF.LinkComponent(item.Component, item.Title.ConvertToUnSign(), item.Id, "sMid", item.Id)%>" class="sf-with-ul"><%=item.Title%></a>
+                        <%} %>
+                        </li>
+                    <%} else if (item.Type == "Article"){%>
+                        <li>
+                            <a href="<%=HREF.LinkComponent(item.Component, item.Title.ConvertToUnSign(), item.Id, "sArt", item.Id)%>" class="sf-with-ul"><%=item.Title%></a>
+					    </li>	
+                    <%} else if (item.Type == "Links"){%>
+                        <li class="dropdown">
+                        <%if (!String.IsNullOrEmpty(item.Url)) {%>
+                            <a href="<%=item.Url%>" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+					    <%} else {%>
+                            <a href="<%=HREF.LinkComponent(item.Component, item.Title.ConvertToUnSign(), item.Id, "sCat", item.Id)%>" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><%=item.Title%></a>
+                        <%} %>
+						    <ul class="dropdown-menu">
+						    <%foreach (var child in item.Children) {%>
+							    <li>
+                                <%if (!String.IsNullOrEmpty(child.Url)){%>
+                                    <a href="<%=child.Url%>"><%=child.Title%></a>
+							    <%} else {%>
+                                    <a href="<%=HREF.LinkComponent(child.Component, child.Title.ConvertToUnSign(), item.Id, "sMid", child.Id)%>"><%=child.Title%></a>
+                                <%} %>
+							    </li>
+						    <%} %>
+						    </ul>
+                        </li>
+				    <%} else if (item.Type == "Articles") {%>
+                        <li class="dropdown">
+                            <a href="<%=HREF.LinkComponent(item.Component, item.Title.ConvertToUnSign(), item.Id, "sCat", item.Id)%>" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><%=item.Title%></a>
+						    <ul class="dropdown-menu">
+							    <%foreach (var child in item.Children)
+							    {%>
+								    <li>
+                                        <a href="<%=HREF.LinkComponent(child.Component, child.Title.ConvertToUnSign(), item.Id, "sArt", child.Id)%>"><%=child.Title%></a>
+ 								    </li>
+							    <%} %>
+						    </ul>
+                        </li>
+				    <%} else if (item.Type == "Category") {%>
+                        <li>
+                            <a href="<%=HREF.LinkComponent(item.Component, item.Title.ConvertToUnSign(), item.Id, "sCat", item.Id)%>"><%=item.Title%></a>
+					    </li>
+                    <%} else if (item.Type == "Categories") {%>
+                        <li class="dropdown">
+                            <a href="<%=HREF.LinkComponent(item.Component, item.Title.ConvertToUnSign(), item.Id, "sCat", item.Id)%>" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><%=item.Title%></a>
+                            <ul class="dropdown-menu">
+						        <%foreach (var child in item.Children)
+							    {%>
+								    <li>
+                                        <a href="<%=HREF.LinkComponent(child.Component, child.Title.ConvertToUnSign(), item.Id, "sCat", child.Id)%>"><%=child.Title%></a>
+								    </li>
+							    <%} %>
+						    </ul>
+                        </li>
+				    <%} %>
+			    <%} %>           
+                <li id="mnuContact">
+                    <a href="<%=HREF.LinkComponent("Contact", "lien-he", true)%>">Liên hệ</a>
+                </li>
+            </ul>
+            <!-- End .ul_mn -->
+		</div>
+	</div>
+</nav>
+        </section>
+        <!-- End .banner -->
+      </header>
+      <!-- End #header -->
+             
+      <!-- Phần nội dung trang web -->
+            <main id="container">
+                <VIT:Position runat="server" ID="psTop" SkinName="Empty"></VIT:Position>
+      <asp:ContentPlaceHolder ID="MainContent" runat="server"></asp:ContentPlaceHolder>
+                </main>
+
+      <!-- End #container -->
+      <style>
+          .ul_foot_2 > li iframe {
+              width: 100% !important;
+              height: 215px !important;
+          }
+      </style>
+
+<footer id="footer">
+
+    <section class="foot_1">
+        <div class="container">
+            <VIT:Position runat="server" ID="psBottom"></VIT:Position>
+        </div>
+    </section>
+
+    <section class="foot_2">
+        <div class="min_wrap">
+            <ul class="ul_foot_2">
+                <li>
+                    <div class="t_foot_2">
+                        <%=Company.DisplayName %>
+                    </div>
+                    <div class="m_foot_2">
+                        <%=Company.Brief.Replace("\n","<br />") %>
+                    </div>
+                </li>
+                <li>
+                    <div class="t_foot_2">Danh mục</div>
+                    <div class="m_foot_2">
+                        <ol class="ol2_foot_2">
+                            <li>
+                                <a href="/">Trang chủ</a>
+                            </li>
+                            <li>
+                                <a href="<%=HREF.LinkComponent("AboutUs", "gioi-thieu", true) %>">Giới thiệu</a>
+                            </li>
+                            <%foreach (var item in this.Menu)
+				            {%>
+                                <%if (item.Type == "Articles") {%>
+                                    <%foreach (var child in item.Children)
+							        {%>
+								        <li>
+                                            <a href="<%=HREF.LinkComponent(child.Component, child.Title.ConvertToUnSign(), child.Id, "sArt", child.Id)%>"><%=child.Title%></a>
+ 								        </li>
+							        <%} %>
+                                <%} else if (item.Type == "Categories") {%>
+						            <%foreach (var child in item.Children)
+							        {%>
+								        <li>
+                                            <a href="<%=HREF.LinkComponent(child.Component, child.Title.ConvertToUnSign(), child.Id, "sCat", child.Id)%>"><%=child.Title%></a>
+								        </li>
+							        <%} %>
+			                    <%} %>
+				            <%} %> 
+                            <li>
+                                <a href="<%=HREF.LinkComponent("Contact","lien-he",true)%>">Liên hệ</a>
+                            </li>
+                        </ol>
+                    </div>
+                    <VIT:Position runat="server" ID="psBottomLeft"></VIT:Position> 
+                </li>
+                <li>
+                    <div class="t_foot_2">Liên hệ</div>
+                    <div class="m_foot_2">
+                        <ol class="ol1_foot_2">
+                            <li>
+                                Địa chỉ: <%=Company.Branches[0].Address %>
+                            </li>
+                            <li>
+                                Điện thoại:
+                                <a href="tel:<%=Company.Branches[0].Phone %>" title="<%=Company.Branches[0].Phone %>"><%=Company.Branches[0].Phone %></a> 
+                            </li>
+
+                            <li>
+                                Email:
+                                <a
+                                href="mailto:<%=Company.Branches[0].Email %>"
+                                title="<%=Company.Branches[0].Email %>"
+                                style="font-weight: 700;"
+                                ><%=Company.Branches[0].Email %></a
+                                >
+                            </li>
+                        </ol>
+                    </div>
+                    <VIT:Position runat="server" ID="psBottomCenter"></VIT:Position>
+                </li>
+                <li>
+                    <VIT:Position runat="server" ID="psBottomRight"></VIT:Position> 
+                </li>
+            </ul>
+            <!-- End .ul_foot_2 -->
+        </div>
+        <!-- End .min_wrap -->
+    </section>
+
+    <section class="foot_3">
+        <div class="min_wrap">
+        © <%=String.Format("{0:yyyy}", Company.CreateDate)%> <%=HREF.Domain %> bản quyền thuộc về
+        <a href="/"><%=Company.FullName %></a> - Phát triển bởi <a target="_blank" href="<%=SettingsManager.AppSettings.DomainPublic %>" class="link"><%=SettingsManager.AppSettings.Copyright %></a>
+        </div>
+        <!-- End .min_wrap -->
+    </section>
+    <!-- End .foot_3 -->
+</footer>
+            
+</div>
+    
+   
+</body>
+</html>

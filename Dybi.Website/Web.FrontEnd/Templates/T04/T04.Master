@@ -1,0 +1,321 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" Inherits="Web.Asp.UI.VITTemplate" %>
+<%@ Import Namespace="Web.Asp.Provider"%>
+<%@ Import Namespace="Library" %>
+<%@ Register TagPrefix="VIT" Namespace="Web.Asp.Controls" Assembly="Web.Asp" %>
+
+<!DOCTYPE html>
+<html lang="<%=Config.Language %>">
+<head runat="server">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+        
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="/templates/T04/data/css.css">
+    <link rel="stylesheet" href="/templates/T04/data/w3.css">
+    <script language="javascript" src="/Templates/t04/data/jquery-3.2.1.min.js"></script>
+    <script language="javascript" src="/templates/T04/data/js.js"></script>
+    <script language="javascript" src="/templates/T04/data/w3js.js"></script>
+
+    <asp:ContentPlaceHolder ID="HeadContent" runat="server">
+    </asp:ContentPlaceHolder>
+</head>
+<body class="container">
+        <%if(HREF.CurrentComponent == "home"){ %>
+            <h1 style="position:absolute; top:-1000px;"><%=Company.FullName%></h1>
+            <h2 style="position:absolute; top:-1000px;"><%=Company.DisplayName%></h2>
+            <h2 style="position:absolute; top:-1000px;"><%=Company.JobTitle%></h2>
+        <%} %>
+        <div>
+            <header>
+                <div class="top_bar_outer w3-hide-small">
+                <div class="top_bar">
+                    <div class="ht_left">
+                        <div class="info_item email">
+                                <div class="info_icon w3-center">
+                                        <span><i style="font-size: 22px;line-height: 2; " class="material-icons"></i></span>
+                                </div>
+                                <a class="info_txt" href="mailto:<%=Company.Branches[0].Email%>">
+                                    <%=Company.Branches[0].Email%>	
+                                </a>
+                        </div>
+                        <div class="info_item phone">
+                                <div class="info_icon w3-center">
+                                        <span><i style="font-size: 22px;line-height: 2; " class="material-icons"></i></span>
+                                </div>
+                                <div class="info_txt">
+                                    <a href="tel:<%=Company.Branches[0].Phone%>"><%=Company.Branches[0].Phone%></a>
+                                </div>
+                        </div>
+                    </div>
+                    <div class="ht_right" id="carts">
+						<%--<a class="share_header_icon w3-hover-text-blue w3-center" href="<%= this.FullConfig.FacebookFanpage%>" target="_blank" title="Facebook">
+                            <span> <i style="font-size:22px; line-height: 1.7;" class="fa"></i></span>
+                        </a>--%>
+                        <VIT:Position runat="server" ID="psTopRight"></VIT:Position>
+						<a id="hanggio" class="share_header_icon w3-hover-text-orange w3-center" href="<%=HREF.LinkComponent("Cart",Language["cart"].ConvertToUnSign(), true)%>" title="(<%=GioHang.Select(o => o.Quantity).Sum() %>) <%=Language["Product"]%>">
+                            <span><i style="line-height: 1.7;" class="material-icons"></i><span>
+				        </a>
+                        <%if(Language.Languages.Count > 1) { %>
+                            <select class="w3-bar-item language">
+                                <option value="<%=Language.LanguageId %>" disabled="disabled" selected="selected"><%=Language[Language.LanguageId] %></option>
+                                <%foreach(var language in Language.Languages.Where(e => e != Language.LanguageId)) {%>
+                                    <option value="<%=language %>">
+                                        <a href="<%=HREF.ChangeLanguageLink(language) %>"><%=Language[language] %></a>
+                                    </option>
+                                <%} %>
+                            </select>
+                        <%} %>
+		            </div>
+                </div>
+            </div>
+                <div style="z-index: 99;" id="navbar" class="w3-bar w3-white w3-wide w3-padding w3-card">
+                    <a href="/" class="w3-bar-item"><img src="<%=HREF.DomainStore + this.Company.Image.FullPath %>" alt="<%=this.Company.FullName %>" style="max-height:75px; max-width:350px"></a>
+                    <!-- Float links to the right. Hide them on small screens -->
+
+                    <div style="line-height: 60px;" class="w3-right w3-hide-large w3-hide-medium">
+                        <span onclick="w3_open()" class="w3-bar-item w3-button"><i style="font-size:24px" class="fa"></i></span>
+                    </div>
+                    
+                    <div style="line-height: 60px;" class="w3-right w3-hide-small">
+                        <a href="/" class="w3-bar-item w3-button"><%=Language["Home"] %></a>
+                        <a class="w3-bar-item w3-button" href="<%=HREF.LinkComponent("AboutUs", Language["AboutUs"].ConvertToUnSign(), true) %>"><%=Language["AboutUs"] %></a>
+                        <%foreach (var item in this.Menu)
+			            {%>
+                            <%if(item.Children != null && item.Children.Count > 0) {%>
+                                <div class="w3-dropdown-click">
+                                    <button class="w3-button w3-wide" onclick="myMenu('<%=item.Id%>')" type="button"><%=item.Title%> <i class="fa fa-caret-down"></i></button>
+                                    <div id="childen<%=item.Id%>" class="w3-dropdown-content w3-bar-block">
+                                        <%foreach (var child in item.Children)
+                                        {%>
+                                            <a class="w3-bar-item w3-button" href="<%=child.Url%>"><%=child.Title%></a>
+                                        <%} %>
+                                    </div>
+                                </div>
+                            <%} else {%>
+                                <a class="w3-bar-item w3-button" href="<%=item.Url%>"><%=item.Title%></a>
+                            <%} %>
+                        <%} %>
+                        <a href="<%=HREF.LinkComponent("Contact", Language["Contact"].ConvertToUnSign(), true) %>" class="w3-bar-item w3-button w3-mobile"><%=Language["Contact"] %></a>
+                    </div>
+
+                    <!-- Sidebar/menu -->
+                    <nav class="w3-sidebar w3-bar-block w3-white w3-collapse w3-top w3-hide-large w3-hide-medium" style="z-index:9999;width:300px" id="mySidebar">
+                        <div class="w3-container w3-display-container w3-padding-16">
+                            <i onclick="w3_close()" class="fa fa-remove w3-hide-large w3-button w3-display-topright"></i>
+                            <h3><strong><%=Company.DisplayName %></strong></h3>
+                        </div>
+                        <div>
+                            <div class="cate_left_list">
+                                <a class="w3-bar-item w3-button" href="\">
+                                    <%=Language["Home"] %>
+                                </a>
+                                <a class="w3-bar-item w3-button" href="<%=HREF.LinkComponent("AboutUs", Language["AboutUs"].ConvertToUnSign(), true) %>">
+                                    <%=Language["AboutUs"] %>
+                                </a>
+                                <%foreach (var item in this.Menu)
+			                    {%>
+                                    <%if(item.Children != null && item.Children.Count > 0) {%>
+                                    <button class="w3-button w3-block w3-left-align w3-wide" onclick="myMenuOver('<%=item.Id%>')" type="button"><%=item.Title%>&nbsp;<i class="fa fa-caret-down"></i></button>
+                                    <div id="childenover<%=item.Id%>" class="w3-bar-block w3-hide w3-white w3-card-4" style="margin-left:30px">
+                                        <%foreach (var child in item.Children)
+                                        {%>
+                                            <a class="w3-bar-item w3-button" href="<%=child.Url%>"><%=child.Title%></a>
+                                        <%} %>
+                                    </div>
+                                    <%} else {%>
+                                        <a class="w3-bar-item w3-button" href="<%=item.Url%>"><%=item.Title%></a>
+                                    <%} %>
+                                <%} %>
+                            </div>
+                        </div>
+                    </nav>
+                    <!-- Overlay effect when opening sidebar on small screens -->
+                    <div style="z-index: 999;" class="w3-overlay w3-hide-large" onclick="w3_close()" style="cursor:pointer" title="close side menu" id="myOverlay"></div>
+                    <!--END Sidebar/menu -->
+            </div>
+                <!-- banner -->
+            <div id="banner">
+                <VIT:Position runat="server" ID="psTop"></VIT:Position>
+            </div>
+        </header>
+    </div>
+
+    <div>
+        <asp:ContentPlaceHolder ID="MainContent" runat="server"></asp:ContentPlaceHolder>
+    </div>
+        
+        <footer>
+            <div class="footer_outer">
+                <div class="footer">
+                    <div class="w3-row">
+                        <div class="w3-col m5 w3-text-white" style="padding-right:20px">
+                                <div class="w3-padding-16">
+                                    <h1 class="w3-xlarge w3-border-teal w3-bottombar" title="<%=Company.FullName %>"><%=Company.FullName %></h1></div>
+                                    <h2 style="font-size: 18px;" title="<%=Company.Slogan %>"><%=Company.Slogan %></h2>
+                                    <p><i class="fa fa-map-marker w3-text-teal w3-xlarge"></i>  <%=Company.Branches[0].Address %></p>
+                                    <p><i class="fa fa-phone w3-text-teal w3-xlarge"></i>  <%=Company.Branches[0].Phone %></p>
+                                    <p><i class="fa fa-envelope-o w3-text-teal w3-xlarge"></i>  <%=Company.Branches[0].Email %></p>
+                        </div>
+                        <div class="w3-col m4">
+                            <div style="margin-top: 50px;" class="footer_contact">
+                                <div class="lib_feedback_form">
+                                    <div id="gmap" class="contact-map">
+                                                <iframe title="Bản đồ đường đến <%=Company.FullName %>" style="Width:100%;height:250px" src="//www.google.com/maps/embed/v1/search?q=<%=Company.Branches[0].Address %>&zoom=15&key=AIzaSyCZXdpCRgYzYNMLHoBnK_RcooQ8lwby_nc">
+                                          </iframe> 
+                                    </div>
+                                </div>		
+                            </div>
+                        </div>
+                        <div class="w3-col m3 w3-text-white">
+                            <div style="margin: 50px 0px 0px 20px" class="footer_contact">
+                                    <VIT:Position runat="server" ID="psBottom"></VIT:Position>	
+                            </div>
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="w3-row">
+                        <div class="w3-col m12 w3-text-white w3-center" style="font-size:11px">
+                            <h5 style="font-size:11px;margin:0px">
+                                © <%=string.Format("{0:dd/MM/yyyy}", Company.CreateDate)%> - Bản quyền của <a href="/" title="<%=Company.DisplayName %>"><%=Company.FullName %></a>.
+                                <%if(!string.IsNullOrEmpty(Company.TaxCode)){ %> Giấy chứng nhận Đăng ký Kinh doanh số: <%=Company.TaxCode %> <%} %>
+                            </h5>
+                            Designed by <a target="_blank" href="<%=SettingsManager.AppSettings.DomainPublic %>"><%=SettingsManager.AppSettings.Copyright %></a>
+                            </div>
+                        </div>
+                </div>
+            </div>
+        </footer>
+        <!--END FOOTER-->
+         <!--LIÊN HỆ RIGHT-->
+         <div class="w3-hide-small" id="float_chat" class="ChatColor float_chat_0">
+                <%--<div class="inner_chat">
+                    <div class="chat_box ChatColor">
+                            <a class="online_item item QQ" style="background-color:#8AC759;" href="<%=Company.FacebookFanpage %>" title="FB">
+                                <i style="font-size:26px;    padding: 20px 22px 15px 22px;color:white" class="fa"></i>
+                                                </a>
+                            <div class="blank6"></div>
+                                        <a class="online_item item Skype" style="background-color:#8AC759;" href="/dat-may-thu-nhoi-bong-vit-contact" title="Skype">
+                                                <i style="font-size:26px;    padding: 20px 18px 15px 18px;color:white" class="fa">&#xf1a0;</i>
+                                                </a>
+                            <div class="blank6"></div>
+                                    <a class="contact item" style="background: url('/static/themes/default/images/global/contact.png') no-repeat center #8AC759;" href="tel:<%=Company.PHONE %>" target="_self" title="Contact Us">
+                                        <i style="font-size:26px;    padding: 20px 18px 15px 18px;color:white" class="material-icons">&#xe0b0;</i>                                        </a>
+                        <div class="blank6"></div>
+                    </div>
+                </div>
+                <a href="#" style="background-color:#8AC759;" id="go_top"  onclick="topFunction()">
+                    <img style="padding: 20px 15px 15px 15px;" src="/templates/T04/img/top.png">
+                </a>--%>
+            </div>
+
+        <input type="hidden" id="ProdicyId" value="" />
+<div id="buyModal" class="w3-modal">
+    <!-- Modal content-->
+    <div class="w3-modal-content">
+      <div class="w3-container w3-teal"> 
+        <span onclick="document.getElementById('buyModal').style.display='none'" class="w3-button w3-display-topright">&times;</span>
+        <h4><%=Language["AddToCart"] %></h4>
+      </div>
+      <div class="w3-container">
+          <div style="padding:20px">
+          <div class="row">
+              <div class="w3-col m5 s6 i6" style="padding-right:15px">
+                  <img id="muaImage"/>
+              </div>
+              <div class="w3-col m7 s6 i6">
+                  <div id="muaTitle"></div>
+                  <hr />
+                  <div id="muaPrice"></div>
+                  <br />
+                  <div id="muaBrief"></div>
+                  <br />
+                  <label><%=Language["Quantity"] %>:</label> <input type="number" value="1" id="txtQuantity" placeholder="100" class="form-control" style="display:unset"/>
+              </div>
+          </div>
+        </div>
+      </div>
+       <div class="w3-container w3-teal" style="padding: 10px; text-align:right">
+        <span><%=Language["AddToCartAnd"] %> </span> 
+        <button type="button" class="w3-button w3-green" onclick="AddToCart(false);document.getElementById('buyModal').style.display='none'"><%=Language["ContinueShopping"] %></button>
+        <button type="button" class="w3-button w3-red" onclick="AddToCart(true);"><%=Language["ViewCart"] %></button>
+      </div>
+    </div>
+</div>
+
+    <script>
+        function myMenu(id) {
+        var x = document.getElementById("childen" + id);
+        if (x.className.indexOf("w3-show") == -1) {
+            x.className += " w3-show";
+        } else { 
+            x.className = x.className.replace(" w3-show", "");
+        }
+        }
+
+        function myMenuOver(id) {
+            var x = document.getElementById("childenover" + id);
+            if (x.className.indexOf("w3-show") == -1) {
+                x.className += " w3-show";
+            } else { 
+                x.className = x.className.replace(" w3-show", "");
+            }
+        }
+    </script>
+
+    <script type="text/javascript">
+        function SelectProduct(id, title, image, brief, price) {
+            $("#ProdicyId").val(id);
+            $("#muaTitle").html(title);
+            $("#muaImage").attr("src", image);
+            $("#muaBrief").html(brief);
+            $("#muaPrice").html("Giá: " + price + " đ");
+
+            document.getElementById('buyModal').style.display='block';
+        }
+
+         // Send the rating information somewhere using Ajax or something like that.
+        function AddToCart(go) {
+            var productQuantity = $("#txtQuantity").val();
+            var proId = $("#ProdicyId").val();
+            var productMin = $('#txtQuantity').attr('min');
+            if (parseInt(productQuantity, 10) < parseInt(productMin, 10)) {
+                alert('Số lượng mua ít nhất là ' + productMin + ', bạn không thể mua ' + productQuantity + ' sản phẩm');
+            }
+            else {
+                $.ajax({
+                    type: "POST",
+                    url: "<%=HREF.BaseUrl %>JsonPost.aspx/AddProductsToCarts",
+                    data: JSON.stringify({ productId: proId, quantity: productQuantity, properties: '', addonIds: '' }),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (data) {
+                        if (data != "") {
+                            if (go == true) {
+                                location.href = '<%=HREF.BaseUrl %>/cart/gio-hang';
+                            } else {
+                                $.ajax({
+                                    type: "POST",
+                                    url: "<%=HREF.BaseUrl %>JsonPost.aspx/GetCarts",
+                                    contentType: "application/json; charset=utf-8",
+                                    dataType: "json",
+                                    success: function (data) {
+                                        var total = 0;
+                                        for (var i = 0; i < data.d.length; i++) {
+                                            total += data.d[i].Quantity;
+                                        }
+                                        $("#hanggio").html('<a class="share_header_icon w3-hover-text-orange w3-center" href="/vit-carts" title="('+ total +') <%=Language["Product"]%>"><span><i style="line-height: 1.7;" class="material-icons"></i><span></span></span></a>');
+                                    }
+                                });
+                            }
+                        }
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>

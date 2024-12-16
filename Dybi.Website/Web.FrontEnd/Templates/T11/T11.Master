@@ -1,0 +1,125 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" Inherits="Web.Asp.UI.VITTemplate" %>
+
+<%@ Import Namespace="Library" %>
+<%@ Import Namespace="Library.Web" %>
+<%@ Import Namespace="Web.Asp.Provider" %>
+<%@ Register Assembly="Web.Asp" Namespace="Web.Asp.Controls" TagPrefix="VIT" %>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="<%=Config.Language %>">
+<head runat="server">
+    <!-- basic -->
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    
+      <!-- bootstrap css -->
+      <link rel="stylesheet" type="text/css" href="/Templates/T11/css/bootstrap.min.css">
+      <!-- style css -->
+      <link rel="stylesheet" type="text/css" href="/Templates/T11/css/style.css">
+      <!-- Responsive-->
+      <link rel="stylesheet" href="/Templates/T11/css/responsive.css">
+      <!-- Scrollbar Custom CSS -->
+      <link rel="stylesheet" href="/Templates/T11/css/jquery.mCustomScrollbar.min.css">
+      <!-- Tweaks for older IEs-->
+      <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css">
+      <!-- fonts -->
+      <link href="https://fonts.googleapis.com/css?family=Poppins:400,700|Righteous&display=swap" rel="stylesheet">
+      <!-- owl stylesheets --> 
+      <link rel="stylesheet" href="/Templates/T11/css/owl.carousel.min.css">
+      <link rel="stylesheet" href="/Templates/T11/css/owl.theme.default.min.css">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/jquery.fancybox.min.css" media="screen">
+    <asp:ContentPlaceHolder ID="HeadContent" runat="server"></asp:ContentPlaceHolder>
+</head>
+
+<body>
+    <VIT:Form ID="frmMain" runat="server">
+        <!-- header section start -->
+      <div class="header_section">
+         <div class="header_main">
+            <div class="mobile_menu">
+               <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                  <div class="logo_mobile"><a href="/"><img style="height:100px" src="<%=HREF.DomainStore + this.Company.Image.FullPath %>" alt="<%=this.Company.FullName %>"/></a></div>
+                  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon"></span>
+                  </button>
+                  <div class="collapse navbar-collapse" id="navbarNav">
+                     <ul class="navbar-nav">
+                        <li class="nav-item">
+                           <a class="nav-link" href="/">Home</a>
+                        </li>
+                         <%foreach (var item in Menu)
+                        {%>
+                                <li class="nav-item">
+                                <%if (!String.IsNullOrEmpty(item.Url)) {%>
+                                    <a class="nav-link" href="<%=item.Url%>"><%=item.Title%></a>
+				                <%} else {%>
+                                    <a class="nav-link" href="<%=HREF.LinkComponent(item.Component, item.Title.ConvertToUnSign(), true, "sMid", item.Id)%>"><%=item.Title%></a>
+                                <%} %>
+                                </li>
+                        <%} %>
+                     </ul>
+                  </div>
+               </nav>
+            </div> 
+            <div class="container-fluid">
+               <div class="logo"><a href="/"><img src="<%=HREF.DomainStore + this.Company.Image.FullPath %>" alt="<%=this.Company.FullName %>" style="height:100px"/></a></div>
+               <div class="menu_main">
+                  <ul>
+                     <li id="home"><a href="/">Home</a></li>
+                        <%foreach (var item in Menu)
+                        {%>
+                        <li id="<%=item.Component %>">
+                        <%if (!String.IsNullOrEmpty(item.Url)) {%>
+                            <a href="<%=item.Url%>"><%=item.Title%></a>
+				        <%} else {%>
+                            <a href="<%=HREF.LinkComponent(item.Component, item.Title.ConvertToUnSign(), true, "sMid", item.Id)%>"><%=item.Title%></a>
+                        <%} %>
+                        </li>
+                        <%} %>
+                  </ul>
+               </div>
+            </div>
+         </div>
+         <VIT:Position runat="server" ID="psTop" SkinName="Empty"></VIT:Position>  
+      </div>
+      <!-- header section end -->
+
+        <asp:ContentPlaceHolder ID="MainContent" runat="server"></asp:ContentPlaceHolder>
+
+        <!-- footer section start -->
+      <div class="footer_section layout_padding">
+         <div class="container">
+            <div class="location_main">
+               <div class="call_text"><img src="/Templates/T11/images/call-icon.png"></div>
+               <div class="call_text"><a href="tel:<%=Company.Branches[0].Phone %>"><%=Company.Branches[0].Phone %></a></div>
+               <div class="call_text"><img src="/Templates/T11/images/mail-icon.png"></div>
+               <div class="call_text"><a href="mailto:<%=Company.Branches[0].Email %>"><%=Company.Branches[0].Email %></a></div>
+            </div>
+            <VIT:Position runat="server" ID="psBottom" SkinName="Empty"></VIT:Position>  
+         </div>
+      </div>
+      <!-- footer section end -->
+
+        <!-- copyright section start -->
+      <div class="copyright_section">
+         <div class="container">
+            <p class="copyright_text"><%=Company.CreateDate.Year %> All Rights Reserved. Design by <a href="https://có-nên-mua.vn">có-nên-mua.vn</a></p>
+         </div>
+      </div>
+      <!-- copyright section end -->
+      <!-- Javascript files-->
+      <script src="/Templates/T11/js/jquery.min.js"></script>
+      <script src="/Templates/T11/js/popper.min.js"></script>
+      <script src="/Templates/T11/js/bootstrap.bundle.min.js"></script>
+      <script src="/Templates/T11/js/jquery-3.0.0.min.js"></script>
+      <script src="/Templates/T11/js/plugin.js"></script>
+      <!-- sidebar -->
+      <script src="/Templates/T11/js/jquery.mCustomScrollbar.concat.min.js"></script>
+      <script src="/Templates/T11/js/custom.js"></script>
+      <!-- javascript --> 
+      <script src="/Templates/T11/js/owl.carousel.js"></script>
+      <script src="https:cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/jquery.fancybox.min.js"></script>    
+    </VIT:Form>
+</body>
+</html>

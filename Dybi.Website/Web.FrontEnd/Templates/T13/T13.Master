@@ -1,0 +1,194 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" Inherits="Web.Asp.UI.VITTemplate" %>
+
+<%@ Import Namespace="Library" %>
+<%@ Import Namespace="Library.Web" %>
+<%@ Import Namespace="Web.Asp.Provider" %>
+<%@ Register Assembly="Web.Asp" Namespace="Web.Asp.Controls" TagPrefix="VIT" %>
+<!DOCTYPE html>
+<html lang="<%=Config.Language %>">
+<head runat="server">
+    <!-- Basic -->
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+    <!-- bootstrap core css -->
+    <link rel="stylesheet" type="text/css" href="/Templates/T13/css/bootstrap.min.css" />
+    <!-- font awesome style -->
+    <link href="/Templates/T13/css/font-awesome.min.css" rel="stylesheet" />
+    <!-- Custom styles for this template -->
+    <link href="/Templates/T13/css/style.css" rel="stylesheet" />
+    <!-- responsive style -->
+    <link href="/Templates/T13/css/responsive.css" rel="stylesheet" />
+    
+    <!-- animate lib -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
+    <!-- jQery -->
+    <script src="/Templates/T13/js/jquery-1.9.1.min.js"></script>
+    <asp:ContentPlaceHolder ID="HeadContent" runat="server"></asp:ContentPlaceHolder>
+</head>
+
+<body>
+    
+        <%if(!string.IsNullOrEmpty(Config.Background)){%>
+        <style>
+            .slider_section,.about_section,.info_section,.footer_section,.custom_menu-btn::before,
+            #myNav, .header_section.innerpage_header, .btn--orange:hover, .formComment__action label:hover,
+            .btn-t13, .blogs_section .box .blog_date,.cat_section h2,
+            .slider_section .carousel-control-prev,.slider_section .carousel-control-next,.client_section .carousel-control-prev,.client_section .carousel-control-next {background:<%= Config.Background%> !important}
+            .client_section .box {background: linear-gradient(to right, <%= Config.Background%> 115px, #ffffff 115px);}
+            .breadcrumb,.input-group-text {background:<%= Config.Background%>cc !important; border-radius:0}
+        </style>
+        <%} %>
+        <%if(!string.IsNullOrEmpty(Config.FontColor)){%>
+        <style>
+            .btn--orange,.btn--orange:hover,.formComment__action label,.formComment__action label:hover,.custom_menu-btn::before {color:<%= Config.FontColor%>; border-color:<%= Config.FontColor%>}
+            #myNav .overlay-content a,.breadcrumb .breadcrumb-item a, .breadcrumb-item.active,.navbar-brand span,.info_section,.footer_section,.contact_link_box a, .contact_link_box a span, .contact_link_box a i,
+            .slider_section .carousel-control-prev i, .slider_section .carousel-control-next i, .client_section .carousel-control-prev i, .client_section .carousel-control-next i,
+            .container-fluid .detail-box,.input-group-text,.cat_section h2 {color:<%= Config.FontColor%> !important;}
+            .custom_menu-btn span{background:<%= Config.FontColor%> !important}
+            .btn-t13{color:<%= Config.FontColor%> !important;border:<%= Config.FontColor%> 1px solid  !important}
+            .footer_section{border-top:1px solid <%= Config.FontColor%>}
+        </style>
+        <%} %>
+        <!-- header section strats -->
+        <header class="<%=HREF.CurrentComponent == "home" ? "" : "innerpage_header" %> header_section">
+        <div class="container-fluid">
+            <nav class="navbar navbar-expand-lg custom_nav-container">
+            <a class="navbar-brand" href="/">
+                <span><%=Company.DisplayName %></span>
+            </a>
+            <div class="" id="">
+                <div class="custom_menu-btn">
+                    <button type="button" onclick="openNav()" aria-label="menu">
+                        <span class="s-1"> </span>
+                        <span class="s-2"> </span>
+                        <span class="s-3"> </span>
+                    </button>
+                    <div id="myNav" class="overlay">
+                    <div class="overlay-content">
+                    <a href="/">Trang chủ</a>
+                    <a href="<%=HREF.LinkComponent("AboutUs", "gioi-thieu-" + Company.DisplayName.ConvertToUnSign(), true) %>">Giới thiệu</a>
+                    <%foreach (var item in this.Menu)
+					{%>
+                        <%if(item.Children != null && item.Children.Count > 0) {%>
+                            <%foreach (var child in item.Children)
+						    {%>
+                                    <a href="<%=child.Url%>"><%=child.Title%></a>
+						    <%} %>
+                        <%} else { %>
+                        <a href="<%=item.Url%>" class="sf-with-ul"><%=item.Title%></a>
+                       <%} %> 
+					<%} %>
+                        <a href="<%=HREF.LinkComponent("Contact", "dat-hang", true) %>">
+                          Đặt hàng
+                        </a>
+                    </div>
+                </div>
+                </div>
+            </div>
+            </nav>
+        </div>
+        </header>
+        <!-- end header section -->
+
+        <asp:ContentPlaceHolder ID="MainContent" runat="server"></asp:ContentPlaceHolder>
+
+        <!-- info section -->
+        <section class="info_section ">
+        <div class="container-fluid">
+            <div class="row info_main_row">
+            <div class="col-lg-7 mx-auto">
+                <div class="row">
+                <div class="col-md-4 info-col">
+                    <div class="info_detail">
+                        <h5>
+                            <%=Company.NickName %>
+                        </h5>
+                        <p>
+                            <%=Company.Motto.Replace("\n","<br />") %>
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-4 info-col">
+                    <div class="info_contact">
+                        <h5>
+                            <%=Company.Branches[0].Name %>
+                        </h5>
+                        <div class="contact_link_box">
+                            <a href="">
+                            <i class="fa fa-map-marker" aria-hidden="true"></i>
+                            <span>
+                                <%=Company.Branches[0].Address %>
+                            </span>
+                            </a>
+                            <a href="tel:<%=Company.Branches[0].Phone %>">
+                            <i class="fa fa-phone" aria-hidden="true"></i>
+                            <span>
+                                Call <%=Company.Branches[0].Phone %>
+                            </span>
+                            </a>
+                            <a href="mailto:<%=Company.Branches[0].Email %>">
+                            <i class="fa fa-envelope" aria-hidden="true"></i>
+                            <span>
+                                <%=Company.Branches[0].Email %>
+                            </span>
+                            </a>
+                        </div>
+                        <VIT:Position runat="server" ID="psBottom1" SkinName="Empty"></VIT:Position>  
+                    </div>
+                </div>
+                <div class="col-md-4 info-col">
+                    <VIT:Position runat="server" ID="psBottom2" SkinName="Empty"></VIT:Position>   
+                </div>
+                </div>
+            </div>
+            <div class="col-lg-4 px-0 info-col">
+                <div class="map_container">
+                <div class="map">
+                    <div id="googleMap">
+                         <iframe title="Bản đồ" style="Width:100%;height:445px" src="//www.google.com/maps/embed/v1/search?q=<%=Company.Branches[0].Address %>
+                              &zoom=16
+                              &key=AIzaSyCZXdpCRgYzYNMLHoBnK_RcooQ8lwby_nc">
+                          </iframe> 
+                    </div>
+                </div>
+                </div>
+            </div>
+            </div>
+        </div>
+        </section>
+        <!-- end info section -->
+
+        <!-- footer section -->
+        <footer class="footer_section">
+        <div class="container">
+            <p>
+            &copy; <span id="displayYear"><%=Company.CreateDate.Year %></span> bản quyền thuộc về
+            <a href="/"><%=Company.FullName %></a> - Phát triển bởi <a target="_blank" href="<%=SettingsManager.AppSettings.DomainPublic %>" class="link"><%=SettingsManager.AppSettings.Copyright %></a>
+            <%if (!string.IsNullOrEmpty(Company.TaxCode)) {  %>
+                <br/>Mã số doanh nghiệp: <%= Company.TaxCode%> do <%= Company.TaxCodePlace%>
+                <%if (Company.PublishDate != null)
+                { %>
+                 cấp ngày <%=Company.PublishDate.Value.ToString("dd/MM/yyyy") %>
+                <%} %>
+            <%} %>
+            </p>
+        </div>
+        </footer>
+        <!-- footer section -->
+
+        <!-- bootstrap js -->
+        <script src="/Templates/T13/js/popper.min.js"></script>
+        <script src="/Templates/T13/js/bootstrap.min.js"></script>
+        <!-- custom js -->
+        <script src="/Templates/T13/js/custom.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/wow/1.1.2/wow.min.js"></script>
+    <script>
+        new WOW().init();
+    </script>
+</body>
+</html>

@@ -1,0 +1,207 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" Inherits="Web.Asp.UI.VITTemplate" %>
+
+<%@ Import Namespace="Library" %>
+<%@ Import Namespace="Library.Web" %>
+<%@ Import Namespace="Web.Asp.Provider" %>
+<%@ Register Assembly="Web.Asp" Namespace="Web.Asp.Controls" TagPrefix="VIT" %>
+<!DOCTYPE html>
+<html lang="<%=Config.Language %>">
+<head runat="server">
+    <!-- Basic -->
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+    <!-- bootstrap core css -->
+    <link rel="stylesheet" type="text/css" href="/Templates/T15/css/bootstrap.css" />
+    <!-- slider stylesheet -->
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" />
+
+    <!-- Custom styles for this template -->
+    <link href="/Templates/T15/css/style.css" rel="stylesheet" />
+    <!-- responsive style -->
+    <link href="/Templates/T15/css/responsive.css" rel="stylesheet" />
+
+    <asp:ContentPlaceHolder ID="HeadContent" runat="server"></asp:ContentPlaceHolder>
+</head>
+
+<body class="<%=HREF.CurrentComponent == "home" ? "" : "sub_page" %>">
+    <VIT:Form ID="frmMain" runat="server">
+        <div class="hero_area ">
+            <div class="hero_bg_box">
+                <%if(Config.BackgroundImage != null){ %>
+                    <img src="<%=HREF.DomainStore + Config.BackgroundImage.FullPath %>">
+                <%} %>
+            </div>
+            <!-- header section strats -->
+            <header class="header_section">
+                <div class="container-fluid">
+                <nav class="navbar navbar-expand-lg custom_nav-container">
+                    <a class="navbar-brand" href="/">
+                    <span><%=Company.DisplayName %></span>
+                    </a>
+                    <div class="">
+                    <%--<div class="User_option">
+                        <form class="form-inline my-2  mb-3 mb-lg-0">
+                        <input type="search" placeholder="Search">
+                        <button class="btn   my-sm-0 nav_search-btn" type="submit"> <i class="fa fa-search" aria-hidden="true"></i> </button>
+                        </form>
+                    </div>--%>
+
+                    <div class="custom_menu-btn">
+                        <button type="button" onclick="openNav()">
+                        <span class="s-1"> </span>
+                        <span class="s-2"> </span>
+                        <span class="s-3"> </span>
+                        </button>
+                    </div>
+                    <div id="myNav" class="overlay">
+                        <div class="overlay-content">
+                            <a href="/">Trang chủ</a>
+                            <%foreach (var item in this.Menu)
+				            {%>
+                                <%if(item.Children != null && item.Children.Count > 0) {%>
+                                    <%foreach (var child in item.Children)
+						            {%>
+                                            <a href="<%=child.Url%>"><%=child.Title%></a>
+						            <%} %>
+                                <%} else { %>
+                                <a href="<%=item.Url%>" class="sf-with-ul"><%=item.Title%></a>
+                                <%} %> 
+				            <%} %>
+                                <a href="<%=HREF.LinkComponent("Contact", "dat-lich", true) %>">Đặt lịch</a>
+                        </div>
+                    </div>
+                    </div>
+                </nav>
+                </div>
+            </header>
+            <!-- end header section -->
+            
+            <%if(HREF.CurrentComponent == "home"){ %>
+            <!-- about section -->
+            <section class="slider_section">
+              <div class="container">
+                <div class="row">
+                  <div class="col-md-6 ">
+                    <div class="detail-box">
+                      <h1>
+                        <%=Company.Slogan %>
+                      </h1>
+                      <p>
+                        <%=Company.Brief.Replace("\n", "<br />") %>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+            <!-- end about section -->
+            <%} %>
+        </div>
+        
+        <div class="main_content">
+            <div class="main_content_bg">
+                
+            </div>
+            <asp:ContentPlaceHolder ID="MainContent" runat="server"></asp:ContentPlaceHolder>
+        </div>
+
+        <!-- info section -->
+        <section class="info_section layout_padding2">
+        <div class="info_container">
+            <div class="container">
+                <div class="row">
+                <div class="col-md-3 info-col">
+                    <h6>
+                        <%=Company.Slogan %>
+                    </h6>
+                    <p>
+                        <picture>
+				            <source srcset="<%=HREF.DomainStore + Company.Image.FullPath%>.webp" type="image/webp">
+				            <source srcset="<%=HREF.DomainStore + Company.Image.FullPath%>" type="image/jpeg"> 
+                            <img src="<%=HREF.DomainStore + Company.Image.FullPath%>" alt="<%=Company.FullName %>" width="100%"/>
+                        </picture> 
+                    </p>
+                </div>
+                <div class="col-md-3 info-col">
+                    <VIT:Position runat="server" ID="psBottom" SkinName="Empty"></VIT:Position>  
+                </div>
+                <div class="col-md-3 info-col">
+                    <h6>
+                        Liên hệ
+                    </h6>
+                    <div class="contact_items">
+                <div class="item ">
+                  <div class="img-box ">
+                    <i class="fa fa-map-marker" aria-hidden="true"></i>
+                  </div>
+                  <div class="detail-box">
+                    <p>
+                      <%=Company.Branches[0].Address %>
+                    </p>
+                  </div>
+                </div>
+              <a href="tel:<%=Company.Branches[0].Phone %>">
+                <div class="item ">
+                  <div class="img-box ">
+                    <i class="fa fa-phone" aria-hidden="true"></i>
+                  </div>
+                  <div class="detail-box">
+                    <p>
+                      Call <%=Company.Branches[0].Phone %>
+                    </p>
+                  </div>
+                </div>
+              </a>
+              <a href="mailto:<%=Company.Branches[0].Email %>">
+                <div class="item ">
+                  <div class="img-box ">
+                    <i class="fa fa-envelope" aria-hidden="true"></i>
+                  </div>
+                  <div class="detail-box">
+                    <p>
+                      <%=Company.Branches[0].Email %>
+                    </p>
+                  </div>
+                </div>
+              </a>
+            </div>
+                </div>
+                
+                <div class="col-md-3 info-col map_container">
+                    <div class="map">
+                        <div id="googleMap">
+                             <iframe style="Width:100%;height:200px" src="//www.google.com/maps/embed/v1/search?q=<%=Company.Branches[0].Address %>
+                                  &zoom=16
+                                  &key=AIzaSyCZXdpCRgYzYNMLHoBnK_RcooQ8lwby_nc">
+                              </iframe> 
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+            </div>
+        </div>
+        </section>
+        <!-- end info section -->
+
+        <!-- footer section -->
+        <footer class="container-fluid footer_section">
+            <p>
+            &copy; <span id="displayYear"><%=Company.CreateDate.Year %></span> bản quyền thuộc về
+            <a href="/"><%=Company.FullName %></a> - Phát triển bởi <a target="_blank" href="<%=SettingsManager.AppSettings.DomainPublic %>" class="link"><%=SettingsManager.AppSettings.Copyright %></a>
+            </p>
+        </footer>
+        <!-- footer section -->
+
+        <script src="/Templates/T15/js/jquery-3.4.1.min.js"></script>
+        <script src="/Templates/T15/js/bootstrap.js"></script>
+        <!-- End Google Map -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js">
+        </script>
+        <script src="/Templates/T15/js/custom.js"></script>
+    </VIT:Form>
+</body>
+</html>

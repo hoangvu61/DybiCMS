@@ -1,0 +1,170 @@
+﻿ <%@ Master Language="C#" AutoEventWireup="true" Inherits="Web.Asp.UI.VITTemplate" %>
+
+<%@ Import Namespace="Library" %>
+<%@ Import Namespace="Library.Web" %>
+<%@ Import Namespace="Web.Asp.Provider" %>
+<%@ Register Assembly="Web.Asp" Namespace="Web.Asp.Controls" TagPrefix="VIT" %>
+<!DOCTYPE html>
+<html lang="<%=Config.Language %>">
+<head runat="server">
+    <!-- Basic -->
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+    <!-- bootstrap css -->
+      <link rel="stylesheet" href="/Templates/T16/css/bootstrap.min.css">
+      <!-- style css -->
+      <link rel="stylesheet" href="/Templates/T16/css/style.css">
+      <!-- Responsive-->
+      <link rel="stylesheet" href="/Templates/T16/css/responsive.css">
+      <!-- Tweaks for older IEs-->
+      <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css">
+      <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+      <link rel="stylesheet" href="/Templates/T16/css/owl.carousel.min.css">
+      <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script><![endif]-->
+        <script src="/Templates/T16/js/jquery.min.js"></script>
+    <asp:ContentPlaceHolder ID="HeadContent" runat="server"></asp:ContentPlaceHolder>
+</head>
+
+<body class="main-layour">
+    <VIT:Form ID="frmMain" runat="server">
+        <%if(!string.IsNullOrEmpty(Config.Background))
+            { 
+            if(Config.BackgroundImage != null){
+            %>
+            <style>
+                body {background: url(<%=HREF.DomainStore + Config.BackgroundImage.FullPath%>);background-size:contain}
+            </style>
+            <%}
+            else { %>
+            <style>
+                body {background-color: <%=Config.Background%>;background-image:none}
+            </style>
+            <%}
+        } %>
+              <!-- loader  -->
+      <div class="loader_bg">
+         <div class="loader"><img src="/Templates/T16/images/loading.gif" alt="#"/></div>
+      </div>
+      <!-- end loader -->
+      <!-- header -->
+      <div class="header">
+         <div class="container-fluid">
+            <div class="row d_flex">
+               <div class=" col-md-2 col-sm-3 logo_section">
+                  <div class="full">
+                     <div class="center-desk">
+                        <div class="logo">
+                            <%if(Company.Image != null){ %>
+                           <a href="/">
+                                <picture>
+				                    <source srcset="<%=HREF.DomainStore + Company.Image.FullPath%>.webp" type="image/webp">
+				                    <source srcset="<%=HREF.DomainStore + Company.Image.FullPath%>" type="image/jpeg"> 
+                                    <img src="<%=HREF.DomainStore + Company.Image.FullPath%>" alt="<%=Company.FullName %>" style="max-height:50px"/>
+                                </picture> 
+                           </a>
+                               <%} %>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               <div class="col-lg-10 col-md-10 col-sm-9">
+                  <nav class="navigation navbar navbar-expand-md navbar-dark ">
+                     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample04" aria-controls="navbarsExample04" aria-expanded="false" aria-label="Toggle navigation">
+                     <span class="navbar-toggler-icon"></span>
+                     </button>
+                     <div class="collapse navbar-collapse" id="navbarsExample04">
+                        <ul class="navbar-nav mr-auto">
+                           <li id="mnuhome" class="nav-item">
+                                <a class="nav-link" href="/">Trang chủ</a>
+                            </li>
+                            <%foreach (var item in this.Menu)
+					        {%> 
+                                <li class="nav-item">
+                                <%if(item.Children != null && item.Children.Count > 0) {%>
+                                    <%foreach (var child in item.Children)
+						            {%>
+                                        <a id="mnu<%=item.Component %>" class="nav-link" href="<%=child.Url%>"><%=child.Title%></a>
+						            <%} %>
+                                <%} else { %>
+                                <a id="mnu<%=item.Component %>" class="nav-link" href="<%=item.Url%>"><%=item.Title%></a>
+                                <%} %> 
+                                </li>
+					        <%} %>
+                            <li id="mnucontact" class="nav-item">
+                                <a class="nav-link" href="<%=HREF.LinkComponent("Contact", "lien-he", true) %>">Liên hệ</a>
+                            </li>
+                            <li id="mnucart"  class="nav-item">
+                                <a class="nav-link" href="<%=HREF.LinkComponent("Cart", "don-hang", true) %>"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a>
+                            </li>
+                        </ul>
+                     </div>
+                  </nav>
+               </div>
+            </div>
+         </div>
+      </div>
+      <!-- end header inner -->
+      <!-- end header -->
+        
+
+        <asp:ContentPlaceHolder ID="MainContent" runat="server"></asp:ContentPlaceHolder>
+
+
+        <!--  footer -->
+        <footer>
+            <div class="footer">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-3 col-md-6">
+                        <a class="logo_footer" href="/">
+                            <picture>
+				                <source srcset="<%=HREF.DomainStore + Company.Image.FullPath%>.webp" type="image/webp">
+				                <source srcset="<%=HREF.DomainStore + Company.Image.FullPath%>" type="image/jpeg"> 
+                                <img src="<%=HREF.DomainStore + Company.Image.FullPath%>" alt="<%=Company.FullName %>"/>
+                            </picture> 
+                        </a>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="headimg_fooh3">
+                        <h3><%=Company.DisplayName %></h3>
+                        <p><%=Company.Brief %></p>
+                        </div>
+                    </div>
+                    <VIT:Position runat="server" ID="psFooter"></VIT:Position>
+                  
+                </div>
+            </div>
+            <div class="copyright">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-12">
+                        <p>
+                        &copy; <span id="displayYear"></span> bản quyền thuộc về
+                        <a href="/"><%=Company.FullName %></a> - Phát triển bởi <a target="_blank" href="<%=SettingsManager.AppSettings.DomainPublic %>" class="link"><%=SettingsManager.AppSettings.Copyright %></a>
+                        </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </footer>
+
+        <!-- end footer -->
+        <!-- Javascript files-->
+        
+        <script src="/Templates/T16/js/bootstrap.bundle.min.js"></script>
+        <script src="/Templates/T16/js/jquery-3.0.0.min.js"></script>
+        <script src="/Templates/T16/js/jquery.nice-select.min.js"></script>
+        <!-- sidebar -->
+        <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+        <script src="/Templates/T16/js/owl.carousel.min.js"></script>
+        <script src="/Templates/T16/js/custom.js"></script>
+        <script>  AOS.init();</script>
+    </VIT:Form>
+</body>
+</html>

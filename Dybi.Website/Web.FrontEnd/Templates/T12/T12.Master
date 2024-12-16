@@ -1,0 +1,258 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" Inherits="Web.Asp.UI.VITTemplate" %>
+
+<%@ Import Namespace="Library" %>
+<%@ Import Namespace="Library.Web" %>
+<%@ Import Namespace="Web.Asp.Provider" %>
+<%@ Register Assembly="Web.Asp" Namespace="Web.Asp.Controls" TagPrefix="VIT" %>
+<!DOCTYPE html>
+<html lang="<%=Config.Language %>">
+<head runat="server">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    
+    <link rel="stylesheet" href="/Templates/T12/css/grid.css">
+    <link rel="stylesheet" href="/Templates/T12/css/style.css">
+    <link rel="stylesheet" href="/Templates/T12/css/camera.css">
+    <link rel="stylesheet" href="/Templates/T12/css/subscribe-form.css">
+
+    <script src="/Templates/T12/js/jquery.js"></script>
+    <script src="/Templates/T12/js/jquery-migrate-1.2.1.js"></script>
+
+    <!--[if lt IE 9]>
+    <html class="lt-ie9">
+    <div style=' clear: both; text-align:center; position: relative;'>
+        <a href="https://windows.microsoft.com/en-US/internet-explorer/..">
+            <img src="images/ie8-panel/warning_bar_0000_us.jpg" border="0" height="42" width="820"
+                 alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today."/>
+        </a>
+    </div>
+    <script src="js/html5shiv.js"></script>
+    <![endif]-->
+
+    <script src="/Templates/T12/js/device.min.js"></script>
+    <asp:ContentPlaceHolder ID="HeadContent" runat="server"></asp:ContentPlaceHolder>
+</head>
+
+<body class="subpage">
+<div class="page">
+    <!--========================================================
+                              HEADER
+    =========================================================-->
+    <header <%=HREF.CurrentComponent == "home" ? "" : "class='header__mod'"%>>
+        <VIT:Position runat="server" ID="psTop" SkinName="Empty"></VIT:Position>
+        <div id="stuck_container" class="stuck_container">
+            <div class="container">
+                <div class="brand">
+                    <h1 class="brand_name">
+                        <a href="/"><%=Company.Slogan %> <br> <%=Company.DisplayName %></a>
+                    </h1>
+                </div>
+
+                <nav class="nav">
+                    <ul class="sf-menu" data-type="navbar">
+                        <li id="mnuhome">
+                            <a href="/">Trang chủ</a>
+                        </li>
+                        <li id="mnuaboutus">
+                            <a href="<%=HREF.LinkComponent("AboutUs", "tieu-su-" + Company.DisplayName.ConvertToUnSign(), true) %>">Tiểu sử</a>
+                        </li>
+						<%foreach (var item in this.Menu)
+						{%>
+                        <li id="mnu<%= item.Component%>">
+                            <%if (item.Type == "Link")
+                            {%>
+                                <%if (!String.IsNullOrEmpty(item.Url)) {%>
+                                    <a href="<%=item.Url%>" class="sf-with-ul"><%=item.Title%></a>
+							    <%} else {%>
+                                    <a href="<%=HREF.LinkComponent(item.Component, item.Title.ConvertToUnSign(), true, "sMid", item.Id)%>" class="sf-with-ul"><%=item.Title%></a>
+                                <%} %>
+                            <%} else if (item.Type == "Article")
+							{%>
+                                <a href="<%=HREF.LinkComponent(item.Component, item.Title.ConvertToUnSign(), true, "sArt", item.Id)%>" class="sf-with-ul"><%=item.Title%></a>
+							<%} else if (item.Type == "Links")
+							{%>
+                                <%if (!String.IsNullOrEmpty(item.Url)) {%>
+                                    <a href="<%=item.Url%>" class="sf-with-ul"><%=item.Title%></a>
+							    <%} else {%>
+                                    <a href="<%=HREF.LinkComponent(item.Component, item.Title.ConvertToUnSign(), true, "sCat", item.Id)%>" class="sf-with-ul"><%=item.Title%></a>
+                                <%} %>
+							    <ul>
+								    <%foreach (var child in item.Children)
+								    {%>
+									    <li>
+                                            <%if (!String.IsNullOrEmpty(child.Url)){%>
+                                                <a href="<%=child.Url%>"><%=child.Title%></a>
+							                <%} else {%>
+                                                <a href="<%=HREF.LinkComponent(child.Component, child.Title.ConvertToUnSign(), true, "sMid", child.Id)%>"><%=child.Title%></a>
+                                            <%} %>
+									    </li>
+								    <%} %>
+							    </ul>
+							<%} else if (item.Type == "Articles")
+							{%>
+                                <a href="<%=HREF.LinkComponent(item.Component, item.Title.ConvertToUnSign(), true, "sCat", item.Id)%>" class="sf-with-ul"><%=item.Title%></a>
+							    <ul>
+								    <%foreach (var child in item.Children)
+								    {%>
+									    <li>
+                                            <a href="<%=HREF.LinkComponent(child.Component, child.Title.ConvertToUnSign(), true, "sArt", child.Id)%>"><%=child.Title%></a>
+ 									    </li>
+								    <%} %>
+							    </ul>
+							<%} else if (item.Type == "Category")
+							{%>
+                                <a href="<%=HREF.LinkComponent(item.Component, item.Title.ConvertToUnSign(), true, "sCat", item.Id)%>" class="sf-with-ul"><%=item.Title%></a>
+							<%} else if (item.Type == "Categories")
+							{%>
+                                <%if(item.Children.Count > 0){ %>
+                                <a href="#"><%=item.Title%></a>
+                                <ul>
+								    <%foreach (var child in item.Children)
+								    {%>
+									    <li>
+                                            <a href="<%=HREF.LinkComponent(item.Component, child.Title.ConvertToUnSign(), true, "sCat", child.Id)%>"><%=child.Title%></a>
+									    </li>
+								    <%} %>
+							    </ul>
+                                <%} else { %>
+                                    <a href="<%=HREF.LinkComponent(item.Component, item.Title.ConvertToUnSign(), true, "sCat", item.Id)%>" class="sf-with-ul"><%=item.Title%></a>
+                                <%} %>
+							<%} %>
+                        </li>
+						<%} %>
+                        <li id="mnuaevent">
+                            <a href="<%=HREF.LinkComponent("Events", "su-kien", true) %>">Sự Kiện</a>
+                        </li>
+                        <li id="mnuacontact">
+                            <a href="<%=HREF.LinkComponent("Contact", "fans-" + Company.DisplayName.ConvertToUnSign(), true) %>">Fans club</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+		
+		
+		<div id="stuck_container" class="stuck_container isStuck" style="top: -69px; visibility: hidden; position: fixed; width: 100%; margin-top: 0px;">
+            <div class="container">
+                <div class="brand">
+                    <h1 class="brand_name">
+                        <a href="/"><%=Company.Slogan %> <br> <%=Company.DisplayName %></a>
+                    </h1>
+                </div>
+
+                <nav class="nav">
+                    <ul class="sf-menu" data-type="navbar">
+                        <li id="mmnuhome">
+                            <a href="/">Trang chủ</a>
+                        </li>
+                        <li id="mnuaboutus">
+                            <a href="<%=HREF.LinkComponent("AboutUs", "tieu-su-" + Company.DisplayName.ConvertToUnSign(), true) %>">Tiểu sử</a>
+                        </li>
+                        <%foreach (var item in this.Menu)
+						{%>
+                        <li id="mmnu<%= item.Component%>">
+                            <%if (item.Type == "Link")
+                            {%>
+                                <%if (!String.IsNullOrEmpty(item.Url)) {%>
+                                    <a href="<%=item.Url%>" class="sf-with-ul"><%=item.Title%></a>
+							    <%} else {%>
+                                    <a href="<%=HREF.LinkComponent(item.Component, item.Title.ConvertToUnSign(), true, "sMid", item.Id)%>" class="sf-with-ul"><%=item.Title%></a>
+                                <%} %>
+                            <%} else if (item.Type == "Article")
+							{%>
+                                <a href="<%=HREF.LinkComponent(item.Component, item.Title.ConvertToUnSign(), true, "sArt", item.Id)%>" class="sf-with-ul"><%=item.Title%></a>
+							<%} else if (item.Type == "Links")
+							{%>
+                                <%if (!String.IsNullOrEmpty(item.Url)) {%>
+                                    <a href="<%=item.Url%>" class="sf-with-ul"><%=item.Title%></a>
+							    <%} else {%>
+                                    <a href="<%=HREF.LinkComponent(item.Component, item.Title.ConvertToUnSign(), true, "sCat", item.Id)%>" class="sf-with-ul"><%=item.Title%></a>
+                                <%} %>
+							    <ul>
+								    <%foreach (var child in item.Children)
+								    {%>
+									    <li>
+                                            <%if (!String.IsNullOrEmpty(child.Url)){%>
+                                                <a href="<%=child.Url%>"><%=child.Title%></a>
+							                <%} else {%>
+                                                <a href="<%=HREF.LinkComponent(child.Component, child.Title.ConvertToUnSign(), true, "sMid", child.Id)%>"><%=child.Title%></a>
+                                            <%} %>
+									    </li>
+								    <%} %>
+							    </ul>
+							<%} else if (item.Type == "Articles")
+							{%>
+                                <a href="<%=HREF.LinkComponent(item.Component, item.Title, true, "sCat", item.Id)%>" class="sf-with-ul"><%=item.Title%></a>
+							    <ul>
+								    <%foreach (var child in item.Children)
+								    {%>
+									    <li>
+                                            <a href="<%=HREF.LinkComponent(child.Component, child.Title.ConvertToUnSign(), true, "sArt", child.Id)%>"><%=child.Title%></a>
+ 									    </li>
+								    <%} %>
+							    </ul>
+							<%} else if (item.Type == "Category")
+							{%>
+                                <a href="<%=HREF.LinkComponent(item.Component, item.Title.ConvertToUnSign(), true, "sCat", item.Id)%>" class="sf-with-ul"><%=item.Title%></a>
+							<%} else if (item.Type == "Categories")
+							{%>
+                                <a href="<%=HREF.LinkComponent(item.Component, item.Title.ConvertToUnSign(), true, "sCat", item.Id)%>" class="sf-with-ul"><%=item.Title%></a>
+                                <ul>
+								    <%foreach (var child in item.Children)
+								    {%>
+									    <li>
+                                            <a href="<%=HREF.LinkComponent("album", child.Title.ConvertToUnSign(), true, "sCat", child.Id)%>"><%=child.Title%></a>
+									    </li>
+								    <%} %>
+							    </ul>
+							<%} %>
+                        </li>
+						<%} %>
+                        <li id="mmnuaevent">
+                            <a href="<%=HREF.LinkComponent("Events", "su-kien", true) %>">Sự Kiện</a>
+                        </li>
+                        <li id="mmnuacontact">
+                            <a href="<%=HREF.LinkComponent("Contact", "fans-" + Company.DisplayName.ConvertToUnSign(), true) %>">Fans club</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+    <!--========================================================
+                              CONTENT
+    =========================================================-->
+    <main>
+        <asp:ContentPlaceHolder ID="MainContent" runat="server"></asp:ContentPlaceHolder>
+    </main>
+
+    <!--========================================================
+                              FOOTER
+    =========================================================-->
+    <footer class="wow fadeInUp">
+
+        <div class="container">
+
+            <div class="brand">
+                <h1 class="brand_name">
+                    <a href="/"><%=Company.Slogan %> <br> <%=Company.DisplayName %></a>
+                </h1>
+                    <span class="brand_slogan">
+                    </span>
+                    <p class="copyright">© <span id="copyright-year">2022</span> |
+                    <a href="/">khánh-tâm.vn</a></p><p>
+            </p></div>
+
+            <VIT:Position runat="server" ID="psBottom" SkinName="Empty"></VIT:Position>  
+
+            <!-- {%FOOTER_LINK} -->
+        </div>
+    </footer>
+
+</div>
+
+<script src="/Templates/T12/js/script.js"></script>
+</body>
+</html>

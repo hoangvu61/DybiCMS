@@ -1,0 +1,46 @@
+
+.newpub-discount-code-merchant-filter-box {
+	display: flex;
+	overflow: auto;
+    margin-bottom:5px
+}
+.newpub-discount-code-merchant-select-all {
+	background-color: rgb(246, 246, 246);
+	width: 150px;
+	flex: 0 0 150px;
+	line-height: 80px;
+	text-align: center;
+}
+.newpub-discount-code-merchant-select-all:hover {
+	cursor: pointer;
+	background-color: rgb(230, 230, 230);
+}
+.newpub-discount-code-merchant-select-all span {
+	font-weight: 600;
+	color: #000;
+}
+.newpub-discount-code-merchant-box {
+	flex: 100%;
+	display: flex;
+	justify-content: center;
+}
+.newpub-discount-code-merchant-item {
+	align-self: center;
+	height: 80px;
+	padding: 20px;
+	filter: grayscale(1);
+}
+.filter-merchant-active {
+	filter: grayscale(0);
+}
+.newpub-discount-code-merchant-item img {
+	height: 100%;
+}
+.newpub-discount-code-merchant-item:hover {
+	background-color: rgb(246, 246, 246);
+	cursor: pointer;
+}
+.newpub-discount-code-merchant-right-empty {
+	width: 150px;
+	flex: 0 0 150px;
+}

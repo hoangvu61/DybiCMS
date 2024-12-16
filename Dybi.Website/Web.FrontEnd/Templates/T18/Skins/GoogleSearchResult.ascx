@@ -1,0 +1,6 @@
+﻿<%@ Control Language="C#" AutoEventWireup="true" CodeBehind="../../../Modules/GoogleSearchResult.ascx.cs" Inherits="Web.FrontEnd.Modules.GoogleSearchResult" %>
+
+<div class="container">
+    <script async src="https://cse.google.com/cse.js?cx=<%= Key %>"></script>
+    <div class="gcse-searchresults-only" data-queryParameterName="sq"></div>
+</div>

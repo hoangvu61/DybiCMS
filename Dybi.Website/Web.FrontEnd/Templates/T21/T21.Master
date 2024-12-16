@@ -1,0 +1,169 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" Inherits="Web.Asp.UI.VITTemplate" %>
+
+<%@ Import Namespace="Library" %>
+<%@ Import Namespace="Library.Web" %>
+<%@ Import Namespace="Web.Asp.Provider" %>
+<%@ Register Assembly="Web.Asp" Namespace="Web.Asp.Controls" TagPrefix="VIT" %>
+<!DOCTYPE html>
+<html lang="<%=Config.Language %>">
+<head runat="server">
+    <!-- Basic -->
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+    <!-- bootstrap core css -->
+    <link rel="stylesheet" type="text/css" href="/Templates/T21/css/bootstrap.min.css">
+    <!-- style css -->
+    <link rel="stylesheet" type="text/css" href="/Templates/T21/css/style.css">
+    <!-- Responsive-->
+    <link rel="stylesheet" href="/Templates/T21/css/responsive.css">
+    <!-- Scrollbar Custom CSS -->
+    <link rel="stylesheet" href="/Templates/T21/css/jquery.mCustomScrollbar.min.css">
+    <!-- Tweaks for older IEs-->
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css">
+    <!-- owl stylesheets --> 
+    <link rel="stylesheet" href="/Templates/T21/css/owl.carousel.min.css">
+    <link rel="stylesheet" href="/Templates/T21/css/owl.theme.default.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/jquery.fancybox.min.css" media="screen">
+
+    <asp:ContentPlaceHolder ID="HeadContent" runat="server"></asp:ContentPlaceHolder>
+</head>
+
+<body>
+    <VIT:Form ID="frmMain" runat="server">
+        <%if(Config.FontSize > 0){%>
+        <style>
+            .landing_text {font-size: <%= Config.FontSize%>px;}
+            .interios_text {font-size: <%= Config.FontSize + 10%>px;}
+        </style>
+        <%} %>
+        <%if(!string.IsNullOrEmpty(Config.Background)){%>
+        <style>
+            .header_section, .contact_section, .main_bt{background:<%= Config.Background%>}
+        </style>
+        <%} %>
+        <%if(!string.IsNullOrEmpty(Config.FontColor)){%>
+        <style>
+            .menu_text li, .menu_text li a, .landing_text, .interios_text, .lorem_text, .header_section, .contact_section, .main_bt {color: <%= Config.FontColor%>;}
+        </style>
+        <%} %> 
+
+        <!-- section header start -->
+        <div class="header_section">
+    	    <div class="container-fluid">
+    		    <div class="row">
+    			    <div class="col-md-5">
+    				    <div class="logo">
+                            <%if(Company.Image != null){ %>
+                            <a href="/">
+                                    <picture>
+				                        <source srcset="<%=HREF.DomainStore + Company.Image.FullPath%>.webp" type="image/webp">
+				                        <source srcset="<%=HREF.DomainStore + Company.Image.FullPath%>" type="image/jpeg"> 
+                                        <img src="<%=HREF.DomainStore + Company.Image.FullPath%>" alt="<%=Company.FullName %>" style="max-height:90px"/>
+                                    </picture> 
+                            </a>
+                            <%} %>
+                        </div>
+    			    </div>
+    			    <div class="col-md-7">
+    				    <div class="menu_text">
+    					    <ul>
+    						    <li><strong>Call</strong>: <a href="tel:<%=Company.Branches[0].Phone %>"> <%=Company.Branches[0].Phone %></a></li>
+    						    <li><strong>Email</strong>: <a href="mailto:<%=Company.Branches[0].Email %>"><span class="demo"><%=Company.Branches[0].Email %></span></a></li>
+    					        <%foreach(var branch in Company.Branches){ %>
+                                <li><strong><%=branch.Name %></strong>: <%=branch.Address %></li>
+                                <%} %>
+                            </ul>
+    				    </div>
+    			    </div>
+    		    </div>
+    	    </div>
+    	    <div class="container">
+                <div class="banner_section layout_padding">
+    	            <div class="row">
+    		            <div class="col-md-6">
+    			            <h2 class="landing_text"><%=Company.DisplayName %></h2>
+    			            <h1 class="interios_text"><%=Company.FullName %></h1>
+    			            <p class="lorem_text"><%=Company.Brief.Replace("\n","<br />") %></p>
+    		            </div>
+    		            <div class="col-md-6">
+    			            <div class="images_1">
+                            <%if(Config.WebImage != null){ %>
+                            <picture>
+				                <source srcset="<%=HREF.DomainStore + Config.WebImage.FullPath%>.webp" type="image/webp">
+				                <source srcset="<%=HREF.DomainStore + Config.WebImage.FullPath%>" type="image/jpeg"> 
+                                <img src="<%=HREF.DomainStore + Config.WebImage.FullPath%>" alt="<%=Company.FullName %>"/>
+                            </picture>
+                            <%} %>
+    			            </div>
+    		            </div>
+    	            </div>
+                </div>
+            </div>
+        </div>
+        <!-- section header end -->
+
+        <asp:ContentPlaceHolder ID="MainContent" runat="server"></asp:ContentPlaceHolder>
+
+        <VIT:Position runat="server" ID="psBottom"></VIT:Position>
+       
+        <!--copyright section end -->
+	    <div class="copyright">
+		    <div class="container">
+			    <p class="copyright_text">
+                    &copy; <span id="displayYear"><%=Company.CreateDate.Year %></span> bản quyền thuộc về
+                    <a href="/"><%=Company.FullName %></a> - Phát triển bởi <a target="_blank" href="<%=SettingsManager.AppSettings.DomainPublic %>" class="link"><%=SettingsManager.AppSettings.Copyright %></a>
+                </p>
+		    </div>
+	    </div>
+        <!--copyright section end -->
+
+        <!-- Javascript files-->
+        <script src="/Templates/T21/js/jquery.min.js"></script>
+        <script src="/Templates/T21/js/popper.min.js"></script>
+        <script src="/Templates/T21/js/bootstrap.bundle.min.js"></script>
+        <script src="/Templates/T21/js/jquery-3.0.0.min.js"></script>
+        <script src="/Templates/T21/js/plugin.js"></script>
+        <!-- sidebar -->
+        <script src="/Templates/T21/js/jquery.mCustomScrollbar.concat.min.js"></script>
+        <script src="/Templates/T21/js/custom.js"></script>
+        <!-- javascript --> 
+        <script src="/Templates/T21/js/owl.carousel.js"></script>
+        <script src="https:cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/jquery.fancybox.min.js"></script>
+        <script>
+        $(document).ready(function(){
+        $(".fancybox").fancybox({
+            openEffect: "none",
+            closeEffect: "none"
+            });
+         
+            $(".zoom").hover(function(){
+         
+            $(this).addClass('transition');
+            }, function(){
+         
+            $(this).removeClass('transition');
+            });
+            });
+        </script> 
+
+        <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "LocalBusiness",
+            "address": "<%=Company.Branches[0].Address %>",
+            "description": "<%=Company.Brief %>",
+            "name": "<%=Company.FullName %>",
+            "telephone": "<%=Company.Branches[0].Phone %>",
+            "image": [
+                    "<%=HREF.DomainStore + Company.Image.FullPath%>",
+                    "<%=HREF.DomainStore + Config.WebImage.FullPath%>",
+                    "<%=HREF.DomainStore + Config.WebIcon.FullPath%>"
+                    ]
+        }
+        </script>
+    </VIT:Form>
+</body>
+</html>

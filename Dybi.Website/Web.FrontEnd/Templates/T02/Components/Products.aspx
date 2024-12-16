@@ -1,0 +1,13 @@
+﻿<%@ Page Language="C#" Inherits="Web.Asp.UI.VITComponent" %>
+<%@ Register Assembly="Web.Asp" Namespace="Web.Asp.Controls" TagPrefix="VIT" %>
+<asp:Content ID="HeadContent" ContentPlaceHolderID="HeadContent" runat="server">
+    <script>
+        $(document).ready(function () {
+            $(".mnuProducts").addClass("active");
+        });
+    </script>
+    <VIT:Position runat="server" ID="HeaderBottom"></VIT:Position>
+</asp:Content>
+<asp:Content ID="MainContent" ContentPlaceHolderID="MainContent" runat="server">
+    <VIT:Position runat="server" ID="psContent"></VIT:Position>
+</asp:Content>

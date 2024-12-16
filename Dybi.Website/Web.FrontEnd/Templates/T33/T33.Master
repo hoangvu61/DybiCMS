@@ -1,0 +1,204 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" Inherits="Web.Asp.UI.VITTemplate" %>
+<%@ Register Assembly="Web.Asp" Namespace="Web.Asp.Controls" TagPrefix="VIT" %>
+<%@ Import Namespace="Library"%>
+<%@ Import Namespace="Library.Web"%>
+<%@ Import Namespace="Web.Asp.Provider" %>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="<%=Config.Language %>">
+<head runat="server">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+    <link href="/Templates/T33/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="/Templates/T33/css/manual.css" rel="stylesheet">
+    <!-- font awesome style -->
+    <link href="/Templates/T33/css/font-awesome.min.css" rel="stylesheet" />
+
+    <!-- Include jQuery (Lightbox Requirement) -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+
+    <script src="/Templates/T33/js/bootstrap.bundle.min.js"></script>
+    <asp:ContentPlaceHolder ID="HeadContent" runat="server"></asp:ContentPlaceHolder>
+</head>
+<body>
+        <%if(!string.IsNullOrEmpty(Config.Background)){%>
+        <style>
+            .bg-body-tertiary {background-color:<%= Config.Background%>85 !important}
+            .bg-body-tertiary .dropdown-menu, .dropdown-menu .dropdown-item:hover, .dropdown-menu .dropdown-item:active, .form-inline{background-color:<%= Config.Background%> !important; opacity:0.8}
+            .navbar-toggler, .blogs_section .box .img-box .blog_date{background-color:<%= Config.Background%> !important}
+        </style>
+        <%} %>
+        <%if(!string.IsNullOrEmpty(Config.FontColor)){%>
+        <style>
+           .navbar li .nav-link,.dropdown-menu .dropdown-item{color:<%= Config.FontColor%>cc}
+           .navbar li .nav-link:hover,.navbar li .nav-link:active,.navbar-nav .nav-link.active, .navbar-nav .nav-link.show,
+           .dropdown-menu .dropdown-item:hover,.dropdown-menu .dropdown-item:active, .language_box a{color:<%= Config.FontColor%> !important}
+        </style>
+        <%} %>
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-expand-lg bg-body-tertiary navbar-fixed-top">
+        <div class="container-fluid">
+            <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-expanded="false" aria-controls="navbarSupportedContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <a class="navbar-brand" href="/" title="<%=this.Company.FullName %>">
+                <img src="<%=HREF.DomainStore + this.Company.Image.FullPath %>" alt="<%=this.Company.FullName %>" style="height:84px;margin-right:10px"/>
+            </a>
+            <%if(Language.Languages.Count > 1){ %>
+            <div class="language_box">
+                <%for(int i = 0; i < Language.Languages.Count; i++) {%>
+                    <%if(i > 0){ %> | <%} %>
+                    <a href="<%=HREF.ChangeLanguageLink(Language.Languages[i]) %>" class="<%= Language.Languages[i] == Language.LanguageId ? "active" : ""%>""><%=Language.Languages[i].ToUpper()%></a>
+                <%} %>
+            </div>
+            <%} %>
+        <div id="navbarSupportedContent" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+            <li id="mnuhome" class="nav-item">
+                <a class="nav-link" href="/"><%=Language["Home"] %></a>
+            </li>
+                
+                <%foreach (var item in this.Menu)
+			    {%>
+                    <%if(item.Children != null && item.Children.Count > 0) {%>
+                    <li id="mnu<%=item.Type %>" class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <%=item.Title%>
+                        </a>
+                        <div class="dropdown-menu">
+                        <%foreach (var child in item.Children)
+					    {%>
+                            <a class="dropdown-item" href="<%=child.Url%>"><%=child.Title%></a>
+					    <%} %>
+                        </div>
+                    </li>
+                    <%} else { %>
+                    <li id="mnu<%=item.Type %>" class="nav-item">
+                        <a class="nav-link" href="<%=item.Url%>"><%=item.Title%></a>
+                    </li>
+                    <%} %> 
+			    <%} %>
+                <li id="mnuaboutus" class="nav-item">
+                    <a class="nav-link" href="<%=HREF.LinkComponent("AboutUs", Language["AboutUs"].ConvertToUnSign(), true) %>"><%=Language["AboutUs"] %></a>
+                </li>
+                <li id="mnucontact" class="nav-item">
+                    <a class="nav-link" href="<%=HREF.LinkComponent("Contact", Language["Contact"].ConvertToUnSign(), true) %>"><%=Language["Contact"] %></a>
+                </li>
+                <li id="mnusearch" class="nav-item">
+                    <a class="nav-link" style="padding-top:12px">
+                        <i class="fa fa-search"></i>
+                    </a>
+                    <VIT:Position runat="server" ID="psTop"></VIT:Position>
+                </li>
+            </ul>
+            <ul class="navbar-nav navbar-right mobi-languages">
+                <%foreach(var language in Language.Languages) {%>
+                <li class="nav-item">
+                    <a href="<%=HREF.ChangeLanguageLink(language) %>" class="nav-link <%= language == Language.LanguageId ? "active" : ""%>""><%=Language[language] %></a>
+                </li>
+                <%} %>
+            </ul>
+        </div><!--/.nav-collapse -->
+        </div>
+    </nav>
+    
+    <asp:ContentPlaceHolder ID="MainContent" runat="server"></asp:ContentPlaceHolder>
+
+
+        <!--==============================footer=================================-->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 col-md-6" style="text-align:justify">
+                    <h3><%=Language["WhyChoose"] %> <%=Company.DisplayName %>?</h3>
+                    <%=Company.Brief.Replace("\n","<br />") %>
+                </div>
+                <div class="col-12 col-md-6">
+                    <h3><%=Language["Contact"] %></h3>
+                    <div>
+                        <i class="bluec fa fa-map-marker"></i> <%=Company.Branches[0].Address %>
+                    </div>
+                    <div>
+                        <a href="tel:<%=Company.Branches[0].Phone %>">
+                            <i class="fa fa-phone"></i> <%=Company.Branches[0].Phone %>
+                        </a>
+                    </div>
+                    <div>
+                        <a href="mailto:<%=Company.Branches[0].Email %>">
+                            <i class="fa fa-envelope" aria-hidden="true"></i>
+                            <%=Company.Branches[0].Email %>
+                        </a>
+                    </div>
+                    <hr />
+                    <p>
+                        <%=Language["CopyrightMessage"] %>
+                    </p>
+                    <hr />
+                    <div class="row">
+                        <div class="col-12 col-md-6">
+                            <VIT:Position runat="server" ID="psFooter1" SkinName="Empty"></VIT:Position> 
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <VIT:Position runat="server" ID="psFooter2" SkinName="Empty"></VIT:Position> 
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </footer>
+    <footer class="footer2">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 col-md-6 order-md-2">
+                    <VIT:Position runat="server" ID="psFooter3" SkinName="Empty"></VIT:Position> 
+                </div>
+                <div class="col-12 col-md-6 order-md-1">
+                    © <%=String.Format("{0:yyyy}", Company.PublishDate)%> <a href="http://<%=HREF.Domain %>"><%=Company.FullName %></a> 
+                </div>
+            </div>
+            <div class="dybi">Develop by <a target="_blank" href="<%=SettingsManager.AppSettings.DomainPublic %>" class="link"><%=SettingsManager.AppSettings.Copyright %></a></div>
+        </div>
+    </footer>
+
+        <script src="/Templates/T33/js/jquery-lightbox/scripts/jquery.lightbox.js"></script> 
+        <script>
+            $('.fa-search').click(function () {
+               $('.form-inline').toggle()
+            });
+        </script>
+        <script>
+            $(document).ready(function () {
+                $(window).scroll(function () {
+                    var w_scroll = $(window).scrollTop();
+                    if (w_scroll == 0)
+                    {
+                        $('.navbar').show();
+                        $('.navbar .navbar-brand img').height("84px");
+                        $('.navbar').css("position", "inherit");
+                        $('.dropdown-menu[data-bs-popper]').css("margin-top", "33px");
+                    }
+                    if (w_scroll > 100 && w_scroll<120)
+                    {
+                        $('.navbar').hide();
+                    }
+                    if (w_scroll > 120) {
+                        $('.navbar .navbar-brand img').height("54px");
+                        $('.dropdown-menu[data-bs-popper]').css("margin-top", "18px");
+                        $('.navbar').css("position", "fixed");
+                        $('.navbar').slideDown("slow");
+                    }
+                });
+
+                $('.navbar-toggler').click(function () {
+                    if ($('#navbar').hasClass('show')) {
+                        $('#navbar').removeClass('show');
+                    }
+                });
+            });
+        </script>
+</body>
+</html>

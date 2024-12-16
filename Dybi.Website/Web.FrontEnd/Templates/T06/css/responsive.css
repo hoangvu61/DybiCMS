@@ -1,0 +1,545 @@
+/* -- Responsive code -- */
+
+@media screen and (max-width: 1080px) {
+    .portfolio-area li {
+        width: 278px;
+    }
+}
+
+@media screen and (max-width: 991px) {
+    .navbar-light {
+        z-index: 1;
+        top: -115px;
+    }
+
+    .navbar-toggler {
+        background-color: rgba(255, 255, 255, 0.5);
+        border: 1px solid transparent;
+    }
+
+    .portfolio-categ li {
+        padding: 10px 12px;
+        margin: 0 0.2em;
+    }
+
+    .portfolio-area li {
+        width: 198px;
+    }
+
+    .brands-w3ls ul li {
+        margin: 0 1em;
+    }
+
+    .contact-bottom {
+        padding: 1rem;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .portfolio-categ li {
+        padding: 10px 7px;
+    }
+}
+
+@media screen and (max-width: 568px) {
+    .portfolio-area li {
+        width: 228px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .portfolio-area li {
+        width: 184px;
+    }
+
+    .portfolio-categ li a {
+        font-size: 0.9em;
+    }
+
+    .portfolio-categ li {
+        padding: 7px;
+    }
+}
+
+@media screen and (max-width: 414px) {
+    .portfolio-area li {
+        width: 151px;
+    }
+}
+
+@media screen and (max-width: 384px) {
+    .portfolio-area li {
+        width: 152px;
+        margin: 0.5em;
+    }
+}
+
+@media screen and (max-width: 375px) {
+    .portfolio-area li {
+        width: 148px;
+    }
+}
+
+@media screen and (max-width: 320px) {
+    .portfolio-categ li {
+        margin: 0;
+    }
+
+    .portfolio-area li {
+        width: 120px;
+    }
+}
+
+/* -- //Responsive code -- */
+
+/* -- Responsive code -- */
+
+@media screen and (max-width: 1920px) {
+    .banner-main:before {
+        left: 634px;
+    }
+}
+
+@media screen and (max-width: 1680px) {
+    .banner-main:before {
+        left: 554px;
+    }
+}
+
+@media screen and (max-width: 1600px) {
+    .banner-main:before {
+        left: 506px;
+    }
+}
+
+@media screen and (max-width: 1440px) {
+    .banner-main:before {
+        left: 474px;
+    }
+
+    .banner-text-w3ls {
+        margin: 1em 0 0;
+    }
+}
+
+@media screen and (max-width: 1366px) {
+    .banner-main:before {
+        left: 448px;
+    }
+
+    a.navbar-brand {
+        margin: 0.5em 0;
+    }
+
+    .slider-info h3 {
+        font-size: 1.8em;
+    }
+}
+
+@media screen and (max-width: 1280px) {
+    .header-left {
+        padding: 4em 0 0 1.5em;
+    }
+
+    .slider-info p {
+        font-size: 1em;
+    }
+}
+
+@media screen and (max-width: 1080px) {
+    .banner-text-w3ls p {
+        font-size: 1em;
+        width: 300px;
+    }
+
+    .banner-main:before {
+        left: 354px;
+    }
+
+    .banner-text {
+        padding: 36vw 0 7vw 22vw;
+    }
+
+    .header-left {
+        padding: 4em 0 2em 1.5em;
+    }
+
+    .fv3-contact p {
+        font-size: 17px;
+    }
+
+    .brands-w3ls ul li i {
+        font-size: 4em;
+    }
+
+    .contact-bottom {
+        padding: 3rem 1rem;
+    }
+}
+
+@media screen and (max-width: 1050px) {
+    .banner-main:before {
+        left: 344px;
+    }
+
+    .fv3-contact p {
+        font-size: 16px;
+    }
+
+    .footer-top p {
+        font-size: 1.1em;
+    }
+
+    h3.w3f_title {
+        font-size: 1.3em;
+        letter-spacing: 1px;
+    }
+
+    h4.w3l-sub {
+        font-size: 2em;
+    }
+}
+
+@media screen and (max-width: 1024px) {
+    .banner-main:before {
+        left: 336px;
+    }
+}
+
+@media screen and (max-width: 991px) {
+    .banner-text-w3ls p {
+        font-size: 1em;
+        width: 100%;
+    }
+
+    .banner-main:before {
+        display: none;
+    }
+
+    .header-left {
+        padding: 0em 1.5em 2em;
+        text-align: center;
+    }
+
+    ul.navbar-nav.ml-lg-auto.text-center {
+        background: #56ab2f;
+        background: -webkit-linear-gradient(to right, #a8e063, #56ab2f);
+        background: linear-gradient(to right, #a8e063, #56ab2f);
+    }
+
+    .navbar-light .navbar-nav .nav-link {
+        color: #000000;
+    }
+
+    .dropdown-menu {
+        text-align: center;
+    }
+
+    .newsright {
+        width: 70%;
+    }
+
+    .img-agile span {
+        width: 20%;
+    }
+
+    .feature-review p {
+        max-width: 100%;
+    }
+
+    .blog_more {
+        margin: auto;
+    }
+}
+
+@media screen and (max-width: 900px) {
+    .callbacks_tabs {
+        bottom: -50px;
+    }
+}
+
+@media screen and (max-width: 800px) {
+    h4.w3l-sub {
+        font-size: 1.8em;
+    }
+}
+
+@media screen and (max-width: 768px) {
+}
+
+@media screen and (max-width: 767px) {
+}
+
+@media screen and (max-width: 736px) {
+    .newsright {
+        width: 90%;
+    }
+
+    .agileits-services-grids p {
+        width: 100%;
+    }
+
+    .footerv2-w3ls.mt-3 h4 {
+        font-size: 1.2em;
+    }
+
+    .img-agile h6 {
+        font-size: 1.8em;
+    }
+
+    .blog_more {
+        margin: 1em auto 0;
+    }
+
+    .w3_testimonials_grid {
+        text-align: center;
+    }
+
+    .right-text-agiles p {
+        font-size: 1em;
+        padding: 1em;
+    }
+
+    .brands-w3ls ul li {
+        margin: 0 12px;
+    }
+
+        .brands-w3ls ul li i {
+            font-size: 3em;
+        }
+}
+
+@media screen and (max-width: 667px) {
+    .callbacks_tabs {
+        bottom: -40px;
+    }
+
+    h4.w3l-sub {
+        font-size: 1.5em;
+    }
+
+    .lead {
+        font-size: 1.2rem;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .banner-text {
+        padding: 25vw 0 7vw 22vw;
+    }
+}
+
+@media screen and (max-width: 568px) {
+    .banner-text {
+        padding: 25vw 0 7vw 16vw;
+    }
+
+    .feature-review p {
+        font-size: 1em;
+    }
+
+    .wthree-title p {
+        font-size: 1em;
+    }
+
+    .typo-wthree h5 {
+        font-size: 1em;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .slider-info h3 {
+        font-size: 1.5em;
+    }
+
+    .banner-text {
+        padding: 24vw 0 7vw 9vw;
+    }
+
+    .callbacks_tabs {
+        bottom: -34px;
+    }
+
+    .slider-info {
+        padding: 10px 20px;
+    }
+
+        .slider-info h3 {
+            font-size: 1.3em;
+        }
+
+    .logo-sign {
+        padding: 5px 10px;
+    }
+
+    .newsright input[type="submit"] {
+        padding: 0px 9px;
+        font-size: 14px;
+    }
+
+    .agileits-abt-grids span {
+        width: 55px;
+        height: 55px;
+        font-size: 1.2em;
+        line-height: 50px;
+    }
+
+    .wthree-title p {
+        letter-spacing: 0.5px;
+    }
+
+    .agileits-services-grids h4 {
+        font-size: 1.4em;
+    }
+
+    .right-text-agiles p {
+        padding: 1em 2em;
+    }
+
+    .brands-w3ls ul li i {
+        font-size: 2.2em;
+    }
+
+    p {
+        font-size: 1em;
+    }
+}
+
+@media screen and (max-width: 414px) {
+    .logo-sign.d-flex span {
+        font-size: 2em;
+    }
+
+    .logo-sign {
+        padding: 0px;
+    }
+
+    a.navbar-brand {
+        font-size: 1em;
+    }
+
+    .banner-text-w3ls h3 {
+        font-size: 1.5em;
+    }
+
+    .newsright {
+        width: 100%;
+    }
+
+    .blog_more {
+        font-size: 1em;
+    }
+
+    .brands-w3ls ul li {
+        display: block;
+        text-align: center;
+    }
+
+        .brands-w3ls ul li i {
+            font-size: 4em;
+        }
+}
+
+@media screen and (max-width: 384px) {
+    .banner-text {
+        padding: 24vw 0 9vw 4vw;
+    }
+
+    .newsright input[type="email"] {
+        width: 100%;
+    }
+
+    form.d-flex {
+        display: block !important;
+    }
+
+    .newsright input[type="submit"] {
+        width: 100%;
+        margin-left: 0;
+        padding: 11px 20px;
+    }
+
+    .lead {
+        font-size: 1rem;
+    }
+
+    .footer-top p {
+        font-size: 1em;
+    }
+}
+
+@media screen and (max-width: 375px) {
+    label.align-self-center {
+        font-size: 1.2em;
+    }
+
+    .newsright input[type="submit"] {
+        letter-spacing: 2px;
+        font-size: 13px;
+    }
+
+    h5.card-title a {
+        font-size: 0.9em;
+    }
+
+    .right-text-agiles p {
+        padding: 0 2em 1em;
+    }
+
+    .contact-top1 h5 {
+        font-size: 1.7em;
+    }
+}
+
+@media screen and (max-width: 320px) {
+    .slider-info h3 {
+        font-size: 1.2em;
+    }
+
+    .slider-info h3 {
+        font-size: 1.05em;
+    }
+
+    .callbacks_tabs a:after {
+        height: 10px;
+        width: 10px;
+    }
+
+    .footer-top h2 a {
+        font-size: 1.1em;
+    }
+
+    .footer-top p {
+        font-size: 1em;
+    }
+
+    .w3_testimonials_grid h5 {
+        margin-top: 10px;
+    }
+
+    .right-text-agiles p {
+        padding: 0 1em 1em;
+    }
+
+    .contact-right-w3ls span {
+        width: 30px;
+        height: 30px;
+        line-height: 30px;
+    }
+
+    .contact-bottom {
+        padding: 1rem;
+        text-align: center;
+    }
+
+    .fv3-contact p {
+        display: block;
+        margin: 10px 0 0;
+    }
+
+    h3.blog-title {
+        font-size: 19px;
+    }
+}
+
+/* -- //Responsive code -- */

@@ -1,0 +1,351 @@
+
+	.newpub-page-main-content-box {
+		display: block;
+	}
+	.list-event {
+		border-bottom: 1px solid #dddddd !important;
+		margin-top: 15px;
+		overflow-y: hidden;
+	}
+	.tb-coupoun tbody td {
+		color: black;
+		vertical-align: middle !important;
+		text-align: center;
+	}
+	.tb-coupoun tbody td.text-left {
+		text-align: left;
+	}
+	.tb-coupoun tbody td a {
+		color: black;
+	}
+	.dt-buttons {
+		text-align: right;
+	}
+	.btn-sm {
+		padding: 1px 3px;
+	}
+	table tr th {
+		text-align: center;
+		height: 50px;
+		line-height: 50px !important;
+		background-color: rgb(25, 55, 89);
+	}
+	table tr th:nth-child(1) {
+		width: 50px;
+	}
+	table tr th:nth-child(2) {
+		width: 160px;
+	}
+	table tr th:nth-child(4) {
+		width: 120px;
+	}
+	table tr th:nth-child(5) {
+		width: 140px;
+	}
+	table tr th:nth-child(6) {
+		width: 230px;
+	}
+	table .input-group {
+		margin-bottom: 0;
+	}
+	table button {
+		margin-bottom: 0 !important;
+		margin-right: 0 !important;
+		border-radius: 0 !important;
+	}
+	table input {
+		color: rgb(183, 183, 183) !important;
+	}
+	table tr td:nth-child(2) span:nth-child(2) {
+		background-color: rgb(249, 104, 62); color: #fff; padding: 5px;
+		position: relative;
+		text-transform: uppercase;
+	}
+	table tr td:nth-child(2) span:nth-child(1) {
+		border-top: 13px solid transparent;
+		border-bottom: 13px solid transparent;
+		border-right:8px solid rgb(249, 104, 62);
+		width: 0;
+		height: 0;
+		display: inline-block;
+		transform: translateY(8px);
+	}
+	table tr td:nth-child(2) span:nth-child(3) {
+		border-top: 13px solid transparent;
+		border-bottom: 13px solid transparent;
+		border-left:8px solid rgb(249, 104, 62);
+		width: 0;
+		height: 0;
+		display: inline-block;
+		transform: translateY(8px);
+	}
+	.export-file-button-row:hover {
+		background:  olivedrab !important;
+	}
+</style>
+<style>
+.newpub-nav-right-side {
+	align-self: center;
+}
+.noti-popup-box ::-webkit-scrollbar {
+	width: 8px;
+}
+.noti-popup-box ::-webkit-scrollbar-track {
+	background: #f1f1f1;
+}
+.noti-popup-box ::-webkit-scrollbar-thumb {
+	background: #888;
+}
+.noti-popup-box ::-webkit-scrollbar-thumb:hover {
+	background: #555;
+}
+/*===============================================*/
+.nav-left-side-550 {
+	display: none;
+}
+.am-avatar-550, .am-name-550 {
+	display: none;
+}
+.svg-path-withdraw {
+	animation-name:  infinitiColors;
+	animation-duration: 4s;
+	animation-iteration-count: infinite;
+}
+.svg-path-get-link {
+	animation-name:  infinitiColors;
+	animation-duration: 4s;
+	animation-iteration-count: infinite;
+	animation-delay: 1.3s;
+}
+.svg-path-use-guide {
+	animation-name:  infinitiColors;
+	animation-duration: 4s;
+	animation-iteration-count: infinite;
+	animation-delay: 2.6s;
+}
+@keyframes  infinitiColors {
+	0% {fill: rgb(172, 150, 58); color: rgb(172, 150, 58);}
+	14% {fill: #ff0000; color: #ff0000;}
+	28% {fill: rgb(189, 171, 20); color: rgb(189, 171, 20);}
+	42% {fill: rgb(44, 129, 96); color: rgb(44, 129, 96);}
+	57% {fill: rgb(99, 206, 196); color: rgb(99, 206, 196);}
+	71% {fill: rgb(179, 190, 194); color: rgb(179, 190, 194);}
+	85% {fill: #ee82ee; color: #ee82ee;}
+	100% {fill: rgb(172, 150, 58); color: rgb(172, 150, 58);}
+}
+
+@media (max-width: 1500px) {
+	.nav-guide-bar-item-text {
+		display: none;
+	}
+}
+@media (max-width: 1300px) and (min-width: 1100px) {
+	.nav-guide-bar-outer {
+		display: none
+	}
+}
+@media (max-width: 1180px) {
+	.am-avatar-550, .am-name-550 {
+		display: block !important;
+	}
+}
+@media (max-width: 1100px) {
+	.newpub-nav-left-side {
+		flex-direction: column;
+	}
+	.nav-guide-bar-item-text {
+		display: block;
+	}
+	.nav-guide-bar-outer {
+		padding: 10px 10px 0 !important;
+	}
+}
+@media (max-width: 550px) {
+	.nav-left-side-550 {
+		display: block;
+		width: 100%;
+	}
+	.am-info-550 {
+		margin: auto;
+	}
+	.am-avatar-550:hover {
+		cursor: pointer;
+	}
+	.nav-guide-bar-inner a {
+		flex:  0 0 calc(100% / 3);
+		max-width: calc(100% / 3);
+	}
+	.nav-guide-bar-item-inner {
+		display: block !important;
+		 text-align: center;
+	}
+}
+@media (max-width: 380px) {
+	.nav-show-drop span {
+		font-size: 12px;
+	}
+	.nav-show-drop i {
+		font-size: 10px;
+	}
+}
+/*.newpub-zalo-group-contact {
+	animation-name: zaloGroupAnimation;
+	animation-duration: 4s;
+	animation-timing-function: ease;
+	animation-iteration-count: infinite;
+
+	-webkit-animation-name: zaloGroupAnimation;
+	-webkit-animation-duration: 4s;
+	-webkit-animation-timing-function: ease;
+	-webkit-animation-iteration-count: infinite;
+}
+.newpub-zalo-group-contact:hover {
+	animation-play-state: paused;
+}
+.newpub-zalo-group-contact-inner:hover {
+	transform: scale(1.05);
+}*/
+@keyframes  zaloGroupAnimation {
+	0% { transform: rotateY(0deg); }
+	25% { transform: rotateY(180deg); }
+	50% { transform: rotateY(0deg); }
+	100% { transform: rotateY(0deg); }
+}
+@-webkit-keyframes zaloGroupAnimation {
+	0% { transform: rotateY(0deg); }
+	25% { transform: rotateY(180deg); }
+	50% { transform: rotateY(0deg); }
+	100% { transform: rotateY(0deg); }
+}
+.newpub-zalo-group-contact.zalo-group-hidden {
+	animation-name: zaloGroupHiddenAnimation;
+	animation-duration: 1s;
+	animation-timing-function: ease;
+	animation-fill-mode: forwards;
+
+	-webkit-animation-name: zaloGroupHiddenAnimation;
+	-webkit-animation-duration: 1s;
+	-webkit-animation-timing-function: ease;
+	-webkit-animation-fill-mode: forwards;
+}
+.zalo-group-hidden-button {
+    width: 20px;
+    height: 20px;
+    text-align: center;
+    border-radius: 50%;
+    line-height: 20px;
+}
+@keyframes  zaloGroupHiddenAnimation {
+	0% { bottom: -25px; }
+	100% { bottom: -200px; }
+}
+@-webkit-keyframes zaloGroupHiddenAnimation {
+	0% { bottom: -25px; }
+	100% { bottom: -200px; }
+}
+
+.li1_event {
+    display: inline-block;
+    width: 230px;
+    height: 42px;
+    background: url('https://adpia.vn/assets/images/month-event-menu.gif') center no-repeat;
+    background-size: contain;
+    position: relative;
+    margin-right: 10px;
+    z-index: 2;
+}
+.li1_event .a1_event {
+    display: inline-block;
+    margin-left: 115px;
+    padding-left: 6%;
+	padding-top: 1%;
+    border-left: 0.5px solid #fae7e3;
+    font-weight: bold;
+    height: 42px;
+    line-height: 42px;
+    text-decoration: unset;
+    color: #333;
+    text-transform: uppercase;
+	font-size: 15px;
+}
+.li1_event .a1_event:hover {
+    color: #eb4714 !important;
+}
+.li1_event .ul2_event {
+    position: absolute;
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    opacity: 0.1;
+    top: 150%;
+    margin: 0px;
+    padding: 0px;
+    visibility: hidden;
+    transition: all 0.3s ease-in-out;
+    background: white;
+    list-style: none;
+    border-radius: 10px;
+    box-shadow: 5px 5px 10px #ccc;
+}
+.li1_event .ul2_event .li2_event {
+    flex: 0 0 50%;
+    width: 50%;
+    height: 100%;
+    padding: 0.5rem 1rem;
+}
+.li1_event .ul2_event .li2_event .a2_event {
+    display: inline-block;
+    width: 100%;
+    font-weight: bold;
+    text-decoration: unset;
+    color: #333;
+    text-transform: uppercase;
+}
+.li1_event .ul2_event .li2_event .a2_event:hover {
+    color: #eb4714;
+}
+.li1_event .ul2_event .li2_event_old {
+    position: relative;
+}
+.li1_event .ul2_event .li2_event_old .ul3_event_old {
+    position: absolute;
+    display: flex;
+    flex-wrap: wrap;
+    width: 200%;
+    opacity: 0.1;
+    top: 40px;
+    left: -200%;
+    margin: 0px;
+    padding: 0px;
+    visibility: hidden;
+    transition: all 0.3s ease-in-out;
+    background: white;
+    list-style: none;
+    border-radius: 10px;
+    box-shadow: 5px 5px 10px #ccc;
+}
+.li1_event .ul2_event .li2_event_old .ul3_event_old .li3_event_old {
+    flex: 0 0 50%;
+    width: 50%;
+    height: 100%;
+    padding: 0.5rem 1rem;
+}
+.li1_event .ul2_event .li2_event_old .ul3_event_old .li3_event_old .a3_event_old {
+    display: inline-block;
+    width: 100%;
+    font-weight: bold;
+    text-decoration: unset;
+    color: #333;
+    text-transform: uppercase;
+}
+.li1_event .ul2_event .li2_event_old:hover .ul3_event_old {
+    left: 0;
+    opacity: 1;
+    visibility: visible;
+}
+.li1_event:hover .ul2_event {
+    top: 45px;
+    left: 0px;
+    opacity: 1;
+    visibility: visible;
+}

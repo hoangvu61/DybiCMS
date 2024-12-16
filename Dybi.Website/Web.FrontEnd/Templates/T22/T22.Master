@@ -1,0 +1,177 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" Inherits="Web.Asp.UI.VITTemplate" %>
+
+<%@ Import Namespace="Library" %>
+<%@ Import Namespace="Library.Web" %>
+<%@ Import Namespace="Web.Asp.Provider" %>
+<%@ Register Assembly="Web.Asp" Namespace="Web.Asp.Controls" TagPrefix="VIT" %>
+<!DOCTYPE html>
+<html lang="<%=Config.Language %>">
+<head runat="server">
+    <!-- Basic -->
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+    <!-- bootstrap core css -->
+    <!-- slider stylesheet -->
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.1.3/assets/owl.carousel.min.css"/>
+
+    <!-- bootstrap core css -->
+    <link rel="stylesheet" type="text/css" href="/Templates/T22/css/bootstrap.css" />
+
+    <!-- fonts style -->
+    <link href="https://fonts.googleapis.com/css?family=Raleway:400,700|Roboto:400,700&display=swap" rel="stylesheet" />
+    <!-- Custom styles for this template -->
+    <link href="/Templates/T22/css/style.css" rel="stylesheet" />
+    <!-- responsive style -->
+    <link href="/Templates/T22/css/responsive.css" rel="stylesheet" />
+
+    <asp:ContentPlaceHolder ID="HeadContent" runat="server"></asp:ContentPlaceHolder>
+</head>
+
+<body>
+        <div class="hero_area">
+        <!-- header section strats -->
+        <header class="header_section">
+        <div class="container-fluid">
+            <div class="row">
+            <div class="col-md-11 offset-md-1 px-0">
+                <nav class="navbar navbar-expand-lg custom_nav-container pt-3" >
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <a class="navbar-brand" href="/">
+                        <h1>
+                            <%=Company.FullName %>
+                        </h1>
+                    </a>
+                    <%if(Language.Languages.Count > 1){ %>
+                        <div class="language_box">
+                            <%foreach(var language in Language.Languages) {%>
+                                <a href="<%=HREF.ChangeLanguageLink(language) %>" class="<%= language == Language.LanguageId ? "active" : ""%>"">
+                                    <img src="/Includes/img/<%=Language[language] %>.png" alt="<%=Language[language] %>"/> 
+                                </a>
+                            <%} %>
+                        </div>
+                     <%} %>
+
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <div class="d-flex ml-auto flex-column flex-lg-row align-items-center">
+                    <ul class="navbar-nav  ">
+                        <li id="mnuhome" class="nav-item">
+                            <a class="nav-link" href="/"><%=Language["Home"] %></a>
+                        </li>
+                        <li id="mnuaboutus" class="nav-item">
+                            <a class="nav-link" href="#AboutUs"><%=Language["AboutUs"] %></a>
+                        </li>
+                        <li id="mnuaevent" class="nav-item">
+                            <a class="nav-link" href="#Event"><%=Language["Event"] %></a>
+                        </li>
+                        <%foreach (var item in this.Menu)
+					    {%> 
+                            <%if(item.Children != null && item.Children.Count > 0) {%>
+                                <%foreach (var child in item.Children)
+						        {%>
+                                <li class="nav-item">
+                                    <a id="mnu<%=item.Id %>" class="nav-link" href="<%=child.Url%>"><%=child.Title%></a>
+                                </li>
+						        <%} %>
+                            <%} else { %>
+                            <li class="nav-item">
+                                <a id="mnu<%=item.Component %>" class="nav-link" href="<%=item.Url%>"><%=item.Title%></a>
+                            </li>
+                            <%} %> 
+					    <%} %>
+                        <li id="mnucontact" class="nav-item">
+                            <a class="nav-link" href="#Contact"><%=Language["Contact"] %></a>
+                        </li>
+                    </ul>
+                        
+                    </div>
+                </div>
+                </nav>
+            </div>
+            </div>
+        </div>
+        </header>
+        <!-- end header section -->
+        
+        <%if(HREF.CurrentComponent == "home"){ %>
+        <!-- slider section -->
+        <div class="slider_section">
+        <div id="carouselExampleControls" class="carousel slide" data-ride="carousel">
+            <div class="carousel-inner"> 
+                <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-6 offset-lg-1">
+                    <div class="detail-box">
+                        <div class="heading_box">
+                            <h2>
+                                <%=Company.DisplayName%> 
+                            </h2>
+                            <h3>
+                                <%=Company.NickName%> 
+                            </h3>
+                        </div>
+                    </div>
+                    </div>
+                    <div class="col-lg-5 px-0">
+                    <div class="img-box">
+                        <%if(!string.IsNullOrEmpty(Config.WebImage.FileName)){ %>
+                            <picture>
+						        <source srcset="<%=HREF.DomainStore + Config.WebImage.FullPath%>.webp" type="image/webp">
+						        <source srcset="<%=HREF.DomainStore + Config.WebImage.FullPath%>" type="image/jpeg"> 
+                                <img src="<%=HREF.DomainStore + Config.WebImage.FullPath%>" alt="<%=Company.FullName %>"/>
+                            </picture>
+                        <%} %>
+                    </div>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </div>
+        </div>
+        <!-- end slider section -->
+        <%} %>
+        </div>
+        <!-- end hero area -->
+
+        <asp:ContentPlaceHolder ID="MainContent" runat="server"></asp:ContentPlaceHolder>
+        
+        <VIT:Position runat="server" ID="psBottom"></VIT:Position>
+
+        <!-- info section -->
+        <section class="info_section layout_padding-top layout_padding2-bottom">
+            <div class="container">
+            <VIT:Position runat="server" ID="psFooter"></VIT:Position>
+            </div>
+        </section>
+
+        <!-- end info_section -->
+
+        <!-- footer section -->
+        <section class="container-fluid footer_section">
+            <div class="container">
+            <p>
+                &copy; <%=Company.CreateDate.Year %> bản quyền thuộc về
+                <a href="/"><%=Company.FullName %></a> - Phát triển bởi <a target="_blank" href="<%=SettingsManager.AppSettings.DomainPublic %>" class="link"><%=SettingsManager.AppSettings.Copyright %></a>
+            </p>
+            </div>
+        </section>
+        <!-- footer section -->
+
+        <script  src="/Templates/T22/js/jquery-3.4.1.min.js"></script>
+        <script  src="/Templates/T22/js/bootstrap.js"></script>
+
+        <script>
+            function openNav() {
+            document.getElementById("myNav").style.width = "100%";
+            }
+
+            function closeNav() {
+            document.getElementById("myNav").style.width = "0%";
+            }
+        </script>
+</body>
+</html>

@@ -1,0 +1,260 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" Inherits="Web.Asp.UI.VITTemplate" %>
+<%@ Register Assembly="Web.Asp" Namespace="Web.Asp.Controls" TagPrefix="VIT" %>
+<%@ Import Namespace="Library"%>
+<%@ Import Namespace="Library.Web"%>
+<%@ Import Namespace="Web.Asp.Provider" %>
+
+<!DOCTYPE HTML>
+<html lang="<%=Config.Language %>">
+<head runat="server">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+     <!-- bootstrap core css -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <!-- font awesome style -->
+    <link href="/Templates/T01/css/font-awesome.min.css" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+
+    <!-- animate lib -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    
+    <!-- Custom styles for this template -->
+    <link href="/Templates/T01/css/t01.css" rel="stylesheet" />
+    <link href="/Templates/T01/css/manual.css" rel="stylesheet" />
+    <!-- responsive style -->
+    <link href="/Templates/T01/css/responsive.css" rel="stylesheet" />
+    <asp:ContentPlaceHolder ID="HeadContent" runat="server"></asp:ContentPlaceHolder>
+</head>
+<body <%=Config.FontSize > 0 ? "style='font-size:" + Config.FontSize + "px'" : "" %>>
+    <%if(!string.IsNullOrEmpty(Config.Background)){%>
+    <style>
+        .bg25, thead th{background-color:<%=Config.Background%>25}
+        .btn, .btn:visited, input[type=submit],.btn:hover, .btn:visited, input[type=submit]:hover, .section-services h2 a:hover{background-color:<%=Config.Background%> !important}
+        .copyright_section, .section-services .box h3,
+        .carousel-overlay h2 span,
+        .section-services h2, .breadcrumb a, .breadcrumb>.active,
+        .btn, .btn:visited, input[type=submit],
+        .footer_section, .footer_section .info label, .footer_section .info h6, .footer_section .info, .footer_section .info a,
+        .copyright_section, .copyright_section a, .section-services .category_brief{color:<%=Config.Background%> !important}
+    </style>
+    <%} %>
+    <%if(!string.IsNullOrEmpty(Config.FontColor)){%>
+    <style>
+        a:hover,.navbar .nav-item:hover span.nav-link, tbody th:hover,
+        .btn:hover, .btn:visited, input[type=submit]:hover,
+        .footer_section .info a:hover,.copyright_section a:hover, .h1 strong{color:<%=Config.FontColor%> !important}
+        .partners_section .article-item .article-image{border-color: <%=Config.FontColor%> } 
+        .dropdown-menu a:hover{border-bottom: <%=Config.FontColor%> 2px solid}
+        .btn, .btn:visited, input[type=submit], .section-services{background-color:<%=Config.FontColor%> !important}
+    </style>
+    <%} %>
+        
+    <!-- header section strats -->
+    <nav class="navbar navbar-expand-lg fixed-top custom_nav-container transparent">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <img src="<%=HREF.DomainStore + this.Company.Image.FullPath %>" alt="<%=this.Company.FullName %>" style="height:50px;margin-right:10px"/>
+            </a>
+
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class=""> </span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav">
+                    <li class="nav-item" id="mnuHome">
+                        <a class="nav-link" href="/" id="mnuHome"><%=Language["HomePage"]%></a>
+                    </li>
+                    <li class="nav-item" id="mnuAboutUs">
+                        <a class="nav-link" href="<%=HREF.LinkComponent("AboutUs", Company.DisplayName.ConvertToUnSign(), true) %>"><%=Language["AboutUs"]%></a>
+                    </li>
+                    <%var menus = JoinMenu(); %>
+                    <%foreach (var item in menus)
+			        {%>
+                        <%if(item.Children != null && item.Children.Count > 0) {%>
+                            <li id="mnu<%=item.Id %>" class="nav-item dropdown mnu<%=item.Type %>">
+                                <a class="nav-link dropdown-toggle" href="<%=item.Url%>" role="button"  aria-expanded="false">
+                                    <%=item.Title%>
+                                </a>
+                                <div class="dropdown-menu" id="dropdown<%=item.Id %>">
+                                    <div class="row">
+                                        <div class="col mx-auto" > 
+                                            <%foreach (var child in item.Children)
+					                        {%>
+                                                <%if(child.Children != null && child.Children.Count > 0) {%>
+                                                    <a class="dropdown-item dropdown-toggle" href="<%=child.Url%>" id="<%=child.Id%>">
+                                                        <%=child.Title%>
+                                                    </a>
+                                                <%}else {%>
+                                                    <a class="dropdown-item nosub" href="<%=child.Url%>">
+                                                        <%=child.Title%>
+                                                    </a>
+                                                <%} %>
+					                        <%} %>
+                                        </div>
+                                        <div class="col mx-auto submnu" style="display:none">
+                                            <%foreach (var child in item.Children.Where(e => e.Children != null && e.Children.Count > 0))
+					                        {%>
+                                                <div id="submnu<%=child.Id %>" style="display:none">
+                                                    <%foreach (var node in child.Children)
+			                                        {%>
+                                                        <a class="dropdown-item" href="<%=node.Url%>"><%=node.Title%></a>
+                                                    <%} %>
+                                                </div>
+                                            <%} %>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                        <%} else { %>
+                            <li id="mnu<%=item.Id %>" class="nav-item">
+                                <a class="nav-link" href="<%=item.Url%>"><%=item.Title%></a>
+                            </li>
+                        <%} %> 
+			        <%} %>
+                    <li class="nav-item" id="mnuContact"><a class="nav-link" href="<%=HREF.LinkComponent("Contact", "lien-he", true) %>"><%=Language["Contact"]%></a></li>
+                    <li id="mnuLanguages" class="nav-item dropdown">
+                        <img src="/Includes/img/<%=Config.Language %>.png" alt="<%=Language[Config.Language] %>"/>
+                        <div class="dropdown-menu" id="dropdownLanguages">
+                            <%foreach(var language in Language.Languages.Where(l => l != Config.Language)){%>
+                                <a class="dropdown-item" href="<%=HREF.ChangeLanguageLink(language) %>" title="<%=Language[language] %>">
+                                    <img src="/Includes/img/<%=language %>.png" alt="<%=Language[language] %>"/>
+                                </a>
+					        <%} %>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>      
+    <!-- end header section -->
+    <asp:ContentPlaceHolder ID="MainContent" runat="server"></asp:ContentPlaceHolder>
+
+    <!-- footer section start -->
+    <div class="footer_section">
+        <div class="container">
+            <div class="footer_background" style="position:absolute"></div>
+            <a class="logo" href="/">
+                <img src="<%=HREF.DomainStore + this.Company.Image.FullPath %>" alt="<%=this.Company.FullName %>" style="height:50px;margin-right:10px"/>
+            </a>
+            <h5 class="company"><%=Company.FullName %></h5>
+            <div style="clear:both"></div>
+            <hr />
+            <div class="row info">
+                <div class="col-12 col-lg-6 col-sm-6">
+                    <%foreach(var branch in Company.Branches){ %>
+                        <div>
+                            <label><%=branch.Name %>:</label> <%=branch.Address %>
+                        </div>
+                    <%} %>
+                    <div>
+                        <label>Email:</label>
+                        <a href="mailto:<%=Company.Branches[0].Email %>">
+                            <%=Company.Branches[0].Email %>
+                        </a>
+                    </div>
+                    <div>
+                        <label><%=Language["Phone"] %>:</label>
+                        <a href="mailto:<%=Company.Branches[0].Phone %>">
+                            <%=Company.Branches[0].Phone %>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-12 col-lg-6 col-sm-6">
+                    <div class="row">
+                        <div class="col">
+                            <VIT:Position runat="server" ID="psFooter1" SkinName="Empty"></VIT:Position>  
+                        </div>
+                        <div class="col">
+                            <VIT:Position runat="server" ID="psFooter2" SkinName="Empty"></VIT:Position> 
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+            <hr />
+            <div class="copyright_section">
+                <div class="container text-center">
+                    <div class="copyright_text">
+                        Ⓒ <%=Language["Copyright"] %> <%=Company.PublishDate == null ? Company.CreateDate.Year : Company.PublishDate.Value.Year %> <%=Language["belong"] %>
+                        <a href="/"><%=Company.FullName %></a>
+                        <%if (!string.IsNullOrEmpty(Company.TaxCode)) {  %>
+                            <br/><%=Language["TaxCode"] %>: <%= Company.TaxCode%> <%=Language["by"] %> <%= Company.TaxCodePlace%>
+                            <%if (Company.PublishDate != null)
+                            { %>
+                             <%=Language["DateOfIssue"] %> <%=Company.PublishDate.Value.ToString("dd/MM/yyyy") %>
+                            <%} %>
+                        <%} %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- footer section end -->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/wow/1.1.2/wow.min.js"></script>
+    <script>
+        new WOW().init();
+    </script>
+   
+    <script>
+        $(document).ready(function () {
+            $(window).scroll(function () {
+                var w_scroll = $(window).scrollTop();
+                if (w_scroll < 70)
+                {
+                    $('.navbar').css("background-color", '');
+                    $('.navbar').removeClass("scrollMenu");
+                    $('.navbar a.nav-link, .navbar span').css("color", '#fff');
+                }
+                if (w_scroll > 70)
+                {
+                    $('.navbar').css("background-color", '#353535');
+                    $('.navbar').addClass("scrollMenu");
+                    $('.navbar a.nav-link, .navbar span').css("color", '<%=Config.Background%>');
+                }
+            });
+
+            //$('.navbar-nav .mnuCategories,.navbar-nav .mnuArticles,.navbar-nav .mnulinks').mouseenter(function () {
+            //    $('.navbar').css("background-color", '#353535');
+            //    $('.navbar').css("height", '700px');
+            //});
+            //$('.navbar-nav .mnuCategories,.navbar-nav .mnuArticles,.navbar-nav .mnulinks').mouseleave(function () {
+            //    $('.navbar').css("height", '76px');
+            //});
+
+            $('.dropdown-menu .dropdown-toggle').mouseenter(function () {
+                $('a.dropdown-item').css("border-bottom", "").css("color", "#fff");
+                $('.dropdown-menu .submnu>div').css("display", "none");
+
+                $(this).css("border-bottom", "<%=Config.FontColor%> 2px solid").css("color", "<%=Config.FontColor%>");
+                $('.dropdown-menu .submnu').css("display", "block");
+                $('.dropdown-menu .submnu #submnu' + this.id).css("display", "block");
+            });
+
+            $('.dropdown').mouseenter(function () {
+                $('a.dropdown-item').css("border-bottom", "").css("color", "#fff");
+                $('.dropdown-menu .submnu').css("display", "none");
+            });
+            $('.dropdown-menu .nosub').mouseenter(function () {
+                $('a.dropdown-item').css("border-bottom", "").css("color", "#fff");
+                $('.dropdown-menu .submnu').css("display", "none");
+            });
+            $('.dropdown-menu .submnu').mouseleave(function () {
+                $('.dropdown-menu .submnu').css("display", "none");
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,155 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" Inherits="Web.Asp.UI.VITTemplate" %>
+<%@ Register Assembly="Web.Asp" Namespace="Web.Asp.Controls" TagPrefix="VIT" %>
+<%@ Import Namespace="Library.Web" %>
+<%@ Import Namespace="Web.Asp.Provider" %>
+
+<!DOCTYPE html>
+<html lang="<%=Config.Language %>">
+<head runat="server">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- bootstrap core css -->
+    <link rel="stylesheet" type="text/css" href="/Templates/T18/css/bootstrap.min.css" />
+
+    <!-- fonts style -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+    <!--owl slider stylesheet -->
+    <link rel="stylesheet" type="text/css" href="/Templates/T18/css/owl.carousel.min.css" />
+
+    <!-- font awesome style -->
+    <link href="/Templates/T18/css/font-awesome.min.css" rel="stylesheet" />
+
+    <!-- Custom styles for this template -->
+    <link href="/Templates/T18/css/style.css" rel="stylesheet" />
+    <!-- responsive style -->
+    <link href="/Templates/T18/css/responsive.css" rel="stylesheet" />
+    <!-- jQery -->
+    <!-- <script type="text/javascript" src="/Templates/T18/js/jquery-3.4.1.min.js"></script> -->
+    <script src="/Templates/T18/js/jquery-1.9.1.min.js"></script>
+    <!-- popper js -->
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <!-- bootstrap js -->
+    <script type="text/javascript" src="/Templates/T18/js/bootstrap.min.js"></script>
+    <asp:ContentPlaceHolder ID="HeadContent" runat="server"></asp:ContentPlaceHolder>
+</head>
+<body>
+    <%if(!string.IsNullOrEmpty(Config.Background)){%>
+    <style>
+    </style>
+    <%} %>
+    <%if(!string.IsNullOrEmpty(Config.FontColor)){%>
+    <style>
+    </style>
+    <%} %>
+
+    <header class="hero_area" style="background:url('/Templates/T18/images/hero-bg.png') top no-repeat; background-size: cover;">
+        <!-- header section strats -->
+        <div class="header_section">
+            <div class="container-fluid">
+                <nav class="navbar navbar-expand-lg custom_nav-container ">
+                    <a class="navbar-brand" href="/">
+                        <span>
+                            <%=Company.DisplayName %>
+                        </span>
+                    </a>
+
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class=""> </span>
+                    </button>
+
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        <ul class="navbar-nav">
+                            <li class="nav-item" id="mnuHome">
+                                <a class="nav-link" href="/" id="mnuHome">Trang chủ</a>
+                            </li>
+                            <li class="nav-item" id="mnuAboutUs">
+                                <a class="nav-link" href="<%=HREF.LinkComponent("AboutUs", "gioi-thieu", true) %>">Giới thiệu</a>
+                            </li>
+                            <%foreach (var item in this.Menu)
+			                {%>
+                                <%if(item.Children != null && item.Children.Count > 0) {%>
+                                <li id="mnu<%=item.Id %>" class="nav-item dropdown mnu<%=item.Component %>">
+                                    <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><%=item.Title %> <span class="caret"></span></a>
+                                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                    <%foreach (var child in item.Children)
+					                {%>
+                                        <a class="dropdown-item" href="<%=child.Url%>"><%=child.Title%></a>
+					                <%} %>
+                                    </div>
+                                </li>
+                                <%} else { %>
+                                <li class="nav-item" id="mnu<%=item.Id %>" class="mnu<%=item.Component %>">
+                                    <a class="nav-link" href="<%=item.Url%>"><%=item.Title%></a>
+                                </li>
+                                <%} %> 
+			                <%} %>
+                            <li class="nav-item" id="mnuContact"><a class="nav-link" href="<%=HREF.LinkComponent("Contact", "lien-he", true) %>">Liên hệ</a></li>
+                        </ul>
+                    </div>
+                </nav>
+            </div>
+        </div>
+        <!-- end header section -->
+
+        <%if(HREF.CurrentComponent == "home"){ %>
+            <VIT:Position runat="server" ID="psTop"></VIT:Position>
+        <%} %>
+    </header>
+
+    <main>
+        <asp:ContentPlaceHolder ID="MainContent" runat="server"></asp:ContentPlaceHolder>
+    </main>
+
+    <footer>
+        <!-- info section -->
+        <section class="info_section layout_padding2">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 info_col">
+                    <h4>
+                        <%=Company.Slogan %>
+                    </h4>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="info_contact">
+                                <a class="logo" href="/">
+                                    <img src="<%=HREF.DomainStore + this.Company.Image.FullPath %>.webp" alt="<%=this.Company.FullName %>"/>
+                                </a>
+                            </div>
+                            <VIT:Position runat="server" ID="psBottom1"></VIT:Position>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="info_detail">
+                            <p>
+                                <%=Company.Motto.Replace("\n","<br />") %>
+                            </p>
+                            </div>
+                            <VIT:Position runat="server" ID="psBottom2"></VIT:Position>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-3 mx-auto info_col">
+                    <VIT:Position runat="server" ID="psBottom3"></VIT:Position>
+                </div>
+                <div class="col-md-3 info_col ">
+                    <VIT:Position runat="server" ID="psBottom4"></VIT:Position>
+                </div>
+            </div>
+        </div>
+        </section>
+        <!-- end info section -->
+
+        <!-- footer section -->
+        <section class="footer_section">
+            <p class="copyright_text">&copy; <%=Company.CreateDate.Year %> Bản quyền thuộc về <a href="/"> <%=Company.FullName %></a></p>
+            <p class="dev_text"> Phát triển bởi <a target="_blank" href="<%=SettingsManager.AppSettings.DomainPublic %>" class="link"><%=SettingsManager.AppSettings.Copyright %></a></p>
+        </section>
+        <!-- footer section -->
+    </footer>
+</body>
+</html>

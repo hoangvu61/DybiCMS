@@ -1,0 +1,223 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" Inherits="Web.Asp.UI.VITTemplate"%>
+<%@ Register Assembly="Web.Asp" Namespace="Web.Asp.Controls" TagPrefix="VIT" %>
+<%@ Import Namespace="Library"%>
+<%@ Import Namespace="Library.Web"%>
+<%@ Import Namespace="Web.Asp.Provider" %>
+
+<!DOCTYPE html>
+
+<html lang="<%=Config.Language %>">
+<head runat="server">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="stylesheet" media="screen" type="text/css" href="/templates/t02/css/bootstrap.min.css">
+    <link rel="stylesheet" media="screen" type="text/css" href="/templates/t02/css/uikit.modify.css">
+    <link href="/Templates/T02/css/font-awesome.min.css" rel="stylesheet" />
+    <link rel="stylesheet" media="screen" type="text/css" href="/templates/t02/css/style.css">
+    <script src="/Templates/t02/js/jquery.min.js"></script>
+    <asp:ContentPlaceHolder ID="HeadContent" runat="server"></asp:ContentPlaceHolder>
+</head>
+<body>
+        <%if(HREF.CurrentComponent == "home"){ %>
+            <h1 style="position:absolute; top:-1000px;"><%=Company.FullName%></h1>
+            <h2 style="position:absolute; top:-1000px;"><%=Company.DisplayName%></h2>
+            <h2 style="position:absolute; top:-1000px;"><%=Company.JobTitle%></h2>
+        <%} %>
+
+        <header class="header">
+            <section class="topbar">
+	            <div class="uk-container-center">
+		            <div class="uk-flex-middle uk-flex-space-between container">
+			            <div class="contact">
+				            Điện thoại: <a href="tel:<%=this.Company.Branches[0].Phone %>" title="Điện thoại"><%=this.Company.Branches[0].Phone %></a> - Địa chỉ: <%=this.Company.Branches[0].Address %>
+			            </div>
+		            </div>
+	            </div>
+            </section><!-- .topbar -->
+            <section class="upper">
+	            <div class="container">
+		            <div class="row">
+                        <div class="col-md-4 col-xs-12 col-md-push-4 header-search">
+					        <div class="uk-form form">
+                                <VIT:Position runat="server" ID="psTop"></VIT:Position>
+					        </div>
+				        </div><!-- .header-search -->
+			            <div class="col-md-4 col-xs-6 col-md-pull-4 logo" style="text-align:center">
+                            <a href="/" title="<%=this.Company.FullName %>">
+                                <img src="<%=HREF.DomainStore + this.Company.Image.FullPath %>.webp" alt="<%=this.Company.FullName %>"/>
+                            </a>
+			            </div>		
+			            <div class="col-md-4 col-xs-6" style="text-align:center" id="carts">
+				            <a class="header-cart" href="<%=HREF.LinkComponent("Cart","gio-hang", true) %>" title="Giỏ hàng">
+					            <img src="/templates/t02/img/icon_cart.png" alt="Giỏ hàng"><span id="hanggio" class="quantity">(<%=GioHang.Select(o => o.Quantity).Sum() %>) sản phẩm</span>
+				            </a>
+                        </div>
+			        </div>
+	            </div>
+            </section><!-- .upper -->
+
+            <nav class="navbar navbar-default">
+                <div class="container">
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        </button>
+                        <a class="navbar-brand" href="/" title="<%=this.Company.FullName %>">
+                            <%=Company.DisplayName %>
+                        </a>
+                    </div>
+                    <div id="navbar" class="navbar-collapse collapse">
+                        <ul class="nav navbar-nav navbar-right">
+                            <li id="mnuHome"><a href="/">Trang chủ</a></li>
+                            <li id="mnuAboutUs"><a href="<%=HREF.LinkComponent("AboutUs", "gioi-thieu", true) %>">Giới thiệu</a></li>
+                            <%foreach (var item in this.Menu)
+			                {%>
+                                <%if(item.Children != null && item.Children.Count > 0) {%>
+                                <li id="mnu<%=item.Id %>" class="dropdown mnu<%=item.Component %>">
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><%=item.Title %> <span class="caret"></span></a>
+                                    <ul class="dropdown-menu">
+                                    <%foreach (var child in item.Children)
+					                {%>
+                                        <li><a href="<%=child.Url%>"><%=child.Title%></a></li>
+					                <%} %>
+                                    </ul>
+                                </li>
+                                <%} else { %>
+                                <li id="mnu<%=item.Id %>" class="mnu<%=item.Component %>">
+                                    <a href="<%=item.Url%>"><%=item.Title%></a>
+                                </li>
+                                <%} %> 
+			                <%} %>
+                            <li id="mnuContact"><a href="<%=HREF.LinkComponent("Contact", "lien-he", true) %>">Liên hệ</a></li>
+                        </ul>
+                    </div><!--/.nav-collapse -->
+                </div>
+            </nav>
+        </header>
+        
+        <asp:ContentPlaceHolder ID="MainContent" runat="server"></asp:ContentPlaceHolder>
+
+        <footer class="footer"><!-- FOOTER -->
+	<div class="container">
+                <div class="row">                
+                    <div class="col-lg-3 col-md-3 col-sm-6">
+                        <h3><%=this.Company.DisplayName %></h3>
+					    <p><%=this.Company.Brief.Replace("\n","<br />") %></p>
+				    </div>
+                    <div class="col-lg-3 col-md-3 col-sm-6">
+				        <VIT:Position runat="server" ID="psFooterLeft" SkinName="Empty"></VIT:Position>
+                    </div>
+                    <div class="col-lg-3 col-md-3 col-sm-6">
+                        <VIT:Position runat="server" ID="psFooterRight" SkinName="Empty"></VIT:Position>
+                    </div>
+                    <div class="col-lg-3 col-md-3 col-sm-6 contact-footer-info">
+						<h3>Thông tin liên hệ</h3>
+						<ul class="menu" style="color:#000">
+                            <li><i class="glyphicon glyphicon-globe"></i> <%=this.Company.DisplayName %></li>
+							<li><i class="glyphicon glyphicon-screenshot"></i> <%=this.Company.Branches[0].Address %></li>
+                            <li><i class="glyphicon glyphicon-earphone"></i> <a href="tel:<%=this.Company.Branches[0].Phone %>"><%=this.Company.Branches[0].Phone %></a></li>
+							<li><i class="glyphicon glyphicon-envelope"></i><a href="mailto:<%=this.Company.Branches[0].Email %>"> <%=this.Company.Branches[0].Email %></a></li>
+						</ul>
+					</div>
+                </div>
+		    </div>
+</footer>
+
+    <input type="hidden" id="ProdicyId" value="" />
+    <div id="buyModal" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title" >Thêm vào giỏ hàng</h4>
+          </div>
+          <div class="modal-body">
+              <div style="padding:20px">
+              <div class="row">
+                  <div class="col-md-5">
+                      <img id="muaImage" style="width:100%"/>
+                  </div>
+                  <div class="col-md-7">
+                      <div id="muaTitle"></div>
+                      <hr />
+                      <div id="muaPrice"></div>
+                      <br />
+                      <div id="muaBrief"></div>
+                      <br />
+                      <label>Số lượng muốn mua:</label> <input type="number" value="1" id="txtQuantity" placeholder="Nhập số lượng" class="form-control" style="display:unset"/>
+                  </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-info" onclick="AddToCart(false);" data-dismiss="modal">Tiếp tục mua hàng</button>
+            <button type="button" class="btn btn-warning" onclick="AddToCart(true);">Vào giỏ hàng</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <script src="/Templates/t02/js/bootstrap.min.js"></script>
+
+    <script type="text/javascript">
+        function SelectProduct(id, title, image, brief, price) {
+            $("#ProdicyId").val(id);
+            $("#muaTitle").html(title);
+            $("#muaImage").attr("src", image);
+            $("#muaBrief").html(brief);
+            $("#muaPrice").html("Giá: " + price + " đ");
+
+            document.getElementById('buyModal').style.display='block';
+        }
+
+         // Send the rating information somewhere using Ajax or something like that.
+        function AddToCart(go) {
+            var productQuantity = $("#txtQuantity").val();
+            var proId = $("#ProdicyId").val();
+            var productMin = $('#txtQuantity').attr('min');
+            if (parseInt(productQuantity, 10) < parseInt(productMin, 10)) {
+                alert('Số lượng mua ít nhất là ' + productMin + ', bạn không thể mua ' + productQuantity + ' sản phẩm');
+            }
+            else {
+                $.ajax({
+                    type: "POST",
+                    url: "<%=HREF.BaseUrl %>JsonPost.aspx/AddProductsToCarts",
+                    data: JSON.stringify({ productId: proId, quantity: productQuantity, properties: '', addonIds: '' }),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (data) {
+                        if (data != "") {
+                            if (go == true) {
+                                location.href = '<%=HREF.BaseUrl %>/cart/gio-hang';
+                            } else {
+                                $.ajax({
+                                    type: "POST",
+                                    url: "<%=HREF.BaseUrl %>JsonPost.aspx/GetCarts",
+                                    contentType: "application/json; charset=utf-8",
+                                    dataType: "json",
+                                    success: function (data) {
+                                        var total = 0;
+                                        for (var i = 0; i < data.d.length; i++) {
+                                            total += data.d[i].Quantity;
+                                        }
+                                        $("#hanggio").text('('+ total +') sản phẩm');
+                                    }
+                                });
+                            }
+                        }
+                    }
+                });
+            }
+        }
+    </script>
+    
+</body>
+</html>
