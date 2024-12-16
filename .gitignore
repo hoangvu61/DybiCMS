@@ -855,3 +855,12 @@
 /Web.Admin/obj/Debug/net7.0/Web.Admin.GeneratedMSBuildEditorConfig.editorconfig
 /Web.Admin/obj/Debug/net7.0/Web.Admin.pdb
 /Web.Admin/obj/Debug/net7.0/Web.Admin.sourcelink.json
+/Dybi.Website/Library/.vs
+/Dybi.Website/Library/bin
+/Dybi.Website/Library.Web/.vs
+/Dybi.Website/Library.Web/bin
+/Dybi.Website/Library.Web/obj
+/Dybi.Website/Web.Asp/bin
+/Dybi.Website/Web.Asp/obj
+/Dybi.Website/Web.Model/bin
+/Dybi.Website/Web.Model/obj
