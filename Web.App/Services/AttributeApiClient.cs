@@ -1,4 +1,4 @@
-﻿using Library;
+﻿using Dybi.Library;
 using Web.Models;
 
 namespace Web.App.Services

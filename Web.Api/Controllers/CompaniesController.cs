@@ -12,7 +12,7 @@ using Web.Models.Enums;
 using Web.Models.SeedWork;
 using System.Security.Cryptography;
 using System.Text;
-using Library;
+using Dybi.Library;
 
 namespace Web.Api.Controllers
 {

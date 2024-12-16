@@ -1,4 +1,4 @@
-﻿namespace Library.Extensions
+﻿namespace Dybi.Library.Extensions
 {
     using System.Xml;
     using System.Xml.Linq;

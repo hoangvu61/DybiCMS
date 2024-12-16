@@ -1,5 +1,5 @@
 ﻿using Web.Models;
-using Library;
+using Dybi.Library;
 
 namespace Web.Admin.Services
 {

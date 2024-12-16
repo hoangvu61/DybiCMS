@@ -1,4 +1,4 @@
-﻿namespace Library.Extensions
+﻿namespace Dybi.Library.Extensions
 {
     internal static class StringExtensions
     {

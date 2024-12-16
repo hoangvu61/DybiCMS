@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Library\Library.csproj" />
+    <ProjectReference Include="..\Library\Dybi.Library.csproj" />
     <ProjectReference Include="..\Web.Models\Web.Models.csproj" />
   </ItemGroup>
 

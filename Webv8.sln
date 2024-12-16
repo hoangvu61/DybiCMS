@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Web.Models", "Web.Models\We
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dybi.App", "Dybi.App\Dybi.App.csproj", "{F5E92B1E-E8E7-4EF5-947F-E6FE6B90B8AB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Library", "Library\Library.csproj", "{0EF77AA3-4E7F-4454-B5A4-4DE308489FA0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dybi.Library", "Library\Dybi.Library.csproj", "{0EF77AA3-4E7F-4454-B5A4-4DE308489FA0}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Web.Admin", "Web.Admin\Web.Admin.csproj", "{8CA1E737-B9E1-41F3-9643-B3F95E2711EE}"
 EndProject

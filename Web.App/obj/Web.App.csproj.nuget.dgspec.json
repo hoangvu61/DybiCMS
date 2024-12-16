@@ -4,12 +4,12 @@
     "D:\\Working\\DybiWeb\\DybiCMS\\Web.App\\Web.App.csproj": {}
   },
   "projects": {
-    "D:\\Working\\DybiWeb\\DybiCMS\\Library\\Library.csproj": {
+    "D:\\Working\\DybiWeb\\DybiCMS\\Library\\Dybi.Library.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Working\\DybiWeb\\DybiCMS\\Library\\Library.csproj",
-        "projectName": "Library",
-        "projectPath": "D:\\Working\\DybiWeb\\DybiCMS\\Library\\Library.csproj",
+        "projectUniqueName": "D:\\Working\\DybiWeb\\DybiCMS\\Library\\Dybi.Library.csproj",
+        "projectName": "Dybi.Library",
+        "projectPath": "D:\\Working\\DybiWeb\\DybiCMS\\Library\\Dybi.Library.csproj",
         "packagesPath": "C:\\Users\\itel\\.nuget\\packages\\",
         "outputPath": "D:\\Working\\DybiWeb\\DybiCMS\\Library\\obj\\",
         "projectStyle": "PackageReference",
@@ -104,8 +104,8 @@
           "net7.0": {
             "targetAlias": "net7.0",
             "projectReferences": {
-              "D:\\Working\\DybiWeb\\DybiCMS\\Library\\Library.csproj": {
-                "projectPath": "D:\\Working\\DybiWeb\\DybiCMS\\Library\\Library.csproj"
+              "D:\\Working\\DybiWeb\\DybiCMS\\Library\\Dybi.Library.csproj": {
+                "projectPath": "D:\\Working\\DybiWeb\\DybiCMS\\Library\\Dybi.Library.csproj"
               },
               "D:\\Working\\DybiWeb\\DybiCMS\\Web.Models\\Web.Models.csproj": {
                 "projectPath": "D:\\Working\\DybiWeb\\DybiCMS\\Web.Models\\Web.Models.csproj"

@@ -3,7 +3,7 @@ using System.Net;
 using System.Net.Http.Json;
 using Newtonsoft.Json;
 
-namespace Library
+namespace Dybi.Library
 {
     public class ApiCaller
     {

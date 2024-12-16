@@ -619,17 +619,17 @@
           "buildTransitive/net6.0/System.Text.Json.targets": {}
         }
       },
-      "Library/1.0.0": {
+      "Dybi.Library/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v7.0",
         "dependencies": {
           "Newtonsoft.Json": "13.0.3"
         },
         "compile": {
-          "bin/placeholder/Library.dll": {}
+          "bin/placeholder/Dybi.Library.dll": {}
         },
         "runtime": {
-          "bin/placeholder/Library.dll": {}
+          "bin/placeholder/Dybi.Library.dll": {}
         }
       },
       "Web.Models/1.0.0": {
@@ -1255,17 +1255,17 @@
           "buildTransitive/net6.0/System.Text.Json.targets": {}
         }
       },
-      "Library/1.0.0": {
+      "Dybi.Library/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v7.0",
         "dependencies": {
           "Newtonsoft.Json": "13.0.3"
         },
         "compile": {
-          "bin/placeholder/Library.dll": {}
+          "bin/placeholder/Dybi.Library.dll": {}
         },
         "runtime": {
-          "bin/placeholder/Library.dll": {}
+          "bin/placeholder/Dybi.Library.dll": {}
         }
       },
       "Web.Models/1.0.0": {
@@ -2398,10 +2398,10 @@
         "useSharedDesignerContext.txt"
       ]
     },
-    "Library/1.0.0": {
+    "Dybi.Library/1.0.0": {
       "type": "project",
-      "path": "../Library/Library.csproj",
-      "msbuildProject": "../Library/Library.csproj"
+      "path": "../Library/Dybi.Library.csproj",
+      "msbuildProject": "../Library/Dybi.Library.csproj"
     },
     "Web.Models/1.0.0": {
       "type": "project",
@@ -2414,7 +2414,7 @@
       "Blazored.LocalStorage >= 4.5.0",
       "Blazored.TextEditor >= 1.1.0",
       "Blazored.Toast >= 4.2.1",
-      "Library >= 1.0.0",
+      "Dybi.Library >= 1.0.0",
       "Microsoft.AspNetCore.Components.Authorization >= 7.0.5",
       "Microsoft.AspNetCore.Components.WebAssembly >= 7.0.5",
       "Microsoft.AspNetCore.Components.WebAssembly.DevServer >= 7.0.5",
@@ -2459,8 +2459,8 @@
         "net7.0": {
           "targetAlias": "net7.0",
           "projectReferences": {
-            "D:\\Working\\DybiWeb\\DybiCMS\\Library\\Library.csproj": {
-              "projectPath": "D:\\Working\\DybiWeb\\DybiCMS\\Library\\Library.csproj"
+            "D:\\Working\\DybiWeb\\DybiCMS\\Library\\Dybi.Library.csproj": {
+              "projectPath": "D:\\Working\\DybiWeb\\DybiCMS\\Library\\Dybi.Library.csproj"
             },
             "D:\\Working\\DybiWeb\\DybiCMS\\Web.Models\\Web.Models.csproj": {
               "projectPath": "D:\\Working\\DybiWeb\\DybiCMS\\Web.Models\\Web.Models.csproj"

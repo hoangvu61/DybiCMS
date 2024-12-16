@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using Web.Models;
-using Library;
+using Dybi.Library;
 
 namespace Web.Admin.Services
 {

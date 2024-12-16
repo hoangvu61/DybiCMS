@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace Library
+namespace Dybi.Library
 {
     public class GenerateRandomCode
     {

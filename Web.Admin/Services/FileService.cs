@@ -1,6 +1,6 @@
 ﻿using System.Net.Http.Json;
 using Web.Models.SeedWork;
-using Library;
+using Dybi.Library;
 
 namespace Web.Admin.Services
 {

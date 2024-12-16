@@ -1,6 +1,6 @@
 using Blazored.LocalStorage;
 using Blazored.Toast;
-using Library;
+using Dybi.Library;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;

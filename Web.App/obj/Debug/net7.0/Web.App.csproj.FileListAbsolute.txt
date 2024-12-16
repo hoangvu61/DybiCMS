@@ -404,8 +404,6 @@ D:\Working\DybiWeb\DybiCMS\Web.App\bin\Debug\net7.0\wwwroot\_framework\System.Xm
 D:\Working\DybiWeb\DybiCMS\Web.App\bin\Debug\net7.0\wwwroot\_framework\System.Runtime.dll.gz
 D:\Working\DybiWeb\DybiCMS\Web.App\bin\Debug\net7.0\wwwroot\_framework\System.ComponentModel.dll.gz
 D:\Working\DybiWeb\DybiCMS\Web.App\bin\Debug\net7.0\wwwroot\_framework\blazor.boot.json
-D:\Working\DybiWeb\DybiCMS\Web.App\bin\Debug\net7.0\wwwroot\_framework\Library.dll
-D:\Working\DybiWeb\DybiCMS\Web.App\bin\Debug\net7.0\wwwroot\_framework\Library.pdb
 D:\Working\DybiWeb\DybiCMS\Web.App\bin\Debug\net7.0\wwwroot\_framework\Microsoft.AspNetCore.Authorization.dll
 D:\Working\DybiWeb\DybiCMS\Web.App\bin\Debug\net7.0\wwwroot\_framework\Microsoft.AspNetCore.Components.dll
 D:\Working\DybiWeb\DybiCMS\Web.App\bin\Debug\net7.0\wwwroot\_framework\Microsoft.AspNetCore.Components.Forms.dll
@@ -429,11 +427,9 @@ D:\Working\DybiWeb\DybiCMS\Web.App\bin\Debug\net7.0\wwwroot\_framework\Microsoft
 D:\Working\DybiWeb\DybiCMS\Web.App\bin\Debug\net7.0\wwwroot\_framework\Microsoft.JSInterop.dll.gz
 D:\Working\DybiWeb\DybiCMS\Web.App\bin\Debug\net7.0\wwwroot\_framework\Web.App.dll.gz
 D:\Working\DybiWeb\DybiCMS\Web.App\bin\Debug\net7.0\wwwroot\_framework\Web.Models.dll.gz
-D:\Working\DybiWeb\DybiCMS\Web.App\bin\Debug\net7.0\wwwroot\_framework\Library.pdb.gz
 D:\Working\DybiWeb\DybiCMS\Web.App\bin\Debug\net7.0\wwwroot\_framework\Web.Models.pdb.gz
 D:\Working\DybiWeb\DybiCMS\Web.App\bin\Debug\net7.0\wwwroot\_framework\Microsoft.AspNetCore.Metadata.dll.gz
 D:\Working\DybiWeb\DybiCMS\Web.App\bin\Debug\net7.0\wwwroot\_framework\blazor.boot.json.gz
-D:\Working\DybiWeb\DybiCMS\Web.App\bin\Debug\net7.0\wwwroot\_framework\Library.dll.gz
 D:\Working\DybiWeb\DybiCMS\Web.App\bin\Debug\net7.0\wwwroot\_framework\Microsoft.AspNetCore.Authorization.dll.gz
 D:\Working\DybiWeb\DybiCMS\Web.App\bin\Debug\net7.0\Web.App.staticwebassets.runtime.json
 D:\Working\DybiWeb\DybiCMS\Web.App\bin\Debug\net7.0\Web.App.dll
@@ -645,9 +641,7 @@ D:\Working\DybiWeb\DybiCMS\Web.App\bin\Debug\net7.0\dotnet.wasm
 D:\Working\DybiWeb\DybiCMS\Web.App\bin\Debug\net7.0\icudt_CJK.dat
 D:\Working\DybiWeb\DybiCMS\Web.App\bin\Debug\net7.0\icudt_EFIGS.dat
 D:\Working\DybiWeb\DybiCMS\Web.App\bin\Debug\net7.0\icudt_no_CJK.dat
-D:\Working\DybiWeb\DybiCMS\Web.App\bin\Debug\net7.0\Library.dll
 D:\Working\DybiWeb\DybiCMS\Web.App\bin\Debug\net7.0\Web.Models.dll
-D:\Working\DybiWeb\DybiCMS\Web.App\bin\Debug\net7.0\Library.pdb
 D:\Working\DybiWeb\DybiCMS\Web.App\bin\Debug\net7.0\Web.Models.pdb
 D:\Working\DybiWeb\DybiCMS\Web.App\obj\Debug\net7.0\blazor.build.boot-extension.json
 D:\Working\DybiWeb\DybiCMS\Web.App\obj\Debug\net7.0\blazor.boot.json
@@ -871,9 +865,7 @@ D:\Working\DybiWeb\DybiCMS\Web.App\obj\Debug\net7.0\compressed\trgodjm1r4.gz
 D:\Working\DybiWeb\DybiCMS\Web.App\obj\Debug\net7.0\compressed\ap2r5si5t5.gz
 D:\Working\DybiWeb\DybiCMS\Web.App\obj\Debug\net7.0\compressed\sguhetkwni.gz
 D:\Working\DybiWeb\DybiCMS\Web.App\obj\Debug\net7.0\compressed\0qnwo6iw01.gz
-D:\Working\DybiWeb\DybiCMS\Web.App\obj\Debug\net7.0\compressed\wf9s5s8xan.gz
 D:\Working\DybiWeb\DybiCMS\Web.App\obj\Debug\net7.0\compressed\lbmwlz2wxi.gz
-D:\Working\DybiWeb\DybiCMS\Web.App\obj\Debug\net7.0\compressed\m7wuurpf43.gz
 D:\Working\DybiWeb\DybiCMS\Web.App\obj\Debug\net7.0\compressed\mcdbo7l90y.gz
 D:\Working\DybiWeb\DybiCMS\Web.App\obj\Debug\net7.0\compressed\kqsmmpv2e9.gz
 D:\Working\DybiWeb\DybiCMS\Web.App\obj\Debug\net7.0\compressed\0mson2jb2q.gz
@@ -883,3 +875,11 @@ D:\Working\DybiWeb\DybiCMS\Web.App\obj\Debug\net7.0\Web.App.dll
 D:\Working\DybiWeb\DybiCMS\Web.App\obj\Debug\net7.0\refint\Web.App.dll
 D:\Working\DybiWeb\DybiCMS\Web.App\obj\Debug\net7.0\Web.App.pdb
 D:\Working\DybiWeb\DybiCMS\Web.App\obj\Debug\net7.0\ref\Web.App.dll
+D:\Working\DybiWeb\DybiCMS\Web.App\bin\Debug\net7.0\wwwroot\_framework\Dybi.Library.dll
+D:\Working\DybiWeb\DybiCMS\Web.App\bin\Debug\net7.0\wwwroot\_framework\Dybi.Library.pdb
+D:\Working\DybiWeb\DybiCMS\Web.App\bin\Debug\net7.0\wwwroot\_framework\Dybi.Library.pdb.gz
+D:\Working\DybiWeb\DybiCMS\Web.App\bin\Debug\net7.0\wwwroot\_framework\Dybi.Library.dll.gz
+D:\Working\DybiWeb\DybiCMS\Web.App\bin\Debug\net7.0\Dybi.Library.dll
+D:\Working\DybiWeb\DybiCMS\Web.App\bin\Debug\net7.0\Dybi.Library.pdb
+D:\Working\DybiWeb\DybiCMS\Web.App\obj\Debug\net7.0\compressed\af3jju582g.gz
+D:\Working\DybiWeb\DybiCMS\Web.App\obj\Debug\net7.0\compressed\9rs63i08cj.gz
