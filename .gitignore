@@ -864,3 +864,5 @@
 /Dybi.Website/Web.Asp/obj
 /Dybi.Website/Web.Model/bin
 /Dybi.Website/Web.Model/obj
+*.pdb
+/Web.Api/bin/Debug/net7.0/Dybi.Library.pdb

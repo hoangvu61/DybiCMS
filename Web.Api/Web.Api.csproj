@@ -43,6 +43,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Dybi.Website\Web.Model\Web.Model.csproj" />
     <ProjectReference Include="..\Library\Dybi.Library.csproj" />
     <ProjectReference Include="..\Web.Models\Web.Models.csproj" />
   </ItemGroup>
