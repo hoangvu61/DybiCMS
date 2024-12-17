@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: /Error.aspx*
+Disallow: /JsonPost.aspx*
+Disallow: /Includes/*
