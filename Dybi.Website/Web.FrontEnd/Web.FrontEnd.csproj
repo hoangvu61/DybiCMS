@@ -226,6 +226,10 @@
     <Content Include="Templates\T13\images\DT_KID.jpg" />
     <Content Include="Templates\T13\images\DT_MAN.jpg" />
     <Content Include="Templates\T13\images\DT_WOMAN.jpg" />
+    <Content Include="Templates\T18\Components\ProductOrder.aspx" />
+    <Content Include="Templates\T18\Components\ProductOrders.aspx" />
+    <Content Include="Templates\T18\Skins\ProductOrder.ascx" />
+    <Content Include="Templates\T18\Skins\ProductOrders.ascx" />
     <Content Include="Templates\T31\Components\AboutUs.aspx" />
     <Content Include="Templates\T31\Components\Article.aspx" />
     <Content Include="Templates\T31\Components\Articles.aspx" />
