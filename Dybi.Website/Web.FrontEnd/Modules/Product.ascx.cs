@@ -76,7 +76,7 @@
 
             var tags = itemBLL.GetTags(Config.Id, Data.Id);
 
-            Tags = this.HREF.LinkTag("Products", tags);
+            Tags = this.HREF.LinkTag(Data.ComponentList, tags);
 
             if (!string.IsNullOrEmpty(AttributeDisplay))
             {

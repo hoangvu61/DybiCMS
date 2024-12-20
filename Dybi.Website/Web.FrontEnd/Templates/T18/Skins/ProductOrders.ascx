@@ -4,15 +4,15 @@
 <%@ Import Namespace="Library.Web"%>
 
 <!-- shop section -->
-<section class="shop_section layout_padding" style="<%=string.IsNullOrEmpty(this.Skin.BodyBackground) ? "" : ";background-color:" + this.Skin.BodyBackground %>">
+<section class="order_section layout_padding" style="<%=string.IsNullOrEmpty(this.Skin.BodyBackground) ? "" : ";background-color:" + this.Skin.BodyBackground %>">
     <div class="container">
-        <div class="heading_container heading_center" style="<%=string.IsNullOrEmpty(Skin.HeaderFontColor) ? "" : ";color:" + this.Skin.HeaderFontColor %><%=this.Skin.HeaderFontSize == 0 ? "" : ";font-size:" + this.Skin.HeaderFontSize + "px"%>">
+        <div class="heading_container" style="<%=string.IsNullOrEmpty(Skin.HeaderFontColor) ? "" : ";color:" + this.Skin.HeaderFontColor %><%=this.Skin.HeaderFontSize == 0 ? "" : ";font-size:" + this.Skin.HeaderFontSize + "px"%>">
         <%if(HREF.CurrentComponent == "home"){ %>
-            <h2 title="<%=Category.Title %>">
+            <h2 class="heading_center" title="<%=Category.Title %>">
                 <%=Title %>
             </h2>
         <%} else {%>
-            <h1 title="<%=Page.Title %>">
+            <h1 class="heading_center" title="<%=Page.Title %>">
                 <%=Title %>
                 <%=!string.IsNullOrEmpty(AttributeName) ? " - " + AttributeName : "" %> 
                 <%=!string.IsNullOrEmpty(AttributeValueName) ? " : " + AttributeValueName : "" %>
@@ -22,13 +22,12 @@
             <p>
                 <%=Category.Brief %>
             </p>
-
-             <%if(HREF.CurrentComponent != "home"){ %>
-                 <div class="category-contain">
-                     <%=Category.Content %>
-                 </div>
-             <%} %>
         </div>
+        <%if(HREF.CurrentComponent != "home" && string.IsNullOrEmpty(TagName)){ %>
+            <div class="mt-5 pb-5 border_bottom_1">
+                <%=Category.Content %>
+            </div>
+        <%} %>
     </div>
     <div class="<%= HREF.CurrentComponent == "home" ? "container" : "p-4"%>">
         <div class="row">
@@ -54,18 +53,9 @@
                             <a href="<%=HREF.LinkComponent(Category.ComponentDetail, item.Title.ConvertToUnSign(), item.Id, SettingsManager.Constants.SendProduct, item.Id)%>" title="<%=item.Title %>">
                                 <%=item.Title %>
                             </a>
-                            <%if(item.DiscountType > 0) {%>
-                            <span style="text-decoration:line-through">
-                                <%=item.Price.ToString("N0") %> <sup>đ</sup>
-                            </span>
-                            <%} %>
-                            <span class="price">
-                                <%if(item.Price > 0) {%>
-                                    <%=item.PriceAfterDiscount.ToString("N0") %> <sup>đ</sup>
-                                <%} else {%>
-                                    Liên hệ
-                                <%} %>
-                            </span>
+                            <p>
+                                <%=item.Brief %>
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -73,7 +63,6 @@
             <%} %>
         </div>
 
-       
         <div class="btn-box">
             <%if(HREF.CurrentComponent == "home") {%>
                 <a href="<%=HREF.LinkComponent(Category.ComponentList, Category.Title.ConvertToUnSign(), Category.Id, SettingsManager.Constants.SendCategory, Category.Id)%>" title="<%=Category.Title %>">
@@ -89,6 +78,12 @@
                 <%} %>
             <%} %>
         </div>
+
+        <%if(!string.IsNullOrEmpty(TagName)){ %>
+            <div class="mt-5 pt-5 border_top_1">
+                <%=Category.Content %>
+            </div>
+        <%} %>
     </div>
 </section>
 <!-- end shop section -->

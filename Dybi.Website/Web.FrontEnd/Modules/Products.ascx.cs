@@ -87,8 +87,7 @@
                     TagName = contentBll.GetTag(Config.Id, tag);
                     CacheProvider.SetCache(TagName, CacheProvider.Keys.Tag, Config.Id, tag);
                 }
-            }
-                
+            }   
                 
             this.Data = this.productBll.GetProducts(
                             CategoryId,

@@ -6,13 +6,13 @@
 <!-- shop section -->
 <section class="shop_section layout_padding" style="<%=string.IsNullOrEmpty(this.Skin.BodyBackground) ? "" : ";background-color:" + this.Skin.BodyBackground %>">
     <div class="container">
-        <div class="heading_container heading_center" style="<%=string.IsNullOrEmpty(Skin.HeaderFontColor) ? "" : ";color:" + this.Skin.HeaderFontColor %><%=this.Skin.HeaderFontSize == 0 ? "" : ";font-size:" + this.Skin.HeaderFontSize + "px"%>">
+        <div class="heading_container" style="<%=string.IsNullOrEmpty(Skin.HeaderFontColor) ? "" : ";color:" + this.Skin.HeaderFontColor %><%=this.Skin.HeaderFontSize == 0 ? "" : ";font-size:" + this.Skin.HeaderFontSize + "px"%>">
         <%if(HREF.CurrentComponent == "home"){ %>
-            <h2 title="<%=Category.Title %>">
+            <h2 class="heading_center" title="<%=Category.Title %>">
                 <%=Title %>
             </h2>
         <%} else {%>
-            <h1 title="<%=Page.Title %>">
+            <h1 class="heading_center" title="<%=Page.Title %>">
                 <%=Title %>
                 <%=!string.IsNullOrEmpty(AttributeName) ? " - " + AttributeName : "" %> 
                 <%=!string.IsNullOrEmpty(AttributeValueName) ? " : " + AttributeValueName : "" %>
@@ -86,7 +86,7 @@
         
 
         <%if(HREF.CurrentComponent != "home"){ %>
-            <div class="category-contain">
+            <div class="category-contain mt-5">
                 <%=Category.Content %>
             </div>
         <%} %>

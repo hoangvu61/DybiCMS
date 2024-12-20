@@ -87,37 +87,22 @@
                         </p> 
                         <table border="1" style="width:100%">
                             <%foreach(var attribute in Attributes){ %>
-                                <%if(!string.IsNullOrEmpty(attribute.ValueName) && attribute.Id != "URL" && attribute.Id != "BANNER"){ %>
+                                <%if (!string.IsNullOrEmpty(attribute.ValueName))
+                                    { %>
                                     <tr>
                                         <td>
                                             <%=attribute.Name %>
                                         </td>
                                         <td>
-                                            <%=attribute.ValueName == "True" ? "Có" : attribute.ValueName == "False" ? "Không" : attribute.ValueName.Replace("\n","<br />") %>
+                                            <%=attribute.ValueName == "True" ? "Có" : attribute.ValueName == "False" ? "Không" : attribute.ValueName.Replace("\n", "<br />") %>
                                         </td>
                                     </tr>
                                 <%} %>
-                            <%} %>
+                            <%}%>
                         </table>
                         <p class="price py-3">
-                            <%if(Data.DiscountType > 0) {%>
-                            <del>
-                                <%=Data.Price.ToString("N0") %> <sup>₫</sup>
-                            </del>
-                            <%} %>
-                            <%if(Data.Price > 0) {%>
-                                <%=Data.PriceAfterDiscount.ToString("N0") %> <sup>₫</sup>
-                            <%} else {%>
-                                Liên hệ
-                            <%} %>
+                            Liên hệ đặt hàng: <a href="tel:<%=Component.Company.Branches[0].Phone %>"><%=Component.Company.Branches[0].Phone %></a>
                         </p>
-                        <%if(Data.Price > 0) {%>
-                            <%if(Attributes.Any(e => e.Id == "URL")){ %>
-                                <a class="btn btn-warning" href="<%=Attributes.FirstOrDefault(e => e.Id == "URL").Value %>" target="_blank" rel="nofollow">Mua ngay</a>
-                            <%} else { %>
-                                <button type="button" onclick="AddToCart()" class="btn3">Chọn mua</button>
-                            <%} %>
-                        <%} %>
                     </div>
                     
                 </div>
@@ -240,7 +225,7 @@
         <div class="productdetail py-3">
             <%=Data.Content%> 
             <div class="tag">
-                <%=string.Join(", ", Tags)%> 
+                Tag: <%=string.Join(", ", Tags)%>  
             </div>
         </div>
     </article>

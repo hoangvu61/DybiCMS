@@ -1,38 +1,14 @@
 @import url("https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Open+Sans:wght@300;400;600;700&display=swap");
-body {
-  font-family: "Open Sans", sans-serif;
-  color: #0c0c0c;
-  background-color: #ffffff;
-  overflow-x: hidden;
-}
-
+body {font-family: "Open Sans", sans-serif;color: #0c0c0c; background-color: #ffffff;overflow-x: hidden;}
 a{color:#3fc1c9}
-
 p{margin:0px;padding:0px}
 
-.layout_padding {
-  padding: 90px 0;
-}
-
-.layout_padding2 {
-  padding: 75px 0;
-}
-
-.layout_padding2-top {
-  padding-top: 75px;
-}
-
-.layout_padding2-bottom {
-  padding-bottom: 75px;
-}
-
-.layout_padding-top {
-  padding-top: 90px;
-}
-
-.layout_padding-bottom {
-  padding-bottom: 90px;
-}
+.layout_padding {padding: 90px 0;}
+.layout_padding2 {padding: 75px 0;}
+.layout_padding2-top {padding-top: 75px;}
+.layout_padding2-bottom {padding-bottom: 75px;}
+.layout_padding-top { padding-top: 90px;}
+.layout_padding-bottom {padding-bottom: 90px;}
 
 .heading_container {
   display: -webkit-box;
@@ -82,6 +58,11 @@ a:focus {
   -webkit-box-shadow: none;
           box-shadow: none;
 }
+
+.border_top_1{border-top: 1px solid #fff}
+.border_top_2{border-top: 1px solid #000}
+.border_bottom_1{border-bottom: 1px solid #fff}
+.border_bottom_2{border-bottom: 1px solid #000}
 
 /*header section*/
 .hero_area {
@@ -549,6 +530,16 @@ a:focus {
   border: none;
 }
 
+.order_section {background-color: #3fc1c9;color:#fff}
+.order_section .heading_container { margin-bottom: 20px;}
+.order_section .product-item{padding-top:25px;height:100%}
+.order_section .box {background-color: #ffffff;position: relative;padding: 10px;text-align: justify;height:100%}
+.order_section .box .img-box {display: -webkit-box;display: -ms-flexbox;display: flex;-webkit-box-pack: center;-ms-flex-pack: center;justify-content: center;-webkit-box-align: center;-ms-flex-align: center;align-items: center;background-color: #eeeeee;}
+.order_section .box .img-box img {max-width: 100%;}
+.order_section .box .detail-box {margin-top: 15px;}
+.order_section .box .detail-box a {display: inline-block; color: #000000;font-weight: 600;font-size: 16px;margin-bottom: 10px;}
+.order_section .box .detail-box p {font-size: 14px;color:#000}
+
 /* client section start */
 .client_section .heading_container {
     margin-bottom: 30px;
@@ -880,7 +871,7 @@ a:focus {
 /*# sourceMappingURL=style.css.map */
 
 .breadcrumb{margin:0px}
-.category-contain{margin-top:90px; padding:20px; background:#fff}
+.category-contain{padding:20px; background:#fff}
 
 .product_section .price{font-size:32px; color:#ee4d2d}
 .product_section .price del{font-size:24px; color:#ccc; margin-right:10px}
